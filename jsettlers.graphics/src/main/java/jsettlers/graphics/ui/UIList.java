@@ -126,13 +126,13 @@ public class UIList<T> implements UIElement {
 			ImageProvider provider = ImageProvider.getInstance();
 			provider.getImage(SCROLLBAR_TOP).drawImageAtRect(gl,
 					minX + width * RIGHTBORDER, sliderMaxY - edgeHeight,
-					 width, sliderMaxY);
+					 width, sliderMaxY, 1);
 			provider.getImage(SCROLLBAR_MIDDLE).drawImageAtRect(gl,
 					minX + width * RIGHTBORDER, edgeHeight,
-					 width, sliderMaxY - edgeHeight);
+					 width, sliderMaxY - edgeHeight, 1);
 			provider.getImage(SCROLLBAR_BOTTOM).drawImageAtRect(gl,
 					minX + width * RIGHTBORDER, sliderMinY, width,
-					 edgeHeight);
+					 edgeHeight, 1);
 		}
 	}
 

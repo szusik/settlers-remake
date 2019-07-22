@@ -111,13 +111,13 @@ public class ImageIndexImage extends Image {
 	private UnifiedDrawHandle imageRectHandle = null;
 
 	@Override
-	public void drawImageAtRect(GLDrawContext gl, float x, float y, float width, float height) {
+	public void drawImageAtRect(GLDrawContext gl, float x, float y, float width, float height, float intensity) {
 
 		if(imageRectHandle == null || !imageRectHandle.isValid()) imageRectHandle = gl.createUnifiedDrawCall(4, "image-index", texture.getTextureIndex(gl), GLDrawContext.createQuadGeometry(0,1, 1, 0, umin, vmin, umax, vmax));
 		draw(gl, imageRectHandle, x, y, 0, width, height, 0, null, 1);
 
 		if (torso != null) {
-			torso.drawImageAtRect(gl, x, y, width, height);
+			torso.drawImageAtRect(gl, x, y, width, height, 1);
 		}
 	}
 

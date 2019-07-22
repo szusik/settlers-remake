@@ -37,6 +37,7 @@ import jsettlers.logic.movable.strategies.DiggerStrategy;
 import jsettlers.logic.movable.strategies.military.BowmanStrategy;
 import jsettlers.logic.movable.strategies.military.FerryStrategy;
 import jsettlers.logic.movable.strategies.military.InfantryStrategy;
+import jsettlers.logic.movable.strategies.military.MageStrategy;
 import jsettlers.logic.movable.strategies.specialists.DummySpecialistStrategy;
 import jsettlers.logic.movable.strategies.specialists.GeologistStrategy;
 import jsettlers.logic.movable.strategies.specialists.PioneerStrategy;
@@ -106,9 +107,9 @@ public abstract class MovableStrategy implements Serializable {
 			case GEOLOGIST:
 				return new GeologistStrategy(movable);
 			case THIEF:
-			case MAGE:
 				return new DummySpecialistStrategy(movable);
-
+			case MAGE:
+				return new MageStrategy(movable);
 			case DONKEY:
 				return new DonkeyStrategy(movable);
 

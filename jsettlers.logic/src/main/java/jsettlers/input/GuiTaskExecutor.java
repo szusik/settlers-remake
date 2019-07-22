@@ -27,6 +27,7 @@ import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.mutables.MutableInt;
+import jsettlers.input.tasks.CastSpellGuiTask;
 import jsettlers.input.tasks.ChangeTowerSoldiersGuiTask;
 import jsettlers.input.tasks.ChangeTradingRequestGuiTask;
 import jsettlers.input.tasks.ConstructBuildingTask;
@@ -94,6 +95,10 @@ class GuiTaskExecutor implements ITaskExecutor {
 				setWorkArea((WorkAreaGuiTask) guiTask);
 				break;
 			}
+
+			case CAST_SPELL:
+				castSpell((CastSpellGuiTask) guiTask);
+				break;
 
 			case BUILD: {
 				ConstructBuildingTask task = (ConstructBuildingTask) guiTask;
@@ -328,6 +333,14 @@ class GuiTaskExecutor implements ITaskExecutor {
 		} else {
 			sendManyMovables(targetPosition, movables);
 		}
+	}
+
+	private void castSpell(CastSpellGuiTask castSpellGuiTask) {
+		ILogicMovable priest = Movable.getMovableByID(castSpellGuiTask.getSelection().get(0));
+
+		if(priest == null) return;
+
+		priest.castSpell(castSpellGuiTask.getAt(), castSpellGuiTask.getSpell());
 	}
 
 	private void sendManyMovables(ShortPoint2D targetPosition, List<ILogicMovable> movables) {

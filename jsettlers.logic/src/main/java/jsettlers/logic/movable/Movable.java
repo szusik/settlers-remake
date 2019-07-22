@@ -36,6 +36,7 @@ import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
@@ -46,6 +47,7 @@ import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.strategies.FleeStrategy;
+import jsettlers.logic.movable.strategies.military.MageStrategy;
 import jsettlers.logic.movable.strategies.military.SoldierStrategy;
 import jsettlers.logic.player.Player;
 import jsettlers.logic.timer.RescheduleTimer;
@@ -1116,5 +1118,12 @@ public final class Movable implements ILogicMovable, FoWTask {
 	@Override
 	public int getNumberOfCargoStacks() {
 		return strategy.getNumberOfCargoStacks();
+	}
+
+	@Override
+	public void castSpell(ShortPoint2D at, ESpellType spell) {
+		if(strategy instanceof MageStrategy) {
+			((MageStrategy)strategy).castSpell(at, spell);
+		}
 	}
 }

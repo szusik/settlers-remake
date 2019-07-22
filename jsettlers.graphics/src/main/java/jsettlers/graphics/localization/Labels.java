@@ -25,6 +25,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.menu.EProgressState;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierType;
+import jsettlers.common.movable.ESpellType;
 
 /**
  * This class provides access to all messages.
@@ -140,6 +141,13 @@ public final class Labels extends AbstractLabels {
 	 */
 	public static String getName(EActionType action) {
 		return getString("action_" + action);
+	}
+
+	/**
+	 * Gets the name of an {@link ESpellType}
+	 */
+	public static String getName(ESpellType spell) {
+		return getString("spell_" + spell);
 	}
 
 	/**

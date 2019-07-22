@@ -40,6 +40,7 @@ public class UIPanel implements UIElement {
 	private ImageLink background;
 
 	private boolean attached = false;
+	protected float intensity = 1;
 
 	/**
 	 * Sets the background. file=-1 means no background
@@ -119,6 +120,10 @@ public class UIPanel implements UIElement {
 		}
 	}
 
+	public void setIntensity(float intensity) {
+		this.intensity = intensity;
+	}
+
 	/**
 	 * Draws an image at a given rect
 	 *
@@ -134,7 +139,7 @@ public class UIPanel implements UIElement {
 		float minY = position.getMinY();
 		float maxX = position.getMaxX();
 		float maxY = position.getMaxY();
-		image.drawImageAtRect(gl, minX, minY, maxX-minX, maxY-minY);
+		image.drawImageAtRect(gl, minX, minY, maxX-minX, maxY-minY, intensity);
 	}
 
 	protected ImageLink getBackgroundImage() {

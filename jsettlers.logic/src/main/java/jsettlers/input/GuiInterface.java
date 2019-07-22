@@ -27,6 +27,7 @@ import java8.util.function.Predicate;
 import java8.util.stream.Collectors;
 import jsettlers.algorithms.construction.ConstructionMarksThread;
 import jsettlers.common.action.BuildAction;
+import jsettlers.common.action.CastSpellAction;
 import jsettlers.common.action.ChangeTradingRequestAction;
 import jsettlers.common.action.ConvertAction;
 import jsettlers.common.action.EActionType;
@@ -54,6 +55,7 @@ import jsettlers.common.menu.UIState;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.EShipType;
 import jsettlers.common.movable.ESoldierType;
+import jsettlers.common.movable.ESpellType;
 import jsettlers.common.movable.IIDable;
 import jsettlers.common.movable.IMovable;
 import jsettlers.common.player.IPlayer;
@@ -61,6 +63,7 @@ import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 import jsettlers.common.selectable.ISelectable;
+import jsettlers.input.tasks.CastSpellGuiTask;
 import jsettlers.input.tasks.ChangeTowerSoldiersGuiTask;
 import jsettlers.input.tasks.ChangeTowerSoldiersGuiTask.EChangeTowerSoldierTaskType;
 import jsettlers.input.tasks.ChangeTradingRequestGuiTask;
@@ -255,6 +258,10 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 
 			case SET_WORK_AREA:
 				setBuildingWorkArea(((PointAction) action).getPosition());
+				break;
+
+			case CAST_SPELL:
+				castSpell(((PointAction)action).getPosition(), ((CastSpellAction)action).getSpell());
 				break;
 
 			case DESTROY:
@@ -471,6 +478,13 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 		if (selected instanceof Building) {
 			scheduleTask(new WorkAreaGuiTask(EGuiAction.SET_WORK_AREA, playerId, workAreaPosition, ((Building) selected).getPosition()));
 		}
+	}
+
+	private void castSpell(ShortPoint2D at, ESpellType spell) {
+		final ISelectable selected = currentSelection.stream().filter(iSelectable -> iSelectable instanceof IMovable)
+				.sorted((iSelectable1, iSelectable2) -> ((IMovable)iSelectable1).getPosition().getOnGridDistTo(at)-
+						((IMovable)iSelectable2).getPosition().getOnGridDistTo(at)).findFirst().get();
+		scheduleTask(new CastSpellGuiTask(playerId, at, ((IMovable)selected).getID(), spell));
 	}
 
 	private void sendConvertAction(ConvertAction action) {

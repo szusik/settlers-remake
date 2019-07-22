@@ -39,7 +39,7 @@ public class EndgameStatistic implements IEndgameStatistic, Serializable {
 
 	@Override
 	public short getAmountOfProducedMana() {
-		return mannaInformation.getAmountOfManna();
+		return mannaInformation.getAmountOfProducedManna();
 	}
 
 	@Override

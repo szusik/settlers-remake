@@ -17,6 +17,7 @@ package jsettlers.graphics.ui;
 import go.graphics.GLDrawContext;
 import go.graphics.text.EFontSize;
 import go.graphics.text.TextDrawer;
+import jsettlers.common.Color;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,6 +150,7 @@ public class Label extends UIPanel {
 		super.drawAt(gl);
 
 		TextDrawer drawer = gl.getTextDrawer(size);
+		Color color = new Color(intensity, intensity, intensity, 1);
 
 		if (Double.isNaN(spaceWidth)) {
 			spaceWidth = drawer.getWidth(" ");
@@ -185,7 +187,7 @@ public class Label extends UIPanel {
 
 		y -= lineBottom;
 		for (Line line : lines) {
-			drawLine(drawer, line, y);
+			drawLine(drawer, line, y, color);
 			y -= lineHeight;
 		}
 	}
@@ -206,7 +208,7 @@ public class Label extends UIPanel {
 		return y;
 	}
 
-	private void drawLine(TextDrawer drawer, Line line, float bottom) {
+	private void drawLine(TextDrawer drawer, Line line, float bottom, Color color) {
 		float left;
 		switch (horizontalAlignment) {
 		case LEFT:
@@ -220,6 +222,6 @@ public class Label extends UIPanel {
 			left = (float) (getPosition().getCenterX() - line.linewidth / 2);
 			break;
 		}
-		drawer.drawString(left, bottom, line.string);
+		drawer.drawString(left, bottom, color, line.string);
 	}
 }

@@ -108,4 +108,6 @@ public final class Constants {
 	public static final short MOVABLE_FLEEING_MAX_RADIUS      = TOWER_ATTACKABLE_SEARCH_RADIUS;
 
 	public static int BUILDING_PLACEMENT_MAX_SEARCH_RADIUS = 3;
+
+	public static final int MAGE_CAST_DISTANCE = 10;
 }

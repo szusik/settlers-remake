@@ -39,7 +39,7 @@ public class SpecialistSelectionContent extends AbstractSelectionContent {
 	public SpecialistSelectionContent(ISelectionSet selection) {
 		panel = new UIPanel();
 
-		SoilderSelectionContent.addRowsToPanel(panel, selection, specialists);
+		SoldierSelectionContent.addRowsToPanel(panel, selection, specialists);
 
 		UIPanel stop = new LabeledButton(Labels.getString("stop"),
 				new Action(EActionType.STOP_WORKING));

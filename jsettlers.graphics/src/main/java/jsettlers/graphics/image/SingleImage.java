@@ -112,7 +112,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	}
 
 	@Override
-	public void drawImageAtRect(GLDrawContext gl, float x, float y, float width, float height) {
+	public void drawImageAtRect(GLDrawContext gl, float x, float y, float width, float height, float intensity) {
 		checkStaticHandles(gl);
 
 		// dark magic
@@ -120,7 +120,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 		float sy = height/(float)theight;
 		float tx = x - offsetX*sx;
 		float ty = y + height + offsetY*sy;
-		geometryIndex.drawSimple(EPrimitiveType.Quad, tx, ty, 0, sx, sy, null, 1);
+		geometryIndex.drawSimple(EPrimitiveType.Quad, tx, ty, 0, sx, sy, null, intensity);
 	}
 
 	@Override

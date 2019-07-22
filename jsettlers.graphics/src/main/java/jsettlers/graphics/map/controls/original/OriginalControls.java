@@ -38,8 +38,9 @@ import jsettlers.graphics.map.controls.original.panel.content.ContentType;
 import jsettlers.graphics.map.controls.original.panel.content.MessageContent;
 import jsettlers.graphics.map.controls.original.panel.selection.BearerSelectionContent;
 import jsettlers.graphics.map.controls.original.panel.selection.BuildingSelectionContent;
+import jsettlers.graphics.map.controls.original.panel.selection.PriestSelectionContent;
 import jsettlers.graphics.map.controls.original.panel.selection.ShipSelectionContent;
-import jsettlers.graphics.map.controls.original.panel.selection.SoilderSelectionContent;
+import jsettlers.graphics.map.controls.original.panel.selection.SoldierSelectionContent;
 import jsettlers.graphics.map.controls.original.panel.selection.SpecialistSelectionContent;
 import jsettlers.graphics.map.minimap.Minimap;
 import jsettlers.graphics.map.minimap.MinimapMode;
@@ -375,10 +376,13 @@ public class OriginalControls implements IControls {
 				mainPanel.setContent(new BearerSelectionContent(selection));
 				break;
 			case SOLDIERS:
-				mainPanel.setContent(new SoilderSelectionContent(selection));
+				mainPanel.setContent(new SoldierSelectionContent(selection));
 				break;
 			case SPECIALISTS:
 				mainPanel.setContent(new SpecialistSelectionContent(selection));
+				break;
+			case PRIESTS:
+				mainPanel.setContent(new PriestSelectionContent(selection));
 				break;
 			case SHIPS:
 				mainPanel.setContent(new ShipSelectionContent(selection));

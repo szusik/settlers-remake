@@ -16,6 +16,7 @@ package jsettlers.common.menu.messages;
 
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.movable.IMovable;
 import jsettlers.common.position.ShortPoint2D;
 
 /**
@@ -132,5 +133,17 @@ public class SimpleMessage implements IMessage {
 	 */
 	public static IMessage cannotFindWork(IBuilding building) {
 		return new SimpleMessage(EMessageType.NOTHING_FOUND_IN_SEARCH_AREA, "cannot_find_work_" + building.getBuildingType(), (byte) -1, building.getPosition());
+	}
+
+	/**
+	 *
+	 * @param at
+	 * 		The location where to mage was supposed to cast a spell
+	 * @param messageLabel
+	 * 		The translation key of the text that will be shown
+	 * @return The messageLabel object
+	 */
+	public static IMessage castFailed(ShortPoint2D at, String messageLabel) {
+		return new SimpleMessage(EMessageType.NOTHING_FOUND_IN_SEARCH_AREA, messageLabel, (byte)-1, at);
 	}
 }

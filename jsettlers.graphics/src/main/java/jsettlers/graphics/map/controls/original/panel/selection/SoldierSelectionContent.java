@@ -22,9 +22,9 @@ import jsettlers.graphics.localization.Labels;
 import jsettlers.graphics.ui.LabeledButton;
 import jsettlers.graphics.ui.UIPanel;
 
-public class SoilderSelectionContent extends AbstractSelectionContent {
+public class SoldierSelectionContent extends AbstractSelectionContent {
 
-	private static final EMovableType[] soildertypes = new EMovableType[] {
+	private static final EMovableType[] soldiertypes = new EMovableType[] {
 			EMovableType.SWORDSMAN_L1,
 			EMovableType.SWORDSMAN_L2,
 			EMovableType.SWORDSMAN_L3,
@@ -43,10 +43,10 @@ public class SoilderSelectionContent extends AbstractSelectionContent {
 
 	private final UIPanel panel;
 
-	public SoilderSelectionContent(ISelectionSet selection) {
+	public SoldierSelectionContent(ISelectionSet selection) {
 		panel = new UIPanel();
 
-		addRowsToPanel(panel, selection, soildertypes);
+		addRowsToPanel(panel, selection, soldiertypes);
 
 		UIPanel kill = new LabeledButton(Labels.getString("kill"), new Action(EActionType.DESTROY));
 		UIPanel stop = new LabeledButton(Labels.getString("stop"), new Action(EActionType.STOP_WORKING));

@@ -226,6 +226,13 @@ public enum EActionType {
 	ASK_SET_WORK_AREA,
 
 	/**
+	 * Ask the user where to cast a spell
+	 */
+	ASK_CAST_SPELL,
+
+	CAST_SPELL,
+
+	/**
 	 * Aborts the current user action, attempts to reset the GUI state to the default state.
 	 */
 	ABORT,

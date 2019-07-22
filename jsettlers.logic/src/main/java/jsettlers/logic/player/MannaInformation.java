@@ -18,6 +18,7 @@ import java.io.Serializable;
 
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierType;
+import jsettlers.common.movable.ESpellType;
 import jsettlers.common.player.IMannaInformation;
 
 /**
@@ -31,21 +32,23 @@ public class MannaInformation implements Serializable, IMannaInformation {
 	private static final EMovableType[] PIKEMAN_TYPES   = {EMovableType.PIKEMAN_L1, EMovableType.PIKEMAN_L2, EMovableType.PIKEMAN_L3};
 
 	private static final byte    MAXIMUM_LEVEL               = 2;
-	private static final short[] NECESSARY_MANNA_FOR_UPGRADE = {10, 30, 60, 110, 170, 200};
+	private static final short[] NECESSARY_MANNA_FOR_UPGRADE = {10, 20, 30, 50, 60, 30};
 
 	private final byte[] levelOfTypes = {0, 0, 0};
 
+	private short[] spellUsedCount                 = new short[ESpellType.values().length];
+	private short   totalManna                     = 0;
 	private short   manna                          = 0;
 	private short   numberOfUpgradesExecuted       = 0;
 	private boolean isMannaIncreasableByBigTemples = true;
 
 	public void increaseManna() {
-		manna++;
+		totalManna = ++manna;
 	}
 
 	public void increaseMannaByBigTemple() {
 		if (isMannaIncreasableByBigTemples) {
-			manna += 8;
+			totalManna = manna += 8;
 		}
 	}
 
@@ -74,6 +77,7 @@ public class MannaInformation implements Serializable, IMannaInformation {
 
 	public void upgrade(ESoldierType type) {
 		if (isUpgradePossible(type)) {
+			manna -= NECESSARY_MANNA_FOR_UPGRADE[numberOfUpgradesExecuted];
 			numberOfUpgradesExecuted++;
 			levelOfTypes[type.ordinal()]++;
 		}
@@ -84,11 +88,7 @@ public class MannaInformation implements Serializable, IMannaInformation {
 		if (numberOfUpgradesExecuted == NECESSARY_MANNA_FOR_UPGRADE.length) {
 			return 0;
 		}
-		if (numberOfUpgradesExecuted == 0) {
-			return sanitizePercent((float) manna / NECESSARY_MANNA_FOR_UPGRADE[0]);
-		}
-		return sanitizePercent((float) (manna - NECESSARY_MANNA_FOR_UPGRADE[numberOfUpgradesExecuted - 1]) / (NECESSARY_MANNA_FOR_UPGRADE[numberOfUpgradesExecuted] -
-				NECESSARY_MANNA_FOR_UPGRADE[numberOfUpgradesExecuted - 1]));
+		return sanitizePercent((float) manna / NECESSARY_MANNA_FOR_UPGRADE[numberOfUpgradesExecuted]);
 	}
 
 	@Override
@@ -96,8 +96,35 @@ public class MannaInformation implements Serializable, IMannaInformation {
 		return MAXIMUM_LEVEL;
 	}
 
+	@Override
 	public short getAmountOfManna() {
 		return manna;
+	}
+
+	@Override
+	public short getAmountOfProducedManna() {
+		return totalManna;
+	}
+
+
+	@Override
+	public short getSpellCost(ESpellType spell) {
+		return spell.getMannaCost(spellUsedCount[spell.ordinal()]);
+	}
+
+	@Override
+	public boolean canUseSpell(ESpellType spell) {
+		return manna >= getSpellCost(spell);
+	}
+
+	@Override
+	public boolean useSpell(ESpellType spell) {
+		if(canUseSpell(spell)) {
+			manna -= getSpellCost(spell);
+			spellUsedCount[spell.ordinal()]++;
+			return true;
+		}
+		return false;
 	}
 
 	private byte sanitizePercent(float percent) {

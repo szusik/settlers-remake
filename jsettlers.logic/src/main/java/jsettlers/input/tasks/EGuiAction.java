@@ -23,6 +23,7 @@ package jsettlers.input.tasks;
 public enum EGuiAction {
 	BUILD,
 	SET_WORK_AREA,
+	CAST_SPELL,
 
 	SET_DOCK,
 	ORDER_SHIP,

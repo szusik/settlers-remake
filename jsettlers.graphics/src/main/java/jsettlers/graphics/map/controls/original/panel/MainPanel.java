@@ -17,6 +17,8 @@ package jsettlers.graphics.map.controls.original.panel;
 import go.graphics.GLDrawContext;
 import go.graphics.text.EFontSize;
 import jsettlers.common.action.Action;
+import jsettlers.common.action.AskCastSpellAction;
+import jsettlers.common.action.CastSpellAction;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.action.IAction;
 import jsettlers.common.action.PointAction;
@@ -319,6 +321,7 @@ public class MainPanel extends UIPanel {
 		case MOVE_TO:
 		case SET_TRADING_WAYPOINT:
 		case SET_WORK_AREA:
+		case CAST_SPELL:
         case SET_DOCK:
 			if (activeContent instanceof SelectPointMessage) {
 				goBack();
@@ -341,6 +344,16 @@ public class MainPanel extends UIPanel {
 				@Override
 				public PointAction getSelectAction(ShortPoint2D position) {
 					return new PointAction(EActionType.SET_WORK_AREA, position);
+				}
+			});
+			return null;
+		case ASK_CAST_SPELL:
+			goBackContent = activeContent;
+			AskCastSpellAction asa = (AskCastSpellAction)action;
+			setContent(new SelectPointMessage(Labels.getName(asa.getSpell()) + "\n" + Labels.getString("spell_desc_" + asa.getSpell())) {
+				@Override
+				protected PointAction getSelectAction(ShortPoint2D position) {
+					return new CastSpellAction(asa.getSpell(), position);
 				}
 			});
 			return null;

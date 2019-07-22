@@ -19,6 +19,7 @@ import java.io.Serializable;
 import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.IGuiMovable;
 import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
@@ -60,4 +61,6 @@ public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, I
 	void moveToFerry(ILogicMovable ferry, ShortPoint2D entrancePosition);
 
 	void leaveFerryAt(ShortPoint2D position);
+
+	void castSpell(ShortPoint2D at, ESpellType spell);
 }

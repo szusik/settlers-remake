@@ -24,6 +24,7 @@ import java8.util.stream.Stream;
 import java8.util.stream.StreamSupport;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.selectable.ESelectionType;
 import jsettlers.common.selectable.ISelectable;
 import jsettlers.common.selectable.ISelectionSet;
@@ -37,6 +38,7 @@ import jsettlers.common.selectable.ISelectionSet;
 public final class SelectionSet implements ISelectionSet {
 	private final List<ISelectable> set           = new ArrayList<>();
 	private       ESelectionType    selectionType = ESelectionType.values()[0];
+	private       IPlayer           player        = null;
 
 	public SelectionSet() {
 	}
@@ -82,9 +84,12 @@ public final class SelectionSet implements ISelectionSet {
 			setSelected(false);
 			this.set.clear();
 			this.selectionType = selectionType;
+
+			player = selectionType.perPlayer ? selectable.getPlayer() : null;
 		}
 
 		if (selectionType.maxSelected > set.size()) {
+			if(player != null && selectable.getPlayer() != player) return;
 			set.add(selectable);
 		}
 	}
