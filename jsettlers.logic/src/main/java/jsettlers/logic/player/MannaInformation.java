@@ -25,7 +25,7 @@ import jsettlers.common.player.IMannaInformation;
  * @author codingberlin
  */
 public class MannaInformation implements Serializable, IMannaInformation {
-	private static final long serialVersionUID = -2354905349487371882L;
+	private static final long serialVersionUID = -2354905349487371883L;
 
 	private static final EMovableType[] BOWMAN_TYPES    = {EMovableType.BOWMAN_L1, EMovableType.BOWMAN_L2, EMovableType.BOWMAN_L3};
 	private static final EMovableType[] SWORDSMAN_TYPES = {EMovableType.SWORDSMAN_L1, EMovableType.SWORDSMAN_L2, EMovableType.SWORDSMAN_L3};
