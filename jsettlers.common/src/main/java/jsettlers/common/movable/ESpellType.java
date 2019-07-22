@@ -31,4 +31,6 @@ public enum ESpellType {
 	public short getMannaCost(int count) {
 		return (short)(manna*(count/10f+1));
 	}
+
+	public static final int GILDING_MAX_IRON = 40;
 }
