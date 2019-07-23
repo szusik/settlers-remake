@@ -17,7 +17,6 @@ package jsettlers.logic.movable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +33,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EDirection;
+import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESpellType;
@@ -58,7 +58,7 @@ import jsettlers.logic.timer.RescheduleTimer;
  * @author Andreas Eberle
  */
 public final class Movable implements ILogicMovable, FoWTask {
-	private static final long serialVersionUID = -705947810059935865L;
+	private static final long serialVersionUID = -705947810059935866L;
 
 	private static final int SHIP_PUSH_DISTANCE = 10;
 
@@ -79,6 +79,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 	private EMaterialType  materialType  = EMaterialType.NO_MATERIAL;
 	private EMovableAction movableAction = EMovableAction.NO_ACTION;
 	private EDirection     direction;
+	private int[] effectEnd = new int[EEffectType.values().length];
 
 	private int   animationStartTime;
 	private short animationDuration;
@@ -1125,5 +1126,14 @@ public final class Movable implements ILogicMovable, FoWTask {
 		if(strategy instanceof MageStrategy) {
 			((MageStrategy)strategy).castSpell(at, spell);
 		}
+	}
+
+	public void addEffect(EEffectType effect) {
+		effectEnd[effect.ordinal()] = effect.getTime() + MatchConstants.clock().getTime();
+	}
+
+	@Override
+	public boolean hasEffect(EEffectType effect) {
+		return effectEnd[effect.ordinal()] >= MatchConstants.clock().getTime();
 	}
 }

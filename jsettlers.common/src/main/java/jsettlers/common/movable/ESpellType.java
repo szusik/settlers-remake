@@ -33,4 +33,5 @@ public enum ESpellType {
 	}
 
 	public static final int GILDING_MAX_IRON = 40;
+	public static final int DEFEATISM_MAX_SOLDIERS = 20;
 }

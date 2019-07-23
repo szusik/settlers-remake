@@ -18,6 +18,7 @@ import java.io.Serializable;
 
 import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
+import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.ShortPoint2D;
@@ -63,4 +64,6 @@ public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, I
 	void leaveFerryAt(ShortPoint2D position);
 
 	void castSpell(ShortPoint2D at, ESpellType spell);
+
+	void addEffect(EEffectType effect);
 }

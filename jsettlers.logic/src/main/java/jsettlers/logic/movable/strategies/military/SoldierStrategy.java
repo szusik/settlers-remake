@@ -17,6 +17,7 @@ package jsettlers.logic.movable.strategies.military;
 import jsettlers.algorithms.path.Path;
 import jsettlers.common.buildings.OccupierPlace;
 import jsettlers.common.movable.EDirection;
+import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.position.ShortPoint2D;
@@ -399,6 +400,7 @@ public abstract class SoldierStrategy extends MovableStrategy implements IBuildi
 	}
 
 	protected float getCombatStrength() {
-		return movable.getPlayer().getCombatStrengthInformation().getCombatStrength(isOnOwnGround());
+		return movable.getPlayer().getCombatStrengthInformation().getCombatStrength(isOnOwnGround()) *
+				(movable.hasEffect(EEffectType.DEFEATISM) ? 0.5f : 1);
 	}
 }

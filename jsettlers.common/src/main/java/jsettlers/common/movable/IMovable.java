@@ -106,4 +106,6 @@ public interface IMovable extends IPlayerable, ISelectable, ILocatable, ISoundab
 	 * @return EBuildingType of the building the worker is garrisoned in or null if the worker is not garrisoned.
 	 */
 	EBuildingType getGarrisonedBuildingType();
+
+	boolean hasEffect(EEffectType effect);
 }

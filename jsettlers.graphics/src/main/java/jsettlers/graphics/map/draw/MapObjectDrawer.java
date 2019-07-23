@@ -20,7 +20,6 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 
 import go.graphics.GLDrawContext;
-import go.graphics.GL32DrawContext;
 import jsettlers.common.Color;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.buildings.EBuildingType;
@@ -38,6 +37,7 @@ import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.mapobject.IStackMapObject;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
+import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
@@ -445,9 +445,8 @@ public class MapObjectDrawer {
 		}
 		// draw ship front
 		drawShipLink(baseSequence + 2, shipImageDirection, glDrawContext, viewX, viewY, y, color, shade);
-		if (ship.isSelected()) {
-			drawSelectionMark(viewX, viewY, ship.getHealth() / shipType.getHealth());
-		}
+
+		drawSelectionMark(viewX, viewY, ship);
 	}
 
 	private EDirection getPassengerDirection(EDirection shipDirection, ShortPoint2D shipPosition, int seatIndex) { // make ferry passengers look around
@@ -931,9 +930,7 @@ public class MapObjectDrawer {
 		image = this.imageMap.getImageForSettler(movable, moveProgress);
 		image.drawAt(context.getGl(), viewX, viewY, getZ(0, y), color, shade);
 
-		if (movable.isSelected()) {
-			drawSelectionMark(viewX, viewY, movable.getHealth() / movableType.getHealth());
-		}
+		drawSelectionMark(viewX, viewY, movable);
 	}
 
 	private float betweenTilesX(int startX, int startY, EDirection direction, float progress) {
@@ -945,14 +942,23 @@ public class MapObjectDrawer {
 		return x;
 	}
 
-	private void drawSelectionMark(float viewX, float viewY, float healthPercentage) {
-		Image image = ImageProvider.getInstance().getSettlerSequence(4, 7).getImageSafe(0, () -> "settler-selection-indicator");
-		image.drawAt(context.getGl(), viewX, viewY + 20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
+	private void drawSelectionMark(float viewX, float viewY, IMovable movable) {
+		if(movable.isSelected()) {
+			Image image = ImageProvider.getInstance().getSettlerSequence(4, 7).getImageSafe(0, () -> "settler-selection-indicator");
+			image.drawAt(context.getGl(), viewX, viewY + 20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
 
-		Sequence<? extends Image> sequence = ImageProvider.getInstance().getSettlerSequence(4, 6);
-		int healthId = Math.min((int) ((1 - healthPercentage) * sequence.length()), sequence.length() - 1);
-		Image healthImage = sequence.getImageSafe(healthId, () -> "settler-health-indicator");
-		healthImage.drawAt(context.getGl(), viewX, viewY + 38, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
+			float healthPercentage = (movable.getHealth() / movable.getMovableType().getHealth());
+
+			Sequence<? extends Image> sequence = ImageProvider.getInstance().getSettlerSequence(4, 6);
+			int healthId = Math.min((int) ((1 - healthPercentage) * sequence.length()), sequence.length() - 1);
+			Image healthImage = sequence.getImageSafe(healthId, () -> "settler-health-indicator");
+			healthImage.drawAt(context.getGl(), viewX, viewY + 38, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
+		}
+
+		if(movable.hasEffect(EEffectType.DEFEATISM)) {
+			Image defeatism_image = ImageProvider.getInstance().getSettlerSequence(1, 130).getImage(0, () -> "defeatism-indicator");
+			defeatism_image.drawAt(context.getGl(), viewX+10, viewY+20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
+		}
 	}
 
 	private void playSound(IMapObject object, int soundId, int x, int y) {
@@ -1346,9 +1352,7 @@ public class MapObjectDrawer {
 
 				if (place.getSoldierClass() == ESoldierClass.BOWMAN) {
 					playMovableSound(movable);
-					if (movable.isSelected()) {
-						drawSelectionMark(viewX, viewY, movable.getHealth() / movable.getMovableType().getHealth());
-					}
+					drawSelectionMark(viewX, viewY, movable);
 				}
 			}
 		} catch (ConcurrentModificationException e) {

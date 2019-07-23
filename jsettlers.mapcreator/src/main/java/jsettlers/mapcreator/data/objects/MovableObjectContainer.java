@@ -20,6 +20,7 @@ import java.util.List;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
+import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IMovable;
@@ -162,5 +163,10 @@ public class MovableObjectContainer implements ObjectContainer, IMovable {
 	@Override
 	public ShortPoint2D getPosition() {
 		return position;
+	}
+
+	@Override
+	public boolean hasEffect(EEffectType effect) {
+		return false;
 	}
 }
