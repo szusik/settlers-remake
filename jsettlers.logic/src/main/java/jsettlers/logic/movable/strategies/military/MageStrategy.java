@@ -9,10 +9,11 @@ import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.common.utils.coordinates.CoordinateStream;
 import jsettlers.logic.constants.Constants;
+import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
-import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 public class MageStrategy extends MovableStrategy {
 	public MageStrategy(Movable movable) {
@@ -24,6 +25,11 @@ public class MageStrategy extends MovableStrategy {
 	private ShortPoint2D spellLocation = null;
 	private ESpellType spell = null;
 
+	private CoordinateStream spellRegion(int radius) {
+		return new MapCircle(spellLocation, radius).stream()
+				.filterBounds(getGrid().getWidth(), getGrid().getHeight());
+	}
+
 	@Override
 	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step) {
 		if(spellAbortPath && !pathTarget.equals(spellLocation)) {
@@ -33,11 +39,9 @@ public class MageStrategy extends MovableStrategy {
 		if(spellLocation == null || spellLocation.getOnGridDistTo(movable.getPosition()) > Constants.MAGE_CAST_DISTANCE) return true;
 
 		if(movable.getPlayer().getMannaInformation().useSpell(spell)) {
-			List<ShortPoint2D> possibleLocations = new MapCircle(spellLocation, Constants.SPELL_EFFECT_RADIUS).stream()
-					.filterBounds(getGrid().getWidth(), getGrid().getHeight())
-					.filter((x, y) -> !getGrid().isBlocked(x, y)).toList();
 			switch(spell) {
 				case GILDING:
+					List<ShortPoint2D> possibleLocations = spellRegion(Constants.SPELL_EFFECT_RADIUS).filter((x, y) -> !getGrid().isBlocked(x, y)).toList();
 					int remainingTake = ESpellType.GILDING_MAX_IRON;
 					int remainingPlace = 0;
 
@@ -59,19 +63,26 @@ public class MageStrategy extends MovableStrategy {
 					if(remainingPlace > 0) System.err.println("Couldn`t place " + remainingPlace + "gold");
 					break;
 				case DEFEATISM:
-					int remainingInfluence = ESpellType.DEFEATISM_MAX_SOLDIERS;
-					for(ShortPoint2D point : possibleLocations) {
-						if(remainingInfluence == 0) break;
-
-						ILogicMovable lm = getGrid().getMovableAt(point.x, point.y);
-						if(lm != null && lm.getPlayer().getTeamId() != movable.getPlayer().getTeamId() &&
-								lm.isAttackable() && lm.isAlive()) {
-							lm.addEffect(EEffectType.DEFEATISM);
-							remainingInfluence--;
-						}
-					}
+					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive()&&lm.isAttackable())
+							.filter(lm -> lm.getPlayer().getTeamId()!=movable.getPlayer().getTeamId())
+							.limit(ESpellType.DEFEATISM_MAX_SOLDIERS)
+							.forEach(movable -> movable.addEffect(EEffectType.DEFEATISM));
 
 					//TODO play sound and play animation 1:119
+					break;
+				case GIFTS:
+					spellRegion(ESpellType.GIFTS_RADIUS).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
+							.filter((x, y) -> getGrid().getPlayerAt(new ShortPoint2D(x, y)) == movable.getPlayer())
+							.limit(MatchConstants.random().nextInt(0, ESpellType.GIFTS_MAX_STACKS))
+							.forEach((x, y) -> {
+								ShortPoint2D at = new ShortPoint2D(x, y);
+								//TODO only give useful stuff
+								EMaterialType type = EMaterialType.values()[MatchConstants.random().nextInt(EMaterialType.values().length)];
+								int size = MatchConstants.random().nextInt(9);
+								for(int i = 0; i != size; i++) getGrid().dropMaterial(at, type, true, false);
+							});
+					//TODO play sound and play animation 1:114
 					break;
 				default:
 					System.err.println("unimplemented spell: " + spell);

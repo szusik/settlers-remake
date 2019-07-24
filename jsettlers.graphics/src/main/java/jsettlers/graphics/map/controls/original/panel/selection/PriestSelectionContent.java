@@ -34,7 +34,7 @@ public class PriestSelectionContent extends AbstractSelectionContent {
 		availableManna = new Label("", EFontSize.NORMAL);
 		availableMannaString = Labels.getString("manna_available");
 
-		panel.addChild(availableManna, .2f, .95f, .8f, 1f);
+		panel.addChild(availableManna, 0, .95f, 1, 1f);
 
 		//SoldierSelectionContent.addRowsToPanel(panel, selection, new EMovableType[] {EMovableType.MAGE});
 
