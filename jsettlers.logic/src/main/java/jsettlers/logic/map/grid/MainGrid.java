@@ -1510,6 +1510,11 @@ public final class MainGrid implements Serializable {
 		public boolean tryTakingResource(ShortPoint2D position, EResourceType resource) {
 			return landscapeGrid.tryTakingResource(position, resource);
 		}
+
+		@Override
+		public boolean tryCursingLocation(ShortPoint2D at) {
+			return landscapeGrid.tryCursingLocation(at);
+		}
 	}
 
 	final class BordersThreadGrid implements IBordersThreadGrid {

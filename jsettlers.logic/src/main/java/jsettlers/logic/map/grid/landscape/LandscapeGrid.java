@@ -24,6 +24,7 @@ import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.map.IGraphicsBackgroundListener;
 import jsettlers.common.map.shapes.HexGridArea;
+import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.Constants;
@@ -219,6 +220,14 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		}
 	}
 
+	public boolean tryCursingLocation(ShortPoint2D at) {
+		int idx = at.x + at.y * width;
+		if(landscapeGrid[idx] != ELandscapeType.MOUNTAIN.ordinal) return false;
+
+		setResourceAt(at.x, at.y, EResourceType.values()[resourceType[idx]], (byte) (resourceAmount[idx]*ESpellType.CURSE_MOUNTAIN_RESOURCE_MOD));
+		return true;
+	}
+
 	@Override
 	public final void walkOn(int x, int y) {
 		int i = x + y * width;
@@ -336,5 +345,4 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 			activateUnflattening(x, y);
 		}
 	}
-
 }

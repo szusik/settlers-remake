@@ -440,6 +440,11 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		public boolean tryTakingResource(ShortPoint2D position, EResourceType resource) {
 			return false;
 		}
+
+		@Override
+		public boolean tryCursingLocation(ShortPoint2D position) {
+			return false;
+		}
 	};
 
 	public AbstractMovableGrid getMovableGrid() {

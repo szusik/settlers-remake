@@ -9,7 +9,7 @@ public enum ESpellType {
 	DEFEATISM(15, "original_14_GUI_255"),
 	GIFTS(20, "original_14_GUI_258"),
 	GILDING(20, "original_14_GUI_261"),
-	LESS_RESOURCES(25, "original_14_GUI_264"),
+	CURSE_MOUNTAIN(25, "original_14_GUI_264"),
 	DEFECT(40, "original_14_GUI_267");
 
 	private short manna;
@@ -33,8 +33,12 @@ public enum ESpellType {
 	}
 
 	public static final int GILDING_MAX_IRON = 40;
+
 	public static final int DEFEATISM_MAX_SOLDIERS = 20;
 
 	public static final int GIFTS_MAX_STACKS = 5;
 	public static final int GIFTS_RADIUS = 3;
+
+	public static final int CURSE_MOUNTAIN_RADIUS = 5;
+	public static final float CURSE_MOUNTAIN_RESOURCE_MOD = 0.5f;
 }
