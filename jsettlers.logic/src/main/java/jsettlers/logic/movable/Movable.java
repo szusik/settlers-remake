@@ -989,6 +989,23 @@ public final class Movable implements ILogicMovable, FoWTask {
 		setStrategy(MovableStrategy.getStrategy(this, newMovableType));
 	}
 
+	@Override
+	public void defectTo(Player player) {
+		// kill without ghost
+		this.state = EMovableState.DEAD;
+		this.selected = false;
+
+		grid.leavePosition(this.position, this);
+		movablesByID.remove(this.getID());
+		allMovables.remove(this);
+
+		Movable newMov = new Movable(grid, movableType, position, player);
+		newMov.effectEnd = effectEnd.clone();
+		newMov.health = health;
+
+		position = null;
+	}
+
 	private void setStrategy(MovableStrategy newStrategy) {
 		this.strategy.strategyKilledEvent(path != null ? path.getTargetPosition() : null);
 		this.strategy = newStrategy;

@@ -2,7 +2,6 @@ package jsettlers.logic.movable.strategies.military;
 
 import java.util.List;
 
-import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.map.shapes.MapCircle;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.menu.messages.SimpleMessage;
@@ -100,6 +99,15 @@ public class MageStrategy extends MovableStrategy {
 					spellRegion(ESpellType.CURSE_MOUNTAIN_RADIUS)
 							.filter((x, y) -> teamId(x, y) != teamId(movable))
 							.forEach((x, y) -> getGrid().tryCursingLocation(new ShortPoint2D(x, y)));
+					break;
+				case DEFECT:
+					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive()&&lm.isAttackable())
+							.filter(lm -> teamId(lm) != teamId(movable))
+							.limit(ESpellType.DEFECT_MAX_ENEMIES)
+							.forEach(lm -> {
+								lm.defectTo(movable.getPlayer());
+							});
 					break;
 				default:
 					System.err.println("unimplemented spell: " + spell);

@@ -66,4 +66,6 @@ public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, I
 	void castSpell(ShortPoint2D at, ESpellType spell);
 
 	void addEffect(EEffectType effect);
+
+	void defectTo(Player player);
 }
