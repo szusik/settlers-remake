@@ -15,6 +15,8 @@
 package jsettlers.common.movable;
 
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.common.utils.coordinates.CoordinateStream;
+import jsettlers.common.utils.coordinates.IBooleanCoordinateFunction;
 
 /**
  * Enumeration for directions that can be gone on the grid.
@@ -48,6 +50,21 @@ public enum EDirection {
 		this.isHorizontal = (gridDy == 0);
 
 		this.ordinal = (byte) super.ordinal();
+	}
+
+	public static CoordinateStream neighborStream(ShortPoint2D point) {
+		return new CoordinateStream() {
+
+			@Override
+			public boolean iterate(IBooleanCoordinateFunction function) {
+				for(EDirection dir : VALUES) {
+					if(!function.apply(point.x+dir.gridDeltaX, point.y+dir.gridDeltaY)) {
+						return false;
+					}
+				}
+				return true;
+			}
+		};
 	}
 
 	/**

@@ -1337,6 +1337,11 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
+		public void changeTerrainTo(int x, int y, ELandscapeType type) {
+			landscapeGrid.terraform(x, y, type);
+		}
+
+		@Override
 		public boolean hasNoMovableAt(int x, int y) {
 			return movableGrid.hasNoMovableAt(x, y);
 		}

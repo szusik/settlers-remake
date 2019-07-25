@@ -2,15 +2,20 @@ package jsettlers.logic.movable.strategies.military;
 
 import java.util.List;
 
+import jsettlers.common.landscape.ELandscapeType;
+import static jsettlers.common.landscape.ELandscapeType.*;
+
 import jsettlers.common.map.shapes.MapCircle;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.menu.messages.SimpleMessage;
+import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.coordinates.CoordinateStream;
+import jsettlers.common.utils.mutables.MutableInt;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.Movable;
@@ -41,6 +46,10 @@ public class MageStrategy extends MovableStrategy {
 		return movable.getPlayer().getTeamId();
 	}
 
+	private void replace(CoordinateStream at, ELandscapeType from, ELandscapeType to) {
+		at.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == from).forEach((x, y) -> getGrid().changeTerrainTo(x, y, to));
+	}
+
 	@Override
 	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step) {
 		if(spellAbortPath && !pathTarget.equals(spellLocation)) {
@@ -52,26 +61,23 @@ public class MageStrategy extends MovableStrategy {
 		if(movable.getPlayer().getMannaInformation().useSpell(spell)) {
 			switch(spell) {
 				case GILDING:
-					List<ShortPoint2D> possibleLocations = spellRegion(Constants.SPELL_EFFECT_RADIUS).filter((x, y) -> !getGrid().isBlocked(x, y)).toList();
-					int remainingTake = ESpellType.GILDING_MAX_IRON;
-					int remainingPlace = 0;
+					CoordinateStream possibleLocations = spellRegion(Constants.SPELL_EFFECT_RADIUS).filter((x, y) -> !getGrid().isBlocked(x, y));
+					final MutableInt remainingPlace = new MutableInt(0);
 
-					for(ShortPoint2D point : possibleLocations) {
-						while(remainingTake > 0 && getGrid().canTakeMaterial(point, EMaterialType.IRON)) {
-							getGrid().takeMaterial(point, EMaterialType.IRON);
-							remainingTake--;
-							remainingPlace++;
-						}
-					}
+					possibleLocations.filter((x, y) -> getGrid().canTakeMaterial(new ShortPoint2D(x, y), EMaterialType.IRON))
+							.limit(ESpellType.GILDING_MAX_IRON).forEach((x, y) -> {
+								getGrid().takeMaterial(new ShortPoint2D(x, y), EMaterialType.IRON);
+								remainingPlace.value++;
+							});
 
-					for(ShortPoint2D point : possibleLocations) {
-						while(remainingPlace > 0 && getGrid().dropMaterial(point, EMaterialType.GOLD, true, false)) {
-							remainingPlace--;
+					for(ShortPoint2D point : possibleLocations.toList()) {
+						while(remainingPlace.value > 0 && getGrid().dropMaterial(point, EMaterialType.GOLD, true, false)) {
+							remainingPlace.value--;
 						}
 					}
 
 					//TODO play sound 95 and play animation 1:121
-					if(remainingPlace > 0) System.err.println("Couldn't place " + remainingPlace + "gold");
+					if(remainingPlace.value > 0) System.err.println("Couldn't place " + remainingPlace + "gold");
 					break;
 				case DEFEATISM:
 					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
@@ -80,7 +86,7 @@ public class MageStrategy extends MovableStrategy {
 							.limit(ESpellType.DEFEATISM_MAX_SOLDIERS)
 							.forEach(movable -> movable.addEffect(EEffectType.DEFEATISM));
 
-					//TODO play sound and play animation 1:119
+					//TODO play sound and play animation 1:116
 					break;
 				case GIFTS:
 					spellRegion(ESpellType.GIFTS_RADIUS).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
@@ -99,15 +105,46 @@ public class MageStrategy extends MovableStrategy {
 					spellRegion(ESpellType.CURSE_MOUNTAIN_RADIUS)
 							.filter((x, y) -> teamId(x, y) != teamId(movable))
 							.forEach((x, y) -> getGrid().tryCursingLocation(new ShortPoint2D(x, y)));
+					//TODO play sound and play animation 1:120
 					break;
 				case DEFECT:
 					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive()&&lm.isAttackable())
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.DEFECT_MAX_ENEMIES)
-							.forEach(lm -> {
-								lm.defectTo(movable.getPlayer());
-							});
+							.forEach(lm -> lm.defectTo(movable.getPlayer()));
+					//TODO play sound and play animation 1:119
+					break;
+				case IRRIGATE:
+					CoordinateStream affectedRegion = spellRegion(ESpellType.IRRIGATE_RADIUS);
+					List<ShortPoint2D> flattenedRegion = affectedRegion.filter((x, y) -> FLATTENED_DESERTS.contains(getGrid().getLandscapeTypeAt(x, y))).toList();
+					//all desert fields can always be replaced with dry grass
+					replace(affectedRegion, DESERTBORDEROUTER, DRY_GRASS);
+					replace(affectedRegion, DESERTBORDER, DRY_GRASS);
+					replace(affectedRegion, SHARP_FLATTENED_DESERT, DESERT);
+					replace(affectedRegion, FLATTENED_DESERT, DESERT);
+
+					affectedRegion.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == DESERT)
+							.filter((x, y) ->
+									EDirection.neighborStream(new ShortPoint2D(x, y))
+											.filter((tx, ty) -> !DRY_GRASS_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(tx, ty)))
+											.isEmpty())
+							.forEach((x, y) -> getGrid().changeTerrainTo(x, y, DRY_GRASS));
+
+					// if there aren't any fields that can't be next to grass, set it to grass
+					affectedRegion.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == DRY_GRASS)
+							.filter((x, y) ->
+									EDirection.neighborStream(new ShortPoint2D(x, y))
+											.filter((tx, ty) -> !GRASS_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(tx, ty)))
+											.isEmpty())
+							.forEach((x, y) -> getGrid().changeTerrainTo(x, y, GRASS));
+
+					for(ShortPoint2D point : flattenedRegion) {
+						if(EDirection.neighborStream(point).filter((x, y) -> !FLATTENED_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(x, y))).isEmpty()) {
+							getGrid().changeTerrainTo(point.x, point.y, FLATTENED);
+						}
+					}
+					//TODO play sound and play animation 1:125
 					break;
 				default:
 					System.err.println("unimplemented spell: " + spell);

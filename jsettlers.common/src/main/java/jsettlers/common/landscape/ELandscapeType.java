@@ -62,6 +62,10 @@ public enum ELandscapeType {
 
 	public static final ELandscapeType[] VALUES = ELandscapeType.values();
 	private static final Set<ELandscapeType> RIVERS = EnumSet.of(RIVER1, RIVER2, RIVER3, RIVER4);
+	public static final Set<ELandscapeType> GRASS_NEIGHBORS = EnumSet.of(DRY_GRASS, FLATTENED, EARTH, GRASS);
+	public static final Set<ELandscapeType> FLATTENED_NEIGHBORS = EnumSet.of(GRASS, FLATTENED);
+	public static final Set<ELandscapeType> DRY_GRASS_NEIGHBORS = EnumSet.of(GRASS, DESERT, DRY_GRASS);
+	public static final Set<ELandscapeType> FLATTENED_DESERTS = EnumSet.of(FLATTENED_DESERT, SHARP_FLATTENED_DESERT);
 	public static final Set<ELandscapeType> MOUNTAIN_TYPES = EnumSet.of(MOUNTAIN, MOUNTAINBORDER);
 
 	public final int image;

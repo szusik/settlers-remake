@@ -24,6 +24,7 @@ import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.map.IGraphicsBackgroundListener;
 import jsettlers.common.map.shapes.HexGridArea;
+import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
@@ -166,6 +167,13 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		this.landscapeGrid[index] = ELandscapeType.FLATTENED.ordinal;
 		this.temporaryFlatened[index] = Byte.MAX_VALUE; // cancel the flattening
 
+		backgroundListener.backgroundShapeChangedAt(x, y);
+	}
+
+	public void terraform(int x, int y, ELandscapeType type) {
+		final int index = x + y * width;
+
+		this.landscapeGrid[index] = type.ordinal;
 		backgroundListener.backgroundShapeChangedAt(x, y);
 	}
 

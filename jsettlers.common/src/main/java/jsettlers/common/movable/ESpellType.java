@@ -42,5 +42,7 @@ public enum ESpellType {
 	public static final int CURSE_MOUNTAIN_RADIUS = 5;
 	public static final float CURSE_MOUNTAIN_RESOURCE_MOD = 0.5f;
 
-	public static final long DEFECT_MAX_ENEMIES = 20;
+	public static final long DEFECT_MAX_ENEMIES = 10;
+
+	public static final int IRRIGATE_RADIUS = 7;
 }

@@ -335,6 +335,10 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
+		public void changeTerrainTo(int x, int y, ELandscapeType grass) {
+		}
+
+		@Override
 		public boolean isValidPosition(IPathCalculatable pathCalculatable, int x, int y) {
 			return isInBounds(x, y) && !isBlocked(x, y) && (!pathCalculatable.needsPlayersGround() || pathCalculatable.getPlayer().getPlayerId() == getPlayerIdAt(x, y));
 		}

@@ -16,6 +16,7 @@ package jsettlers.logic.movable.interfaces;
 
 import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
+import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.position.ShortPoint2D;
