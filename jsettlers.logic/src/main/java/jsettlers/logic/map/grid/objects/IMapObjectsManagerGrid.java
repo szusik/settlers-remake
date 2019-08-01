@@ -55,6 +55,4 @@ public interface IMapObjectsManagerGrid extends Serializable, IArrowAttackableGr
 	boolean hasMapObjectType(int x, int y, EMapObjectType... mapObjectTypes);
 
 	void spawnDonkey(ShortPoint2D position, Player player);
-
-	void drawFogOfWar(ShortPoint2D at, short from, short to);
 }

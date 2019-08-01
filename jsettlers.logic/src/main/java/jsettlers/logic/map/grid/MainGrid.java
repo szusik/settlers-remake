@@ -986,10 +986,6 @@ public final class MainGrid implements Serializable {
 			return objectsGrid.hasMapObjectType(x, y, mapObjectTypes);
 		}
 
-		@Override
-		public void drawFogOfWar(ShortPoint2D at, short from, short to) {
-			FogOfWar.queueResizeCircle(at, from, to);
-		}
 	}
 
 	final class EnclosedBlockedAreaFinderGrid implements IEnclosedBlockedAreaFinderGrid {

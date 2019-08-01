@@ -316,7 +316,7 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 	}
 
 	public void addEyeMapObject(ShortPoint2D position, short radius, float duration, Player player) {
-		EyeMapObject eye = new EyeMapObject(grid, position, duration, radius, player);
+		EyeMapObject eye = new EyeMapObject(position, duration, radius, player);
 		addMapObject(position, eye);
 		timingQueue.add(new TimeEvent(eye, 0, false));
 		timingQueue.add(new TimeEvent(eye, duration, false));
