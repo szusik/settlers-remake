@@ -1,5 +1,6 @@
 package jsettlers.logic.movable.strategies.military;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jsettlers.common.landscape.ELandscapeType;
@@ -54,6 +55,11 @@ public class MageStrategy extends MovableStrategy {
 	private boolean castSpell() {
 		if(spellLocation == null || (spell.forcePresence() && spellLocation.getOnGridDistTo(movable.getPosition()) > Constants.MAGE_CAST_DISTANCE)) return true;
 
+		int sound = -1;
+		int animation = -1;
+		float duration = 2;
+		List<ShortPoint2D> effectLocations = new ArrayList<>();
+
 		if(movable.getPlayer().getMannaInformation().useSpell(spell)) {
 			switch(spell) {
 				case GILDING:
@@ -62,7 +68,9 @@ public class MageStrategy extends MovableStrategy {
 
 					possibleLocations.filter((x, y) -> getGrid().canTakeMaterial(new ShortPoint2D(x, y), EMaterialType.IRON))
 							.limit(ESpellType.GILDING_MAX_IRON).forEach((x, y) -> {
-								getGrid().takeMaterial(new ShortPoint2D(x, y), EMaterialType.IRON);
+								ShortPoint2D point = new ShortPoint2D(x, y);
+								getGrid().takeMaterial(point, EMaterialType.IRON);
+								effectLocations.add(point);
 								remainingPlace.value++;
 							});
 
@@ -72,7 +80,8 @@ public class MageStrategy extends MovableStrategy {
 						}
 					}
 
-					//TODO play sound 95 and play animation 1:121
+					sound = 95;
+					animation = 121;
 					if(remainingPlace.value > 0) System.err.println("Couldn't place " + remainingPlace + "gold");
 					break;
 				case DEFEATISM:
@@ -81,12 +90,12 @@ public class MageStrategy extends MovableStrategy {
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.DEFEATISM_MAX_SOLDIERS)
 							.forEach(movable -> movable.addEffect(EEffectType.DEFEATISM));
-
-					//TODO play sound and play animation 1:116
+					effectLocations.add(spellLocation);
+					animation = 116;
 					break;
 				case GIFTS:
 					spellRegion(ESpellType.GIFTS_RADIUS).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
-							.filter((x, y) -> teamId(x, y) == teamId(movable))
+							.filter((x, y) -> teamId(x, y) == -1 || teamId(x, y) == teamId(movable))
 							.limit(MatchConstants.random().nextInt(ESpellType.GIFTS_MAX_STACKS+1))
 							.forEach((x, y) -> {
 								ShortPoint2D at = new ShortPoint2D(x, y);
@@ -94,22 +103,31 @@ public class MageStrategy extends MovableStrategy {
 								EMaterialType type = EMaterialType.values()[MatchConstants.random().nextInt(EMaterialType.values().length)];
 								int size = MatchConstants.random().nextInt(9);
 								for(int i = 0; i != size; i++) getGrid().dropMaterial(at, type, true, false);
+								effectLocations.add(at);
 							});
-					//TODO play sound 78 and play animation 1:114
+					duration = 1;
+					sound = 78;
+					animation = 114;
 					break;
 				case CURSE_MOUNTAIN:
 					spellRegion(ESpellType.CURSE_MOUNTAIN_RADIUS)
-							.filter((x, y) -> teamId(x, y) != teamId(movable))
+							.filter((x, y) -> teamId(x, y) == -1 || teamId(x, y) != teamId(movable))
 							.forEach((x, y) -> getGrid().tryCursingLocation(new ShortPoint2D(x, y)));
-					//TODO play sound 100 and play animation 1:120
+					effectLocations.add(spellLocation);
+					sound = 100;
+					animation = 120;
 					break;
 				case DEFECT:
 					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive()&&lm.isAttackable())
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.DEFECT_MAX_ENEMIES)
-							.forEach(lm -> lm.defectTo(movable.getPlayer()));
-					//TODO play sound 95 and play animation 1:119
+							.forEach(lm -> {
+								lm.defectTo(movable.getPlayer());
+								effectLocations.add(lm.getPosition());
+							});
+					sound = 95;
+					animation = 119;
 					break;
 				case IRRIGATE:
 					CoordinateStream affectedRegion = spellRegion(ESpellType.IRRIGATE_RADIUS);
@@ -140,7 +158,8 @@ public class MageStrategy extends MovableStrategy {
 							getGrid().changeTerrainTo(point.x, point.y, FLATTENED);
 						}
 					}
-					//TODO play sound and play animation 1:125
+					effectLocations.add(spellLocation);
+					animation = 125;
 					break;
 				case GREEN_THUMB:
 					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
@@ -149,15 +168,20 @@ public class MageStrategy extends MovableStrategy {
 									lm.getMovableType() == EMovableType.WINEGROWER &&
 									lm.getMovableType() == EMovableType.FORESTER
 							).limit(1).forEach(lm -> lm.addEffect(EEffectType.GREEN_THUMB));
+					effectLocations.add(spellLocation);
 					break;
 				case EYE:
 					getGrid().addEyeMapObject(spellLocation, ESpellType.EYE_RADIUS, ESpellType.EYE_TIME, movable.getPlayer());
-					//TODO play sound 80 and play animation 1:126
-					break;
-				default:
-					System.err.println("unimplemented spell: " + spell);
+					effectLocations.add(spellLocation);
+					sound = 80;
+					animation = 126;
 					break;
 			}
+
+			for(ShortPoint2D point : effectLocations) {
+				getGrid().addSelfDeletingMapObject(point, sound, animation, duration, movable.getPlayer());
+			}
+
 		} else {
 			movable.getPlayer().showMessage(SimpleMessage.castFailed(spellLocation, "spell_failed"));
 		}
@@ -200,7 +224,7 @@ public class MageStrategy extends MovableStrategy {
 		spellLocation = new ShortPoint2D(at.x, at.y);
 		this.spell = spell;
 
-		if(castSpell()) return;
+		if(!castSpell()) return;
 
 		if(movable.getAction() != EMovableAction.WALKING) {
 			movable.moveTo(spellLocation);

@@ -34,6 +34,7 @@ import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IArrowMapObject;
 import jsettlers.common.mapobject.IAttackableTowerMapObject;
 import jsettlers.common.mapobject.IMapObject;
+import jsettlers.common.mapobject.ISpecializedMapObject;
 import jsettlers.common.mapobject.IStackMapObject;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
@@ -490,6 +491,12 @@ public class MapObjectDrawer {
 			case GHOST:
 				drawPlayerableByProgress(x, y, object, color, imageProvider.getSettlerSequence(DEAD_SETTLER_FILE, DEAD_SETTLER_INDEX));
 				playSound(object, SOUND_SETTLER_KILLED, x, y);
+				break;
+
+			case SPELL_EFFECT:
+				ISpecializedMapObject smo = (ISpecializedMapObject) object;
+				drawPlayerableByProgress(x, y, object, color, imageProvider.getSettlerSequence(1, smo.getAnimation()));
+				playSound(object, smo.getSound(), x, y);
 				break;
 
 			case BUILDING_DECONSTRUCTION_SMOKE:

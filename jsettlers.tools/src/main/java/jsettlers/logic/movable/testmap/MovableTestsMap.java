@@ -407,6 +407,10 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
+		public void addSelfDeletingMapObject(ShortPoint2D point, int sound, int animation, float duration, Player player) {
+		}
+
+		@Override
 		public void addEyeMapObject(ShortPoint2D position, short radius, float duration, Player player) {
 		}
 

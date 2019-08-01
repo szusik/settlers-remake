@@ -85,6 +85,8 @@ public abstract class AbstractMovableGrid extends AbstractStrategyGrid {
 	 */
 	public abstract void addSelfDeletingMapObject(ShortPoint2D position, EMapObjectType mapObjectType, float duration, Player player);
 
+	public abstract void addSelfDeletingMapObject(ShortPoint2D point, int sound, int animation, float duration, Player player);
+
 	public abstract void addEyeMapObject(ShortPoint2D position, short radius, float duration, Player player);
 
 	public abstract boolean isInBounds(int x, int y);
