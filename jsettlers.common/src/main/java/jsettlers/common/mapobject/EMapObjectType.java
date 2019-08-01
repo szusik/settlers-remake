@@ -146,6 +146,8 @@ public enum EMapObjectType {
 	 */
 	INFORMABLE_MAP_OBJECT,
 
+	EYE,
+
 	FERRY,
 	CARGO_SHIP;
 

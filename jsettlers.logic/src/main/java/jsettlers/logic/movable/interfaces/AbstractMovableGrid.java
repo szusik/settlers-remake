@@ -16,7 +16,6 @@ package jsettlers.logic.movable.interfaces;
 
 import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
-import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.position.ShortPoint2D;
@@ -85,6 +84,8 @@ public abstract class AbstractMovableGrid extends AbstractStrategyGrid {
 	 *            The {@link Player} of the map object.
 	 */
 	public abstract void addSelfDeletingMapObject(ShortPoint2D position, EMapObjectType mapObjectType, float duration, Player player);
+
+	public abstract void addEyeMapObject(ShortPoint2D position, short radius, float duration, Player player);
 
 	public abstract boolean isInBounds(int x, int y);
 

@@ -3,20 +3,22 @@ package jsettlers.common.movable;
 import jsettlers.common.images.ImageLink;
 
 public enum ESpellType {
-	EYE(10, "original_14_GUI_246"),
-	IRRIGATE(10, "original_14_GUI_249"),
-	GREEN_THUMB(15, "original_14_GUI_252"),
-	DEFEATISM(15, "original_14_GUI_255"),
-	GIFTS(20, "original_14_GUI_258"),
-	GILDING(20, "original_14_GUI_261"),
-	CURSE_MOUNTAIN(25, "original_14_GUI_264"),
-	DEFECT(40, "original_14_GUI_267");
+	EYE(10, false,"original_14_GUI_246"),
+	IRRIGATE(10, true, "original_14_GUI_249"),
+	GREEN_THUMB(15, true, "original_14_GUI_252"),
+	DEFEATISM(15, true, "original_14_GUI_255"),
+	GIFTS(20, true, "original_14_GUI_258"),
+	GILDING(20, true, "original_14_GUI_261"),
+	CURSE_MOUNTAIN(25, true, "original_14_GUI_264"),
+	DEFECT(40, true, "original_14_GUI_267");
 
 	private short manna;
 	private ImageLink imageLink;
+	private boolean forcePresence;
 
-	ESpellType(int manna, String imageLink) {
+	ESpellType(int manna, boolean forcePresence, String imageLink) {
 		this.manna = (short) manna;
+		this.forcePresence = forcePresence;
 		this.imageLink = ImageLink.fromName(imageLink, 0);
 	}
 
@@ -32,6 +34,10 @@ public enum ESpellType {
 		return (short)(manna*(count/10f+1));
 	}
 
+	public boolean forcePresence() {
+		return forcePresence;
+	}
+
 	public static final int GILDING_MAX_IRON = 40;
 
 	public static final int DEFEATISM_MAX_SOLDIERS = 20;
@@ -45,4 +51,7 @@ public enum ESpellType {
 	public static final long DEFECT_MAX_ENEMIES = 10;
 
 	public static final int IRRIGATE_RADIUS = 7;
+
+	public static final short EYE_RADIUS = 10;
+	public static final float EYE_TIME = 6;
 }

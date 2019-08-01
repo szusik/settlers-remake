@@ -52,21 +52,6 @@ public enum EDirection {
 		this.ordinal = (byte) super.ordinal();
 	}
 
-	public static CoordinateStream neighborStream(ShortPoint2D point) {
-		return new CoordinateStream() {
-
-			@Override
-			public boolean iterate(IBooleanCoordinateFunction function) {
-				for(EDirection dir : VALUES) {
-					if(!function.apply(point.x+dir.gridDeltaX, point.y+dir.gridDeltaY)) {
-						return false;
-					}
-				}
-				return true;
-			}
-		};
-	}
-
 	/**
 	 * @return delta x you have to go on the grid to go into this direction
 	 */

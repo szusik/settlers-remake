@@ -315,6 +315,13 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		timingQueue.add(new TimeEvent(object, duration, true));
 	}
 
+	public void addEyeMapObject(ShortPoint2D position, short radius, float duration, Player player) {
+		EyeMapObject eye = new EyeMapObject(grid, position, duration, radius, player);
+		addMapObject(position, eye);
+		timingQueue.add(new TimeEvent(eye, 0, false));
+		timingQueue.add(new TimeEvent(eye, duration, false));
+	}
+
 	public void setConstructionMarking(int x, int y, byte value) {
 		if (value >= 0) {
 			ConstructionMarkObject markObject = (ConstructionMarkObject) grid.getMapObject(x, y, EMapObjectType.CONSTRUCTION_MARK);

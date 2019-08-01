@@ -985,6 +985,11 @@ public final class MainGrid implements Serializable {
 		public boolean hasMapObjectType(int x, int y, EMapObjectType... mapObjectTypes) {
 			return objectsGrid.hasMapObjectType(x, y, mapObjectTypes);
 		}
+
+		@Override
+		public void drawFogOfWar(ShortPoint2D at, short from, short to) {
+			FogOfWar.queueResizeCircle(at, from, to);
+		}
 	}
 
 	final class EnclosedBlockedAreaFinderGrid implements IEnclosedBlockedAreaFinderGrid {
@@ -1397,6 +1402,11 @@ public final class MainGrid implements Serializable {
 		@Override
 		public void addSelfDeletingMapObject(ShortPoint2D position, EMapObjectType mapObjectType, float duration, Player player) {
 			mapObjectsManager.addSelfDeletingMapObject(position, mapObjectType, duration, player);
+		}
+
+		@Override
+		public void addEyeMapObject(ShortPoint2D position, short radius, float duration, Player player) {
+			mapObjectsManager.addEyeMapObject(position, radius, duration, player);
 		}
 
 		@Override

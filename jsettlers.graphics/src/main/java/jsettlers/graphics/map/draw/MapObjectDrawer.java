@@ -414,7 +414,7 @@ public class MapObjectDrawer {
 		// draw ship front
 		drawShipLink(baseSequence + 2, shipImageDirection, glDrawContext, viewX, viewY, y, color, shade);
 
-		drawSelectionMark(viewX, viewY, ship);
+		drawSettlerMark(viewX, viewY, ship);
 	}
 
 	private EDirection getPassengerDirection(EDirection shipDirection, ShortPoint2D shipPosition, int seatIndex) { // make ferry passengers look around
@@ -488,7 +488,7 @@ public class MapObjectDrawer {
 				break;
 
 			case GHOST:
-				drawPlayerableByProgress(x, y, object, color);
+				drawPlayerableByProgress(x, y, object, color, imageProvider.getSettlerSequence(DEAD_SETTLER_FILE, DEAD_SETTLER_INDEX));
 				playSound(object, SOUND_SETTLER_KILLED, x, y);
 				break;
 
@@ -894,7 +894,7 @@ public class MapObjectDrawer {
 		image = this.imageMap.getImageForSettler(movable, moveProgress);
 		image.drawAt(context.getGl(), viewX, viewY, getZ(0, y), color, shade);
 
-		drawSelectionMark(viewX, viewY, movable);
+		drawSettlerMark(viewX, viewY, movable);
 	}
 
 	private float betweenTilesX(int startX, int startY, EDirection direction, float progress) {
@@ -906,7 +906,7 @@ public class MapObjectDrawer {
 		return x;
 	}
 
-	private void drawSelectionMark(float viewX, float viewY, IMovable movable) {
+	private void drawSettlerMark(float viewX, float viewY, IMovable movable) {
 		if(movable.isSelected()) {
 			Image image = ImageProvider.getInstance().getSettlerSequence(4, 7).getImageSafe(0, () -> "settler-selection-indicator");
 			image.drawAt(context.getGl(), viewX, viewY + 20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
@@ -1322,7 +1322,7 @@ public class MapObjectDrawer {
 
 				if (place.getSoldierClass() == ESoldierClass.BOWMAN) {
 					playMovableSound(movable);
-					drawSelectionMark(viewX, viewY, movable);
+					drawSettlerMark(viewX, viewY, movable);
 				}
 			}
 		} catch (ConcurrentModificationException e) {
@@ -1363,11 +1363,10 @@ public class MapObjectDrawer {
 	private static final int DEAD_SETTLER_FILE = 12;
 	private static final int DEAD_SETTLER_INDEX = 27;
 
-	private void drawPlayerableByProgress(int x, int y, IMapObject object, float baseColor) {
-		Sequence<? extends Image> sequence = this.imageProvider.getSettlerSequence(DEAD_SETTLER_FILE, DEAD_SETTLER_INDEX);
-		int index = Math.min((int) (object.getStateProgress() * sequence.length()), sequence.length() - 1);
+	private void drawPlayerableByProgress(int x, int y, IMapObject object, float baseColor, Sequence<? extends Image> seq) {
+		int index = Math.min((int) (object.getStateProgress() * seq.length()), seq.length() - 1);
 		Color color = getColor(object);
-		draw(sequence.getImage(index, () -> "dead-settler"), x, y, 0, color, baseColor);
+		draw(seq.getImage(index, () -> "dead-settler"), x, y, 0, color, baseColor);
 	}
 
 	private Color getColor(IMapObject object) {

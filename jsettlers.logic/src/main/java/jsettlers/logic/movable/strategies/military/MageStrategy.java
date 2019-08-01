@@ -6,9 +6,9 @@ import jsettlers.common.landscape.ELandscapeType;
 import static jsettlers.common.landscape.ELandscapeType.*;
 
 import jsettlers.common.map.shapes.MapCircle;
+import jsettlers.common.map.shapes.MapNeighboursArea;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.menu.messages.SimpleMessage;
-import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.ESpellType;
@@ -50,13 +50,8 @@ public class MageStrategy extends MovableStrategy {
 		at.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == from).forEach((x, y) -> getGrid().changeTerrainTo(x, y, to));
 	}
 
-	@Override
-	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step) {
-		if(spellAbortPath && !pathTarget.equals(spellLocation)) {
-			abortCasting();
-		}
-
-		if(spellLocation == null || spellLocation.getOnGridDistTo(movable.getPosition()) > Constants.MAGE_CAST_DISTANCE) return true;
+	private boolean castSpell() {
+		if(spellLocation == null || (spell.forcePresence() && spellLocation.getOnGridDistTo(movable.getPosition()) > Constants.MAGE_CAST_DISTANCE)) return true;
 
 		if(movable.getPlayer().getMannaInformation().useSpell(spell)) {
 			switch(spell) {
@@ -99,13 +94,13 @@ public class MageStrategy extends MovableStrategy {
 								int size = MatchConstants.random().nextInt(9);
 								for(int i = 0; i != size; i++) getGrid().dropMaterial(at, type, true, false);
 							});
-					//TODO play sound and play animation 1:114
+					//TODO play sound 78 and play animation 1:114
 					break;
 				case CURSE_MOUNTAIN:
 					spellRegion(ESpellType.CURSE_MOUNTAIN_RADIUS)
 							.filter((x, y) -> teamId(x, y) != teamId(movable))
 							.forEach((x, y) -> getGrid().tryCursingLocation(new ShortPoint2D(x, y)));
-					//TODO play sound and play animation 1:120
+					//TODO play sound 100 and play animation 1:120
 					break;
 				case DEFECT:
 					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
@@ -113,7 +108,7 @@ public class MageStrategy extends MovableStrategy {
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.DEFECT_MAX_ENEMIES)
 							.forEach(lm -> lm.defectTo(movable.getPlayer()));
-					//TODO play sound and play animation 1:119
+					//TODO play sound 95 and play animation 1:119
 					break;
 				case IRRIGATE:
 					CoordinateStream affectedRegion = spellRegion(ESpellType.IRRIGATE_RADIUS);
@@ -126,7 +121,7 @@ public class MageStrategy extends MovableStrategy {
 
 					affectedRegion.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == DESERT)
 							.filter((x, y) ->
-									EDirection.neighborStream(new ShortPoint2D(x, y))
+									MapNeighboursArea.stream(x, y)
 											.filter((tx, ty) -> !DRY_GRASS_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(tx, ty)))
 											.isEmpty())
 							.forEach((x, y) -> getGrid().changeTerrainTo(x, y, DRY_GRASS));
@@ -134,21 +129,25 @@ public class MageStrategy extends MovableStrategy {
 					// if there aren't any fields that can't be next to grass, set it to grass
 					affectedRegion.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == DRY_GRASS)
 							.filter((x, y) ->
-									EDirection.neighborStream(new ShortPoint2D(x, y))
+									MapNeighboursArea.stream(x, y)
 											.filter((tx, ty) -> !GRASS_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(tx, ty)))
 											.isEmpty())
 							.forEach((x, y) -> getGrid().changeTerrainTo(x, y, GRASS));
 
 					for(ShortPoint2D point : flattenedRegion) {
-						if(EDirection.neighborStream(point).filter((x, y) -> !FLATTENED_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(x, y))).isEmpty()) {
+						if(MapNeighboursArea.stream(point.x, point.y).filter((x, y) -> !FLATTENED_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(x, y))).isEmpty()) {
 							getGrid().changeTerrainTo(point.x, point.y, FLATTENED);
 						}
 					}
 					//TODO play sound and play animation 1:125
 					break;
+				case EYE:
+					getGrid().addEyeMapObject(spellLocation, ESpellType.EYE_RADIUS, ESpellType.EYE_TIME, movable.getPlayer());
+					//TODO play sound 80 and play animation 1:126
+					break;
 				default:
 					System.err.println("unimplemented spell: " + spell);
-					 break;
+					break;
 			}
 		} else {
 			movable.getPlayer().showMessage(SimpleMessage.castFailed(spellLocation, "spell_failed"));
@@ -158,6 +157,15 @@ public class MageStrategy extends MovableStrategy {
 		abortCasting();
 
 		return !abortPath;
+	}
+
+	@Override
+	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step) {
+		if(spellAbortPath && !pathTarget.equals(spellLocation)) {
+			abortCasting();
+		}
+
+		return castSpell();
 	}
 
 	@Override
@@ -179,11 +187,13 @@ public class MageStrategy extends MovableStrategy {
 	}
 
 	public void castSpell(ShortPoint2D at, ESpellType spell) {
+		spellAbortPath = movable.getAction() != EMovableAction.WALKING;
 		spellLocation = new ShortPoint2D(at.x, at.y);
 		this.spell = spell;
 
+		if(castSpell()) return;
+
 		if(movable.getAction() != EMovableAction.WALKING) {
-			spellAbortPath = true;
 			movable.moveTo(spellLocation);
 		}
 	}
