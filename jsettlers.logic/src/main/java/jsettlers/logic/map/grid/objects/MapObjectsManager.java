@@ -105,10 +105,10 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		killed = true;
 	}
 
-	public boolean executeSearchType(ShortPoint2D pos, ESearchType type) {
+	public boolean executeSearchType(ShortPoint2D pos, ESearchType type, float timeMod) {
 		switch (type) {
 		case PLANTABLE_TREE:
-			return plantTree(new ShortPoint2D(pos.x, pos.y + 1));
+			return plantTree(new ShortPoint2D(pos.x, pos.y + 1), timeMod);
 		case CUTTABLE_TREE:
 			return cutTree(pos);
 
@@ -117,12 +117,12 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 			return true;
 
 		case PLANTABLE_CORN:
-			return plantCorn(pos);
+			return plantCorn(pos, timeMod);
 		case CUTTABLE_CORN:
 			return cutCorn(pos);
 
 		case PLANTABLE_WINE:
-			return plantWine(pos);
+			return plantWine(pos, timeMod);
 		case HARVESTABLE_WINE:
 			return harvestWine(pos);
 
@@ -162,10 +162,10 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		}
 	}
 
-	private boolean plantTree(ShortPoint2D pos) {
+	private boolean plantTree(ShortPoint2D pos, float mod) {
 		Tree tree = new Tree(pos);
 		addMapObject(pos, tree);
-		schedule(tree, Tree.GROWTH_DURATION, false);
+		schedule(tree, Tree.GROWTH_DURATION*mod, false);
 		return true;
 	}
 
@@ -182,12 +182,12 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		return false;
 	}
 
-	private boolean plantCorn(ShortPoint2D pos) {
+	private boolean plantCorn(ShortPoint2D pos, float mod) {
 		Corn corn = new Corn(pos);
 		addMapObject(pos, corn);
-		schedule(corn, Corn.GROWTH_DURATION, false);
-		schedule(corn, Corn.GROWTH_DURATION + Corn.DECOMPOSE_DURATION, false);
-		schedule(corn, Corn.GROWTH_DURATION + Corn.DECOMPOSE_DURATION + Corn.REMOVE_DURATION, true);
+		schedule(corn, Corn.GROWTH_DURATION*mod, false);
+		schedule(corn, Corn.GROWTH_DURATION*mod + Corn.DECOMPOSE_DURATION, false);
+		schedule(corn, Corn.GROWTH_DURATION*mod + Corn.DECOMPOSE_DURATION + Corn.REMOVE_DURATION, true);
 		return true;
 	}
 
@@ -204,12 +204,12 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		return false;
 	}
 
-	private boolean plantWine(ShortPoint2D pos) {
+	private boolean plantWine(ShortPoint2D pos, float mod) {
 		Wine wine = new Wine(pos);
 		addMapObject(pos, wine);
-		schedule(wine, Wine.GROWTH_DURATION, false);
-		schedule(wine, Wine.GROWTH_DURATION + Wine.DECOMPOSE_DURATION, false);
-		schedule(wine, Wine.GROWTH_DURATION + Wine.DECOMPOSE_DURATION + Wine.REMOVE_DURATION, true);
+		schedule(wine, Wine.GROWTH_DURATION*mod, false);
+		schedule(wine, Wine.GROWTH_DURATION*mod + Wine.DECOMPOSE_DURATION, false);
+		schedule(wine, Wine.GROWTH_DURATION*mod + Wine.DECOMPOSE_DURATION + Wine.REMOVE_DURATION, true);
 		return true;
 	}
 

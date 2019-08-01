@@ -923,6 +923,11 @@ public class MapObjectDrawer {
 			Image defeatism_image = ImageProvider.getInstance().getSettlerSequence(1, 130).getImage(0, () -> "defeatism-indicator");
 			defeatism_image.drawAt(context.getGl(), viewX+10, viewY+20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
 		}
+
+		if(movable.hasEffect(EEffectType.GREEN_THUMB)) {
+			Image defeatism_image = ImageProvider.getInstance().getSettlerSequence(1, 134).getImage(0, () -> "green_thumb-indicator");
+			defeatism_image.drawAt(context.getGl(), viewX+10, viewY+20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
+		}
 	}
 
 	private void playSound(IMapObject object, int soundId, int x, int y) {

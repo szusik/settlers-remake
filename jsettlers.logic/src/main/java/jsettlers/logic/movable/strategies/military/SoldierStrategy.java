@@ -401,6 +401,6 @@ public abstract class SoldierStrategy extends MovableStrategy implements IBuildi
 
 	protected float getCombatStrength() {
 		return movable.getPlayer().getCombatStrengthInformation().getCombatStrength(isOnOwnGround()) *
-				(movable.hasEffect(EEffectType.DEFEATISM) ? 0.5f : 1);
+				(movable.hasEffect(EEffectType.DEFEATISM) ? EEffectType.DEFEATISM.getMod() : 1);
 	}
 }

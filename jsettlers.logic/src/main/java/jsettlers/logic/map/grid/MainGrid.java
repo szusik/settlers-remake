@@ -61,6 +61,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.menu.UIState;
 import jsettlers.common.movable.EDirection;
+import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IMovable;
 import jsettlers.common.player.IPlayer;
@@ -1416,9 +1417,10 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final boolean executeSearchType(IPathCalculatable pathCalculable, ShortPoint2D position, ESearchType searchType) {
-			if (fitsSearchType(pathCalculable, position.x, position.y, searchType)) {
-				return mapObjectsManager.executeSearchType(position, searchType);
+		public final boolean executeSearchType(ILogicMovable movable, ShortPoint2D position, ESearchType searchType) {
+			if (fitsSearchType(movable, position.x, position.y, searchType)) {
+				return mapObjectsManager.executeSearchType(position, searchType,
+						movable.hasEffect(EEffectType.GREEN_THUMB) ? EEffectType.GREEN_THUMB.getMod() : 1);
 			} else {
 				return false;
 			}

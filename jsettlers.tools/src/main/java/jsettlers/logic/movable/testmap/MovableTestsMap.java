@@ -359,7 +359,7 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
-		public boolean executeSearchType(IPathCalculatable pathCalculatable, ShortPoint2D position, ESearchType searchType) {
+		public boolean executeSearchType(ILogicMovable movable, ShortPoint2D position, ESearchType searchType) {
 			return false;
 		}
 

@@ -15,12 +15,19 @@
 package jsettlers.common.movable;
 
 public enum EEffectType {
-	DEFEATISM(60000);
+	DEFEATISM(60, 0.5f),
+	GREEN_THUMB(600, 0.5f);
 
 	private int time;
+	private float mod;
 
-	EEffectType(int time) {
+	EEffectType(int time, float mod) {
 		this.time = time;
+		this.mod = mod;
+	}
+
+	public float getMod() {
+		return mod;
 	}
 
 	public int getTime() {

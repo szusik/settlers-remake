@@ -102,7 +102,7 @@ public abstract class AbstractStrategyGrid implements Serializable {
 
 	/**
 	 *
-	 * @param pathCalculatable
+	 * @param movable
 	 *            requester
 	 * @param position
 	 *            Position to execute the given {@link ESearchType}.
@@ -110,7 +110,7 @@ public abstract class AbstractStrategyGrid implements Serializable {
 	 * @return true if the given position can be used to execute the search type.<br>
 	 *         false if it can not
 	 */
-	public abstract boolean executeSearchType(IPathCalculatable pathCalculatable, ShortPoint2D position, ESearchType searchType);
+	public abstract boolean executeSearchType(ILogicMovable movable, ShortPoint2D position, ESearchType searchType);
 
 	public abstract EMaterialType popToolProductionRequest(ShortPoint2D pos);
 

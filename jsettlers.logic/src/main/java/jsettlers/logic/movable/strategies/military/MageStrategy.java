@@ -11,6 +11,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
+import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
@@ -140,6 +141,14 @@ public class MageStrategy extends MovableStrategy {
 						}
 					}
 					//TODO play sound and play animation 1:125
+					break;
+				case GREEN_THUMB:
+					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive())
+							.filter(lm -> lm.getMovableType() == EMovableType.FARMER &&
+									lm.getMovableType() == EMovableType.WINEGROWER &&
+									lm.getMovableType() == EMovableType.FORESTER
+							).limit(1).forEach(lm -> lm.addEffect(EEffectType.GREEN_THUMB));
 					break;
 				case EYE:
 					getGrid().addEyeMapObject(spellLocation, ESpellType.EYE_RADIUS, ESpellType.EYE_TIME, movable.getPlayer());

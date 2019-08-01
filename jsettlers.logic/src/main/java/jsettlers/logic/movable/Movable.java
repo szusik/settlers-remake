@@ -1146,7 +1146,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 	}
 
 	public void addEffect(EEffectType effect) {
-		effectEnd[effect.ordinal()] = effect.getTime() + MatchConstants.clock().getTime();
+		effectEnd[effect.ordinal()] = effect.getTime()*1000 + MatchConstants.clock().getTime();
 	}
 
 	@Override
