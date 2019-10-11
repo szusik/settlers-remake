@@ -64,6 +64,7 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.EWinState;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.MutablePoint2D;
 import jsettlers.common.position.RelativePoint;
@@ -513,6 +514,10 @@ public final class MainGrid implements Serializable {
 
 	public void initWithPlayerSettings(PlayerSetting[] playerSettings) {
 		partitionsGrid.initWithPlayerSettings(playerSettings);
+	}
+
+	public final void disableFogOfWar() {
+		fogOfWar.setEnabled(false);
 	}
 
 	final class PathfinderGrid implements IAStarPathMap, IDijkstraPathMap, IInAreaFinderMap, Serializable {
@@ -1979,6 +1984,11 @@ public final class MainGrid implements Serializable {
 		@Override
 		public boolean isNavigable(int x, int y) {
 			return MainGrid.this.isNavigable(x, y);
+		}
+
+		@Override
+		public boolean hasLost(byte playerId) {
+			return partitionsGrid.getPlayer(playerId).getWinState() == EWinState.LOST;
 		}
 
 		@Override
