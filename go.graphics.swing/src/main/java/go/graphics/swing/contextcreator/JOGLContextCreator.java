@@ -21,12 +21,12 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
 
-import go.graphics.swing.GLContainer;
+import go.graphics.swing.ContextContainer;
 import go.graphics.swing.event.swingInterpreter.GOSwingEventConverter;
 
 public class JOGLContextCreator extends ContextCreator<GLJPanel> implements GLEventListener {
 
-	public JOGLContextCreator(GLContainer container, boolean debug) {
+	public JOGLContextCreator(ContextContainer container, boolean debug) {
 		super(container, debug);
 	}
 
@@ -50,7 +50,7 @@ public class JOGLContextCreator extends ContextCreator<GLJPanel> implements GLEv
 	public void init(GLAutoDrawable drawable) {
 		drawable.getGL().setSwapInterval(0);
 		if(debug) drawable.getGL().glEnable(GL4.GL_DEBUG_OUTPUT); // Better than nothing
-		parent.wrapNewContext();
+		parent.wrapNewGLContext();
 	}
 
 	@Override
@@ -60,13 +60,17 @@ public class JOGLContextCreator extends ContextCreator<GLJPanel> implements GLEv
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
-		parent.draw();
-		parent.finishFrame();
-		if(fpsLimit == 0) repaint();
+		try {
+			parent.draw();
+			parent.finishFrame();
+			if(fpsLimit == 0) repaint();
+		} catch(ContextException ignored) {}
 	}
 
 	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-		parent.resizeContext(width, height);
+		try {
+			parent.resizeContext(width, height);
+		} catch(ContextException ignored) {}
 	}
 }

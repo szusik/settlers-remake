@@ -25,15 +25,14 @@ import javax.swing.SwingUtilities;
 
 import go.graphics.DrawmodeListener;
 import go.graphics.FramerateComputer;
-import go.graphics.swing.GLContainer;
+import go.graphics.swing.ContextContainer;
 import go.graphics.swing.event.swingInterpreter.GOSwingEventConverter;
-
-import static org.lwjgl.opengl.GL20C.*;
 
 public abstract class AsyncContextCreator extends ContextCreator implements Runnable,DrawmodeListener {
 
-	private boolean offscreen = true;
-	private boolean clear_offscreen = true;
+	protected boolean offscreen = true;
+	protected boolean async_resized = false;
+	protected boolean clear_offscreen = true;
 	private boolean continue_run = true;
 
 	private BufferedImage bi = null;
@@ -41,7 +40,7 @@ public abstract class AsyncContextCreator extends ContextCreator implements Runn
 
 	private Thread render_thread = new Thread(this, "AsyncRenderer");
 
-	public AsyncContextCreator(GLContainer container, boolean debug)  {
+	public AsyncContextCreator(ContextContainer container, boolean debug)  {
 		super(container, debug);
 	}
 
@@ -89,49 +88,62 @@ public abstract class AsyncContextCreator extends ContextCreator implements Runn
 
 	@Override
 	public void run() {
+		synchronized (wnd_lock) {
+			width = new_width;
+			height = new_height;
+		}
 		async_init();
-
-		parent.wrapNewContext();
 
 		FramerateComputer fpsComputer = new FramerateComputer();
 
 		while(continue_run) {
-			if (change_res) {
-				synchronized (wnd_lock) {
-					width = new_width;
-					height = new_height;
-					async_set_size(width, height);
+			try {
+				if (change_res) {
+					synchronized (wnd_lock) {
+						width = new_width;
+						height = new_height;
 
-					parent.resizeContext(width, height);
+						if (async_resized) {
+							async_resized = false;
+						} else {
+							async_set_size(width, height);
+						}
 
-					bi = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-					pixels = BufferUtils.createIntBuffer(width * height);
+						Thread.sleep(20); // we must wait a bit because X is async and our window must not be resized in time otherwise
+						parent.resizeContext(width, height);
+
+						bi = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+						pixels = BufferUtils.createIntBuffer(width * height);
+					}
+					change_res = false;
 				}
-				change_res = false;
-			}
-			async_refresh();
+				async_refresh();
 
-			parent.draw();
-			parent.finishFrame();
+				parent.draw();
+				parent.finishFrame();
 
-			if (offscreen) {
-				synchronized (wnd_lock) {
-					glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
-					for (int x = 0; x != width; x++) {
-						for (int y = 0; y != height; y++) {
-							bi.setRGB(x, height - y - 1, pixels.get(y * width + x));
+				if (offscreen) {
+					synchronized (wnd_lock) {
+						parent.readFramebuffer(pixels, width, height);
+						for (int x = 0; x != width; x++) {
+							for (int y = 0; y != height; y++) {
+								bi.setRGB(x, height - y - 1, pixels.get(y * width + x));
+							}
 						}
 					}
 				}
-			}
 
-			if(!offscreen || clear_offscreen) {
-				if(clear_offscreen) {
-					glClear(GL_COLOR_BUFFER_BIT);
-					clear_offscreen = false;
+				if (!offscreen || clear_offscreen) {
+					if (clear_offscreen && !offscreen) {
+						parent.clearFramebuffer();
+						clear_offscreen = false;
+					}
+					async_swapbuffers();
+					if (fpsLimit != 0) fpsComputer.nextFrame(fpsLimit);
 				}
-				async_swapbuffers();
-				if(fpsLimit != 0) fpsComputer.nextFrame(fpsLimit);
+			} catch(ContextException ignored) {
+			} catch(Throwable thrown) {
+				thrown.printStackTrace();
 			}
 		}
 

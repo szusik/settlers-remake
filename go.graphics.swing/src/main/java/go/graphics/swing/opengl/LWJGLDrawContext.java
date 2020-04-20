@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,29 +84,28 @@ public class LWJGLDrawContext extends GLDrawContext {
 	private float ulr, ulg, ulb, ula, uli;
 	private float ulm;
 
-	
+
 	public TextureHandle generateTexture(int width, int height, ShortBuffer data, String name) {
 		int texture = glGenTextures();
 		if (texture == 0) {
 			return null;
 		}
 
-		TextureHandle textureHandle = new TextureHandle(this, texture);
+		TextureHandle textureHandle = new LWJGLTextureHandle(this, texture);
 		resizeTexture(textureHandle, width, height, data);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		setObjectLabel(GL11.GL_TEXTURE, texture, name + "-tex");
 
 		return textureHandle;
 	}
 
-	public void resizeTexture(TextureHandle textureIndex, int width, int height, ShortBuffer data) {
+	public TextureHandle resizeTexture(TextureHandle textureIndex, int width, int height, ShortBuffer data) {
 		bindTexture(textureIndex);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, data);
+		return textureIndex;
 	}
 	
 	public void updateTexture(TextureHandle texture, int left, int bottom,
@@ -115,7 +115,7 @@ public class LWJGLDrawContext extends GLDrawContext {
 				GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, data);
 	}
 
-	private void bindTexture(TextureHandle texture) {
+	protected void bindTexture(TextureHandle texture) {
 		if(lastTexture != texture) {
 			int id = 0;
 			if (texture != null) {
@@ -246,7 +246,7 @@ public class LWJGLDrawContext extends GLDrawContext {
 		if(data != null) {
 			glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
 		} else {
-			glBufferData(GL_ARRAY_BUFFER, vertices*(texture!=null?4:2)*4*4, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, vertices*(texture!=null?4:2)*4, GL_DYNAMIC_DRAW);
 		}
 
 		UnifiedDrawHandle handle = new UnifiedDrawHandle(this, vao, 0, vertices, texture, vertexBuffer);
@@ -590,9 +590,20 @@ public class LWJGLDrawContext extends GLDrawContext {
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 
+	public void clearFramebuffer() {
+		finishFrame();
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
 	@Override
 	public void startFrame() {
 		super.startFrame();
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	}
+
+	public void readFramebuffer(IntBuffer pixels, int width, int height) {
+		finishFrame();
+		glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
+		glClear(GL_COLOR_BUFFER_BIT);
 	}
 }

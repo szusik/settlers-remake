@@ -22,6 +22,7 @@ import go.graphics.RedrawListener;
 import go.graphics.area.Area;
 import go.graphics.event.GOEvent;
 import go.graphics.swing.contextcreator.EBackendType;
+import go.graphics.swing.contextcreator.ContextException;
 
 /**
  * This class lets you embed areas into swing components.
@@ -29,7 +30,7 @@ import go.graphics.swing.contextcreator.EBackendType;
  * @author michael
  * @author paul
  */
-public class AreaContainer extends GLContainer implements RedrawListener {
+public class AreaContainer extends ContextContainer implements RedrawListener {
 
 	/**
 	 * 
@@ -62,14 +63,14 @@ public class AreaContainer extends GLContainer implements RedrawListener {
 
 	}
 
-	public void resizeContext(int width, int height) {
+	public void resizeContext(int width, int height) throws ContextException {
 		super.resizeContext(width, height);
 		area.setWidth(width);
 		area.setHeight(height);
 
 	}
 
-	public void draw() {
+	public void draw() throws ContextException {
 		super.draw();
 		area.drawArea(context);
 	}
