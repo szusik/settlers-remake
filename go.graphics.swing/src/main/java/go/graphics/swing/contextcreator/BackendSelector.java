@@ -36,9 +36,11 @@ public class BackendSelector extends JComboBox<EBackendType> {
 		super.actionPerformed(actionEvent);
 
 		if(actionEvent.getActionCommand().equals("comboBoxChanged")) {
-			Object item = getSelectedItem();
-			if(item instanceof String) return;
-			EBackendType bi = (EBackendType) item;
+			if(getSelectedItem() instanceof String) {
+				setSelectedItem(current_item);
+				return;
+			}
+			EBackendType bi = (EBackendType) getSelectedItem();
 			if (bi.platform != null && bi.platform != Platform.get()) {
 				setSelectedItem(current_item);
 				BackendSelector.this.hidePopup();
