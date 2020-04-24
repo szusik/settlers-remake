@@ -53,18 +53,18 @@ public enum EMaterialType {
 	WATER((short) 77, 3, 156, true, 12, false),
 	WINE((short) 69, 14, 123, true, 25, false),
 
+	MEAD((short) 90, 14, 126, true, 26, true),
+	HONEY((short) 89, 14, 129, true, 27, true),
+	GEMS((short) 79, 24, 120, true, 28, false),
+	SULFUR((short) 80, 34, 126, true, 29, false),
+	RICE((short) 78, 34, 129, true, 30, false),
+	KEG((short) 70, 24, 123, true, 31, false),
+	LIQUOR((short)71, 34, 132, true, 32, false),
+	GUN_POWDER((short) 82, 34, 135, true, 33, false),
+
 	// Now the non-droppable materials
 
 	NO_MATERIAL((short) 0, 0, 0, false, -1, false),
-
-	MEAD((short) 90, 14, 126, true, -1, true),
-	HONEY((short) 89, 14, 129, true, -1, true),
-	GEMS((short) 79, 24, 120, true, -1, false),
-	SULFUR((short) 80, 34, 126, true, -1, false),
-	RICE((short) 78, 34, 129, true, -1, false),
-	KEG((short) 70, 34, 132, true, -1, false),
-	LIQUOR((short)71, 34, 132, true, -1, false),
-	GUN_POWDER((short) 82, 34, 135, true, -1, false),
 
 	// ammo for siege weapons (6 frames instead of 8)
 	CANNON_AMMO((short) 86, 34, 249, false, -1, false),

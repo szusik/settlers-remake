@@ -116,6 +116,27 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 		}
 	}
 
+	public static class TradingMaterials extends UIPanel {
+
+		public TradingMaterials() {
+			int w = 6;
+			int h = 6;
+
+			float xStep = 1.f/w;
+			float yStep = 1.f/h;
+			float sub = 18.f/25;
+
+			for(int i = 0; i < EMaterialType.NUMBER_OF_DROPPABLE_MATERIALS; i++) {
+				SelectionManagedMaterialButton button = new SelectionManagedMaterialButton(EMaterialType.DROPPABLE_MATERIALS[i]);
+				TradingMaterialCount count = new TradingMaterialCount(EMaterialType.DROPPABLE_MATERIALS[i]);
+
+				int x = i % w;
+				int y = i / w;
+				addChild(button, xStep*x, 1-yStep*(y+sub), xStep*(x+1), 1-yStep*y);
+				addChild(count, xStep*x, 1-yStep*(y+1), xStep*(x+1), 1-yStep*(y+sub));
+			}
+		}
+	}
 	/**
 	 * This displays the number of materials traded.
 	 *
