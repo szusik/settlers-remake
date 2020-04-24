@@ -864,6 +864,10 @@ public final class Movable implements ILogicMovable, FoWTask {
 		position = null;
 	}
 
+	public boolean isOnFerry() {
+		return state == EMovableState.ON_FERRY;
+	}
+
 	/**
 	 * Gets the player object of this movable.
 	 *

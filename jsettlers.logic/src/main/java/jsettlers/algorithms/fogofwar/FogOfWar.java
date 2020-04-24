@@ -189,8 +189,9 @@ public final class FogOfWar implements Serializable {
 				Movable mv = (Movable) task;
 				ShortPoint2D currentPos = mv.getPosition();
 				boolean alive = mv.isAlive();
+				if(mv.isOnFerry() || !alive) currentPos = null;
 				if(mv.fowPosition != currentPos) {
-					if(alive) circleDrawer.drawCircleToBuffer(currentPos.x, currentPos.y, Constants.MOVABLE_VIEW_DISTANCE, CIRCLE_ADD|CIRCLE_DIM);
+					if(currentPos != null) circleDrawer.drawCircleToBuffer(currentPos.x, currentPos.y, Constants.MOVABLE_VIEW_DISTANCE, CIRCLE_ADD|CIRCLE_DIM);
 					if(mv.fowPosition != null) circleDrawer.drawCircleToBuffer(mv.fowPosition.x, mv.fowPosition.y, Constants.MOVABLE_VIEW_DISTANCE, CIRCLE_REMOVE|CIRCLE_DIM);
 					mv.fowPosition = currentPos;
 				}
