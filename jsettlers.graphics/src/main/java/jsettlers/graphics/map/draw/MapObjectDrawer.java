@@ -181,10 +181,6 @@ public class MapObjectDrawer {
 	private final float shadow_offset;
 	private final float construction_offset;
 
-	private static final int SHIP_IMAGE_FILE          = 36;
-	private static final int FERRY_BASE_SEQUENCE      = 4;
-	private static final int CARGO_SHIP_BASE_SEQUENCE = 0;
-
 	private static final int SMOKE_HEIGHT = 30;
 
 	private static final int FLAG_FILE = 13;
