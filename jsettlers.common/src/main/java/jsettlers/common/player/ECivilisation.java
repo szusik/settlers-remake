@@ -18,8 +18,20 @@ package jsettlers.common.player;
  * @author codingberlin
  */
 public enum ECivilisation {
-	ROMAN,
-	EGYPTIAN,
-	ASIAN,
-	AMAZON,
+	ROMAN(1),
+	EGYPTIAN(2),
+	ASIAN(3),
+	AMAZON(4);
+
+	private int fileIndex;
+	public final int ordinal;
+
+	ECivilisation(int fileIndex) {
+		ordinal = ordinal();
+		this.fileIndex = fileIndex;
+	}
+
+	public int getFileIndex() {
+		return fileIndex;
+	}
 }

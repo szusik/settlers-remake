@@ -392,7 +392,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			float a = messageAlpha(m);
 			if (m.getSender() >= 0) {
 				String name = getPlayername(m.getSender()) + ":";
-				Color color = context.getPlayerColor(m.getSender());
+				Color color = MapDrawContext.getPlayerColor(m.getSender());
 				float width = drawer.getWidth(name);
 				for (int i = -1; i < 3; i++) {
 					drawer.drawString(x + i, y - 1, new Color(1, 1, 1, a/2), name);
@@ -1011,16 +1011,5 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	protected UIState getUIState() {
 		ScreenPosition screen = context.getScreen();
 		return new UIState(screen.getScreenCenterX(), screen.getScreenCenterY(), screen.getZoom());
-	}
-
-	/**
-	 * Gets the color for a given player.
-	 * 
-	 * @param player
-	 *            The player to get the color for.
-	 * @return The color.
-	 */
-	public Color getPlayerColor(byte player) {
-		return context.getPlayerColor(player);
 	}
 }

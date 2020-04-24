@@ -16,6 +16,7 @@ package jsettlers.graphics.map.controls.original.panel.selection;
 
 import jsettlers.common.action.EActionType;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.selectable.ISelectionSet;
 import jsettlers.common.action.Action;
 import jsettlers.common.action.ConvertAction;
@@ -49,7 +50,7 @@ public class SpecialistSelectionContent extends AbstractSelectionContent {
 		panel.addChild(stop, .1f, .1f, .5f, .2f);
 		panel.addChild(work, .5f, .1f, .9f, .2f);
 
-		if (selection.getMovableCount(EMovableType.PIONEER) > 0) {
+		if (selection.getMovableCount(EMovableType.PIONEER, null) > 0) {
 			UIPanel convert = new LabeledButton(Labels.getString("convert_all_to_BEARER"),
 					new ConvertAction(EMovableType.BEARER,
 							Short.MAX_VALUE));

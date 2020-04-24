@@ -23,6 +23,7 @@ import jsettlers.common.map.shapes.MapRectangle;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.action.IAction;
 import jsettlers.common.menu.IStartedGame;
+import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.position.FloatRectangle;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ISelectionSet;
@@ -65,6 +66,7 @@ public class OriginalControls implements IControls {
 	private Minimap minimap;
 	private boolean lastSelectionWasNull = true;
 	private MapDrawContext context;
+	private final IInGamePlayer player;
 
 	/**
 	 * Creates a new {@link OriginalControls} overlay.
@@ -76,6 +78,7 @@ public class OriginalControls implements IControls {
 		layoutProperties = ControlPanelLayoutProperties.getLayoutPropertiesFor(DEFAULT_LAYOUT_SIZE);
 		final MiniMapLayoutProperties miniMap = layoutProperties.miniMap;
 		mainPanel = new MainPanel(actionFireable, game);
+		player = game.getInGamePlayer();
 
 		chatButton = new Button(
 				new ShowChatAction(), miniMap.IMAGELINK_BUTTON_CHAT_ACTIVE, miniMap.IMAGELINK_BUTTON_CHAT_INACTIVE, "");
@@ -373,7 +376,7 @@ public class OriginalControls implements IControls {
 
 			switch (selection.getSelectionType()) {
 			case PEOPLE:
-				mainPanel.setContent(new BearerSelectionContent(selection));
+				mainPanel.setContent(new BearerSelectionContent(player, selection));
 				break;
 			case SOLDIERS:
 				mainPanel.setContent(new SoldierSelectionContent(selection));

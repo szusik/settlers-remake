@@ -22,6 +22,7 @@ import java.util.List;
 import go.graphics.GLDrawContext;
 import jsettlers.common.Color;
 import jsettlers.common.CommonConstants;
+import jsettlers.common.action.EActionType;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuilding.IOccupied;
@@ -99,8 +100,6 @@ public class MapObjectDrawer {
 	private static final int SOUND_SETTLER_KILLED     = 35;
 	private static final int SOUND_FALLING_TREE       = 36;
 
-	private static final OriginalImageLink INSIDE_BUILDING_RIGHT = new OriginalImageLink(EImageLinkType.SETTLER, 12, 28, 1);
-	private static final OriginalImageLink INSIDE_BUILDING_LEFT  = new OriginalImageLink(EImageLinkType.SETTLER, 12, 28, 0);
 
 	private static final int OBJECTS_FILE   = 1;
 	private static final int BUILDINGS_FILE = 13;
@@ -264,15 +263,10 @@ public class MapObjectDrawer {
 	}
 
 	private void drawShipInConstruction(int x, int y, IShipInConstruction ship) {
-		byte fogOfWarVisibleStatus = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
-		EDirection direction = ship.getDirection();
-		EDirection shipImageDirection = direction.rotateRight(3); // ship images have a different direction numbering
-		EMapObjectType shipType = ship.getObjectType();
-		float shade = getColor(fogOfWarVisibleStatus);
+		EMovableType shipType = ship.getObjectType() == EMapObjectType.FERRY ? EMovableType.FERRY : EMovableType.CARGO_SHIP;
+		float shade = getColor(visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE);
 		float state = ship.getStateProgress();
-		int baseSequence = (shipType == EMapObjectType.FERRY) ? FERRY_BASE_SEQUENCE : CARGO_SHIP_BASE_SEQUENCE;
-		ImageLink shipLink = new OriginalImageLink(EImageLinkType.SETTLER, SHIP_IMAGE_FILE, baseSequence + 3, shipImageDirection.ordinal);
-		Image image = imageProvider.getImage(shipLink);
+		Image image = imageMap.getImageForSettler(ship.getPlayer().getCivilisation(), shipType, EMovableAction.NO_ACTION, EMaterialType.TREE, ship.getDirection(), 0);
 		drawWithConstructionMask(x, y, state, image, shade);
 	}
 
@@ -285,17 +279,14 @@ public class MapObjectDrawer {
 		}
 		float height = context.getMap().getHeightAt(x, y);
 		EDirection direction = ship.getDirection();
-		EDirection shipImageDirection = direction.rotateRight(3); // ship images have a different direction numbering
 		EMovableType shipType = ship.getMovableType();
 		float shade = getColor(fogOfWarVisibleStatus);
-		int baseSequence = (shipType == EMovableType.FERRY) ? FERRY_BASE_SEQUENCE : CARGO_SHIP_BASE_SEQUENCE;
 
 		GLDrawContext glDrawContext = context.getGl();
 		MapCoordinateConverter mapCoordinateConverter = context.getConverter();
-		int sailSequence = (shipType == EMovableType.FERRY) ? 29 : 28;
 
 		// get drawing position
-		Color color = context.getPlayerColor(ship.getPlayer().getPlayerId());
+		Color color = MapDrawContext.getPlayerColor(ship.getPlayer().getPlayerId());
 		float viewX = 0;
 		float viewY = 0;
 		if (ship.getAction() == EMovableAction.WALKING) {
@@ -306,7 +297,7 @@ public class MapObjectDrawer {
 			viewY += mapCoordinateConverter.getViewY(x, y, height);
 		}
 		// draw ship body
-		drawShipLink(baseSequence, shipImageDirection, glDrawContext, viewX, viewY, y, color, shade);
+		drawShipLink(ship, EMaterialType.IRON, glDrawContext, viewX, viewY, y, color, shade);
 		// prepare freight drawing
 		List<? extends IMovable> passengerList = ship.getPassengers();
 
@@ -356,7 +347,7 @@ public class MapObjectDrawer {
 				if (yShift >= 0) {
 					float xShift = PASSENGER_POSITION_TO_FRONT[j] * xShiftForward + PASSENGER_POSITION_TO_RIGHT[j] * xShiftRight;
 					IMovable passenger = passengerList.get(j);
-					Image image = this.imageMap.getImageForSettler(passenger.getMovableType(), EMovableAction.NO_ACTION,
+					Image image = this.imageMap.getImageForSettler(passenger.getPlayer().getCivilisation(), passenger.getMovableType(), EMovableAction.NO_ACTION,
 						EMaterialType.NO_MATERIAL, getPassengerDirection(direction, shipPosition, i), 0
 					);
 					image.drawAt(glDrawContext, viewX + xShift, viewY + yShift + PASSENGER_DECK_HEIGHT, getZ(0, y), color, shade);
@@ -380,7 +371,7 @@ public class MapObjectDrawer {
 			}
 		}
 		// draw sail
-		drawShipLink(sailSequence, shipImageDirection, glDrawContext, viewX, viewY, y, color, shade);
+		drawShipLink(ship, EMaterialType.TRUNK, glDrawContext, viewX, viewY, y, color, shade);
 		if (shipType == EMovableType.FERRY) {
 			// draw passengers in front of the sail
 			for (int i = 0; i < numberOfFreight; i++) {
@@ -389,7 +380,7 @@ public class MapObjectDrawer {
 				if (yShift < 0) {
 					float xShift = PASSENGER_POSITION_TO_FRONT[j] * xShiftForward + PASSENGER_POSITION_TO_RIGHT[j] * xShiftRight;
 					IMovable passenger = passengerList.get(j);
-					Image image = this.imageMap.getImageForSettler(passenger.getMovableType(), EMovableAction.NO_ACTION,
+					Image image = this.imageMap.getImageForSettler(passenger.getPlayer().getCivilisation(), passenger.getMovableType(), EMovableAction.NO_ACTION,
 						EMaterialType.NO_MATERIAL, getPassengerDirection(direction, shipPosition, i), 0
 					);
 					image.drawAt(glDrawContext, viewX + xShift, viewY + yShift + PASSENGER_DECK_HEIGHT, getZ(0, y), color, shade);
@@ -413,9 +404,10 @@ public class MapObjectDrawer {
 			}
 		}
 		// draw ship front
-		drawShipLink(baseSequence + 2, shipImageDirection, glDrawContext, viewX, viewY, y, color, shade);
-
-		drawSettlerMark(viewX, viewY, ship);
+		drawShipLink(ship, EMaterialType.PLANK, glDrawContext, viewX, viewY, y, color, shade);
+		if (ship.isSelected()) {
+			drawSettlerMark(viewX, viewY, ship);
+		}
 	}
 
 	private EDirection getPassengerDirection(EDirection shipDirection, ShortPoint2D shipPosition, int seatIndex) { // make ferry passengers look around
@@ -425,9 +417,8 @@ public class MapObjectDrawer {
 		return shipDirection.getNeighbor(((x + seatIndex + slowerAnimationStep) / 8 + (y + seatIndex + slowerAnimationStep) / 11 + seatIndex) % 3 - 1);
 	}
 
-	private void drawShipLink(int sequence, EDirection direction, GLDrawContext gl, float viewX, float viewY, float y, Color color, float shade) {
-		ImageLink shipLink = new OriginalImageLink(EImageLinkType.SETTLER, MapObjectDrawer.SHIP_IMAGE_FILE, sequence, direction.ordinal);
-		Image image = imageProvider.getImage(shipLink);
+	private void drawShipLink(IMovable ship, EMaterialType fakeMat, GLDrawContext gl, float viewX, float viewY, float y, Color color, float shade) {
+		Image image = imageMap.getImageForSettler(ship.getPlayer().getCivilisation(), ship.getMovableType(), ship.getAction(), fakeMat, ship.getDirection(), 0);
 		image.drawAt(gl, viewX, viewY, getZ(0, y), color, shade);
 	}
 
@@ -839,13 +830,14 @@ public class MapObjectDrawer {
 		}
 	}
 
+	// TODO pioneers are at a significant offset
 	private void drawMovableAt(IMovable movable, int x, int y) {
 		byte fogStatus = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
 		if (fogStatus <= CommonConstants.FOG_OF_WAR_EXPLORED) {
 			return; // break
 		}
 		final float moveProgress = movable.getMoveProgress();
-		Color color = context.getPlayerColor(movable.getPlayer().getPlayerId());
+		Color color = MapDrawContext.getPlayerColor(movable.getPlayer().getPlayerId());
 		float shade = MapObjectDrawer.getColor(fogStatus);
 		Image image;
 		float viewX;
@@ -1126,7 +1118,7 @@ public class MapObjectDrawer {
 		if (fogStatus <= CommonConstants.FOG_OF_WAR_EXPLORED) {
 			return; // break
 		}
-		Color color = context.getPlayerColor(player);
+		Color color = MapDrawContext.getPlayerColor(player);
 
 		draw(playerBorderObjectImage, x, y, BACKGROUND_Z, color);
 	}
@@ -1225,7 +1217,7 @@ public class MapObjectDrawer {
 				if (seq.length() > 0) {
 					int i = getAnimationStep(x, y);
 					int step = i % seq.length();
-					drawOnlyImage(seq.getImageSafe(step, () -> "mill-" + step), x, y, 0, context.getPlayerColor(building.getPlayer().getPlayerId()), color);
+					drawOnlyImage(seq.getImageSafe(step, () -> "mill-" + step), x, y, 0, MapDrawContext.getPlayerColor(building.getPlayer().getPlayerId()), color);
 					ImageLink[] images = type.getImages();
 					if (images.length > 0) {
 						Image image = imageProvider.getImage(images[0]);
@@ -1314,12 +1306,12 @@ public class MapObjectDrawer {
 				OccupierPlace place = occupier.getPlace();
 
 				IMovable movable = occupier.getMovable();
-				Color color = context.getPlayerColor(movable.getPlayer().getPlayerId());
+				Color color = MapDrawContext.getPlayerColor(movable.getPlayer().getPlayerId());
 
 				Image image;
 				switch (place.getSoldierClass()) {
 					case INFANTRY:
-						OriginalImageLink imageLink = place.looksRight() ? INSIDE_BUILDING_RIGHT : INSIDE_BUILDING_LEFT;
+						ImageLink imageLink = ImageLinkMap.get(movable.getPlayer().getCivilisation(), place.looksRight() ? ECommonLinkType.GARRISON_RIGHT:ECommonLinkType.GARRISON_LEFT, movable.getMovableType());
 						image = imageProvider.getImage(imageLink);
 						((SettlerImage)image).setShadow(null);
 						break;
@@ -1369,6 +1361,7 @@ public class MapObjectDrawer {
 		}
 	}
 
+	// TODO shadow is wrong
 	private static final int DEAD_SETTLER_FILE = 12;
 	private static final int DEAD_SETTLER_INDEX = 27;
 
@@ -1381,7 +1374,7 @@ public class MapObjectDrawer {
 	private Color getColor(IMapObject object) {
 		Color color = null;
 		if (object instanceof IPlayerable) {
-			color = context.getPlayerColor(((IPlayerable) object).getPlayer().getPlayerId());
+			color = MapDrawContext.getPlayerColor(((IPlayerable) object).getPlayer().getPlayerId());
 		}
 		return color;
 	}
