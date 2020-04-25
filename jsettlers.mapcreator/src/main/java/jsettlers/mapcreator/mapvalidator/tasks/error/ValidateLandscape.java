@@ -31,7 +31,7 @@ public class ValidateLandscape extends AbstractValidationTask {
 	/**
 	 * Max height diff
 	 */
-	private static final int MAX_HEIGHT_DIFF = 3;
+	public static final int MAX_HEIGHT_DIFF = 3;
 
 	/**
 	 * To check landacape pairs
@@ -100,8 +100,7 @@ public class ValidateLandscape extends AbstractValidationTask {
 	 * @return diff
 	 */
 	public static int getMaxHeightDiff(ELandscapeType landscape, ELandscapeType landscape2) {
-		return landscape.isWater() || landscape == ELandscapeType.MOOR || landscape == ELandscapeType.MOORINNER || landscape2.isWater()
-				|| landscape2 == ELandscapeType.MOOR || landscape2 == ELandscapeType.MOORINNER ? 0 : MAX_HEIGHT_DIFF;
+		return (landscape.isFlat() || landscape2.isFlat()) ? 0 : MAX_HEIGHT_DIFF;
 	}
 
 }

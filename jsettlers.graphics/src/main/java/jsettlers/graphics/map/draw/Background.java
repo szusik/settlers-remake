@@ -1285,7 +1285,6 @@ public class Background implements IGraphicsBackgroundListener {
 					color_cache2.clearCache();
 				}
 			} else {
-
 				for (int y = miny; y < maxy; y++) {
 					int lineStartX = linestart + (y / 2);
 
