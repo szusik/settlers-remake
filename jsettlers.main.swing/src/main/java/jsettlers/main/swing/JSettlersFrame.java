@@ -126,12 +126,6 @@ public class JSettlersFrame extends JFrame {
 	}
 
 	public void showMainMenu() {
-		if(areaContainer != null) {
-			areaContainer.disposeAll();
-			areaContainer = null;
-		}
-
-		abortRedrawTimerIfPresent();
 		setNewContentPane(mainPanel);
 	}
 
@@ -201,6 +195,11 @@ public class JSettlersFrame extends JFrame {
 	}
 
 	public void showEndgameStatistics(IStartedGame game) {
+		if(areaContainer != null) {
+			areaContainer.disposeAll();
+			areaContainer = null;
+		}
+
 		endgameStatsPanel.setGame(game);
 		setNewContentPane(endgameStatsPanel);
 	}
