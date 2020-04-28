@@ -20,6 +20,7 @@ import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.graphics.action.ActionFireable;
+import jsettlers.common.action.Action;
 import jsettlers.common.action.SetMaterialProductionAction;
 import jsettlers.graphics.localization.Labels;
 import jsettlers.graphics.map.controls.original.panel.content.AbstractContentProvider;
@@ -33,6 +34,7 @@ import jsettlers.graphics.ui.Label;
 import jsettlers.graphics.ui.UIPanel;
 
 import java.util.Arrays;
+import java8.util.Optional;
 
 public class MaterialsProductionPanel extends AbstractContentProvider {
 	private static final float contentHeight_px = 216;
@@ -82,7 +84,7 @@ public class MaterialsProductionPanel extends AbstractContentProvider {
 			arrows = new CountArrows(() -> new SetMaterialProductionAction(position, type, SetMaterialProductionAction.EMaterialProductionType.INCREASE, 0),
 									() -> new SetMaterialProductionAction(position, type, SetMaterialProductionAction.EMaterialProductionType.DECREASE, 0));
 
-			barFill = new ActionProvidedBarFill(fillForClick -> new SetMaterialProductionAction(position, materialType, SetMaterialProductionAction.EMaterialProductionType.SET_RATIO, fillForClick));
+			barFill = new ActionProvidedBarFill(fillForClick -> Optional.of(new SetMaterialProductionAction(position, materialType, SetMaterialProductionAction.EMaterialProductionType.SET_RATIO, fillForClick)));
 
 			float left = 0;
 			addChild(goodsIcon, left, 0f, left += iconWidth, 1f);

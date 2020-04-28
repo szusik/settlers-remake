@@ -3,6 +3,7 @@ package jsettlers.logic.movable.strategies.military;
 import java.util.ArrayList;
 import java.util.List;
 
+import jsettlers.common.action.EMoveToType;
 import jsettlers.common.landscape.ELandscapeType;
 import static jsettlers.common.landscape.ELandscapeType.*;
 
@@ -193,7 +194,7 @@ public class MageStrategy extends MovableStrategy {
 	}
 
 	@Override
-	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step) {
+	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
 		if(spellAbortPath && !pathTarget.equals(spellLocation)) {
 			abortCasting();
 		}
@@ -215,7 +216,7 @@ public class MageStrategy extends MovableStrategy {
 	@Override
 	protected void stopOrStartWorking(boolean stop) {
 		if(stop) {
-			movable.moveTo(movable.getPosition());
+			movable.moveTo(movable.getPosition(), EMoveToType.FORCED);
 		}
 	}
 
@@ -227,7 +228,7 @@ public class MageStrategy extends MovableStrategy {
 		if(!castSpell()) return;
 
 		if(movable.getAction() != EMovableAction.WALKING) {
-			movable.moveTo(spellLocation);
+			movable.moveTo(spellLocation, EMoveToType.FORCED);
 		}
 	}
 }

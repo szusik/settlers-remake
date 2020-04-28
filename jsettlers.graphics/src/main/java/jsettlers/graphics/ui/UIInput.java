@@ -15,6 +15,7 @@
 package jsettlers.graphics.ui;
 
 import go.graphics.EPrimitiveType;
+import java8.util.Optional;
 import go.graphics.GLDrawContext;
 import go.graphics.UnifiedDrawHandle;
 import go.graphics.event.GOEvent;
@@ -81,7 +82,7 @@ public class UIInput extends UIPanel implements GOEventHandler {
 	}
 
 	@Override
-	public Action getAction(float relativex, float relativey) {
-		return new FocusAction(this);
+	public Optional<Action> getAction(float relativex, float relativey) {
+		return Optional.of(new FocusAction(this));
 	}
 }

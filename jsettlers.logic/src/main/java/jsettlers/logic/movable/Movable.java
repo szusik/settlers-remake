@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import jsettlers.algorithms.fogofwar.FoWTask;
 import jsettlers.algorithms.fogofwar.FogOfWar;
 import jsettlers.algorithms.path.Path;
+import jsettlers.common.action.EMoveToType;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.mapobject.EMapObjectType;
@@ -52,6 +53,7 @@ import jsettlers.logic.movable.strategies.military.SoldierStrategy;
 import jsettlers.logic.player.Player;
 import jsettlers.logic.timer.RescheduleTimer;
 
+import java.util.Objects;
 /**
  * Central Movable class of JSettlers.
  *
@@ -88,7 +90,11 @@ public final class Movable implements ILogicMovable, FoWTask {
 	private ShortPoint2D position;
 
 	private ShortPoint2D requestedTargetPosition = null;
-	private Path         path;
+	/**
+	 * Move to type of current / last path action
+	 */
+	private EMoveToType requestedMoveToType = EMoveToType.DEFAULT;
+	private Path path;
 
 	private float         health;
 	private boolean       visible           = true;
@@ -166,9 +172,11 @@ public final class Movable implements ILogicMovable, FoWTask {
 	 * @param targetPosition
 	 * 		Desired position the movable should move to
 	 */
-	public final void moveTo(ShortPoint2D targetPosition) {
+	@Override
+	public final void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
 		if (movableType.isPlayerControllable() && strategy.canBeControlledByPlayer() && !alreadyWalkingToPosition(targetPosition)) {
 			this.requestedTargetPosition = targetPosition;
+			this.requestedMoveToType = Objects.requireNonNull(moveToType);
 		}
 	}
 
@@ -258,7 +266,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 						requestedTargetPosition = null;
 
 						if (foundPath) {
-							this.strategy.moveToPathSet(oldPos, oldTargetPos, path.getTargetPosition());
+							this.strategy.moveToPathSet(oldPos, oldTargetPos, path.getTargetPosition(), requestedMoveToType);
 							return animationDuration; // we already follow the path and initiated the walking
 						} else {
 							break;
@@ -322,7 +330,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 	}
 
 	private void pathingAction() {
-		if (path == null || !path.hasNextStep() || ferryToEnter == null && !strategy.checkPathStepPreconditions(path.getTargetPosition(), path.getStep())) {
+		if (path == null || !path.hasNextStep() || ferryToEnter == null && !strategy.checkPathStepPreconditions(path.getTargetPosition(), path.getStep(), requestedMoveToType)) {
 			// if path is finished, or canceled by strategy return from here
 			setState(EMovableState.DOING_NOTHING);
 			movableAction = EMovableAction.NO_ACTION;
@@ -1037,7 +1045,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 
 	public void moveToFerry(ILogicMovable ferry, ShortPoint2D entrancePosition) {
 		this.ferryToEnter = ferry;
-		moveTo(entrancePosition);
+		moveTo(entrancePosition, EMoveToType.WORK);
 	}
 
 	/**

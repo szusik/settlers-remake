@@ -15,6 +15,7 @@
 package jsettlers.graphics.map.controls.original.panel.content;
 
 import go.graphics.EPrimitiveType;
+import java8.util.Optional;
 import go.graphics.GLDrawContext;
 import go.graphics.UnifiedDrawHandle;
 import jsettlers.common.Color;
@@ -64,9 +65,9 @@ public class BarFill extends UIPanel {
 	}
 
 	@Override
-	public Action getAction(final float relativeX, float relativeY) {
+	public Optional<Action> getAction(final float relativeX, float relativeY) {
 		final float relativeFill = getFillForClick(relativeX);
-		return new ExecutableAction() {
+		return Optional.of(new ExecutableAction() {
 			@Override
 			public void execute() {
 				setBarFill(relativeFill, relativeFill);
@@ -74,7 +75,7 @@ public class BarFill extends UIPanel {
 					listener.execute();
 				}
 			}
-		};
+		});
 	}
 
 	protected float getFillForClick(final float relativeX) {
