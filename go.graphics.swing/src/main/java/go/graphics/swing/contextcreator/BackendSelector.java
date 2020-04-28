@@ -36,11 +36,12 @@ public class BackendSelector extends JComboBox<EBackendType> {
 		super.actionPerformed(actionEvent);
 
 		if(actionEvent.getActionCommand().equals("comboBoxChanged")) {
-			if(getSelectedItem() instanceof String) {
+			Object item = getSelectedItem();
+			if(item == null || item instanceof String) {
 				setSelectedItem(current_item);
 				return;
 			}
-			EBackendType bi = (EBackendType) getSelectedItem();
+			EBackendType bi = (EBackendType) item;
 			if (bi.platform != null && bi.platform != Platform.get()) {
 				setSelectedItem(current_item);
 				BackendSelector.this.hidePopup();
@@ -53,11 +54,10 @@ public class BackendSelector extends JComboBox<EBackendType> {
 	}
 
 	public BackendSelector() {
+		super(availableBackends().toArray(EBackendType[]::new));
 		setEditable(false);
 
 		addActionListener(this);
-
-		availableBackends().forEach(this::addItem);
 	}
 
 	private static Stream<EBackendType> availableBackends() {

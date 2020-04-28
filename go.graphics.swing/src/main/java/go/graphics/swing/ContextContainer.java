@@ -17,10 +17,12 @@ import go.graphics.event.GOEventHandlerProvider;
 import go.graphics.swing.contextcreator.BackendSelector;
 import go.graphics.swing.contextcreator.ContextCreator;
 import go.graphics.swing.contextcreator.EBackendType;
+import go.graphics.swing.contextcreator.EGLContextCreator;
 import go.graphics.swing.contextcreator.JAWTContextCreator;
 import go.graphics.swing.contextcreator.ContextException;
 import go.graphics.swing.opengl.LWJGLDrawContext;
 import go.graphics.swing.vulkan.VulkanDrawContext;
+import java8.util.function.Supplier;
 
 public abstract class ContextContainer extends JPanel implements GOEventHandlerProvider {
 
@@ -79,7 +81,7 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 
 		try {
 			if(caps.OpenGL20) {
-				context = new LWJGLDrawContext(caps, debug, guiScale);
+				context = new LWJGLDrawContext(caps, cc::getScale, debug, guiScale);
 			} else {
 				errorGLVersion();
 			}
@@ -90,7 +92,7 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 	}
 
 	private void errorGLVersion() {
-		fatal("JSettlers needs at least OpenGL 1.5 with GL_ARB_texture_non_power_of_two");
+		fatal("JSettlers needs at least OpenGL 2.0");
 	}
 
 	/**
