@@ -614,7 +614,7 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 	}
 
 	private BuildingBackgroundPanel createDockyardBuildingContent(BuildingState state) {
-		DockyardSelectionLayout layout = new DockyardSelectionLayout();
+		DockyardSelectionLayout layout = new DockyardSelectionLayout(null, building.getPlayer().getCivilisation());
 		loadPriorityButton(layout.background, layout.priority, state);
 		layout.nameText.setType(building.getBuildingType(), state.isConstruction());
 
