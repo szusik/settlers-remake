@@ -187,6 +187,8 @@ public class MageStrategy extends MovableStrategy {
 			movable.getPlayer().showMessage(SimpleMessage.castFailed(spellLocation, "spell_failed"));
 		}
 
+		playAction(EMovableAction.ACTION1, 1);
+
 		boolean abortPath = spellAbortPath;
 		abortCasting();
 
