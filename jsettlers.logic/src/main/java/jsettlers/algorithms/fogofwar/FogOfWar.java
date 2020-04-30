@@ -134,12 +134,15 @@ public final class FogOfWar implements Serializable {
 	}
 
 	public final void toggleEnabled() {
-		enabled = !enabled;
-		for(int y = 0; y != height;y++) backgroundListener.backgroundColorLineChangedAt(0, y, width);
+		setEnabled(!enabled);
 	}
 
 	public void setEnabled(boolean enabled) {
+		if(this.enabled == enabled) return;
+
 		this.enabled = enabled;
+
+		backgroundListener.fogOfWarEnabledStatusChanged(enabled);
 		for(int y = 0; y != height;y++) backgroundListener.backgroundColorLineChangedAt(0, y, width);
 	}
 

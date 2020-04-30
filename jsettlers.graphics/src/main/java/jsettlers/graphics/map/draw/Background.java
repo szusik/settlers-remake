@@ -1502,6 +1502,11 @@ public class Background implements IGraphicsBackgroundListener {
 		if(y < bufferHeight-1) updateLine(y+1, x, x2);
 	}
 
+	@Override
+	public void fogOfWarEnabledStatusChanged(boolean enabled) {
+		fowEnabled = hasdgp && enabled;
+	}
+
 	/**
 	 * Invalidates the background texture.
 	 */

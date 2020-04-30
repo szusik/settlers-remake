@@ -2115,5 +2115,7 @@ public final class MainGrid implements Serializable {
 		@Override
 		public void backgroundColorLineChangedAt(int x, int y, int length) {}
 
+		@Override
+		public void fogOfWarEnabledStatusChanged(boolean enabled) {}
 	}
 }

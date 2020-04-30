@@ -32,4 +32,6 @@ public interface IGraphicsBackgroundListener {
 	void backgroundShapeChangedAt(int x, int y);
 
 	void backgroundColorLineChangedAt(int x, int y, int length);
+
+	void fogOfWarEnabledStatusChanged(boolean enabled);
 }
