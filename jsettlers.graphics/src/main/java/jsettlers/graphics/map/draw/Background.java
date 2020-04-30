@@ -854,7 +854,7 @@ public class Background implements IGraphicsBackgroundListener {
 	private boolean hasdgp;
 	private IDirectGridProvider dgp;
 	private byte[][] dgpVisibleStatus;
-	private byte[] dgpHeightGrid;
+	private byte[][] dgpHeightGrid;
 	private BitSet fowWritten;
 	private boolean fowEnabled;
 
@@ -1430,7 +1430,7 @@ public class Background implements IGraphicsBackgroundListener {
 	private void addPointToGeometry(MapDrawContext context, ByteBuffer buffer, int x, int y, float u, float v) {
 		buffer.putFloat(x);
 		buffer.putFloat(y);
-		buffer.putFloat(hasdgp ? dgpHeightGrid[y*mapWidth+x] : context.getHeight(x, y));
+		buffer.putFloat(hasdgp ? dgpHeightGrid[x][y] : context.getHeight(x, y));
 		buffer.putFloat(u);
 		buffer.putFloat(v);
 	}
@@ -1442,7 +1442,7 @@ public class Background implements IGraphicsBackgroundListener {
 		} else {
 			int dHeight;
 			if(hasdgp) {
-				dHeight = dgpHeightGrid[(y-1)*mapWidth+x] - dgpHeightGrid[y*mapWidth+x];
+				dHeight = dgpHeightGrid[x][y-1] - dgpHeightGrid[x][y];
 			} else {
 				dHeight = context.getHeight(x, y-1) - context.getHeight(x, y);
 			}

@@ -40,11 +40,11 @@ import jsettlers.logic.map.grid.flags.IProtectedProvider.IProtectedChangedListen
  * @author Andreas Eberle
  */
 public final class LandscapeGrid implements Serializable, IWalkableGround, IFlattenedResettable, IDebugColorSetable, IProtectedChangedListener, IBlockingProvider {
-	private static final long serialVersionUID = -751261669662036483L;
+	private static final long serialVersionUID = -751261669662036484L;
 
 	public static final short SEA_BLOCKED_PARTITION = 0;
 
-	private final byte[] heightGrid;
+	private final byte[][] heightGrid;
 	private final byte[] landscapeGrid;
 	private final byte[] resourceAmount;
 	private final byte[] temporaryFlatened;
@@ -65,7 +65,7 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		this.height = height;
 		this.protectedProvider = protectedProvider;
 		final int tiles = width * height;
-		this.heightGrid = new byte[tiles];
+		this.heightGrid = new byte[width][height];
 		this.landscapeGrid = new byte[tiles];
 		this.resourceAmount = new byte[tiles];
 		this.resourceType = new byte[tiles];
@@ -96,10 +96,10 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 	}
 
 	public final byte getHeightAt(int x, int y) {
-		return heightGrid[x + y * width];
+		return heightGrid[x][y];
 	}
 
-	public byte[] getHeightArray() {
+	public byte[][] getHeightArray() {
 		return heightGrid;
 	}
 
@@ -156,14 +156,14 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 	}
 
 	public final void setHeightAt(short x, short y, byte height) {
-		this.heightGrid[x + y * width] = height;
+		this.heightGrid[x][y] = height;
 		backgroundListener.backgroundShapeChangedAt(x, y);
 	}
 
 	public void flattenAndChangeHeightTowards(int x, int y, byte targetHeight) {
 		final int index = x + y * width;
 
-		this.heightGrid[index] += Math.signum(targetHeight - this.heightGrid[index]);
+		this.heightGrid[x][y] += Math.signum(targetHeight - this.heightGrid[x][y]);
 		this.landscapeGrid[index] = ELandscapeType.FLATTENED.ordinal;
 		this.temporaryFlatened[index] = Byte.MAX_VALUE; // cancel the flattening
 
@@ -338,9 +338,11 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 
 	public boolean isAreaFlattenedAtHeight(ShortPoint2D position, RelativePoint[] positions, byte expectedHeight) {
 		for (RelativePoint currPos : positions) {
-			int index = currPos.calculateX(position.x) + currPos.calculateY(position.y) * width;
+			int x = currPos.calculateX(position.x);
+			int y = currPos.calculateY(position.y);
+			int index =x + y * width;
 
-			if (heightGrid[index] != expectedHeight || landscapeGrid[index] != ELandscapeType.FLATTENED.ordinal) {
+			if (heightGrid[x][y] != expectedHeight || landscapeGrid[index] != ELandscapeType.FLATTENED.ordinal) {
 				return false;
 			}
 		}

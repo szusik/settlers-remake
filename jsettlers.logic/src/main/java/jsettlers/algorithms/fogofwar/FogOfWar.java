@@ -210,50 +210,71 @@ public final class FogOfWar implements Serializable {
 	public class FowDimThread extends FoWThread {
 		FowDimThread() {
 			super("FOW-dimmer", CommonConstants.FOG_OF_WAR_DIM_FRAMERATE);
-			nextUpdate = new BitSet(width*height);
+			size = width*height;
+			nextUpdate = new BitSet(size);
+			update = new BitSet(size);
 		}
 
 		public final BitSet nextUpdate;
-		public BitSet update;
+		public final BitSet update;
+		private final int size;
 
 		@Override
 		public void taskProcessor() {
 			synchronized (nextUpdate) {
-				update = (BitSet) nextUpdate.clone();
+				update.or(nextUpdate);
+				nextUpdate.clear();
 			}
 
 			double sync_factor = fc.getTime();
-			if(sync_factor == 0) sync_factor = 1.0/CommonConstants.FOG_OF_WAR_DIM_FRAMERATE;
-			byte dim = (byte) Math.round(sync_factor*CommonConstants.FOG_OF_WAR_DIM*MatchConstants.clock().getGameSpeed());
+			if (sync_factor == 0) sync_factor = 1.0 / CommonConstants.FOG_OF_WAR_DIM_FRAMERATE;
+			byte dim = (byte) Math.round(sync_factor * CommonConstants.FOG_OF_WAR_DIM * MatchConstants.clock().getGameSpeed());
 
-			for(int y = 0;y != height;y++) {
-				int first = -1;
-				int last = -1;
-				for(int x = 0;x != width;x++) {
-					if(!update.get(y*width+x)) continue;
 
-					byte dimTo = dimmedSight(x, y);
+			int last = 0;
+			do {
+				int first = update.nextSetBit(last);
+				if (first == -1) break;
 
-					if(dimTo != sight[x][y]) {
-						if(last+1 != x) {
-							if(first != -1) update(y, first, last);
-							first = last = x;
+				last = update.nextClearBit(first);
+				if (last == -1) last = size;
+
+				int beginX = first % width;
+				int beginY = (first - beginX) / width;
+
+				int endX = last % width;
+				int endY = (last - endX) / width;
+
+				for (int y = beginY; y <= endY; y++) {
+					int firstUpdate = -1;
+					int lastUpdate = -1;
+
+					int x = y == beginY ? beginX : 0;
+					int x2 = y == endY ? endX : width;
+					for(; x < x2; x++) {
+						byte dimTo = dimmedSight(x, y);
+
+						if(dimTo != sight[x][y]) {
+							if(lastUpdate + 1 != x) {
+								if(firstUpdate != -1) update(y, firstUpdate, lastUpdate);
+								firstUpdate = lastUpdate = x;
+							} else {
+								if(firstUpdate == -1) firstUpdate = x;
+								lastUpdate = x;
+							}
+
+							sight[x][y] = dim(sight[x][y], dimTo, dim);
+
+							if(sight[x][y] == dimTo) update.clear(y * width + x);
 						} else {
-							if (first == -1) first = x;
-							last = x;
+							update.set(y * width + x, false);
 						}
-
-						sight[x][y] = dim(sight[x][y], dimTo, dim);
-
-						if (sight[x][y] == dimTo) update.clear(y * width + x);
-					} else {
-						update.set(y*width+x, false);
+					}
+					if (firstUpdate != -1) {
+						update(y, firstUpdate, lastUpdate);
 					}
 				}
-				if(first != -1) {
-					update(y, first, last);
-				}
-			}
+			} while (last < size);
 		}
 
 		private void update(int y, int from, int to) {
@@ -274,7 +295,7 @@ public final class FogOfWar implements Serializable {
 		else return (byte) (value-dim);
 	}
 
-	private byte dimmedSight(int x, int y) {
+	final byte dimmedSight(int x, int y) {
 		short[] refs = instance.visibleRefs[x][y];
 		if(refs.length == 0) return 0;
 

@@ -798,7 +798,7 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public byte[] getHeightArray() {
+		public byte[][] getHeightArray() {
 			return landscapeGrid.getHeightArray();
 		}
 

@@ -10,6 +10,6 @@ public interface IDirectGridProvider {
 	IMovable[] getMovableArray();
 	BitSet getBorderArray();
 	byte[][] getVisibleStatusArray();
-	byte[] getHeightArray();
+	byte[][] getHeightArray();
 	boolean isFoWEnabled();
 }

@@ -164,7 +164,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private final IMapObject[] objectsGrid;
 	private final IMovable[] movableGrid;
 	private final BitSet borderGrid;
-	private final byte[] heightGrid;
+	private final byte[][] heightGrid;
 	private final short width, height;
 	private final boolean isVisibleGridAvailable;
 
@@ -519,7 +519,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			for(int x = startX; x <= endX; x++) {
 				drawTile(x, y);
 				if(!linePartiallyVisible) {
-					double drawSpaceY = this.context.getConverter().getViewY(x, y, heightGrid == null ? this.context.getHeight(x, y) : heightGrid[y*width+x]);
+					double drawSpaceY = this.context.getConverter().getViewY(x, y, heightGrid == null ? this.context.getHeight(x, y) : heightGrid[x][y]);
 					if (drawSpaceY > bottomDrawY) {
 						linePartiallyVisible = true;
 					}
