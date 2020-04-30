@@ -46,9 +46,14 @@ public class PriestSelectionContent extends AbstractSelectionContent {
 			mannaInformation = null;
 		}
 
+		int i = 0;
 		for(ESpellType spell : ESpellType.values()) {
-			float top = .95f-spell.ordinal()*.1f;
+			if(!spell.availableForCiv(selectionPlayer.getCivilisation())) continue;
+
+			float top = .95f-i*.1f;
 			panel.addChild(new SpellContent(spell), .1f, top-.1f, 1, top);
+
+			i++;
 		}
 
 		UIPanel kill = new LabeledButton(Labels.getString("kill"), new Action(EActionType.DESTROY));

@@ -32,7 +32,7 @@ public class CastSpellGuiTask extends MovableGuiTask {
 	protected void serializeTask(DataOutputStream dos) throws IOException {
 		super.serializeTask(dos);
 		SimpleGuiTask.serializePosition(dos, at);
-		dos.writeInt(spell.ordinal());
+		dos.writeByte(spell.ordinal());
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class CastSpellGuiTask extends MovableGuiTask {
 		super.deserializeTask(dis);
 
 		at = SimpleGuiTask.deserializePosition(dis);
-		spell = ESpellType.values()[dis.readInt()];
+		spell = ESpellType.values()[dis.readByte()];
 	}
 
 	@Override

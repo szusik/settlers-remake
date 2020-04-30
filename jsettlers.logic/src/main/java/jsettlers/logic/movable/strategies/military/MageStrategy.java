@@ -171,8 +171,8 @@ public class MageStrategy extends MovableStrategy {
 							).limit(1).forEach(lm -> lm.addEffect(EEffectType.GREEN_THUMB));
 					effectLocations.add(spellLocation);
 					break;
-				case EYE:
-					getGrid().addEyeMapObject(spellLocation, ESpellType.EYE_RADIUS, ESpellType.EYE_TIME, movable.getPlayer());
+				case ROMAN_EYE:
+					getGrid().addEyeMapObject(spellLocation, ESpellType.ROMAN_EYE_RADIUS, ESpellType.ROMAN_EYE_TIME, movable.getPlayer());
 					effectLocations.add(spellLocation);
 					sound = 80;
 					animation = 126;
