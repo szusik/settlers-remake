@@ -88,33 +88,6 @@ public class GOSwingEventConverter extends AbstractEventConverter
 
 	}
 
-	private void updateScaleFactor(Component component) {
-		GraphicsConfiguration config = component.getGraphicsConfiguration();
-		if (config == null) {
-			return;
-		}
-
-		GraphicsDevice myScreen = config.getDevice();
-
-		try {
-			Field field = myScreen.getClass().getDeclaredField("scale");
-			if (field == null) {
-				return;
-			}
-			field.setAccessible(true);
-			Object scaleOfField = field.get(myScreen);
-			if (scaleOfField instanceof Integer) {
-				scaleFactor = ((Integer) scaleOfField).intValue();
-			}
-		} catch (NoSuchFieldException exception) {
-			// if there is no Field scale then we have a scale factor of 1
-			// this is expected for Oracle JRE < 1.7.0_u40
-		} catch (Throwable exception) {
-			// this is an illegal reflective operation but only modern java will actually check
-			exception.printStackTrace();
-		}
-	}
-
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		updateModifiers(e);
@@ -303,12 +276,10 @@ public class GOSwingEventConverter extends AbstractEventConverter
 
 	@Override
 	public void componentMoved(ComponentEvent componentEvent) {
-		updateScaleFactor(componentEvent.getComponent());
 	}
 
 	@Override
 	public void componentShown(ComponentEvent componentEvent) {
-		updateScaleFactor(componentEvent.getComponent());
 	}
 
 	@Override
@@ -325,7 +296,6 @@ public class GOSwingEventConverter extends AbstractEventConverter
 		if (component == null) {
 			return;
 		} else if (component instanceof Window) {
-			updateScaleFactor(component);
 			component.addComponentListener(this);
 			childComponent.removeComponentListener(this);
 		} else {
