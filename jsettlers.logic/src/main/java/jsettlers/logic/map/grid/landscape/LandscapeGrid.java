@@ -23,7 +23,6 @@ import jsettlers.algorithms.previewimage.IPreviewImageDataSupplier;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.map.IGraphicsBackgroundListener;
-import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.RelativePoint;
@@ -117,10 +116,32 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		return false;
 	}
 
-	public boolean isHexAreaOfType(int x, int y, int minRadius, int maxRadius, ELandscapeType... landscapeTypes) {
-		return HexGridArea.stream(x, y, minRadius, maxRadius)
-				.filter((currX, currY) -> !isLandscapeOf(currX, currY, landscapeTypes))
-				.isEmpty();
+	public boolean isHexAreaOfType(int x, int y, int radius, ELandscapeType... landscapeTypes) {
+		// inline of
+		// int minRadius = 0;
+		// int maxRadius = radius;
+		// HexGridArea.stream(x, y, minRadius, maxRadius)
+		//				.filter((currX, currY) -> !isLandscapeOf(currX, currY, landscapeTypes))
+		//				.isEmpty();
+
+		if(!isLandscapeOf(x, y, landscapeTypes)) {
+			return false;
+		}
+
+		for (int r = 0; r <= radius; r++) {
+			for (EDirection direction : EDirection.VALUES) {
+				for (int step = 0; step < r; step++) {
+					x += direction.gridDeltaX;
+					y += direction.gridDeltaY;
+
+					if (!isLandscapeOf(x, y, landscapeTypes)) {
+						return false;
+					}
+				}
+			}
+			y--; // go to next radius / go one NORTH_EAST
+		}
+		return true;
 	}
 
 	@Override
@@ -256,7 +277,7 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 	 * 		y coordinate
 	 */
 	private void flatten(int x, int y) {
-		if (isHexAreaOfType(x, y, 0, 1, ELandscapeType.GRASS, ELandscapeType.FLATTENED)) {
+		if (isHexAreaOfType(x, y, 1, ELandscapeType.GRASS, ELandscapeType.FLATTENED)) {
 			setLandscapeTypeAt((short) x, (short) y, ELandscapeType.FLATTENED);
 		}
 	}

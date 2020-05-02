@@ -243,17 +243,17 @@ public enum EDirection {
 	}
 
 	public EDirection getInverseDirection() {
-		return values()[(this.ordinal() + NUMBER_OF_DIRECTIONS / 2) % NUMBER_OF_DIRECTIONS];
+		return VALUES[(this.ordinal() + NUMBER_OF_DIRECTIONS / 2) % NUMBER_OF_DIRECTIONS];
 	}
 
 	public EDirection rotateRight(int steps) {
-		return values()[(this.ordinal() + steps) % NUMBER_OF_DIRECTIONS];
+		return VALUES[(this.ordinal() + steps) % NUMBER_OF_DIRECTIONS];
 	}
 
 	public static byte[] getXDeltaArray() {
 		byte[] result = new byte[NUMBER_OF_DIRECTIONS];
 		for (int i = 0; i < NUMBER_OF_DIRECTIONS; i++) {
-			result[i] = EDirection.VALUES[i].gridDeltaX;
+			result[i] = VALUES[i].gridDeltaX;
 		}
 		return result;
 	}
@@ -261,7 +261,7 @@ public enum EDirection {
 	public static byte[] getYDeltaArray() {
 		byte[] result = new byte[NUMBER_OF_DIRECTIONS];
 		for (int i = 0; i < NUMBER_OF_DIRECTIONS; i++) {
-			result[i] = EDirection.VALUES[i].gridDeltaY;
+			result[i] = VALUES[i].gridDeltaY;
 		}
 		return result;
 	}

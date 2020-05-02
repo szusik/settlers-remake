@@ -44,7 +44,7 @@ public class DistancesCalculationAlgorithm {
 				int x = index % width;
 				int y = index / width;
 
-				for (EDirection direction : EDirection.values()) {
+				for (EDirection direction : EDirection.VALUES) {
 					int dx = direction.gridDeltaX + x;
 					int dy = direction.gridDeltaY + y;
 
@@ -69,7 +69,7 @@ public class DistancesCalculationAlgorithm {
 				if (provider.test(x, y)) {
 					done.set(width * y + x); // set as done
 
-					for (EDirection direction : EDirection.values()) {
+					for (EDirection direction : EDirection.VALUES) {
 						int dx = direction.gridDeltaX + x;
 						int dy = direction.gridDeltaY + y;
 
