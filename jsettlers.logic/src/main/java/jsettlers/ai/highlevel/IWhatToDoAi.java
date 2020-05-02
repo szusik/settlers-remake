@@ -14,6 +14,8 @@
  *******************************************************************************/
 package jsettlers.ai.highlevel;
 
+import java.util.concurrent.Callable;
+
 /**
  * The purpose of the higher level IWhatToDoAi is to decide WHAT to do. It delegates the decision WHERE it is to do to the lower level KI. For example
  * if the AI player has no stone cutters the WhatToDoAi decides to build with high priority a stone cutter because otherwise the AI player would be
@@ -22,7 +24,7 @@ package jsettlers.ai.highlevel;
  * 
  * @author codingberlin
  */
-interface IWhatToDoAi {
+interface IWhatToDoAi extends Callable<Void> {
 
 	void applyRules();
 }

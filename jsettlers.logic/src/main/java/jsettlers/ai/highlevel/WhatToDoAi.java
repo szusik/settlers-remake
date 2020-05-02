@@ -158,6 +158,12 @@ class WhatToDoAi implements IWhatToDoAi {
 	}
 
 	@Override
+	public Void call() {
+		applyRules();
+		return null;
+	}
+
+	@Override
 	public void applyRules() {
 		if (aiStatistics.isAlive(playerId)) {
 			economyMinister.update();

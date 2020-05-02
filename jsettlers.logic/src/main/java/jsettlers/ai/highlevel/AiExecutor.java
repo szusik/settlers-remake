@@ -14,10 +14,10 @@
  *******************************************************************************/
 package jsettlers.ai.highlevel;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import jsettlers.common.logging.StatisticsStopWatch;
 import jsettlers.logic.map.grid.MainGrid;
@@ -36,9 +36,19 @@ public class AiExecutor implements INetworkTimerable {
 	private final AiStatistics aiStatistics;
 	private final StatisticsStopWatch updateStatisticsStopWatch = new StatisticsStopWatch();
 	private final StatisticsStopWatch applyRulesStopWatch = new StatisticsStopWatch();
+	private final ExecutorService statisticsUpdaterPool;
 
 	public AiExecutor(PlayerSetting[] playerSettings, MainGrid mainGrid, ITaskScheduler taskScheduler) {
-		aiStatistics = new AiStatistics(mainGrid);
+		ExecutorService re;
+		try {
+			re = (ExecutorService) Executors.class.getMethod("newWorkStealingPool").invoke(null);
+		} catch(Throwable thrown) {
+			thrown.printStackTrace();
+			re = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		}
+		statisticsUpdaterPool = re;
+
+		aiStatistics = new AiStatistics(mainGrid, statisticsUpdaterPool);
 		aiStatistics.updateStatistics();
 		this.whatToDoAis = new ArrayList<>();
 		WhatToDoAiFactory aiFactory = new WhatToDoAiFactory();
@@ -62,8 +72,13 @@ public class AiExecutor implements INetworkTimerable {
 		updateStatisticsStopWatch.restart();
 		aiStatistics.updateStatistics();
 		updateStatisticsStopWatch.stop("computerplayer:updateStatistics()");
+
 		applyRulesStopWatch.restart();
-		stream(whatToDoAis).forEach(IWhatToDoAi::applyRules);
+		try {
+			statisticsUpdaterPool.invokeAll(whatToDoAis);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		applyRulesStopWatch.stop("computerplayer:applyRules()");
 	}
 
