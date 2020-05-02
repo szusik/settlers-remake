@@ -65,6 +65,8 @@ public class FramerateComputer {
 	public void nextFrame(int fpsLimit) {
 		nextFrame();
 
+		if(fpsLimit == 0) fpsLimit = 1;
+
 		long ft = calcFrameEnd-calcLastFrameStart;
 		long minft = (long) (NS_PER_S/fpsLimit);
 		if(minft > ft) {

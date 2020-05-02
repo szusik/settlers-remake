@@ -30,6 +30,7 @@ import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.MainGrid;
 import jsettlers.logic.movable.Movable;
+import jsettlers.main.GameTimeProvider;
 
 /**
  * This class holds the fog of war for a given map and team.
@@ -155,7 +156,8 @@ public final class FogOfWar implements Serializable {
 		public final ConcurrentLinkedQueue<FoWTask> tasks = new ConcurrentLinkedQueue<>();
 
 		FoWRefThread() {
-			super("FOW-reference-updater", CommonConstants.FOG_OF_WAR_REF_UPDATE_FRAMERATE);
+			super("FOW-reference-updater");
+			framerate = CommonConstants.FOG_OF_WAR_REF_UPDATE_FRAMERATE;
 		}
 
 		@Override
@@ -209,7 +211,7 @@ public final class FogOfWar implements Serializable {
 
 	public class FowDimThread extends FoWThread {
 		FowDimThread() {
-			super("FOW-dimmer", CommonConstants.FOG_OF_WAR_DIM_FRAMERATE);
+			super("FOW-dimmer");
 			size = width*height;
 			nextUpdate = new BitSet(size);
 			update = new BitSet(size);
@@ -275,6 +277,8 @@ public final class FogOfWar implements Serializable {
 					}
 				}
 			} while (last < size);
+			framerate = (int) (CommonConstants.FOG_OF_WAR_DIM_FRAMERATE*MatchConstants.clock().getGameSpeed());
+			if(framerate > CommonConstants.FOG_OF_WAR_DIM_MAX_FRAMERATE) framerate = CommonConstants.FOG_OF_WAR_DIM_MAX_FRAMERATE;
 		}
 
 		private void update(int y, int from, int to) {
@@ -310,13 +314,12 @@ public final class FogOfWar implements Serializable {
 	}
 
 	public abstract class FoWThread extends Thread {
-		public final int framerate;
+		public int framerate;
 
 		final FramerateComputer fc = new FramerateComputer();
 
-		FoWThread(String name, int framerate) {
+		FoWThread(String name) {
 			super(name);
-			this.framerate = framerate;
 		}
 
 		@Override
