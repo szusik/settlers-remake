@@ -926,6 +926,8 @@ public class MapObjectDrawer {
 	}
 
 	private void playSound(IMapObject object, int soundId, int x, int y) {
+		if(soundId == -1) return;
+
 		if (object instanceof IBuilding.ISoundRequestable) {
 			sound.playSound(soundId, 1, x, y);
 		} else if (object instanceof ISoundable) {

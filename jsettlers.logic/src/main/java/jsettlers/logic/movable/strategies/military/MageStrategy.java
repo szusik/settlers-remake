@@ -179,8 +179,10 @@ public class MageStrategy extends MovableStrategy {
 					break;
 			}
 
-			for(ShortPoint2D point : effectLocations) {
-				getGrid().addSelfDeletingMapObject(point, sound, animation, duration, movable.getPlayer());
+			if(animation != -1) {
+				for (ShortPoint2D point : effectLocations) {
+					getGrid().addSelfDeletingMapObject(point, sound, animation, duration, movable.getPlayer());
+				}
 			}
 
 		} else {
