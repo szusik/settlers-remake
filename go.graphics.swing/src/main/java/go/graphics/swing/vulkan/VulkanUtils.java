@@ -100,7 +100,7 @@ import static org.lwjgl.util.vma.Vma.*;
 public class VulkanUtils {
 
 
-	public static final int MAX_TEXTURE_COUNT = 10;
+	public static final int MAX_TEXTURE_COUNT = 25;
 	public static final int MAX_GLOBALTRANS_COUNT = 10;
 
 	public static List<String> defaultExtensionArray(boolean debug) {
