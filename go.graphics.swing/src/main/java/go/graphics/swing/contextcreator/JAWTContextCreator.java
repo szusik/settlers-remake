@@ -80,6 +80,7 @@ public abstract class JAWTContextCreator extends ContextCreator {
 
 			public void paint(Graphics graphics) {
 				surface = JAWTFunctions.JAWT_GetDrawingSurface(canvas, jawt.GetDrawingSurface());
+				JAWTFunctions.JAWT_Lock(jawt.Lock());
 				JAWTFunctions.JAWT_DrawingSurface_Lock(surface, surface.Lock());
 				surfaceinfo = JAWTFunctions.JAWT_DrawingSurface_GetDrawingSurfaceInfo(surface, surface.GetDrawingSurfaceInfo());
 				try {
@@ -122,6 +123,7 @@ public abstract class JAWTContextCreator extends ContextCreator {
 
 				JAWTFunctions.JAWT_DrawingSurface_FreeDrawingSurfaceInfo(surfaceinfo, surface.FreeDrawingSurfaceInfo());
 				JAWTFunctions.JAWT_DrawingSurface_Unlock(surface, surface.Unlock());
+				JAWTFunctions.JAWT_Unlock(jawt.Unlock());
 				JAWTFunctions.JAWT_FreeDrawingSurface(surface, jawt.FreeDrawingSurface());
 			}
 		};
