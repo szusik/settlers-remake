@@ -109,7 +109,7 @@ public abstract class GLDrawContext {
 		};
 	}
 
-	public static final int MAX_CACHE_COUNT = 20;
+	public static final int MAX_CACHE_COUNT = 40;
 	private void addNewHandle() {
 		if(MAX_CACHE_COUNT == managedHandles.size()) throw new Error("ManangedHandle slots exceeded!");
 		TextureHandle tex = generateTexture(ManagedHandle.TEX_DIM, ManagedHandle.TEX_DIM, null, "managed" + ManagedHandle.instance_count);
