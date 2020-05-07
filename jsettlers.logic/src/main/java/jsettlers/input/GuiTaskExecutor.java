@@ -358,7 +358,7 @@ class GuiTaskExecutor implements ITaskExecutor {
 
 		if(priest == null) return;
 
-		priest.castSpell(castSpellGuiTask.getAt(), castSpellGuiTask.getSpell());
+		priest.moveToCast(castSpellGuiTask.getAt(), castSpellGuiTask.getSpell());
 	}
 
 	private void sendManyMovables(ShortPoint2D targetPosition, List<ILogicMovable> movables, EMoveToType moveToType) {

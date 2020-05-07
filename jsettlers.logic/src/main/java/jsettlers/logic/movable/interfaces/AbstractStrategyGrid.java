@@ -176,7 +176,7 @@ public abstract class AbstractStrategyGrid implements Serializable {
 	 */
 	public abstract void changeHeightTowards(int x, int y, byte targetHeight);
 
-	public abstract void changeTerrainTo(int x, int y, ELandscapeType type);
+	public abstract void setLandscape(int x, int y, ELandscapeType type);
 
 	/**
 	 * Changes the player at the given position to the given player.

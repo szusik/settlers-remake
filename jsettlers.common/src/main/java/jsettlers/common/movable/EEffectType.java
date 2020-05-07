@@ -14,16 +14,21 @@
  *******************************************************************************/
 package jsettlers.common.movable;
 
+import jsettlers.common.images.ImageLink;
+
 public enum EEffectType {
-	DEFEATISM(60, 0.5f),
-	GREEN_THUMB(600, 0.5f);
+	INCREASED_MORALE(60, 2f, "original_1_GUI_129"),
+	DEFEATISM(60, 0.5f, "original_1_GUI_130"),
+	GREEN_THUMB(600, 0.5f, "original_1_GUI_134");
 
 	private int time;
 	private float mod;
+	private ImageLink link;
 
-	EEffectType(int time, float mod) {
+	EEffectType(int time, float mod, String imageLink) {
 		this.time = time;
 		this.mod = mod;
+		link = ImageLink.fromName(imageLink);
 	}
 
 	public float getMod() {
@@ -32,5 +37,9 @@ public enum EEffectType {
 
 	public int getTime() {
 		return time;
+	}
+
+	public ImageLink getImageLink() {
+		return link;
 	}
 }

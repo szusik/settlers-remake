@@ -42,7 +42,7 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 
 	private final Team             team;
 	private final byte             numberOfPlayers;
-	private final MannaInformation mannaInformation = new MannaInformation();
+	private final MannaInformation mannaInformation;
 
 	private final MaterialCounts	materialCounts = new MaterialCounts();
 	private final EndgameStatistic	endgameStatistic = new EndgameStatistic(this);
@@ -61,6 +61,7 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 		this.playerType = playerType;
 		this.civilisation = civilisation;
 		this.winState = EWinState.UNDECIDED;
+		mannaInformation = new MannaInformation(civilisation);
 		team.registerPlayer(this);
 		updateCombatStrengths();
 	}

@@ -1,15 +1,18 @@
 package jsettlers.logic.movable.strategies.military;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import java8.util.function.Function;
+import jsettlers.algorithms.terraform.LandscapeEditor;
 import jsettlers.common.action.EMoveToType;
-import jsettlers.common.landscape.ELandscapeType;
 import static jsettlers.common.landscape.ELandscapeType.*;
 
+import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.map.shapes.MapCircle;
-import jsettlers.common.map.shapes.MapNeighboursArea;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.material.ESearchType;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
@@ -23,6 +26,7 @@ import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
+import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 public class MageStrategy extends MovableStrategy {
@@ -30,14 +34,31 @@ public class MageStrategy extends MovableStrategy {
 		super(movable);
 	}
 
+	private transient final LandscapeEditor terraformHandle = new LandscapeEditor(pt -> getGrid().getLandscapeTypeAt(pt.x, pt.y), (pt, type) -> getGrid().setLandscape(pt.x, pt.y, type));
 
-	private boolean spellAbortPath = false;
 	private ShortPoint2D spellLocation = null;
 	private ESpellType spell = null;
 
+	private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+	}
+
+	private CoordinateStream spellRegion() {
+		return spellRegion(Constants.SPELL_EFFECT_RADIUS);
+	}
+
 	private CoordinateStream spellRegion(int radius) {
-		return new MapCircle(spellLocation, radius).stream()
+		return spellRegion(spellLocation, radius);
+	}
+
+	private CoordinateStream spellRegion(ShortPoint2D at, int radius) {
+		return new MapCircle(at, radius).stream()
 				.filterBounds(getGrid().getWidth(), getGrid().getHeight());
+	}
+
+	private CoordinateStream sort(CoordinateStream stream) {
+		// TODO distant positions should come last
+		return stream;
 	}
 
 	private int teamId(int x, int y) {
@@ -49,12 +70,9 @@ public class MageStrategy extends MovableStrategy {
 		return movable.getPlayer().getTeamId();
 	}
 
-	private void replace(CoordinateStream at, ELandscapeType from, ELandscapeType to) {
-		at.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == from).forEach((x, y) -> getGrid().changeTerrainTo(x, y, to));
-	}
-
-	private boolean castSpell() {
-		if(spellLocation == null || (spell.forcePresence() && spellLocation.getOnGridDistTo(movable.getPosition()) > Constants.MAGE_CAST_DISTANCE)) return true;
+	@Override
+	protected void action() {
+		if(!willCastSpell()) return;
 
 		int sound = -1;
 		int animation = -1;
@@ -64,35 +82,57 @@ public class MageStrategy extends MovableStrategy {
 		if(movable.getPlayer().getMannaInformation().useSpell(spell)) {
 			switch(spell) {
 				case GILDING:
-					CoordinateStream possibleLocations = spellRegion(Constants.SPELL_EFFECT_RADIUS).filter((x, y) -> !getGrid().isBlocked(x, y));
-					final MutableInt remainingPlace = new MutableInt(0);
-
-					possibleLocations.filter((x, y) -> getGrid().canTakeMaterial(new ShortPoint2D(x, y), EMaterialType.IRON))
-							.limit(ESpellType.GILDING_MAX_IRON).forEach((x, y) -> {
-								ShortPoint2D point = new ShortPoint2D(x, y);
-								getGrid().takeMaterial(point, EMaterialType.IRON);
-								effectLocations.add(point);
-								remainingPlace.value++;
-							});
-
-					for(ShortPoint2D point : possibleLocations.toList()) {
-						while(remainingPlace.value > 0 && getGrid().dropMaterial(point, EMaterialType.GOLD, true, false)) {
-							remainingPlace.value--;
-						}
-					}
+					convertMaterial(EMaterialType.IRON, EMaterialType.GOLD, ESpellType.GILDING_MAX_IRON, effectLocations);
 
 					sound = 95;
 					animation = 121;
-					if(remainingPlace.value > 0) System.err.println("Couldn't place " + remainingPlace + "gold");
+					break;
+				case CONVERT_FOOD:
+					convertMaterial(EMaterialType.FISH, EMaterialType.MEAT, ESpellType.CONVERT_FOOD_MAX_FISH, effectLocations);
+
+					sound = 95;
+					animation = 121;
 					break;
 				case DEFEATISM:
-					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
-							.filter(lm -> lm!=null&&lm.isAlive()&&lm.isAttackable())
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive()&&lm.getMovableType().isSoldier())
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.DEFEATISM_MAX_SOLDIERS)
 							.forEach(movable -> movable.addEffect(EEffectType.DEFEATISM));
 					effectLocations.add(spellLocation);
 					animation = 116;
+					break;
+				case INCREASE_MORALE:
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive()&&lm.getMovableType().isSoldier())
+							.filter(lm -> teamId(lm) == teamId(movable))
+							.limit(ESpellType.INCREASE_MORALE_MAX_SOLDIERS)
+							.forEach(movable -> movable.addEffect(EEffectType.INCREASED_MORALE));
+					effectLocations.add(spellLocation);
+					animation = 115;
+					break;
+				case SEND_FOES:
+					ShortPoint2D priestPos = movable.getPosition();
+
+					sort(spellRegion(priestPos, Constants.SPELL_EFFECT_RADIUS))
+							.map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive())
+							.filter(lm -> teamId(lm) != teamId(movable))
+							.filter(lm -> ESpellType.SENDABLE_MOVABLE_TYPES.contains(lm.getMovableType()))
+							.limit(ESpellType.SEND_FOES_MAX_SOLDIERS)
+							.forEach(movable -> {
+								ShortPoint2D movPos = movable.getPosition();
+								movable.setPosition(new ShortPoint2D(movPos.x-priestPos.x+spellLocation.x, movPos.y-priestPos.y+spellLocation.y));
+								effectLocations.add(movPos);
+							});
+					animation = 121;
+					break;
+				case CURSE_BOWMAN:
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive()&&lm.getMovableType().isBowman())
+							.filter(lm -> teamId(lm) != teamId(movable))
+							.limit(ESpellType.CURSE_BOWMAN_MAX_BOWMAN)
+							.forEach(movable -> movable.convertTo(EMovableType.PIONEER));
 					break;
 				case GIFTS:
 					spellRegion(ESpellType.GIFTS_RADIUS).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
@@ -119,7 +159,7 @@ public class MageStrategy extends MovableStrategy {
 					animation = 120;
 					break;
 				case DEFECT:
-					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive()&&lm.isAttackable())
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.DEFECT_MAX_ENEMIES)
@@ -131,44 +171,30 @@ public class MageStrategy extends MovableStrategy {
 					animation = 119;
 					break;
 				case IRRIGATE:
-					CoordinateStream affectedRegion = spellRegion(ESpellType.IRRIGATE_RADIUS);
-					List<ShortPoint2D> flattenedRegion = affectedRegion.filter((x, y) -> FLATTENED_DESERTS.contains(getGrid().getLandscapeTypeAt(x, y))).toList();
-					//all desert fields can always be replaced with dry grass
-					replace(affectedRegion, DESERTBORDEROUTER, DRY_GRASS);
-					replace(affectedRegion, DESERTBORDER, DRY_GRASS);
-					replace(affectedRegion, SHARP_FLATTENED_DESERT, DESERT);
-					replace(affectedRegion, FLATTENED_DESERT, DESERT);
+					convertLandscape(ESpellType.IRRIGATE_RADIUS, DESERT_TYPES::contains, GRASS, FLATTENED_DESERTS::contains, FLATTENED);
 
-					affectedRegion.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == DESERT)
-							.filter((x, y) ->
-									MapNeighboursArea.stream(x, y)
-											.filter((tx, ty) -> !DRY_GRASS_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(tx, ty)))
-											.isEmpty())
-							.forEach((x, y) -> getGrid().changeTerrainTo(x, y, DRY_GRASS));
-
-					// if there aren't any fields that can't be next to grass, set it to grass
-					affectedRegion.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == DRY_GRASS)
-							.filter((x, y) ->
-									MapNeighboursArea.stream(x, y)
-											.filter((tx, ty) -> !GRASS_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(tx, ty)))
-											.isEmpty())
-							.forEach((x, y) -> getGrid().changeTerrainTo(x, y, GRASS));
-
-					for(ShortPoint2D point : flattenedRegion) {
-						if(MapNeighboursArea.stream(point.x, point.y).filter((x, y) -> !FLATTENED_NEIGHBORS.contains(getGrid().getLandscapeTypeAt(x, y))).isEmpty()) {
-							getGrid().changeTerrainTo(point.x, point.y, FLATTENED);
-						}
-					}
 					effectLocations.add(spellLocation);
 					animation = 125;
 					break;
+				case DESERTIFICATION:
+					convertLandscape(ESpellType.DESERTIFICATION_RADIUS, ELandscapeType::isGrass, DESERT, (type) -> type == FLATTENED, FLATTENED_DESERT);
+
+					effectLocations.add(spellLocation);
+					animation = 127;
+					break;
+				case DRAIN_MOOR:
+					convertLandscape(ESpellType.DRAIN_MOOR_RADIUS, MOOR_TYPES::contains, GRASS, null, null);
+
+					effectLocations.add(spellLocation);
+					animation = 127;
+					break;
 				case GREEN_THUMB:
-					spellRegion(Constants.SPELL_EFFECT_RADIUS).map((x, y) -> getGrid().getMovableAt(x, y))
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive())
-							.filter(lm -> lm.getMovableType() == EMovableType.FARMER &&
-									lm.getMovableType() == EMovableType.WINEGROWER &&
+							.filter(lm -> lm.getMovableType() == EMovableType.FARMER ||
+									lm.getMovableType() == EMovableType.WINEGROWER ||
 									lm.getMovableType() == EMovableType.FORESTER
-							).limit(1).forEach(lm -> lm.addEffect(EEffectType.GREEN_THUMB));
+							).limit(ESpellType.GREEN_THUMB_MAX_SETTLERS).forEach(lm -> lm.addEffect(EEffectType.GREEN_THUMB));
 					effectLocations.add(spellLocation);
 					break;
 				case ROMAN_EYE:
@@ -176,6 +202,14 @@ public class MageStrategy extends MovableStrategy {
 					effectLocations.add(spellLocation);
 					sound = 80;
 					animation = 126;
+					break;
+				case BURN_FOREST:
+					MutableInt remainingTrees = new MutableInt(ESpellType.BURN_FOREST_MAX_TREE_COUNT);
+					sort(spellRegion()).forEach((x, y) -> {
+						if(remainingTrees.value > 0 && getGrid().executeSearchType(movable, new ShortPoint2D(x, y), ESearchType.BURNABLE_TREE)) {
+							remainingTrees.value--;
+						}
+					});
 					break;
 			}
 
@@ -190,31 +224,62 @@ public class MageStrategy extends MovableStrategy {
 		}
 
 		playAction(EMovableAction.ACTION1, 1);
+		spellLocation = null;
+		spell = null;
+	}
 
-		boolean abortPath = spellAbortPath;
-		abortCasting();
+	private void convertLandscape(int radius, Function<ELandscapeType, Boolean> fromCond, ELandscapeType to, Function<ELandscapeType, Boolean> fromFlatCond, ELandscapeType toFlat) {
+		List<ShortPoint2D> flattenedRegion = null;
 
-		return !abortPath;
+		CoordinateStream affectedRegion = spellRegion(radius)
+				.filter((x, y) -> fromCond.apply(getGrid().getLandscapeTypeAt(x, y)));
+
+		if(fromFlatCond != null) {
+			flattenedRegion = affectedRegion.filter((x, y) -> fromFlatCond.apply(getGrid().getLandscapeTypeAt(x, y))).toList();
+		}
+
+		terraformHandle.fill(to, affectedRegion.toList());
+
+		if(fromFlatCond != null) {
+			terraformHandle.fill(toFlat, flattenedRegion);
+		}
+	}
+
+	private void convertMaterial(EMaterialType from, EMaterialType to, int limit, List<ShortPoint2D> effects) {
+		final MutableInt materialCount = new MutableInt(0);
+		AbstractMovableGrid grid = getGrid();
+		sort(spellRegion()).forEach((x, y) -> {
+			ShortPoint2D pos = new ShortPoint2D(x, y);
+			boolean tookSomething = false;
+
+			while(grid.takeMaterial(pos, from) && materialCount.value <= limit) {
+				materialCount.value++;
+				tookSomething = true;
+			}
+			if(tookSomething) effects.add(pos);
+		});
+
+		sort(spellRegion()).forEach((x, y) -> {
+			ShortPoint2D pos = new ShortPoint2D(x, y);
+
+			while(materialCount.value > 0 && grid.dropMaterial(pos, to, true, false)) {
+				materialCount.value--;
+			}
+		});
+	}
+
+	private boolean willCastSpell() {
+		return spell != null && (!spell.forcePresence() || movable.getPosition().getOnGridDistTo(spellLocation) <= Constants.MAGE_CAST_DISTANCE);
 	}
 
 	@Override
 	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
-		if(spellAbortPath && !pathTarget.equals(spellLocation)) {
-			abortCasting();
-		}
-
-		return castSpell();
+		return !willCastSpell();
 	}
 
 	@Override
 	protected boolean canBeControlledByPlayer() {
 		return true;
-	}
-
-	private void abortCasting() {
-		spellLocation = null;
-		spell = null;
-		spellAbortPath = false;
 	}
 
 	@Override
@@ -224,15 +289,8 @@ public class MageStrategy extends MovableStrategy {
 		}
 	}
 
-	public void castSpell(ShortPoint2D at, ESpellType spell) {
-		spellAbortPath = movable.getAction() != EMovableAction.WALKING;
-		spellLocation = new ShortPoint2D(at.x, at.y);
+	public void castSpellAt(ESpellType spell, ShortPoint2D at) {
 		this.spell = spell;
-
-		if(!castSpell()) return;
-
-		if(movable.getAction() != EMovableAction.WALKING) {
-			movable.moveTo(spellLocation, EMoveToType.FORCED);
-		}
+		this.spellLocation = at;
 	}
 }

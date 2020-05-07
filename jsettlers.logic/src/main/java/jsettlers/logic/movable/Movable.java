@@ -178,6 +178,10 @@ public final class Movable implements ILogicMovable, FoWTask {
 			this.requestedTargetPosition = targetPosition;
 			this.requestedMoveToType = Objects.requireNonNull(moveToType);
 		}
+
+		if(strategy instanceof MageStrategy) {
+			((MageStrategy) strategy).castSpellAt(null, null);
+		}
 	}
 
 	private boolean alreadyWalkingToPosition(ShortPoint2D targetPosition) {
@@ -748,7 +752,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 		return false;
 	}
 
-	final void setPosition(ShortPoint2D position) {
+	@Override
+	public final void setPosition(ShortPoint2D position) {
 		if (visible) {
 			grid.leavePosition(this.position, this);
 			grid.enterPosition(position, this, true);
@@ -990,7 +995,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 		if (newMovableType == EMovableType.BEARER && !player.equals(grid.getPlayerAt(position))) {
 			return; // can't convert to bearer if the ground does not belong to the player
 		}
-		if (!(movableType == EMovableType.BEARER || (movableType == EMovableType.PIONEER && newMovableType == EMovableType.BEARER) || movableType == newMovableType)) {
+		if (!(movableType == EMovableType.BEARER || (movableType == EMovableType.PIONEER && newMovableType == EMovableType.BEARER) || movableType == newMovableType || (movableType.isBowman() && newMovableType == EMovableType.PIONEER))) {
 			System.err.println("Tried invalid conversion from " + movableType + " to " + newMovableType);
 			return; // can't convert between this types
 		}
@@ -1151,9 +1156,10 @@ public final class Movable implements ILogicMovable, FoWTask {
 	}
 
 	@Override
-	public void castSpell(ShortPoint2D at, ESpellType spell) {
+	public void moveToCast(ShortPoint2D at, ESpellType spell) {
 		if(strategy instanceof MageStrategy) {
-			((MageStrategy)strategy).castSpell(at, spell);
+			moveTo(at, EMoveToType.WORK);
+			((MageStrategy)strategy).castSpellAt(spell, at);
 		}
 	}
 

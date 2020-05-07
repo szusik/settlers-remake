@@ -570,6 +570,9 @@ public final class MainGrid implements Serializable {
 						&& isMapObjectCuttable(x - 1, y - 1, EMapObjectType.TREE_ADULT)
 						&& hasSamePlayer(x - 1, y - 1, pathCalculable) && !isMarked(x, y);
 
+				case BURNABLE_TREE:
+					return isInBounds(x, y);
+
 				case PLANTABLE_CORN:
 					return !isMarked(x, y) && hasSamePlayer(x, y, pathCalculable) && isCornPlantable(x, y);
 				case CUTTABLE_CORN:
@@ -1345,8 +1348,15 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public void changeTerrainTo(int x, int y, ELandscapeType type) {
-			landscapeGrid.terraform(x, y, type);
+		public void setLandscape(int x, int y, ELandscapeType type) {
+			for(EDirection dir : EDirection.VALUES) {
+				int nbIndex = (x+dir.gridDeltaX) + (y+dir.gridDeltaY) * width;
+				if(nbIndex < 0 || nbIndex >= width*height) continue;
+
+				if(!landscapeGrid.getLandscapeTypeAt(x+dir.gridDeltaX, y+dir.gridDeltaY).isAllowedNeighbor(type)) return;
+			}
+
+			setLandscapeTypeAt(x, y, type);
 		}
 
 		@Override

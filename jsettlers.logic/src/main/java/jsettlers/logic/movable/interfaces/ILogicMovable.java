@@ -64,9 +64,10 @@ public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, I
 
 	void leaveFerryAt(ShortPoint2D position);
 
-	void castSpell(ShortPoint2D at, ESpellType spell);
+	void moveToCast(ShortPoint2D at, ESpellType spell);
 
 	void addEffect(EEffectType effect);
 
 	void defectTo(Player player);
+	void setPosition(ShortPoint2D to);
 }

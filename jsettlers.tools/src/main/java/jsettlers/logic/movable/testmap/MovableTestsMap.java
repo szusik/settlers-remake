@@ -335,7 +335,7 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
-		public void changeTerrainTo(int x, int y, ELandscapeType grass) {
+		public void setLandscape(int x, int y, ELandscapeType grass) {
 		}
 
 		@Override

@@ -405,7 +405,12 @@ public abstract class SoldierStrategy extends MovableStrategy implements IBuildi
 	}
 
 	protected float getCombatStrength() {
-		return movable.getPlayer().getCombatStrengthInformation().getCombatStrength(isOnOwnGround()) *
-				(movable.hasEffect(EEffectType.DEFEATISM) ? EEffectType.DEFEATISM.getMod() : 1);
+		boolean alliedGround = movable.getPlayer().hasSameTeam(getGrid().getPlayerAt(getPosition()));
+
+		float strengthMod = 1;
+		if(alliedGround && movable.hasEffect(EEffectType.DEFEATISM)) strengthMod *= EEffectType.DEFEATISM.getMod();
+		if(!alliedGround && movable.hasEffect(EEffectType.INCREASED_MORALE)) strengthMod *= EEffectType.INCREASED_MORALE.getMod();
+
+		return movable.getPlayer().getCombatStrengthInformation().getCombatStrength(isOnOwnGround()) * strengthMod;
 	}
 }

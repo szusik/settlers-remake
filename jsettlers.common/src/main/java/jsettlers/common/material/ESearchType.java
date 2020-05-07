@@ -39,6 +39,7 @@ public enum ESearchType {
 	CUTTABLE_STONE,
 
 	PLANTABLE_TREE,
+	BURNABLE_TREE,
 
 	PLANTABLE_CORN,
 

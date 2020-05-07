@@ -19,13 +19,14 @@ import java.io.Serializable;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierType;
 import jsettlers.common.movable.ESpellType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IMannaInformation;
 
 /**
  * @author codingberlin
  */
 public class MannaInformation implements Serializable, IMannaInformation {
-	private static final long serialVersionUID = -2354905349487371883L;
+	private static final long serialVersionUID = -2354905349487371884L;
 
 	private static final EMovableType[] BOWMAN_TYPES    = {EMovableType.BOWMAN_L1, EMovableType.BOWMAN_L2, EMovableType.BOWMAN_L3};
 	private static final EMovableType[] SWORDSMAN_TYPES = {EMovableType.SWORDSMAN_L1, EMovableType.SWORDSMAN_L2, EMovableType.SWORDSMAN_L3};
@@ -41,6 +42,12 @@ public class MannaInformation implements Serializable, IMannaInformation {
 	private short   manna                          = 0;
 	private short   numberOfUpgradesExecuted       = 0;
 	private boolean isMannaIncreasableByBigTemples = true;
+
+	private final ECivilisation civilisation;
+
+	public MannaInformation(ECivilisation civilisation) {
+		this.civilisation = civilisation;
+	}
 
 	public void increaseManna() {
 		totalManna = ++manna;
@@ -114,7 +121,7 @@ public class MannaInformation implements Serializable, IMannaInformation {
 
 	@Override
 	public boolean canUseSpell(ESpellType spell) {
-		return manna >= getSpellCost(spell);
+		return spell.availableForCiv(civilisation) && manna >= getSpellCost(spell);
 	}
 
 	@Override

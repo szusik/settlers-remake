@@ -1,7 +1,11 @@
 package jsettlers.common.movable;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.player.ECivilisation;
+import jsettlers.common.utils.coordinates.ICoordinatePredicate;
 
 public enum ESpellType {
 	ROMAN_EYE(10, false, ECivilisation.ROMAN, "original_14_GUI_246"),
@@ -11,14 +15,14 @@ public enum ESpellType {
 
 	DESERTIFICATION(10, true, ECivilisation.EGYPTIAN, "original_24_GUI_240"),
 	DRAIN_MOOR(10, true, ECivilisation.EGYPTIAN, "original_24_GUI_243"),
-	CONVERT_FOOD(15,true, ECivilisation.EGYPTIAN, "original_24_GUI_246"),
-	BURN_FOREST(15,true, ECivilisation.EGYPTIAN, "original_24_GUI_249"),
+	CONVERT_FOOD(15, true, ECivilisation.EGYPTIAN, "original_24_GUI_246"),
+	BURN_FOREST(15, true, ECivilisation.EGYPTIAN, "original_24_GUI_249"),
 
 	MELT_SNOW(10, true, ECivilisation.ASIAN, "original_34_GUI_255"),
 	SUMMON_STONE(10, true, ECivilisation.ASIAN, "original_34_GUI_258"),
 	SUMMON_FISH(15, true, ECivilisation.ASIAN, "original_34_GUI_261"),
 
-	AMAZON_EYE(10, true, ECivilisation.AMAZON, "original_44_GUI_249"),
+	AMAZON_EYE(10, false, ECivilisation.AMAZON, "original_44_GUI_249"),
 	SUMMON_FOREST(10, true, ECivilisation.AMAZON, "original_44_GUI_252"),
 	FREEZE_FOES(15, true, ECivilisation.AMAZON, "original_44_GUI_255"),
 	SEND_GOODS(15, false, ECivilisation.AMAZON, "original_44_GUI_258"),
@@ -26,12 +30,12 @@ public enum ESpellType {
 	// common spell
 	GIFTS(20, true, null, "original_14_GUI_258"),
 
-	GILDING(20, true, ECivilisation.ROMAN, "original_14_GUI_264"),
-	CURSE_MOUNTAIN(25, true, ECivilisation.ROMAN, "original_14_GUI_267"),
-	DEFECT(40, true, ECivilisation.ROMAN, "original_14_GUI_270"),
+	GILDING(20, true, ECivilisation.ROMAN, "original_14_GUI_261"),
+	CURSE_MOUNTAIN(25, true, ECivilisation.ROMAN, "original_14_GUI_264"),
+	DEFECT(40, true, ECivilisation.ROMAN, "original_14_GUI_267"),
 
-	INCREASE_MORAL(20, true, ECivilisation.EGYPTIAN, "original_24_GUI_255"),
-	SEND_FOES(25, true, ECivilisation.EGYPTIAN, "original_24_GUI_258"),
+	INCREASE_MORALE(20, true, ECivilisation.EGYPTIAN, "original_24_GUI_255"),
+	SEND_FOES(25, false, ECivilisation.EGYPTIAN, "original_24_GUI_258"),
 	CURSE_BOWMAN(40, true, ECivilisation.EGYPTIAN, "original_24_GUI_261"),
 
 	MELT_STONE(15, true, ECivilisation.ASIAN, "original_34_GUI_267"),
@@ -77,8 +81,12 @@ public enum ESpellType {
 	}
 
 	public static final int GILDING_MAX_IRON = 40;
+	public static final int CONVERT_FOOD_MAX_FISH = 40;
 
 	public static final int DEFEATISM_MAX_SOLDIERS = 20;
+	public static final long INCREASE_MORALE_MAX_SOLDIERS = 20;
+	public static final long SEND_FOES_MAX_SOLDIERS = 20;
+	public static final long CURSE_BOWMAN_MAX_BOWMAN = 20;
 
 	public static final int GIFTS_MAX_STACKS = 5;
 	public static final int GIFTS_RADIUS = 3;
@@ -87,9 +95,20 @@ public enum ESpellType {
 	public static final float CURSE_MOUNTAIN_RESOURCE_MOD = 0.5f;
 
 	public static final long DEFECT_MAX_ENEMIES = 10;
+	public static final long GREEN_THUMB_MAX_SETTLERS = 1;
 
 	public static final int IRRIGATE_RADIUS = 7;
+	public static final int DESERTIFICATION_RADIUS = 7;
+	public static final int DRAIN_MOOR_RADIUS = 7;
 
 	public static final short ROMAN_EYE_RADIUS = 10;
 	public static final float ROMAN_EYE_TIME = 6;
+
+	public static final int BURN_FOREST_MAX_TREE_COUNT = 5;
+
+	public static final Set<EMovableType> SENDABLE_MOVABLE_TYPES = EnumSet.of(
+			EMovableType.SWORDSMAN_L1, EMovableType.SWORDSMAN_L2, EMovableType.SWORDSMAN_L3,
+			EMovableType.BOWMAN_L1, EMovableType.BOWMAN_L2, EMovableType.BOWMAN_L3,
+			EMovableType.PIKEMAN_L1, EMovableType.PIKEMAN_L2, EMovableType.PIKEMAN_L3,
+			EMovableType.PIONEER, EMovableType.GEOLOGIST, EMovableType.THIEF, EMovableType.MAGE);
 }

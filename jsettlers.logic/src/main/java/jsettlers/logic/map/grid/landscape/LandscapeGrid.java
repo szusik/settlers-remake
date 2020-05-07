@@ -191,13 +191,6 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		backgroundListener.backgroundShapeChangedAt(x, y);
 	}
 
-	public void terraform(int x, int y, ELandscapeType type) {
-		final int index = x + y * width;
-
-		this.landscapeGrid[index] = type.ordinal;
-		backgroundListener.backgroundShapeChangedAt(x, y);
-	}
-
 	public final void setBackgroundListener(IGraphicsBackgroundListener backgroundListener) {
 		if (backgroundListener != null) {
 			this.backgroundListener = backgroundListener;
