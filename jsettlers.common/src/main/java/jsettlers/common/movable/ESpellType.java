@@ -84,9 +84,9 @@ public enum ESpellType {
 	public static final int CONVERT_FOOD_MAX_FISH = 40;
 
 	public static final int DEFEATISM_MAX_SOLDIERS = 20;
-	public static final long INCREASE_MORALE_MAX_SOLDIERS = 20;
-	public static final long SEND_FOES_MAX_SOLDIERS = 20;
-	public static final long CURSE_BOWMAN_MAX_BOWMAN = 20;
+	public static final int INCREASE_MORALE_MAX_SOLDIERS = 20;
+	public static final int SEND_FOES_MAX_SOLDIERS = 20;
+	public static final int CURSE_BOWMAN_MAX_BOWMAN = 20;
 
 	public static final int GIFTS_MAX_STACKS = 5;
 	public static final int GIFTS_RADIUS = 3;

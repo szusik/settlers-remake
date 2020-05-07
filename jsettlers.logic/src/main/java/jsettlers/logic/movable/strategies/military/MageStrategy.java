@@ -1,8 +1,10 @@
 package jsettlers.logic.movable.strategies.military;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import java8.util.function.Function;
 import jsettlers.algorithms.terraform.LandscapeEditor;
@@ -114,16 +116,25 @@ public class MageStrategy extends MovableStrategy {
 				case SEND_FOES:
 					ShortPoint2D priestPos = movable.getPosition();
 
+					Queue<ILogicMovable> sendEnemies = new ArrayDeque<>(ESpellType.SEND_FOES_MAX_SOLDIERS);
 					sort(spellRegion(priestPos, Constants.SPELL_EFFECT_RADIUS))
 							.map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive())
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.filter(lm -> ESpellType.SENDABLE_MOVABLE_TYPES.contains(lm.getMovableType()))
 							.limit(ESpellType.SEND_FOES_MAX_SOLDIERS)
-							.forEach(movable -> {
-								ShortPoint2D movPos = movable.getPosition();
-								movable.setPosition(new ShortPoint2D(movPos.x-priestPos.x+spellLocation.x, movPos.y-priestPos.y+spellLocation.y));
-								effectLocations.add(movPos);
+							.forEach(sendEnemies::add);
+
+
+					sort(spellRegion(spellLocation, Constants.SPELL_EFFECT_RADIUS))
+							.filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
+							.forEach((x, y) -> {
+								ILogicMovable send = sendEnemies.poll();
+								if(send != null) {
+									ShortPoint2D movPos = send.getPosition();
+									send.setPosition(new ShortPoint2D(x, y));
+									effectLocations.add(movPos);
+								}
 							});
 					animation = 121;
 					break;
