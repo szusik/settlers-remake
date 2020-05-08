@@ -99,8 +99,12 @@ public enum ESpellType {
 	public static final int GIFTS_MAX_STACKS = 5;
 	public static final int GIFTS_RADIUS = 3;
 
+	public static final int SUMMON_FISH_RADIUS = 5;
+	public static final float SUMMON_FISH_RESOURCE_ADD = 0.5f;
+
 	public static final int CURSE_MOUNTAIN_RADIUS = 5;
 	public static final float CURSE_MOUNTAIN_RESOURCE_MOD = 0.5f;
+
 
 	public static final long DEFECT_MAX_ENEMIES = 10;
 	public static final long GREEN_THUMB_MAX_SETTLERS = 1;

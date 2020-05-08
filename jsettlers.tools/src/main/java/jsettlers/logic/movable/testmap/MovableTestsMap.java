@@ -467,6 +467,11 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		public boolean tryCursingLocation(ShortPoint2D position) {
 			return false;
 		}
+
+		@Override
+		public boolean trySummonFish(ShortPoint2D position) {
+			return false;
+		}
 	};
 
 	public AbstractMovableGrid getMovableGrid() {

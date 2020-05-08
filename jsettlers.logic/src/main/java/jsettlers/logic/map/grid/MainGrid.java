@@ -1554,6 +1554,12 @@ public final class MainGrid implements Serializable {
 		public boolean tryCursingLocation(ShortPoint2D at) {
 			return landscapeGrid.tryCursingLocation(at);
 		}
+
+		@Override
+		public boolean trySummonFish(ShortPoint2D position) {
+			mapObjectsManager.addFish(position.x, position.y);
+			return landscapeGrid.trySummonFish(position);
+		}
 	}
 
 	final class BordersThreadGrid implements IBordersThreadGrid {

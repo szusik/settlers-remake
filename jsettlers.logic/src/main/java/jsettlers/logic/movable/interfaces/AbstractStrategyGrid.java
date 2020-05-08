@@ -253,5 +253,7 @@ public abstract class AbstractStrategyGrid implements Serializable {
 
 	public abstract boolean tryCursingLocation(ShortPoint2D position);
 
+	public abstract boolean trySummonFish(ShortPoint2D position);
+
 	public abstract ILogicMovable getMovableAt(int x, int y);
 }

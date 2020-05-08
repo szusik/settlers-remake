@@ -250,6 +250,14 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		return true;
 	}
 
+	public boolean trySummonFish(ShortPoint2D at) {
+		int idx = at.x + at.y * width;
+		if(landscapeGrid[idx] != ELandscapeType.WATER1.ordinal) return false;
+
+		setResourceAt(at.x, at.y, EResourceType.FISH, (byte) (resourceAmount[idx]+ESpellType.SUMMON_FISH_RESOURCE_ADD));
+		return true;
+	}
+
 	@Override
 	public final void walkOn(int x, int y) {
 		int i = x + y * width;

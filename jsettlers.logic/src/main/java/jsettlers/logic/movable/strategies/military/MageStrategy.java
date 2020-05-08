@@ -148,7 +148,8 @@ public class MageStrategy extends MovableStrategy {
 					break;
 				case SHIELD:
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
-							.filter(lm -> lm!=null&&lm.isAlive()&&lm.getMovableType().isSoldier())
+							.filter(lm -> lm!=null&&lm.isAlive())
+							.filter(lm -> ESpellType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
 							.filter(lm -> teamId(lm) == teamId(movable))
 							.limit(ESpellType.SHIELD_MAX_SOLDIERS)
 							.forEach(movable -> movable.addEffect(EEffectType.SHIELDED));
@@ -228,8 +229,6 @@ public class MageStrategy extends MovableStrategy {
 					break;
 				case SUMMON_FOREST:
 					break;
-				case SUMMON_FISH:
-					break;
 				case GIFTS:
 					spellRegion(ESpellType.GIFTS_RADIUS).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
 							.filter((x, y) -> teamId(x, y) == -1 || teamId(x, y) == teamId(movable))
@@ -253,6 +252,12 @@ public class MageStrategy extends MovableStrategy {
 					effectLocations.add(spellLocation);
 					sound = 100;
 					animation = 120;
+					break;
+				case SUMMON_FISH:
+					spellRegion(ESpellType.SUMMON_FISH_RADIUS)
+							.filter((x, y) -> getGrid().getLandscapeTypeAt(x, y) == ELandscapeType.WATER1)
+							.forEach((x, y) -> getGrid().trySummonFish(new ShortPoint2D(x, y)));
+					effectLocations.add(spellLocation);
 					break;
 				case DEFECT:
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
