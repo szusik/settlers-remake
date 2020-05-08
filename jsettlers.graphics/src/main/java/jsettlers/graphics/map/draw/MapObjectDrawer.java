@@ -920,9 +920,12 @@ public class MapObjectDrawer {
 		for(EEffectType effect : EEffectType.values()) {
 			if(movable.hasEffect(effect)) {
 				float x = viewX + (i%3)*10;
-				float y = viewY + (i/3)*10.f;
 
-				ImageProvider.getInstance().getImage(effect.getImageLink()).drawAt(context.getGl(), x, y, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
+				// line should wrap every 3 elements
+				@SuppressWarnings("IntegerDivisionInFloatingPointContext")
+				float y = viewY - (i/3)*10;
+
+				ImageProvider.getInstance().getImage(effect.getImageLink()).drawAt(context.getGl(), x, y+20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
 				i++;
 			}
 		}

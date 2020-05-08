@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import java8.util.Lists;
 import java8.util.function.Function;
 import jsettlers.algorithms.terraform.LandscapeEditor;
 import jsettlers.common.action.EMoveToType;
@@ -54,8 +55,11 @@ public class MageStrategy extends MovableStrategy {
 	}
 
 	private CoordinateStream sort(CoordinateStream stream) {
-		// TODO distant positions should come last
-		return stream;
+		ShortPoint2D priestPos = movable.getPosition();
+
+		List<ShortPoint2D> points = stream.toList();
+		Lists.sort(points, (pt1, pt2) -> pt1.getOnGridDistTo(priestPos)-pt2.getOnGridDistTo(priestPos));
+		return CoordinateStream.fromList(points);
 	}
 
 	private int teamId(int x, int y) {
@@ -312,7 +316,9 @@ public class MageStrategy extends MovableStrategy {
 					});
 					break;
 				case SUMMON_STONE:
-					spellRegion(ESpellType.SUMMON_STONE_RADIUS).getEvery(10).forEach((x, y) -> {
+					spellRegion(ESpellType.SUMMON_STONE_RADIUS)
+							.getEvery(ESpellType.SUMMON_STONE_OFFSET)
+							.forEach((x, y) -> {
 						getGrid().executeSearchType(movable, new ShortPoint2D(x, y), ESearchType.SUMMON_STONE);
 					});
 					break;
