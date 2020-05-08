@@ -69,6 +69,7 @@ public enum ELandscapeType {
 	private static final Set<ELandscapeType> RIVERS = EnumSet.of(RIVER1, RIVER2, RIVER3, RIVER4);
 	public static final Set<ELandscapeType> FLATTENED_DESERTS = EnumSet.of(FLATTENED_DESERT, SHARP_FLATTENED_DESERT);
 	public static final Set<ELandscapeType> DESERT_TYPES = EnumSet.of(DESERT, DESERTBORDER, DESERTBORDEROUTER, SHARP_FLATTENED_DESERT, FLATTENED_DESERT);
+	public static final Set<ELandscapeType> SNOW_TYPES = EnumSet.of(SNOW, SNOWBORDER, SNOWBORDEROUTER);
 	public static final Set<ELandscapeType> MOOR_TYPES = EnumSet.of(MOOR, MOORBORDER, MOORBORDEROUTER);
 	public static final Set<ELandscapeType> MOUNTAIN_TYPES = EnumSet.of(MOUNTAIN, MOUNTAINBORDER);
 	private static final Set<ELandscapeType> FLAT_TYPES = EnumSet.of(MOOR, MOORBORDER, WATER1, WATER2, WATER3, WATER4, WATER5, WATER6, WATER7, WATER8);

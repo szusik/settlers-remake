@@ -232,6 +232,16 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
+		public EMaterialType takeMaterial(ShortPoint2D pos) {
+			if (materialAmountMap[pos.x][pos.y] > 0) {
+				materialAmountMap[pos.x][pos.y]--;
+				return materialTypeMap[pos.x][pos.y];
+			} else {
+				return null;
+			}
+		}
+
+		@Override
 		public boolean dropMaterial(ShortPoint2D pos, EMaterialType materialType, boolean offer, boolean forced) {
 			materialTypeMap[pos.x][pos.y] = materialType;
 			materialAmountMap[pos.x][pos.y]++;

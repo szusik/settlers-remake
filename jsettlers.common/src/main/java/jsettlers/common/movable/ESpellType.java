@@ -39,12 +39,12 @@ public enum ESpellType {
 	CURSE_BOWMAN(40, true, ECivilisation.EGYPTIAN, "original_24_GUI_261"),
 
 	MELT_STONE(15, true, ECivilisation.ASIAN, "original_34_GUI_267"),
-	GODLESS_HIT(20, true, ECivilisation.ASIAN, "original_34_GUI_270"),
+	SHIELD(20, true, ECivilisation.ASIAN, "original_34_GUI_270"),
 	MOTIVATE_SWORDSMAN(25, true, ECivilisation.ASIAN, "original_34_GUI_273"),
-	CALL_DEFENDERS(40, true, ECivilisation.ASIAN, "original_34_GUI_276"),
+	CALL_DEFENDERS(40, false, ECivilisation.ASIAN, "original_34_GUI_276"),
 
 	REMOVE_GOLD(20, true, ECivilisation.AMAZON, "original_44_GUI_264"),
-	CALL_GOODS(25, true, ECivilisation.AMAZON, "original_44_GUI_267"),
+	CALL_GOODS(25, false, ECivilisation.AMAZON, "original_44_GUI_267"),
 	DESTROY_ARROWS(40, true, ECivilisation.AMAZON, "original_44_GUI_270");
 
 	private short manna;
@@ -80,13 +80,21 @@ public enum ESpellType {
 		return forcePresence;
 	}
 
+	public static final int SEND_GOODS_MAX = 40;
+	public static final int CALL_GOODS_MAX = 40;
+	public static final int REMOVE_GOLD_MAX_GOLD = 40;
 	public static final int GILDING_MAX_IRON = 40;
 	public static final int CONVERT_FOOD_MAX_FISH = 40;
+	public static final int CONVERT_IRON_MAX_STONE = 40;
 
 	public static final int DEFEATISM_MAX_SOLDIERS = 20;
 	public static final int INCREASE_MORALE_MAX_SOLDIERS = 20;
 	public static final int SEND_FOES_MAX_SOLDIERS = 20;
+	public static final int CALL_DEFENDERS_MAX_SOLDIERS = 20;
 	public static final int CURSE_BOWMAN_MAX_BOWMAN = 20;
+	public static final int DESTROY_ARROWS_MAX_BOWMAN = 20;
+	public static final int SHIELD_MAX_SOLDIERS = 20;
+	public static final int FREEZE_FOES_MAX_SOLDIERS = 20;
 
 	public static final int GIFTS_MAX_STACKS = 5;
 	public static final int GIFTS_RADIUS = 3;
@@ -100,13 +108,14 @@ public enum ESpellType {
 	public static final int IRRIGATE_RADIUS = 7;
 	public static final int DESERTIFICATION_RADIUS = 7;
 	public static final int DRAIN_MOOR_RADIUS = 7;
+	public static final int MELT_SNOW_RADIUS = 7;
 
 	public static final short ROMAN_EYE_RADIUS = 10;
 	public static final float ROMAN_EYE_TIME = 6;
 
 	public static final int BURN_FOREST_MAX_TREE_COUNT = 5;
 
-	public static final Set<EMovableType> SENDABLE_MOVABLE_TYPES = EnumSet.of(
+	public static final Set<EMovableType> PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES = EnumSet.of(
 			EMovableType.SWORDSMAN_L1, EMovableType.SWORDSMAN_L2, EMovableType.SWORDSMAN_L3,
 			EMovableType.BOWMAN_L1, EMovableType.BOWMAN_L2, EMovableType.BOWMAN_L3,
 			EMovableType.PIKEMAN_L1, EMovableType.PIKEMAN_L2, EMovableType.PIKEMAN_L3,

@@ -476,6 +476,10 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		return popMaterialTypeAt(x, y, materialType) != null;
 	}
 
+	public final EMaterialType popMaterial(short x, short y) {
+		return popMaterialTypeAt(x, y, null);
+	}
+
 	private EMaterialType popMaterialTypeAt(short x, short y, EMaterialType materialType) {
 		StackMapObject stackObject = getStackAtPosition(x, y, materialType);
 

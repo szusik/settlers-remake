@@ -1,6 +1,5 @@
 package jsettlers.logic.movable.strategies.military;
 
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +40,6 @@ public class MageStrategy extends MovableStrategy {
 	private ShortPoint2D spellLocation = null;
 	private ESpellType spell = null;
 
-	private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
-		stream.defaultReadObject();
-	}
-
 	private CoordinateStream spellRegion() {
 		return spellRegion(Constants.SPELL_EFFECT_RADIUS);
 	}
@@ -80,9 +75,22 @@ public class MageStrategy extends MovableStrategy {
 		int animation = -1;
 		float duration = 2;
 		List<ShortPoint2D> effectLocations = new ArrayList<>();
+		ShortPoint2D priestPos = movable.getPosition();
 
 		if(movable.getPlayer().getMannaInformation().useSpell(spell)) {
 			switch(spell) {
+				case SEND_GOODS:
+					transferStacks(movable.getPosition(), spellLocation, false, ESpellType.SEND_GOODS_MAX);
+					break;
+				case CALL_GOODS:
+					transferStacks(spellLocation, movable.getPosition(), true, ESpellType.CALL_GOODS_MAX);
+					break;
+				case REMOVE_GOLD:
+					convertMaterial(EMaterialType.GOLD, EMaterialType.STONE, ESpellType.REMOVE_GOLD_MAX_GOLD, effectLocations);
+
+					sound = 95;
+					animation = 121;
+					break;
 				case GILDING:
 					convertMaterial(EMaterialType.IRON, EMaterialType.GOLD, ESpellType.GILDING_MAX_IRON, effectLocations);
 
@@ -94,6 +102,22 @@ public class MageStrategy extends MovableStrategy {
 
 					sound = 95;
 					animation = 121;
+					break;
+				case MELT_STONE:
+					convertMaterial(EMaterialType.STONE, EMaterialType.IRON, ESpellType.CONVERT_IRON_MAX_STONE, effectLocations);
+
+					sound = 95;
+					animation = 121;
+					break;
+				case GREEN_THUMB:
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive())
+							.filter(lm -> lm.getMovableType() == EMovableType.FARMER ||
+									lm.getMovableType() == EMovableType.WINEGROWER ||
+									lm.getMovableType() == EMovableType.FORESTER
+							).limit(ESpellType.GREEN_THUMB_MAX_SETTLERS)
+							.forEach(lm -> lm.addEffect(EEffectType.GREEN_THUMB));
+					effectLocations.add(spellLocation);
 					break;
 				case DEFEATISM:
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
@@ -113,21 +137,55 @@ public class MageStrategy extends MovableStrategy {
 					effectLocations.add(spellLocation);
 					animation = 115;
 					break;
+				case MOTIVATE_SWORDSMAN:
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive()&&lm.getMovableType().isSwordsman())
+							.filter(lm -> teamId(lm) == teamId(movable))
+							.limit(ESpellType.INCREASE_MORALE_MAX_SOLDIERS)
+							.forEach(movable -> movable.addEffect(EEffectType.MOTIVATE_SWORDSMAN));
+					effectLocations.add(spellLocation);
+					animation = 115;
+					break;
+				case SHIELD:
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive()&&lm.getMovableType().isSoldier())
+							.filter(lm -> teamId(lm) == teamId(movable))
+							.limit(ESpellType.SHIELD_MAX_SOLDIERS)
+							.forEach(movable -> movable.addEffect(EEffectType.SHIELDED));
+					effectLocations.add(spellLocation);
+					animation = 116;
+					break;
+				case DESTROY_ARROWS:
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive()&&lm.getMovableType().isBowman())
+							.filter(lm -> teamId(lm) != teamId(movable))
+							.limit(ESpellType.DESTROY_ARROWS_MAX_BOWMAN)
+							.forEach(movable -> movable.addEffect(EEffectType.NO_ARROWS));
+					effectLocations.add(spellLocation);
+					animation = 116;
+					break;
+				case FREEZE_FOES:
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive())
+							.filter(lm -> ESpellType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
+							.filter(lm -> teamId(lm) != teamId(movable))
+							.limit(ESpellType.FREEZE_FOES_MAX_SOLDIERS)
+							.forEach(movable -> movable.addEffect(EEffectType.FROZEN));
+					effectLocations.add(spellLocation);
+					animation = 116;
+					break;
 				case SEND_FOES:
-					ShortPoint2D priestPos = movable.getPosition();
-
 					Queue<ILogicMovable> sendEnemies = new ArrayDeque<>(ESpellType.SEND_FOES_MAX_SOLDIERS);
 					sort(spellRegion(priestPos, Constants.SPELL_EFFECT_RADIUS))
 							.map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive())
 							.filter(lm -> teamId(lm) != teamId(movable))
-							.filter(lm -> ESpellType.SENDABLE_MOVABLE_TYPES.contains(lm.getMovableType()))
+							.filter(lm -> ESpellType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
 							.limit(ESpellType.SEND_FOES_MAX_SOLDIERS)
 							.forEach(sendEnemies::add);
 
 
-					sort(spellRegion(spellLocation, Constants.SPELL_EFFECT_RADIUS))
-							.filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
+					sort(spellRegion()).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
 							.forEach((x, y) -> {
 								ILogicMovable send = sendEnemies.poll();
 								if(send != null) {
@@ -138,12 +196,41 @@ public class MageStrategy extends MovableStrategy {
 							});
 					animation = 121;
 					break;
+				case CALL_DEFENDERS:
+					Queue<ILogicMovable> callDefenders = new ArrayDeque<>(ESpellType.CALL_DEFENDERS_MAX_SOLDIERS);
+					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
+							.filter(lm -> lm!=null&&lm.isAlive())
+							.filter(lm -> teamId(lm) == teamId(movable))
+							.filter(lm -> ESpellType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
+							.limit(ESpellType.CALL_DEFENDERS_MAX_SOLDIERS)
+							.forEach(callDefenders::add);
+
+
+					sort(spellRegion(priestPos, Constants.SPELL_EFFECT_RADIUS))
+							.filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
+							.forEach((x, y) -> {
+								ILogicMovable send = callDefenders.poll();
+								if(send != null) {
+									ShortPoint2D movPos = send.getPosition();
+									send.setPosition(new ShortPoint2D(x, y));
+									effectLocations.add(movPos);
+								}
+							});
+					animation = 121;
 				case CURSE_BOWMAN:
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive()&&lm.getMovableType().isBowman())
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.CURSE_BOWMAN_MAX_BOWMAN)
 							.forEach(movable -> movable.convertTo(EMovableType.PIONEER));
+					break;
+				case SUMMON_STONE:
+					break;
+				case SUMMON_FOREST:
+					break;
+				case SUMMON_FISH:
+					break;
+				case AMAZON_EYE:
 					break;
 				case GIFTS:
 					spellRegion(ESpellType.GIFTS_RADIUS).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
@@ -199,14 +286,11 @@ public class MageStrategy extends MovableStrategy {
 					effectLocations.add(spellLocation);
 					animation = 127;
 					break;
-				case GREEN_THUMB:
-					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
-							.filter(lm -> lm!=null&&lm.isAlive())
-							.filter(lm -> lm.getMovableType() == EMovableType.FARMER ||
-									lm.getMovableType() == EMovableType.WINEGROWER ||
-									lm.getMovableType() == EMovableType.FORESTER
-							).limit(ESpellType.GREEN_THUMB_MAX_SETTLERS).forEach(lm -> lm.addEffect(EEffectType.GREEN_THUMB));
+				case MELT_SNOW:
+					convertLandscape(ESpellType.MELT_SNOW_RADIUS, SNOW_TYPES::contains, MOUNTAIN, null, null);
+
 					effectLocations.add(spellLocation);
+					animation = 127;
 					break;
 				case ROMAN_EYE:
 					getGrid().addEyeMapObject(spellLocation, ESpellType.ROMAN_EYE_RADIUS, ESpellType.ROMAN_EYE_TIME, movable.getPlayer());
@@ -237,6 +321,20 @@ public class MageStrategy extends MovableStrategy {
 		playAction(EMovableAction.ACTION1, 1);
 		spellLocation = null;
 		spell = null;
+	}
+
+	private void transferStacks(ShortPoint2D from, ShortPoint2D to, boolean checkFromOwner, int maxGoods) {
+		CoordinateStream stream = sort(spellRegion(from, Constants.SPELL_EFFECT_RADIUS));
+		if(checkFromOwner) stream = stream.filter((x, y) -> movable.getPlayer().hasSameTeam(getGrid().getPlayerAt(new ShortPoint2D(x, y))));
+
+		MutableInt remaining = new MutableInt(maxGoods);
+		stream.forEach((x, y) -> {
+			EMaterialType took;
+			while(remaining.value > 0 && (took = getGrid().takeMaterial(new ShortPoint2D(x, y))) != null) {
+				getGrid().dropMaterial(to, took, true, true);
+				remaining.value--;
+			}
+		});
 	}
 
 	private void convertLandscape(int radius, Function<ELandscapeType, Boolean> fromCond, ELandscapeType to, Function<ELandscapeType, Boolean> fromFlatCond, ELandscapeType toFlat) {

@@ -14,6 +14,7 @@
  *******************************************************************************/
 package jsettlers.logic.movable.strategies.military;
 
+import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
@@ -49,7 +50,9 @@ public final class InfantryStrategy extends SoldierStrategy {
 
 	@Override
 	protected void startAttackAnimation(IAttackable enemy) {
-		super.playAction(EMovableAction.ACTION1, INFANTRY_ATTACK_DURATION);
+		float duration = INFANTRY_ATTACK_DURATION;
+		if(movable.hasEffect(EEffectType.MOTIVATE_SWORDSMAN))  duration *= EEffectType.MOTIVATE_SWORDSMAN_ANIMATION_FACTOR;
+		super.playAction(EMovableAction.ACTION1, duration);
 	}
 
 	@Override

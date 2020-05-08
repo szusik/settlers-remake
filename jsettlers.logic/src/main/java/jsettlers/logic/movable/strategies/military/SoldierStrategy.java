@@ -96,6 +96,8 @@ public abstract class SoldierStrategy extends MovableStrategy implements IBuildi
 			}
 			changeStateTo(ESoldierState.SEARCH_FOR_ENEMIES);
 		case SEARCH_FOR_ENEMIES:
+			if(movable.hasEffect(EEffectType.FROZEN)) break; // we can neither move nor hit
+
 			final short minSearchDistance = getMinSearchDistance();
 			IAttackable oldEnemy = enemy;
 			enemy = super.getGrid().getEnemyInSearchArea(getAttackPosition(), movable, minSearchDistance, getMaxSearchDistance(isInTower), !defending);
@@ -408,8 +410,9 @@ public abstract class SoldierStrategy extends MovableStrategy implements IBuildi
 		boolean alliedGround = movable.getPlayer().hasSameTeam(getGrid().getPlayerAt(getPosition()));
 
 		float strengthMod = 1;
-		if(alliedGround && movable.hasEffect(EEffectType.DEFEATISM)) strengthMod *= EEffectType.DEFEATISM.getMod();
-		if(!alliedGround && movable.hasEffect(EEffectType.INCREASED_MORALE)) strengthMod *= EEffectType.INCREASED_MORALE.getMod();
+		if(alliedGround && movable.hasEffect(EEffectType.DEFEATISM)) strengthMod *= EEffectType.DEFEATISM_DAMAGE_FACTOR;
+		if(!alliedGround && movable.hasEffect(EEffectType.INCREASED_MORALE)) strengthMod *= EEffectType.INCREASED_MORALE_DAMAGE_FACTOR;
+		if(movable.hasEffect(EEffectType.MOTIVATE_SWORDSMAN)) strengthMod *= EEffectType.MOTIVATE_SWORDSMAN_DAMAGE_FACTOR;
 
 		return movable.getPlayer().getCombatStrengthInformation().getCombatStrength(isOnOwnGround()) * strengthMod;
 	}

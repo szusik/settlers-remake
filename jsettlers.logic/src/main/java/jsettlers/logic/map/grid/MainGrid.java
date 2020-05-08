@@ -1270,6 +1270,11 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
+		public EMaterialType takeMaterial(ShortPoint2D position) {
+			return mapObjectsManager.popMaterial(position.x, position.y);
+		}
+
+		@Override
 		public boolean dropMaterial(ShortPoint2D position, EMaterialType materialType, boolean offer, boolean forced) {
 			boolean successful;
 
@@ -1441,7 +1446,7 @@ public final class MainGrid implements Serializable {
 		public final boolean executeSearchType(ILogicMovable movable, ShortPoint2D position, ESearchType searchType) {
 			if (fitsSearchType(movable, position.x, position.y, searchType)) {
 				return mapObjectsManager.executeSearchType(position, searchType,
-						movable.hasEffect(EEffectType.GREEN_THUMB) ? EEffectType.GREEN_THUMB.getMod() : 1);
+						movable.hasEffect(EEffectType.GREEN_THUMB) ? EEffectType.GREEN_THUMB_GROW_FACTOR : 1);
 			} else {
 				return false;
 			}

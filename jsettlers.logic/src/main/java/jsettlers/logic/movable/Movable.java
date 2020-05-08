@@ -407,6 +407,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 
 	@Override
 	public void goSinglePathStep() {
+		if(hasEffect(EEffectType.FROZEN)) return;
+
 		initGoingSingleStep(path.getNextPos());
 		path.goToNextStep();
 	}
@@ -686,6 +688,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 	 * The direction to look.
 	 */
 	final void lookInDirection(EDirection direction) {
+		if(hasEffect(EEffectType.FROZEN)) return;
+
 		this.direction = direction;
 	}
 
@@ -723,6 +727,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 	 * false if the target position is generally blocked or a movable occupies that position.
 	 */
 	final boolean goInDirection(EDirection direction, EGoInDirectionMode mode) {
+		if(hasEffect(EEffectType.FROZEN)) return false;
+
 		ShortPoint2D targetPosition = direction.getNextHexPoint(position);
 
 		switch (mode) {
@@ -1050,7 +1056,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 
 	public void moveToFerry(ILogicMovable ferry, ShortPoint2D entrancePosition) {
 		this.ferryToEnter = ferry;
-		moveTo(entrancePosition, EMoveToType.WORK);
+		moveTo(entrancePosition, EMoveToType.FORCED);
 	}
 
 	/**
@@ -1067,6 +1073,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 	@Override
 	public final void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
 		if (strategy.receiveHit()) {
+			if(hasEffect(EEffectType.SHIELDED)) hitStrength *= EEffectType.SHIELDED_DAMAGE_FACTOR;
+
 			this.health -= hitStrength;
 			if (health <= 0) {
 				this.kill();

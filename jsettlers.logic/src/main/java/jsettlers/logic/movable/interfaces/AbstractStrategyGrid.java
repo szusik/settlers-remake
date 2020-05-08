@@ -66,6 +66,15 @@ public abstract class AbstractStrategyGrid implements Serializable {
 	public abstract boolean takeMaterial(ShortPoint2D pos, EMaterialType materialType);
 
 	/**
+	 * Take a material from the stack at given position.
+	 *
+	 * @param position
+	 * @return the taken material<br>
+	 *     null otherwise.
+	 */
+	public abstract EMaterialType takeMaterial(ShortPoint2D position);
+
+	/**
 	 * Drop a material of given type at given position.
 	 *
 	 * @param pos

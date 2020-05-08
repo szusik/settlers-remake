@@ -14,6 +14,7 @@
  *******************************************************************************/
 package jsettlers.logic.movable.strategies.military;
 
+import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
@@ -62,8 +63,11 @@ public final class BowmanStrategy extends SoldierStrategy {
 	@Override
 	protected void startAttackAnimation(IAttackable enemy) {
 		super.playAction(EMovableAction.ACTION1, BOWMAN_ATTACK_DURATION);
-		super.getGrid().addArrowObject(enemy.getPosition(), movable.getPosition(), movable.getPlayer().playerId,
-				getMovableType().getStrength() * getCombatStrength());
+
+		if(!movable.hasEffect(EEffectType.NO_ARROWS)) {
+			super.getGrid().addArrowObject(enemy.getPosition(), movable.getPosition(), movable.getPlayer().playerId,
+					getMovableType().getStrength() * getCombatStrength());
+		}
 	}
 
 	@Override
