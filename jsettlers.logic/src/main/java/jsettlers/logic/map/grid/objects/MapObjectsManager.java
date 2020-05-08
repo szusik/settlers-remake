@@ -115,6 +115,8 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		case CUTTABLE_TREE:
 			return cutTree(pos);
 
+		case SUMMON_STONE:
+			return summonStone(pos);
 		case CUTTABLE_STONE:
 			cutStone(pos);
 			return true;
@@ -148,6 +150,12 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		timingQueue.add(new TimeEvent(object, RessourceSignMapObject.getLivetime(), true));
 
 		return true;
+	}
+
+	private boolean summonStone(ShortPoint2D pos) {
+		// between 1 and MAX_CAPACITY should be left
+		Stone newStone = new Stone(MatchConstants.random().nextInt(1, Stone.MAX_CAPACITY));
+		return addMapObject(pos, newStone);
 	}
 
 	private void cutStone(ShortPoint2D pos) {

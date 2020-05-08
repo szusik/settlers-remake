@@ -583,6 +583,8 @@ public final class MainGrid implements Serializable {
 				case HARVESTABLE_WINE:
 					return isMapObjectCuttable(x, y, EMapObjectType.WINE_HARVESTABLE) && hasSamePlayer(x, y, pathCalculable) && !isMarked(x, y);
 
+				case SUMMON_STONE:
+					return true; // not actually a search
 				case CUTTABLE_STONE:
 					return y + 1 < height && x - 1 > 0 && isMapObjectCuttable(x - 1, y + 1, EMapObjectType.STONE)
 						&& hasSamePlayer(x, y, pathCalculable) && !isMarked(x, y);

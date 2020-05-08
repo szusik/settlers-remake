@@ -36,6 +36,7 @@ public enum ESearchType {
 	 */
 	CUTTABLE_TREE,
 
+	SUMMON_STONE,
 	CUTTABLE_STONE,
 
 	PLANTABLE_TREE,

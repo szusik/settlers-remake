@@ -225,10 +225,6 @@ public class MageStrategy extends MovableStrategy {
 							.limit(ESpellType.CURSE_BOWMAN_MAX_BOWMAN)
 							.forEach(movable -> movable.convertTo(EMovableType.PIONEER));
 					break;
-				case SUMMON_STONE:
-					break;
-				case SUMMON_FOREST:
-					break;
 				case GIFTS:
 					spellRegion(ESpellType.GIFTS_RADIUS).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
 							.filter((x, y) -> teamId(x, y) == -1 || teamId(x, y) == teamId(movable))
@@ -313,6 +309,16 @@ public class MageStrategy extends MovableStrategy {
 						if(remainingTrees.value > 0 && getGrid().executeSearchType(movable, new ShortPoint2D(x, y), ESearchType.BURNABLE_TREE)) {
 							remainingTrees.value--;
 						}
+					});
+					break;
+				case SUMMON_STONE:
+					spellRegion(ESpellType.SUMMON_STONE_RADIUS).getEvery(10).forEach((x, y) -> {
+						getGrid().executeSearchType(movable, new ShortPoint2D(x, y), ESearchType.SUMMON_STONE);
+					});
+					break;
+				case SUMMON_FOREST:
+					spellRegion(ESpellType.SUMMON_FOREST_RADIUS).forEach((x, y) -> {
+						getGrid().executeSearchType(movable, new ShortPoint2D(x, y), ESearchType.PLANTABLE_TREE);
 					});
 					break;
 			}

@@ -114,6 +114,9 @@ public enum ESpellType {
 	public static final int DRAIN_MOOR_RADIUS = 7;
 	public static final int MELT_SNOW_RADIUS = 7;
 
+	public static final int SUMMON_STONE_RADIUS = 10;
+	public static final int SUMMON_FOREST_RADIUS = 7;
+
 	public static final short ROMAN_EYE_RADIUS = 10;
 	public static final float ROMAN_EYE_TIME = 6;
 
