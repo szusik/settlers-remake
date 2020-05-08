@@ -230,8 +230,6 @@ public class MageStrategy extends MovableStrategy {
 					break;
 				case SUMMON_FISH:
 					break;
-				case AMAZON_EYE:
-					break;
 				case GIFTS:
 					spellRegion(ESpellType.GIFTS_RADIUS).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
 							.filter((x, y) -> teamId(x, y) == -1 || teamId(x, y) == teamId(movable))
@@ -291,6 +289,12 @@ public class MageStrategy extends MovableStrategy {
 
 					effectLocations.add(spellLocation);
 					animation = 127;
+					break;
+				case AMAZON_EYE:
+					getGrid().addEyeMapObject(priestPos, ESpellType.AMAZON_EYE_RADIUS, ESpellType.AMAZON_EYE_TIME, movable.getPlayer());
+					effectLocations.add(priestPos);
+					sound = 80;
+					animation = 126;
 					break;
 				case ROMAN_EYE:
 					getGrid().addEyeMapObject(spellLocation, ESpellType.ROMAN_EYE_RADIUS, ESpellType.ROMAN_EYE_TIME, movable.getPlayer());

@@ -30,7 +30,6 @@ import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.MainGrid;
 import jsettlers.logic.movable.Movable;
-import jsettlers.main.GameTimeProvider;
 
 /**
  * This class holds the fog of war for a given map and team.
@@ -117,6 +116,10 @@ public final class FogOfWar implements Serializable {
 		short to;
 	}
 
+	public static class ShowHideFoWTask implements FoWTask {
+		boolean addRef;
+	}
+
 	/**
 	 * Gets the visible status of a map pint
 	 *
@@ -145,6 +148,22 @@ public final class FogOfWar implements Serializable {
 
 		backgroundListener.fogOfWarEnabledStatusChanged(enabled);
 		for(int y = 0; y != height;y++) backgroundListener.backgroundColorLineChangedAt(0, y, width);
+	}
+
+	public void showMap() {
+		ShowHideFoWTask foWTask = new ShowHideFoWTask();
+		foWTask.addRef = true;
+		synchronized (instance.refThread.nextTasks) {
+			instance.refThread.nextTasks.add(foWTask);
+		}
+	}
+
+	public void hideMap() {
+		ShowHideFoWTask foWTask = new ShowHideFoWTask();
+		foWTask.addRef = false;
+		synchronized (instance.refThread.nextTasks) {
+			instance.refThread.nextTasks.add(foWTask);
+		}
 	}
 
 	public static final int CIRCLE_REMOVE = 1;
@@ -189,6 +208,10 @@ public final class FogOfWar implements Serializable {
 				if (bFOW.to > 0) circleDrawer.drawCircleToBuffer(bFOW.at.x, bFOW.at.y, bFOW.to, CIRCLE_ADD);
 				if (bFOW.from > 0) circleDrawer.drawCircleToBuffer(bFOW.at.x, bFOW.at.y, bFOW.from, CIRCLE_REMOVE);
 				circleDrawer.drawCircleToBuffer(bFOW.at.x, bFOW.at.y, bFOW.to>bFOW.from ? bFOW.to : bFOW.from, CIRCLE_DIM);
+				return true;
+			} else if(task instanceof ShowHideFoWTask) {
+				ShowHideFoWTask shFOW = (ShowHideFoWTask) task;
+				circleDrawer.draw(new ShowHideMapIterator(), shFOW.addRef?CIRCLE_ADD|CIRCLE_DIM : CIRCLE_REMOVE|CIRCLE_DIM);
 				return true;
 			} else {
 				Movable mv = (Movable) task;
@@ -355,7 +378,50 @@ public final class FogOfWar implements Serializable {
 		return 0;
 	}
 
+	public interface ViewAreaIterator {
+		boolean hasNext();
+		int getCurrX();
+		int getCurrY();
+
+		byte getRefIndex();
+	}
+
+	public final class ShowHideMapIterator implements ViewAreaIterator {
+		private int x = 0;
+		private int y = 0;
+
+		public ShowHideMapIterator() {
+		}
+
+		@Override
+		public boolean hasNext() {
+			x++;
+
+			if(x == width) {
+				x = 0;
+				y++;
+			}
+			return y != height;
+		}
+
+		@Override
+		public int getCurrX() {
+			return x;
+		}
+
+		@Override
+		public int getCurrY() {
+			return y;
+		}
+
+		@Override
+		public byte getRefIndex() {
+			return 0;
+		}
+	}
+
 	final class CircleDrawer {
+
 		public final CachedViewCircle[] cachedCircles = new CachedViewCircle[MAX_VIEW_DISTANCE];
 
 		/**
@@ -364,7 +430,10 @@ public final class FogOfWar implements Serializable {
 		final void drawCircleToBuffer(int bufferX, int bufferY, int viewDistance, int state) {
 			CachedViewCircle circle = getCachedCircle(viewDistance);
 			CachedViewCircle.CachedViewCircleIterator iterator = circle.iterator(bufferX, bufferY);
+			draw(iterator, state);
+		}
 
+		final void draw(ViewAreaIterator iterator, int state) {
 			while (iterator.hasNext()) {
 				final int x = iterator.getCurrX();
 				final int y = iterator.getCurrY();

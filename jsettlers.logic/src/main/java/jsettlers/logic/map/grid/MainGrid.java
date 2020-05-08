@@ -518,7 +518,7 @@ public final class MainGrid implements Serializable {
 	}
 
 	public final void disableFogOfWar() {
-		fogOfWar.setEnabled(false);
+		fogOfWar.showMap();
 	}
 
 	final class PathfinderGrid implements IAStarPathMap, IDijkstraPathMap, IInAreaFinderMap, Serializable {

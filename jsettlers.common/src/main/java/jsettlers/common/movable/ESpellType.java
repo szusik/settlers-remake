@@ -113,6 +113,9 @@ public enum ESpellType {
 	public static final short ROMAN_EYE_RADIUS = 10;
 	public static final float ROMAN_EYE_TIME = 6;
 
+	public static final short AMAZON_EYE_RADIUS = (short)-1; // -1 will show whole map
+	public static final float AMAZON_EYE_TIME = 6;
+
 	public static final int BURN_FOREST_MAX_TREE_COUNT = 5;
 
 	public static final Set<EMovableType> PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES = EnumSet.of(

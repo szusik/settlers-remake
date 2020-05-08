@@ -74,7 +74,7 @@ public final class CachedViewCircle {
 		return new CachedViewCircleIterator(xOffset, yOffset);
 	}
 
-	public final class CachedViewCircleIterator {
+	public final class CachedViewCircleIterator implements FogOfWar.ViewAreaIterator {
 		private final int xOffset;
 		private final int yOffset;
 
@@ -85,18 +85,22 @@ public final class CachedViewCircle {
 			this.yOffset = yOffset;
 		}
 
+		@Override
 		public boolean hasNext() {
 			return ++idx < size;
 		}
 
+		@Override
 		public int getCurrX() {
 			return x[idx] + xOffset;
 		}
 
+		@Override
 		public int getCurrY() {
 			return y[idx] + yOffset;
 		}
 
+		@Override
 		public byte getRefIndex() {
 			return refIndex[idx];
 		}
