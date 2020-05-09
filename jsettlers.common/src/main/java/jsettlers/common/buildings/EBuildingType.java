@@ -40,6 +40,7 @@ public enum EBuildingType {
 	LUMBERJACK,
 	SAWMILL,
 
+	SULFURMINE,
 	COALMINE,
 	IRONMINE,
 	GOLDMINE,

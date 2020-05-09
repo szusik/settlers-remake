@@ -117,6 +117,8 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 					new PlaceResource(EResourceType.IRONORE),
 					new PlaceResource(EResourceType.GOLDORE),
 					new PlaceResource(EResourceType.COAL),
+					new PlaceResource(EResourceType.BRIMSTONE),
+					new PlaceResource(EResourceType.GEMSTONE),
 					new PlaceResource(null)
 					}),
 			new ToolBox(EditorLabels.getLabel("tools.category.objects"), new ToolNode[] {

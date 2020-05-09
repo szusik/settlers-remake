@@ -137,10 +137,10 @@ SMITH, ACTION1, *, NORTH_EAST = 31, 46, 0, 12
 # MINER movables start
 ###
 
-SETTLER_MATERIAL(MINER, SULFUR, 31, 167)
+SETTLER_MATERIAL(MINER, SULFUR, 31, 161)
 
 # SOUTH_WEST animation only
-MINER, BEND_DOWN, SULFUR, * = 31, 168, 0, 10
+MINER, BEND_DOWN, SULFUR, * = 31, 162, 7, -8
 
 # washing his face in the river (if there is a river)
 MINER, ACTION2, NO_MATERIAL, NORTH_WEST = 31, 208, 0, 24

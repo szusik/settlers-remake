@@ -52,24 +52,24 @@ public enum EOriginalMapBuildingType {
 	LIVINGHOUSE_SMALL(EBuildingType.SMALL_LIVINGHOUSE),
 	LIVINGHOUSE_MEDIUM(EBuildingType.MEDIUM_LIVINGHOUSE),
 	LIVINGHOUSE_BIG(EBuildingType.BIG_LIVINGHOUSE),
-	Schwefelmine(null),
+	Schwefelmine(EBuildingType.SULFURMINE),
 	WATERWORKS(EBuildingType.WATERWORKS),
 	Katapultwerk(null),
 	DOCKYARD(EBuildingType.DOCKYARD),
 	HARBOR(EBuildingType.HARBOR),
-	Marktplatz(null),
+	Marktplatz(EBuildingType.MARKET_PLACE),
 	HOSPITAL(EBuildingType.HOSPITAL),
 	Reisfarm(null),
 	Edelsteinmine(null),
 	Brauerei(null),
 	CHARCOAL_BURNER(EBuildingType.CHARCOAL_BURNER),
 	Pulvermacherei(null),
-	Pyramide(null),
-	Sphinx(null),
+	Pyramide(EBuildingType.BIG_TEMPLE),
+	Sphinx(EBuildingType.TEMPLE),
 	BIG_TEMPLE(EBuildingType.BIG_TEMPLE), // TODO : does not work?!
 	TEMPLE(EBuildingType.TEMPLE),
-	grosse_Pagode(null),
-	kleine_Pagode(null),
+	grosse_Pagode(EBuildingType.BIG_TEMPLE),
+	kleine_Pagode(EBuildingType.TEMPLE),
 	Ballistenwerkstatt(null),
 	Kanonenwerkstatt(null),
 	DONKEY_FARM(EBuildingType.DONKEY_FARM),
@@ -77,9 +77,9 @@ public enum EOriginalMapBuildingType {
 	Impkerei(null),
 	Metwinzerei(null),
 	Labortorium(null),
-	kleiner_Tempel(null),
-	grosser_Tempel(null),
-	SchwefelmineAmazonen(null);
+	kleiner_Tempel(EBuildingType.TEMPLE),
+	grosser_Tempel(EBuildingType.BIG_TEMPLE),
+	SchwefelmineAmazonen(EBuildingType.SULFURMINE);
 
 	private static final EOriginalMapBuildingType[] VALUES = EOriginalMapBuildingType.values();
 	private final EBuildingType value;

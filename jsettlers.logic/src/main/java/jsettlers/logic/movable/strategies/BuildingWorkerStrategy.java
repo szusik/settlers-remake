@@ -406,16 +406,12 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 	}
 
 	private boolean tryTakingResource() {
-		switch (building.getBuildingType()) {
-		case FISHER:
+		if(building.getBuildingType() == EBuildingType.FISHER) {
 			EDirection fishDirection = movable.getDirection();
 			return super.getGrid().tryTakingResource(fishDirection.getNextHexPoint(movable.getPosition()), EResourceType.FISH);
-		case COALMINE:
-		case IRONMINE:
-		case GOLDMINE:
+		} else if(building.getBuildingType().isMine()) {
 			return building.tryTakingResource();
-
-		default:
+		} else {
 			return false;
 		}
 	}
