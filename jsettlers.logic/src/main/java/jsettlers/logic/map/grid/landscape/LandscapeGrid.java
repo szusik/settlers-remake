@@ -197,13 +197,6 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		backgroundListener.backgroundShapeChangedAt(x, y);
 	}
 
-	public void terraform(int x, int y, ELandscapeType type) {
-		final int index = x + y * width;
-
-		this.landscapeGrid[index] = type.ordinal;
-		backgroundListener.backgroundShapeChangedAt(x, y);
-	}
-
 	public final void setBackgroundListener(IGraphicsBackgroundListener backgroundListener) {
 		if (backgroundListener != null) {
 			this.backgroundListener = backgroundListener;
@@ -260,6 +253,14 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		if(landscapeGrid[idx] != ELandscapeType.MOUNTAIN.ordinal) return false;
 
 		setResourceAt(at.x, at.y, EResourceType.values()[resourceType[idx]], (byte) (resourceAmount[idx]*ESpellType.CURSE_MOUNTAIN_RESOURCE_MOD));
+		return true;
+	}
+
+	public boolean trySummonFish(ShortPoint2D at) {
+		int idx = at.x + at.y * width;
+		if(landscapeGrid[idx] != ELandscapeType.WATER1.ordinal) return false;
+
+		setResourceAt(at.x, at.y, EResourceType.FISH, (byte) (resourceAmount[idx]+ESpellType.SUMMON_FISH_RESOURCE_ADD));
 		return true;
 	}
 

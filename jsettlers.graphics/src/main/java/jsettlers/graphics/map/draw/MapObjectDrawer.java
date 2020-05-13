@@ -22,7 +22,6 @@ import java.util.List;
 import go.graphics.GLDrawContext;
 import jsettlers.common.Color;
 import jsettlers.common.CommonConstants;
-import jsettlers.common.action.EActionType;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuilding.IOccupied;
@@ -428,6 +427,9 @@ public class MapObjectDrawer {
 				break;
 			case TREE_ADULT:
 				drawTree(x, y, color);
+				break;
+			case TREE_BURNING:
+				drawBurningTree(x, y, color);
 				break;
 
 			case TREE_DEAD:
@@ -914,14 +916,18 @@ public class MapObjectDrawer {
 			healthImage.drawAt(context.getGl(), viewX, viewY + 38, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
 		}
 
-		if(movable.hasEffect(EEffectType.DEFEATISM)) {
-			Image defeatism_image = ImageProvider.getInstance().getSettlerSequence(1, 130).getImage(0, () -> "defeatism-indicator");
-			defeatism_image.drawAt(context.getGl(), viewX+10, viewY+20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
-		}
+		int i = 1;
+		for(EEffectType effect : EEffectType.values()) {
+			if(movable.hasEffect(effect)) {
+				float x = viewX + (i%3)*10;
 
-		if(movable.hasEffect(EEffectType.GREEN_THUMB)) {
-			Image defeatism_image = ImageProvider.getInstance().getSettlerSequence(1, 134).getImage(0, () -> "green_thumb-indicator");
-			defeatism_image.drawAt(context.getGl(), viewX+10, viewY+20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
+				// line should wrap every 3 elements
+				@SuppressWarnings("IntegerDivisionInFloatingPointContext")
+				float y = viewY - (i/3)*10;
+
+				ImageProvider.getInstance().getImage(effect.getImageLink()).drawAt(context.getGl(), x, y+20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
+				i++;
+			}
 		}
 	}
 
@@ -1097,6 +1103,13 @@ public class MapObjectDrawer {
 
 		int step = getAnimationStep(x, y) % seq.length();
 		draw(seq.getImageSafe(step, () -> "grown-tree"), x, y, 0, color);
+	}
+
+	private void drawBurningTree(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, 124);
+		int step = (getAnimationStep(x, y)*5) % seq.length();
+
+		draw(seq.getImageSafe(step, () -> "burning-tree"), x, y, 0, color);
 	}
 
 	/**

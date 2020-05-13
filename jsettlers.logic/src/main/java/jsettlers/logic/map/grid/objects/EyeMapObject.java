@@ -21,11 +21,20 @@ public class EyeMapObject extends SoundableSelfDeletingObject {
 	@Override
 	protected void changeState() {
 		if(FogOfWar.instance != null && FogOfWar.instance.team == getPlayer().getTeamId()) {
-			if (!drawn) {
-				FogOfWar.queueResizeCircle(at, (short) 0, distance);
-				drawn = true;
+			if(distance == -1) {
+				if(!drawn) {
+					FogOfWar.instance.showMap();
+					drawn = true;
+				} else {
+					FogOfWar.instance.hideMap();
+				}
 			} else {
-				FogOfWar.queueResizeCircle(at, distance, (short) 0);
+				if(!drawn) {
+					FogOfWar.queueResizeCircle(at, (short) 0, distance);
+					drawn = true;
+				} else {
+					FogOfWar.queueResizeCircle(at, distance, (short) 0);
+				}
 			}
 		}
 	}

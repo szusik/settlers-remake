@@ -58,8 +58,8 @@ public enum ELandscapeType {
 	DESERTBORDEROUTER(20, new Color(0xff949200), false, false),
 	SNOWBORDER(25, new Color(0xffd7fffe), false, true),
 	SNOWBORDEROUTER(26, new Color(0xffd7fffe), false, false),
-	MUD(4, new Color(0xff0e87cc), false, true), // TODO: color
-	MUDBORDER(5, new Color(0xff0e87cc), false, true), // TODO: color
+	MUD(4, new Color(0xff0e87cc), false, false), // TODO: color
+	MUDBORDER(5, new Color(0xff0e87cc), false, false), // TODO: color
 	MUDBORDEROUTER(6, new Color(0xff0e87cc), false, false), // TODO: color
 	ROAD(34, new Color(0xff156E15), false, false), // TODO: color
 	DRY_EARTH(36, new Color(0xffADAB00), false, false), // TODO: coor
@@ -67,10 +67,10 @@ public enum ELandscapeType {
 
 	public static final ELandscapeType[] VALUES = ELandscapeType.values();
 	private static final Set<ELandscapeType> RIVERS = EnumSet.of(RIVER1, RIVER2, RIVER3, RIVER4);
-	public static final Set<ELandscapeType> GRASS_NEIGHBORS = EnumSet.of(DRY_GRASS, FLATTENED, EARTH, GRASS);
-	public static final Set<ELandscapeType> FLATTENED_NEIGHBORS = EnumSet.of(GRASS, FLATTENED);
-	public static final Set<ELandscapeType> DRY_GRASS_NEIGHBORS = EnumSet.of(GRASS, DESERT, DRY_GRASS);
 	public static final Set<ELandscapeType> FLATTENED_DESERTS = EnumSet.of(FLATTENED_DESERT, SHARP_FLATTENED_DESERT);
+	public static final Set<ELandscapeType> DESERT_TYPES = EnumSet.of(DESERT, DESERTBORDER, DESERTBORDEROUTER, SHARP_FLATTENED_DESERT, FLATTENED_DESERT);
+	public static final Set<ELandscapeType> SNOW_TYPES = EnumSet.of(SNOW, SNOWBORDER, SNOWBORDEROUTER);
+	public static final Set<ELandscapeType> MOOR_TYPES = EnumSet.of(MOOR, MOORBORDER, MOORBORDEROUTER);
 	public static final Set<ELandscapeType> MOUNTAIN_TYPES = EnumSet.of(MOUNTAIN, MOUNTAINBORDER);
 	private static final Set<ELandscapeType> FLAT_TYPES = EnumSet.of(MOOR, MOORBORDER, WATER1, WATER2, WATER3, WATER4, WATER5, WATER6, WATER7, WATER8);
 

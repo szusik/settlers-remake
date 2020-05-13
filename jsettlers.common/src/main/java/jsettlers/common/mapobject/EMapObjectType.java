@@ -18,6 +18,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 public enum EMapObjectType {
+	TREE_BURNING,
 	TREE_GROWING,
 	TREE_ADULT,
 	TREE_DEAD,

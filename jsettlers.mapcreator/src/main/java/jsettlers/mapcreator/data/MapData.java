@@ -24,6 +24,7 @@ import java.util.Set;
 import jsettlers.algorithms.partitions.IBlockingProvider;
 import jsettlers.algorithms.partitions.PartitionCalculatorAlgorithm;
 import jsettlers.algorithms.previewimage.IPreviewImageDataSupplier;
+import jsettlers.algorithms.terraform.LandscapeEditor;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
@@ -94,6 +95,8 @@ public class MapData implements IMapData {
 	private       boolean[][] failpoints;
 
 	private       IGraphicsBackgroundListener backgroundListener;
+
+	private LandscapeEditor landscapeEditor = new LandscapeEditor((pt) -> getLandscape(pt.x, pt.y), (pt, type) -> setLandscape(pt.x, pt.y, type));
 
 	public MapData(int width, int height, int playerCount, ELandscapeType ground) {
 		if (width <= 0 || height <= 0) {
@@ -174,7 +177,7 @@ public class MapData implements IMapData {
 	 */
 	public void fill(ELandscapeType type, IMapArea area) {
 		List<ShortPoint2D> points = area.stream().filterBounds(width, height).toList();
-		fill(type, null, points);
+		landscapeEditor.fill(type, points);
 
 		if(backgroundListener != null) {
 			int size = points.size();
@@ -182,38 +185,6 @@ public class MapData implements IMapData {
 				ShortPoint2D pt = points.get(i);
 				backgroundListener.backgroundShapeChangedAt(pt.x, pt.y);
 			}
-		}
-	}
-
-	private void fill(ELandscapeType type, ELandscapeType ignore, List<ShortPoint2D> points) {
-		boolean is_root = true;
-		int size = points.size();
-		for(int i = 0; i != size; i++) {
-			ShortPoint2D pt = points.get(i);
-			if(!type.isRoot(landscapes[pt.x][pt.y])) {
-				is_root = false;
-				break;
-			}
-		}
-
-		if(!is_root) {
-			fill(type.getDirectRoot(), type, points);
-			replaceDirect(type.getDirectRoot(), type, points);
-		}
-
-		replaceDown(type, type, ignore, points);
-	}
-
-	private void replaceDown(ELandscapeType from, ELandscapeType to, ELandscapeType ignore, List<ShortPoint2D> points) {
-		from.getDirectChildren().stream().filter(type -> ignore==null||type!=ignore).forEach(childType -> replaceDown(childType, from, null, points));
-		replaceDirect(from, to, points);
-	}
-
-	private void replaceDirect(ELandscapeType from, ELandscapeType to, List<ShortPoint2D> points) {
-		int size = points.size();
-		for(int i = 0; i != size; i++) {
-			ShortPoint2D pt = points.get(i);
-			if(landscapes[pt.x][pt.y] == from) setLandscape(pt.x, pt.y, to);
 		}
 	}
 

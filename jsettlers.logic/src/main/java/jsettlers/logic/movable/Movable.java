@@ -178,6 +178,10 @@ public final class Movable implements ILogicMovable, FoWTask {
 			this.requestedTargetPosition = targetPosition;
 			this.requestedMoveToType = Objects.requireNonNull(moveToType);
 		}
+
+		if(strategy instanceof MageStrategy) {
+			((MageStrategy) strategy).castSpellAt(null, null);
+		}
 	}
 
 	private boolean alreadyWalkingToPosition(ShortPoint2D targetPosition) {
@@ -403,6 +407,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 
 	@Override
 	public void goSinglePathStep() {
+		if(hasEffect(EEffectType.FROZEN)) return;
+
 		initGoingSingleStep(path.getNextPos());
 		path.goToNextStep();
 	}
@@ -682,6 +688,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 	 * The direction to look.
 	 */
 	final void lookInDirection(EDirection direction) {
+		if(hasEffect(EEffectType.FROZEN)) return;
+
 		this.direction = direction;
 	}
 
@@ -719,6 +727,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 	 * false if the target position is generally blocked or a movable occupies that position.
 	 */
 	final boolean goInDirection(EDirection direction, EGoInDirectionMode mode) {
+		if(hasEffect(EEffectType.FROZEN)) return false;
+
 		ShortPoint2D targetPosition = direction.getNextHexPoint(position);
 
 		switch (mode) {
@@ -748,7 +758,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 		return false;
 	}
 
-	final void setPosition(ShortPoint2D position) {
+	@Override
+	public final void setPosition(ShortPoint2D position) {
 		if (visible) {
 			grid.leavePosition(this.position, this);
 			grid.enterPosition(position, this, true);
@@ -990,7 +1001,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 		if (newMovableType == EMovableType.BEARER && !player.equals(grid.getPlayerAt(position))) {
 			return; // can't convert to bearer if the ground does not belong to the player
 		}
-		if (!(movableType == EMovableType.BEARER || (movableType == EMovableType.PIONEER && newMovableType == EMovableType.BEARER) || movableType == newMovableType)) {
+		if (!(movableType == EMovableType.BEARER || (movableType == EMovableType.PIONEER && newMovableType == EMovableType.BEARER) || movableType == newMovableType || (movableType.isBowman() && newMovableType == EMovableType.PIONEER))) {
 			System.err.println("Tried invalid conversion from " + movableType + " to " + newMovableType);
 			return; // can't convert between this types
 		}
@@ -1045,7 +1056,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 
 	public void moveToFerry(ILogicMovable ferry, ShortPoint2D entrancePosition) {
 		this.ferryToEnter = ferry;
-		moveTo(entrancePosition, EMoveToType.WORK);
+		moveTo(entrancePosition, EMoveToType.FORCED);
 	}
 
 	/**
@@ -1062,6 +1073,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 	@Override
 	public final void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
 		if (strategy.receiveHit()) {
+			if(hasEffect(EEffectType.SHIELDED)) hitStrength *= EEffectType.SHIELDED_DAMAGE_FACTOR;
+
 			this.health -= hitStrength;
 			if (health <= 0) {
 				this.kill();
@@ -1151,9 +1164,10 @@ public final class Movable implements ILogicMovable, FoWTask {
 	}
 
 	@Override
-	public void castSpell(ShortPoint2D at, ESpellType spell) {
+	public void moveToCast(ShortPoint2D at, ESpellType spell) {
 		if(strategy instanceof MageStrategy) {
-			((MageStrategy)strategy).castSpell(at, spell);
+			moveTo(at, EMoveToType.WORK);
+			((MageStrategy)strategy).castSpellAt(spell, at);
 		}
 	}
 

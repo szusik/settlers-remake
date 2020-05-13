@@ -32,6 +32,7 @@ import jsettlers.logic.buildings.stack.IStackSizeSupplier;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.interfaces.IInformable;
+import jsettlers.logic.objects.BurningTree;
 import jsettlers.logic.objects.DonkeyMapObject;
 import jsettlers.logic.objects.PigObject;
 import jsettlers.logic.objects.RessourceSignMapObject;
@@ -107,11 +108,15 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 
 	public boolean executeSearchType(ShortPoint2D pos, ESearchType type, float timeMod) {
 		switch (type) {
+		case BURNABLE_TREE:
+			return burnTree(pos);
 		case PLANTABLE_TREE:
 			return plantTree(new ShortPoint2D(pos.x, pos.y + 1), timeMod);
 		case CUTTABLE_TREE:
 			return cutTree(pos);
 
+		case SUMMON_STONE:
+			return summonStone(pos);
 		case CUTTABLE_STONE:
 			cutStone(pos);
 			return true;
@@ -147,6 +152,12 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		return true;
 	}
 
+	private boolean summonStone(ShortPoint2D pos) {
+		// between 1 and MAX_CAPACITY should be left
+		Stone newStone = new Stone(MatchConstants.random().nextInt(1, Stone.MAX_CAPACITY));
+		return addMapObject(pos, newStone);
+	}
+
 	private void cutStone(ShortPoint2D pos) {
 		short x = (short) (pos.x - 1);
 		short y = (short) (pos.y + 1);
@@ -160,6 +171,21 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 				removeMapObjectType(x, y, EMapObjectType.STONE);
 			}
 		}
+	}
+
+	private boolean burnTree(ShortPoint2D pos) {
+		if(pos.x < 0 || pos.y < 0 || pos.x >= grid.getWidth() || pos.y >= grid.getHeight()) return false;
+
+		AbstractHexMapObject tree = grid.getMapObject(pos.x, pos.y, EMapObjectType.TREE_ADULT);
+		if(tree == null) return false;
+
+		if(!grid.removeMapObject(pos.x, pos.y, tree)) return false;
+
+		BurningTree burningTree = new BurningTree(pos, this::burnTree);
+		for(int i = 1;i < BurningTree.FIRE_TICK_COUNT; i++) schedule(burningTree, BurningTree.FIRE_TICK_INTERVAL*i, false);
+		schedule(burningTree, BurningTree.FIRE_TICK_INTERVAL*BurningTree.FIRE_TICK_COUNT, true);
+		addMapObject(pos.x, pos.y, burningTree);
+		return true;
 	}
 
 	private boolean plantTree(ShortPoint2D pos, float mod) {
@@ -456,6 +482,10 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 
 	public final boolean popMaterial(short x, short y, EMaterialType materialType) {
 		return popMaterialTypeAt(x, y, materialType) != null;
+	}
+
+	public final EMaterialType popMaterial(short x, short y) {
+		return popMaterialTypeAt(x, y, null);
 	}
 
 	private EMaterialType popMaterialTypeAt(short x, short y, EMaterialType materialType) {

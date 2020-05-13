@@ -232,6 +232,16 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
+		public EMaterialType takeMaterial(ShortPoint2D pos) {
+			if (materialAmountMap[pos.x][pos.y] > 0) {
+				materialAmountMap[pos.x][pos.y]--;
+				return materialTypeMap[pos.x][pos.y];
+			} else {
+				return null;
+			}
+		}
+
+		@Override
 		public boolean dropMaterial(ShortPoint2D pos, EMaterialType materialType, boolean offer, boolean forced) {
 			materialTypeMap[pos.x][pos.y] = materialType;
 			materialAmountMap[pos.x][pos.y]++;
@@ -335,7 +345,7 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
-		public void changeTerrainTo(int x, int y, ELandscapeType grass) {
+		public void setLandscape(int x, int y, ELandscapeType grass) {
 		}
 
 		@Override
@@ -455,6 +465,11 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 
 		@Override
 		public boolean tryCursingLocation(ShortPoint2D position) {
+			return false;
+		}
+
+		@Override
+		public boolean trySummonFish(ShortPoint2D position) {
 			return false;
 		}
 	};

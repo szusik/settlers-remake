@@ -518,7 +518,7 @@ public final class MainGrid implements Serializable {
 	}
 
 	public final void disableFogOfWar() {
-		fogOfWar.setEnabled(false);
+		fogOfWar.showMap();
 	}
 
 	final class PathfinderGrid implements IAStarPathMap, IDijkstraPathMap, IInAreaFinderMap, Serializable {
@@ -570,6 +570,9 @@ public final class MainGrid implements Serializable {
 						&& isMapObjectCuttable(x - 1, y - 1, EMapObjectType.TREE_ADULT)
 						&& hasSamePlayer(x - 1, y - 1, pathCalculable) && !isMarked(x, y);
 
+				case BURNABLE_TREE:
+					return isInBounds(x, y);
+
 				case PLANTABLE_CORN:
 					return !isMarked(x, y) && hasSamePlayer(x, y, pathCalculable) && isCornPlantable(x, y);
 				case CUTTABLE_CORN:
@@ -580,6 +583,8 @@ public final class MainGrid implements Serializable {
 				case HARVESTABLE_WINE:
 					return isMapObjectCuttable(x, y, EMapObjectType.WINE_HARVESTABLE) && hasSamePlayer(x, y, pathCalculable) && !isMarked(x, y);
 
+				case SUMMON_STONE:
+					return true; // not actually a search
 				case CUTTABLE_STONE:
 					return y + 1 < height && x - 1 > 0 && isMapObjectCuttable(x - 1, y + 1, EMapObjectType.STONE)
 						&& hasSamePlayer(x, y, pathCalculable) && !isMarked(x, y);
@@ -1267,6 +1272,11 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
+		public EMaterialType takeMaterial(ShortPoint2D position) {
+			return mapObjectsManager.popMaterial(position.x, position.y);
+		}
+
+		@Override
 		public boolean dropMaterial(ShortPoint2D position, EMaterialType materialType, boolean offer, boolean forced) {
 			boolean successful;
 
@@ -1345,8 +1355,15 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public void changeTerrainTo(int x, int y, ELandscapeType type) {
-			landscapeGrid.terraform(x, y, type);
+		public void setLandscape(int x, int y, ELandscapeType type) {
+			for(EDirection dir : EDirection.VALUES) {
+				int nbIndex = (x+dir.gridDeltaX) + (y+dir.gridDeltaY) * width;
+				if(nbIndex < 0 || nbIndex >= width*height) continue;
+
+				if(!landscapeGrid.getLandscapeTypeAt(x+dir.gridDeltaX, y+dir.gridDeltaY).isAllowedNeighbor(type)) return;
+			}
+
+			setLandscapeTypeAt(x, y, type);
 		}
 
 		@Override
@@ -1431,7 +1448,7 @@ public final class MainGrid implements Serializable {
 		public final boolean executeSearchType(ILogicMovable movable, ShortPoint2D position, ESearchType searchType) {
 			if (fitsSearchType(movable, position.x, position.y, searchType)) {
 				return mapObjectsManager.executeSearchType(position, searchType,
-						movable.hasEffect(EEffectType.GREEN_THUMB) ? EEffectType.GREEN_THUMB.getMod() : 1);
+						movable.hasEffect(EEffectType.GREEN_THUMB) ? EEffectType.GREEN_THUMB_GROW_FACTOR : 1);
 			} else {
 				return false;
 			}
@@ -1538,6 +1555,12 @@ public final class MainGrid implements Serializable {
 		@Override
 		public boolean tryCursingLocation(ShortPoint2D at) {
 			return landscapeGrid.tryCursingLocation(at);
+		}
+
+		@Override
+		public boolean trySummonFish(ShortPoint2D position) {
+			mapObjectsManager.addFish(position.x, position.y);
+			return landscapeGrid.trySummonFish(position);
 		}
 	}
 

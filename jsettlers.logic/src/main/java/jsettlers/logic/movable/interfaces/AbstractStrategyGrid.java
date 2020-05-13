@@ -66,6 +66,15 @@ public abstract class AbstractStrategyGrid implements Serializable {
 	public abstract boolean takeMaterial(ShortPoint2D pos, EMaterialType materialType);
 
 	/**
+	 * Take a material from the stack at given position.
+	 *
+	 * @param position
+	 * @return the taken material<br>
+	 *     null otherwise.
+	 */
+	public abstract EMaterialType takeMaterial(ShortPoint2D position);
+
+	/**
 	 * Drop a material of given type at given position.
 	 *
 	 * @param pos
@@ -176,7 +185,7 @@ public abstract class AbstractStrategyGrid implements Serializable {
 	 */
 	public abstract void changeHeightTowards(int x, int y, byte targetHeight);
 
-	public abstract void changeTerrainTo(int x, int y, ELandscapeType type);
+	public abstract void setLandscape(int x, int y, ELandscapeType type);
 
 	/**
 	 * Changes the player at the given position to the given player.
@@ -243,6 +252,8 @@ public abstract class AbstractStrategyGrid implements Serializable {
 	public abstract boolean tryTakingResource(ShortPoint2D position, EResourceType resource);
 
 	public abstract boolean tryCursingLocation(ShortPoint2D position);
+
+	public abstract boolean trySummonFish(ShortPoint2D position);
 
 	public abstract ILogicMovable getMovableAt(int x, int y);
 }

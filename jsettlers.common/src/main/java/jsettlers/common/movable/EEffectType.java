@@ -14,23 +14,40 @@
  *******************************************************************************/
 package jsettlers.common.movable;
 
+import jsettlers.common.images.ImageLink;
+
 public enum EEffectType {
-	DEFEATISM(60, 0.5f),
-	GREEN_THUMB(600, 0.5f);
+	MOTIVATE_SWORDSMAN(30, "original_1_SETTLER_128_0"),
+	INCREASED_MORALE(30, "original_1_SETTLER_129_0"),
+	DEFEATISM(30, "original_1_SETTLER_130_0"),
+	SHIELDED(30, "original_1_SETTLER_131_0"),
+	NO_ARROWS(20, "original_1_SETTLER_132_0"),
+	FROZEN(10, "original_1_SETTLER_133_0"),
+	GREEN_THUMB(300, "original_1_SETTLER_134_0");
 
 	private int time;
-	private float mod;
+	private ImageLink link;
 
-	EEffectType(int time, float mod) {
+	EEffectType(int time, String imageLink) {
 		this.time = time;
-		this.mod = mod;
-	}
-
-	public float getMod() {
-		return mod;
+		link = ImageLink.fromName(imageLink);
 	}
 
 	public int getTime() {
 		return time;
 	}
+
+	public ImageLink getImageLink() {
+		return link;
+	}
+
+	public static final float GREEN_THUMB_GROW_FACTOR = 2f;
+
+	public static final float SHIELDED_DAMAGE_FACTOR = 0.66f;
+
+	public static final float DEFEATISM_DAMAGE_FACTOR = 0.5f;
+	public static final float INCREASED_MORALE_DAMAGE_FACTOR = 2f;
+
+	public static final float MOTIVATE_SWORDSMAN_ANIMATION_FACTOR = 0.5f;
+	public static final float MOTIVATE_SWORDSMAN_DAMAGE_FACTOR = 1.33f;
 }
