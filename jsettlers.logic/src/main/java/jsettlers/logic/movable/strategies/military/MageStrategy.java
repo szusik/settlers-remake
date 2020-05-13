@@ -201,13 +201,13 @@ public class MageStrategy extends MovableStrategy {
 							});
 					animation = 121;
 					break;
-				case CALL_DEFENDERS:
-					Queue<ILogicMovable> callDefenders = new ArrayDeque<>(ESpellType.CALL_DEFENDERS_MAX_SOLDIERS);
+				case CALL_HELP:
+					Queue<ILogicMovable> callDefenders = new ArrayDeque<>(ESpellType.CALL_HELP_MAX_SOLDIERS);
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive())
 							.filter(lm -> teamId(lm) == teamId(movable))
 							.filter(lm -> ESpellType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
-							.limit(ESpellType.CALL_DEFENDERS_MAX_SOLDIERS)
+							.limit(ESpellType.CALL_HELP_MAX_SOLDIERS)
 							.forEach(callDefenders::add);
 
 

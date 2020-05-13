@@ -18,6 +18,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.concurrent.Executors;
 
 import org.junit.Test;
 
@@ -97,7 +98,7 @@ public class AiDifficultiesIT {
 
 		JSettlersGame.GameRunner startingGame = createStartingGame(playerSettings);
 		IStartedGame startedGame = ReplayUtils.waitForGameStartup(startingGame);
-		AiStatistics aiStatistics = new AiStatistics(startingGame.getMainGrid());
+		AiStatistics aiStatistics = new AiStatistics(startingGame.getMainGrid(), Executors.newWorkStealingPool());
 
 		int targetGameTime = 0;
 		do {

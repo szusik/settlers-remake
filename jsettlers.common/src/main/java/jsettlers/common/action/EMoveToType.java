@@ -1,7 +1,8 @@
 package jsettlers.common.action;
 
 public enum EMoveToType {
-	DEFAULT(true, false), FORCED(false, false),
+	DEFAULT(true, false),
+	FORCED(false, false),
 	/**
 	 * Work at the target or patrol (for soldiers)
 	 */

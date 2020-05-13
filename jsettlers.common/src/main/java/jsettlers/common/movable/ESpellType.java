@@ -41,7 +41,7 @@ public enum ESpellType {
 	MELT_STONE(15, true, ECivilisation.ASIAN, "original_34_GUI_267"),
 	SHIELD(20, true, ECivilisation.ASIAN, "original_34_GUI_270"),
 	MOTIVATE_SWORDSMAN(25, true, ECivilisation.ASIAN, "original_34_GUI_273"),
-	CALL_DEFENDERS(40, false, ECivilisation.ASIAN, "original_34_GUI_276"),
+	CALL_HELP(40, false, ECivilisation.ASIAN, "original_34_GUI_276"),
 
 	REMOVE_GOLD(20, true, ECivilisation.AMAZON, "original_44_GUI_264"),
 	CALL_GOODS(25, false, ECivilisation.AMAZON, "original_44_GUI_267"),
@@ -90,7 +90,7 @@ public enum ESpellType {
 	public static final int DEFEATISM_MAX_SOLDIERS = 20;
 	public static final int INCREASE_MORALE_MAX_SOLDIERS = 20;
 	public static final int SEND_FOES_MAX_SOLDIERS = 20;
-	public static final int CALL_DEFENDERS_MAX_SOLDIERS = 20;
+	public static final int CALL_HELP_MAX_SOLDIERS = 20;
 	public static final int CURSE_BOWMAN_MAX_BOWMAN = 20;
 	public static final int DESTROY_ARROWS_MAX_BOWMAN = 20;
 	public static final int SHIELD_MAX_SOLDIERS = 20;
