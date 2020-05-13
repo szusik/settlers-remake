@@ -23,10 +23,15 @@ import jsettlers.algorithms.previewimage.IPreviewImageDataSupplier;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.map.IGraphicsBackgroundListener;
+import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.common.utils.coordinates.CoordinateStream;
+import jsettlers.common.utils.coordinates.IBooleanCoordinateFunction;
+import jsettlers.common.utils.coordinates.ICoordinateConsumer;
+import jsettlers.common.utils.coordinates.ICoordinatePredicate;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.MainGrid;
@@ -116,7 +121,7 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		return false;
 	}
 
-	public boolean isHexAreaOfType(int x, int y, int radius, ELandscapeType... landscapeTypes) {
+	public boolean isHexAreaOfType(int x, int y, int maxRadius, ELandscapeType... landscapeTypes) {
 		// inline of
 		// int minRadius = 0;
 		// int maxRadius = radius;
@@ -128,11 +133,12 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 			return false;
 		}
 
-		for (int r = 0; r <= radius; r++) {
-			for (EDirection direction : EDirection.VALUES) {
-				for (int step = 0; step < r; step++) {
-					x += direction.gridDeltaX;
-					y += direction.gridDeltaY;
+
+		for (int radius = 0; radius <= maxRadius; radius++) {
+			for (int direction = 0; direction < EDirection.NUMBER_OF_DIRECTIONS; direction++) {
+				for (int step = 0; step < radius; step++) {
+					x += HexGridArea.DIRECTION_INCREASE_X[direction];
+					y += HexGridArea.DIRECTION_INCREASE_Y[direction];
 
 					if (!isLandscapeOf(x, y, landscapeTypes)) {
 						return false;
