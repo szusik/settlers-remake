@@ -30,9 +30,9 @@ import java.util.Iterator;
 public final class HexGridArea implements IMapArea {
 
 	private static final int MAX_DIRECTIONS_IDX = EDirection.NUMBER_OF_DIRECTIONS - 1;
-	private static final byte[] DIRECTION_INCREASE_X = { EDirection.SOUTH_EAST.gridDeltaX, EDirection.SOUTH_WEST.gridDeltaX,
+	public static final byte[] DIRECTION_INCREASE_X = { EDirection.SOUTH_EAST.gridDeltaX, EDirection.SOUTH_WEST.gridDeltaX,
 			EDirection.WEST.gridDeltaX, EDirection.NORTH_WEST.gridDeltaX, EDirection.NORTH_EAST.gridDeltaX, EDirection.EAST.gridDeltaX };
-	private static final byte[] DIRECTION_INCREASE_Y = { EDirection.SOUTH_EAST.gridDeltaY, EDirection.SOUTH_WEST.gridDeltaY,
+	public static final byte[] DIRECTION_INCREASE_Y = { EDirection.SOUTH_EAST.gridDeltaY, EDirection.SOUTH_WEST.gridDeltaY,
 			EDirection.WEST.gridDeltaY, EDirection.NORTH_WEST.gridDeltaY, EDirection.NORTH_EAST.gridDeltaY, EDirection.EAST.gridDeltaY };
 
 	private static final long serialVersionUID = -2218632675269689379L;
