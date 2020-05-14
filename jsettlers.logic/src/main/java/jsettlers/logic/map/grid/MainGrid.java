@@ -92,6 +92,7 @@ import jsettlers.logic.map.grid.objects.IMapObjectsManagerGrid;
 import jsettlers.logic.map.grid.objects.MapObjectsManager;
 import jsettlers.logic.map.grid.objects.ObjectsGrid;
 import jsettlers.logic.map.grid.partition.IPlayerChangedListener;
+import jsettlers.logic.map.grid.partition.Partition;
 import jsettlers.logic.map.grid.partition.PartitionsGrid;
 import jsettlers.logic.map.grid.partition.manager.PartitionManager;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBearer;
@@ -1233,7 +1234,10 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public void removeJobless(IManageableBearer bearer) {
-			partitionsGrid.getPartitionAt(bearer).removeJobless(bearer);
+			for(Partition partition : partitionsGrid.getAllPartitions()) {
+				if(partition == null) continue;
+				partition.removeJobless(bearer);
+			}
 		}
 
 		@Override
@@ -1243,7 +1247,10 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public void removeJobless(IManageableWorker worker) {
-			partitionsGrid.getPartitionAt(worker).removeJobless(worker);
+			for(Partition partition : partitionsGrid.getAllPartitions()) {
+				if(partition == null) continue;
+				partition.removeJobless(worker);
+			}
 		}
 
 		@Override
@@ -1253,7 +1260,10 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public void removeJobless(IManageableDigger digger) {
-			partitionsGrid.getPartitionAt(digger).removeJobless(digger);
+			for(Partition partition : partitionsGrid.getAllPartitions()) {
+				if(partition == null) continue;
+				partition.removeJobless(digger);
+			}
 		}
 
 		@Override
@@ -1263,7 +1273,10 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public void removeJobless(IManageableBricklayer bricklayer) {
-			partitionsGrid.getPartitionAt(bricklayer).removeJobless(bricklayer);
+			for(Partition partition : partitionsGrid.getAllPartitions()) {
+				if(partition == null) continue;
+				partition.removeJobless(bricklayer);
+			}
 		}
 
 		@Override
