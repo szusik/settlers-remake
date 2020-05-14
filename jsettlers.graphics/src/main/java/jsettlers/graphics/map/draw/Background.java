@@ -858,7 +858,6 @@ public class Background implements IGraphicsBackgroundListener {
 	private BitSet fowWritten;
 	private boolean fowEnabled;
 
-	private boolean updateGeometry = false;
 	private BitSet mapInvalid;
 	private int mapWidth, mapHeight;
 
@@ -1001,13 +1000,16 @@ public class Background implements IGraphicsBackgroundListener {
 
 		if(asyncBufferBuilding) {
 			color_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_COLOR*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
+			shape_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
 			color_cache2 = new AdvancedUpdateBufferCache(color_bfr2, BYTES_PER_FIELD_COLOR, context::getGl, () -> backgroundHandle.colors, bufferWidth);
+			shape_cache2 = new AdvancedUpdateBufferCache(shape_bfr2, BYTES_PER_FIELD_SHAPE, context::getGl, () -> backgroundHandle.vertices, bufferWidth);
 			asyncAccessContext = context;
 		} else {
 			color_bfr2 = null;
+			shape_bfr2 = null;
 			fowWritten = new BitSet(mapWidth*mapHeight);
+			mapInvalid = new BitSet(bufferWidth*bufferHeight);
 		}
-		mapInvalid = new BitSet(bufferWidth*bufferHeight);
 	}
 
 	private MapDrawContext asyncAccessContext;
@@ -1146,7 +1148,9 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private AdvancedUpdateBufferCache color_cache2;
+	private AdvancedUpdateBufferCache shape_cache2;
 	private final ByteBuffer color_bfr2;
+	private final ByteBuffer shape_bfr2;
 	private UpdateBufferCache color_cache;
 	private ByteBuffer shape_bfr;
 	private ByteBuffer color_bfr;
@@ -1170,6 +1174,9 @@ public class Background implements IGraphicsBackgroundListener {
 				synchronized (color_bfr2) {
 					color_cache2.clearCache();
 				}
+				synchronized (shape_bfr2) {
+					shape_cache2.clearCache();
+				}
 			} else {
 				for (int y = miny; y < maxy; y++) {
 					int lineStartX = linestart + (y / 2);
@@ -1182,43 +1189,32 @@ public class Background implements IGraphicsBackgroundListener {
 						synchronized (color_bfr2) {
 							color_cache2.clearCacheRegion(y, linex, linewidth);
 						}
+						synchronized (shape_bfr2) {
+							shape_cache2.clearCacheRegion(y, linex, linewidth);
+						}
 					} else {
-						boolean changes = false;
+						boolean color_changes = false;
 
 						for (int x = linex; x < linewidth; x++) {
 							if (fowWritten.get(y * mapWidth + x)) {
 								fowWritten.clear(y * mapWidth + x);
 								color_cache.gotoPos(bfr_pos);
-								changes = true;
+								color_changes = true;
 								addColorTrianglesToGeometry(context, color_bfr, x, y);
+							}
+
+							if(mapInvalid.get(bfr_pos)) {
+								mapInvalid.clear(bfr_pos);
+								shape_bfr.rewind();
+								addTrianglesToGeometry(context, shape_bfr, x, y);
+								shape_bfr.rewind();
+								context.getGl().updateBufferAt(backgroundHandle.vertices, bfr_pos * BYTES_PER_FIELD_SHAPE, shape_bfr);
 							}
 							bfr_pos++;
 						}
-						if (changes) color_cache.clearCache();
+						if (color_changes) color_cache.clearCache();
 					}
 				}
-			}
-
-			if (updateGeometry) {
-				for (int y = miny; y < maxy; y++) {
-					int lineStartX = linestart+(y/2);
-
-					int linewidth = (width+lineStartX) < bufferWidth ? width+lineStartX : bufferWidth;
-					int linex = lineStartX < 0 ? 0 : lineStartX;
-					int bfr_pos = y*bufferWidth+linex;
-
-					for (int x = linex; x < linewidth; x++) {
-						if(mapInvalid.get(bfr_pos)) {
-							mapInvalid.clear(bfr_pos);
-							shape_bfr.rewind();
-							addTrianglesToGeometry(context, shape_bfr, x, y);
-							shape_bfr.rewind();
-							context.getGl().updateBufferAt(backgroundHandle.vertices, bfr_pos * BYTES_PER_FIELD_SHAPE, shape_bfr);
-						}
-						bfr_pos++;
-					}
-				}
-				updateGeometry = false;
 			}
 		} catch (IllegalBufferException e) {
 			e.printStackTrace();
@@ -1227,8 +1223,14 @@ public class Background implements IGraphicsBackgroundListener {
 
 	private synchronized void invalidateShapePoint(int x, int y) {
 		if(x > bufferWidth || y > bufferHeight || x < 0 || y < 0) return;
-		updateGeometry = true;
-		mapInvalid.set(y*bufferWidth+x);
+		if(asyncBufferBuilding) {
+			synchronized (shape_bfr2) {
+				shape_cache2.gotoLine(y, x, 1);
+				addTrianglesToGeometry(asyncAccessContext, shape_bfr2, x, y);
+			}
+		} else {
+			mapInvalid.set(y * bufferWidth + x);
+		}
 	}
 
 	/**

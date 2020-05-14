@@ -7,7 +7,7 @@ precision mediump float;
 in vec4 frag_color;
 flat in int frag_mode;
 in float frag_intensity;
-in vec2 frag_texcoord;
+in vec2 frag_texCoord;
 
 uniform sampler2D texHandle;
 uniform float shadow_depth;
@@ -25,9 +25,9 @@ void main() {
 
 		vec4 tex_color;
 		if(progress_fence) {
-			tex_color = texture(texHandle, fragColor.rg+(fragColor.ba-fragColor.rg)*frag_texcoord);
+			tex_color = texture(texHandle, fragColor.rg+(fragColor.ba-fragColor.rg)*frag_texCoord);
 		} else {
-			tex_color = texture(texHandle, frag_texcoord);
+			tex_color = texture(texHandle, frag_texCoord);
 		}
 
 		bool image_fence = frag_mode>0;
