@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016
+ * Copyright (c) 2015 - 2020
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -113,6 +113,15 @@ public class JSettlersLookAndFeel {
 			UIManager.put("MapListCellRenderer.backgroundColor2", new Color(0, 0, 0, 60));
 			UIManager.put("MapListCellRenderer.backgroundSelected", new Color(0xff, 0xff, 0, 80));
 			UIManager.put("MapListCellRenderer.foregroundColor", Color.WHITE);
+
+			// ServerEntry Cell renderer
+			UIManager.put("ServerEntryCellRenderer.backgroundColorEven", new Color(0xff, 0xff, 0xff, 40));
+			UIManager.put("ServerEntryCellRenderer.backgroundColorOdd", new Color(0, 0, 0, 60));
+			UIManager.put("ServerEntryCellRenderer.backgroundSelected", new Color(0xff, 0xff, 0, 80));
+			UIManager.put("ServerEntryCellRenderer.foregroundColor", Color.WHITE);
+
+			UIManager.put("ServerEntryCellRenderer.featureMissing", Color.GRAY);
+			UIManager.put("ServerEntryCellRenderer.featurePresent", Color.GREEN);
 
 			// Search Field
 			UIManager.put("ClearSearchIcon.foregroundColor", Color.WHITE);

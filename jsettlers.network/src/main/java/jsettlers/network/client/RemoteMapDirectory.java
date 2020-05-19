@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 - 2020
+ * Copyright (c) 2020
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -12,41 +12,20 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package jsettlers.network.server;
+package jsettlers.network.client;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-import jsettlers.network.server.match.Match;
+public class RemoteMapDirectory {
+	public transient long date = 0;
+	public List<String> directories = new ArrayList<>();
+	public List<RemoteMapEntry> maps = new ArrayList<>();
 
-/**
- * This class starts a dedicated server.
- * 
- * @author Andreas Eberle
- * 
- */
-public class DedicatedServerApp {
-
-	public static void main(String args[]) throws IOException {
-		GameServerThread gameServer = new GameServerThread(false);
-		gameServer.start();
-
-		Scanner s = new Scanner(System.in);
-		while (s.hasNextLine()) {
-			String line = s.nextLine();
-			if ("exit".equalsIgnoreCase(line)) {
-				System.out.println("shutting down...");
-				break;
-			} else if ("listMatches".equalsIgnoreCase(line)) {
-				List<Match> matches = gameServer.getDatabase().getMatches();
-				System.out.println("listing matches (" + matches.size() + "):");
-				for (Match match : matches) {
-					System.out.println("\t" + match);
-				}
-			}
-		}
-		s.close();
-		gameServer.shutdown();
+	public static class RemoteMapEntry {
+		public String name;
+		public String author;
+		public String desc;
+		public String file;
 	}
 }

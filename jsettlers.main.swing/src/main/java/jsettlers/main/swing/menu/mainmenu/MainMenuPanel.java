@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 - 2018
+ * Copyright (c) 2015 - 2020
  * <p/>
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -15,23 +15,21 @@
 package jsettlers.main.swing.menu.mainmenu;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
-import java.util.Collections;
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
-import java8.util.stream.Collectors;
-import jsettlers.common.menu.EProgressState;
-import jsettlers.common.menu.IJoinPhaseMultiplayerGameConnector;
-import jsettlers.common.menu.IJoiningGame;
-import jsettlers.common.menu.IJoiningGameListener;
 import jsettlers.common.menu.IMultiplayerConnector;
 import jsettlers.common.menu.IStartingGame;
 import jsettlers.graphics.localization.Labels;
@@ -41,16 +39,15 @@ import jsettlers.logic.map.loading.newmap.MapFileHeader;
 import jsettlers.logic.map.loading.savegame.SavegameLoader;
 import jsettlers.logic.player.PlayerSetting;
 import jsettlers.main.JSettlersGame;
-import jsettlers.main.MultiplayerConnector;
 import jsettlers.main.swing.JSettlersFrame;
 import jsettlers.main.swing.lookandfeel.ELFStyle;
 import jsettlers.main.swing.lookandfeel.components.SplitedBackgroundPanel;
+import jsettlers.main.swing.menu.multiplayer.EditServerEntryPanel;
+import jsettlers.main.swing.menu.multiplayer.ServerConnectionPanel;
 import jsettlers.main.swing.menu.openpanel.OpenPanel;
 import jsettlers.main.swing.menu.settingsmenu.SettingsMenuPanel;
-import jsettlers.main.swing.settings.SettingsManager;
-import jsettlers.main.swing.settings.UiPlayer;
-
-import static java8.util.stream.StreamSupport.stream;
+import jsettlers.main.swing.settings.ServerEntry;
+import jsettlers.main.swing.settings.ServerManager;
 
 /**
  * @author codingberlin
@@ -60,8 +57,8 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 
 	private final JSettlersFrame settlersFrame;
 	private final JPanel         emptyPanel  = new JPanel();
-	private final OpenPanel      joinMultiPlayerGamePanel;
 	private final ButtonGroup    buttonGroup = new ButtonGroup();
+	private JList<ServerEntry> serverOverview;
 
 	/**
 	 * Panel with the selection Buttons
@@ -78,8 +75,6 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 
 		OpenPanel openSinglePlayerPanel = new OpenPanel(MapList.getDefaultList().getFreshMaps().getItems(), settlersFrame::showNewSinglePlayerGameMenu);
 		OpenPanel openSaveGamePanel = new OpenPanel(MapList.getDefaultList().getSavedMaps(), this::loadSavegame);
-		OpenPanel newMultiPlayerGamePanel = new OpenPanel(MapList.getDefaultList().getFreshMaps().getItems(), this::showNewMultiplayerGamePanel);
-		joinMultiPlayerGamePanel = new OpenPanel(Collections.emptyList(), this::showJoinMultiplayerGamePanel);
 		SettingsMenuPanel settingsPanel = new SettingsMenuPanel(this);
 
 		registerMenu("main-panel-new-single-player-game-button", e -> setCenter("main-panel-new-single-player-game-button", openSinglePlayerPanel));
@@ -88,12 +83,22 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 			setCenter("settings-title", settingsPanel);
 			settingsPanel.initializeValues();
 		});
-		registerMenu("start-newmultiplayer", e -> setCenter("start-newmultiplayer-start", newMultiPlayerGamePanel));
-		registerMenu("start-joinmultiplayer", e -> setCenter("start-joinmultiplayer-start", joinMultiPlayerGamePanel));
 
 		initButtonPanel();
 		SwingUtilities.updateComponentTreeUI(this);
-		addListener(multiPlayerConnector);
+
+
+		Timer updateServerTimer = new Timer("update-server-ui");
+		updateServerTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				Component mainPanel = getComponent(2);
+				if(mainPanel instanceof ServerConnectionPanel) {
+					((ServerConnectionPanel)mainPanel).update();
+				}
+				repaint();
+			}
+		}, 0, 250);
 	}
 
 	private void initButtonPanel() {
@@ -101,6 +106,8 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 
 		mainButtonPanel.setLayout(new BorderLayout());
 		mainButtonPanel.add(buttonPanel, BorderLayout.NORTH);
+
+		initServerList();
 
 		JButton btExit = new JButton(Labels.getString("main-panel-exit-button"));
 		btExit.addActionListener(e -> settlersFrame.exit());
@@ -111,6 +118,33 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 		add(mainButtonPanel);
 		add(emptyPanel);
 		getTitleLabel().setVisible(false);
+	}
+
+	private void initServerList() {
+		JPanel serverPanel = new JPanel();
+		serverOverview = new JList<>(ServerManager.getInstance().createListModel());
+		serverOverview.addListSelectionListener(e -> {
+			ServerEntry selected = serverOverview.getSelectedValue();
+			if(selected == null) return;
+			buttonGroup.clearSelection();
+			setCenter(selected.getAlias(), new ServerConnectionPanel(selected, this::reset));
+		});
+		serverOverview.setCellRenderer(new ServerEntry.ServerEntryCellRenderer());
+		serverOverview.setOpaque(false);
+		JScrollPane serverOverviewScroll = new JScrollPane(serverOverview);
+		serverOverviewScroll.setPreferredSize(new Dimension(230, 300));
+
+		EditServerEntryPanel addServerPanel = new EditServerEntryPanel(this::reset);
+
+		JToggleButton addServer = new JToggleButton(Labels.getString("multiplayer-addserver"));
+		addServer.putClientProperty(ELFStyle.KEY, ELFStyle.BUTTON_MENU);
+		buttonGroup.add(addServer);
+		addServer.addActionListener(e -> setCenter("multiplayer-addserver", addServerPanel));
+
+		serverPanel.add(addServer);
+		serverPanel.add(serverOverviewScroll);
+
+		mainButtonPanel.add(serverPanel);
 	}
 
 	private void registerMenu(String translationKey, ActionListener listener) {
@@ -135,46 +169,12 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 		}
 	}
 
-	private void showNewMultiplayerGamePanel(MapLoader map) {
-		SettingsManager settingsManager = SettingsManager.getInstance();
-		UiPlayer uiPlayer = settingsManager.getPlayer();
-		IMultiplayerConnector connector = new MultiplayerConnector(settingsManager.getServer(),
-			uiPlayer.getId(), uiPlayer.getName()
-		);
-		settlersFrame.showNewMultiPlayerGameMenu(map, connector);
-	}
-
-	private void showJoinMultiplayerGamePanel(MapLoader map) {
-		NetworkGameMapLoader networkGameMapLoader = (NetworkGameMapLoader) map;
-		IJoiningGame joiningGame = settlersFrame.getMultiPlayerConnector().joinMultiplayerGame(networkGameMapLoader.getJoinableGame());
-		joiningGame.setListener(new IJoiningGameListener() {
-			@Override
-			public void joinProgressChanged(EProgressState state, float progress) {
-			}
-
-			@Override
-			public void gameJoined(IJoinPhaseMultiplayerGameConnector connector) {
-				SwingUtilities.invokeLater(
-					() -> settlersFrame.showJoinMultiplayerMenu(connector, MapList.getDefaultList().getMapById(networkGameMapLoader.getMapId())));
-			}
-		});
-	}
-
-	private void addListener(IMultiplayerConnector multiPlayerConnector) {
-		multiPlayerConnector
-			.getJoinableMultiplayerGames()
-			.setListener(networkGames -> {
-				List<MapLoader> mapLoaders = stream(networkGames.getItems())
-					.map(NetworkGameMapLoader::new)
-					.collect(Collectors.toList());
-				SwingUtilities.invokeLater(() -> joinMultiPlayerGamePanel.setMapLoaders(mapLoaders));
-			});
-	}
-
 	public void reset() {
 		setCenter(emptyPanel);
 		getTitleLabel().setVisible(false);
 		buttonGroup.clearSelection();
+		SwingUtilities.updateComponentTreeUI(this);
+		serverOverview.clearSelection();
 	}
 
 	private void setCenter(final String titleKey, final JPanel panelToBeSet) {
@@ -187,6 +187,9 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 		SwingUtilities.updateComponentTreeUI(panelToBeSet);
 		remove(2);
 		add(panelToBeSet);
+		if(!(panelToBeSet instanceof ServerConnectionPanel)) {
+			serverOverview.clearSelection();
+		}
 		settlersFrame.revalidate();
 		settlersFrame.repaint();
 	}

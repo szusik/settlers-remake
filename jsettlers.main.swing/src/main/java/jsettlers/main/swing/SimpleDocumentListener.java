@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 - 2020
+ * Copyright (c) 2020
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -12,41 +12,26 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package jsettlers.network.server;
+package jsettlers.main.swing;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Scanner;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
-import jsettlers.network.server.match.Match;
+public interface SimpleDocumentListener extends DocumentListener {
+	void update();
 
-/**
- * This class starts a dedicated server.
- * 
- * @author Andreas Eberle
- * 
- */
-public class DedicatedServerApp {
+	@Override
+	default void changedUpdate(DocumentEvent documentEvent) {
+		update();
+	}
 
-	public static void main(String args[]) throws IOException {
-		GameServerThread gameServer = new GameServerThread(false);
-		gameServer.start();
+	@Override
+	default void insertUpdate(DocumentEvent documentEvent) {
+		update();
+	}
 
-		Scanner s = new Scanner(System.in);
-		while (s.hasNextLine()) {
-			String line = s.nextLine();
-			if ("exit".equalsIgnoreCase(line)) {
-				System.out.println("shutting down...");
-				break;
-			} else if ("listMatches".equalsIgnoreCase(line)) {
-				List<Match> matches = gameServer.getDatabase().getMatches();
-				System.out.println("listing matches (" + matches.size() + "):");
-				for (Match match : matches) {
-					System.out.println("\t" + match);
-				}
-			}
-		}
-		s.close();
-		gameServer.shutdown();
+	@Override
+	default void removeUpdate(DocumentEvent documentEvent) {
+		update();
 	}
 }

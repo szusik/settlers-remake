@@ -23,3 +23,7 @@ task releaseJar(type: Jar) {
     }
     with jar
 }
+
+dependencies {
+    compile 'com.google.code.gson:gson:2.8.6'
+}

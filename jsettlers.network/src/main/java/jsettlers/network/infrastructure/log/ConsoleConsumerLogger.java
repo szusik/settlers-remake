@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 - 2020
+ * Copyright (c) 2020
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -12,41 +12,28 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package jsettlers.network.server;
+package jsettlers.network.infrastructure.log;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Scanner;
 
-import jsettlers.network.server.match.Match;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java8.util.function.Consumer;
 
-/**
- * This class starts a dedicated server.
- * 
- * @author Andreas Eberle
- * 
- */
-public class DedicatedServerApp {
+public class ConsoleConsumerLogger extends StreamLogger {
+	public ConsoleConsumerLogger(String loggerId, Consumer<StringBuffer> output) {
+		super(loggerId, new PrintStream(new OutputStream() {
 
-	public static void main(String args[]) throws IOException {
-		GameServerThread gameServer = new GameServerThread(false);
-		gameServer.start();
+			private StringBuffer lineBuilder = new StringBuffer();
 
-		Scanner s = new Scanner(System.in);
-		while (s.hasNextLine()) {
-			String line = s.nextLine();
-			if ("exit".equalsIgnoreCase(line)) {
-				System.out.println("shutting down...");
-				break;
-			} else if ("listMatches".equalsIgnoreCase(line)) {
-				List<Match> matches = gameServer.getDatabase().getMatches();
-				System.out.println("listing matches (" + matches.size() + "):");
-				for (Match match : matches) {
-					System.out.println("\t" + match);
+			@Override
+			public void write(int i) {
+				lineBuilder.append((char)i);
+				if(i == '\n') {
+					output.accept(lineBuilder);
+					System.out.printf("[%s] %s", loggerId, lineBuilder.toString());
+					lineBuilder.setLength(0);
 				}
 			}
-		}
-		s.close();
-		gameServer.shutdown();
+		}, true));
 	}
 }
