@@ -18,6 +18,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.util.UUID;
 
 import java8.util.function.Consumer;
 
@@ -33,6 +34,7 @@ import jsettlers.main.swing.lookandfeel.ELFStyle;
 import jsettlers.network.client.EServerType;
 import jsettlers.network.client.HTTPConnection;
 import jsettlers.network.client.IClientConnection;
+import jsettlers.network.client.JSettlersConnection;
 import jsettlers.network.infrastructure.log.ConsoleConsumerLogger;
 import jsettlers.network.infrastructure.log.Logger;
 
@@ -41,6 +43,8 @@ public class ServerEntry implements Cloneable {
 	private String alias;
 	private EServerType type;
 	private String address;
+	private String nickname;
+	private String uuid;
 	private String url;
 
 	private transient IClientConnection connection = null;
@@ -64,6 +68,14 @@ public class ServerEntry implements Cloneable {
 		return address;
 	}
 
+	public String getNickname() {
+		return nickname;
+	}
+
+	public UUID getUUID() {
+		return UUID.fromString(uuid);
+	}
+
 	public String getURL() {
 		return url;
 	}
@@ -81,6 +93,14 @@ public class ServerEntry implements Cloneable {
 	public void setAddress(String address) {
 		if(connection != null) throw new AssertionError();
 		this.address = address;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public void setUUID(UUID uuid) {
+		this.uuid = uuid.toString();
 	}
 
 	public void setURL(String url) {
@@ -112,6 +132,7 @@ public class ServerEntry implements Cloneable {
 				connection = new HTTPConnection(url, log);
 				break;
 			case JSETTLERS:
+				connection = new JSettlersConnection(address, nickname, uuid, log);
 				break;
 		}
 	}

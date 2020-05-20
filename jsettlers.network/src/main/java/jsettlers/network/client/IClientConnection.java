@@ -20,7 +20,16 @@ public interface IClientConnection {
 
 	RemoteMapDirectory getMaps(String directory);
 
+	/**
+	 *
+	 * @return the already downloaded part of the active download, -1 if none is active
+	 */
 	long getDownloadProgress();
+
+	/**
+	 *
+	 * @return the size of the active download, -1 if none is active, 0 for unknown size
+	 */
 	long getDownloadSize();
 
 	void action(EClientAction action, Object argument);

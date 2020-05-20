@@ -49,6 +49,7 @@ public class RemoteMapDirectoryPanel extends JPanel {
 		progressBar.putClientProperty(ELFStyle.KEY, ELFStyle.PROGRESSBAR_SLIDER);
 		selectedPanel = new RemoteMapEntryPanel(connection, progressBar);
 		progressBar.setVisible(false);
+		progressBar.setStringPainted(true);
 		selectedPanel.setVisible(false);
 
 		directoryList = new JList<>(new Object[0]);

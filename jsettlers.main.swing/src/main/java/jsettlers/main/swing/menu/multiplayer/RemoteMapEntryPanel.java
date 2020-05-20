@@ -90,11 +90,19 @@ public class RemoteMapEntryPanel extends JPanel {
 			return;
 		}
 		long progress = connection.getDownloadProgress();
-		progressBar.setValue((int) (progress*100.f/size));
-
-		long sizeKB = size/1024;
 		long progressKB = progress/1024;
 
-		progressBar.setString(progressKB + "kB / " + sizeKB + "kB");
+		progressBar.setIndeterminate(size==0);
+		if(size != 0) {
+			progressBar.setValue((int) (progress * 100.f / size));
+
+			long sizeKB = size/1024;
+
+			progressBar.setString(progressKB + "kB / " + sizeKB + "kB");
+		} else if(progress != 0) {
+			progressBar.setString(progressKB + "kB");
+		} else {
+			progressBar.setString("");
+		}
 	}
 }

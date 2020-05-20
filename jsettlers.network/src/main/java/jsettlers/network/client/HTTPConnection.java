@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -124,30 +125,29 @@ public class HTTPConnection implements IClientConnection, Runnable {
 		openResource(dir + map, "GET", 0L);
 		File str = new File(map);
 		str.createNewFile();
-		OutputStream out = new FileOutputStream(str);
 
 		synchronized (PROGRESS_SYNC) {
-			downloadSize = lastConnection.getHeaderFieldInt("Content-Length", -1);
+			downloadSize = lastConnection.getHeaderFieldInt("Content-Length", 0);
 			downloadProgress = 0;
 		}
 
 		byte[] buffer = new byte[BUFFER_SIZE];
-		InputStream from = lastConnection.getInputStream();
-		int read;
-		while((read = from.read(buffer)) != -1) {
-			out.write(buffer, 0, read);
-			synchronized (PROGRESS_SYNC) {
-				downloadProgress += read;
+		try(InputStream from = lastConnection.getInputStream();
+			OutputStream out = new FileOutputStream(str)) {
+			int read;
+			while ((read = from.read(buffer)) != -1) {
+				out.write(buffer, 0, read);
+				synchronized (PROGRESS_SYNC) {
+					downloadProgress += read;
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
 			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {}
 		}
 
-		synchronized (PROGRESS_SYNC) {
-			downloadSize = -1;
-			downloadProgress = -1;
-		}
+		finishProgress();
 	}
 
 	private void readIndex(String directory) throws IOException {
@@ -160,7 +160,12 @@ public class HTTPConnection implements IClientConnection, Runnable {
 			cached.date = currentDate;
 			return;
 		}
-		RemoteMapDirectory index = GSON.fromJson(new InputStreamReader(lastConnection.getInputStream()), RemoteMapDirectory.class);
+		RemoteMapDirectory index;
+		try(Reader reader = new InputStreamReader(lastConnection.getInputStream())) {
+			index = GSON.fromJson(reader, RemoteMapDirectory.class);
+		} finally {
+			finishProgress();
+		}
 		index.date = currentDate;
 
 		synchronized (mapDirectoryMap) {
@@ -170,6 +175,11 @@ public class HTTPConnection implements IClientConnection, Runnable {
 
 	private void openResource(String res, String method, long lastFetch) throws IOException {
 		log.info(method + " " + res);
+		synchronized (PROGRESS_SYNC) {
+			// downloading but no progress yet
+			downloadSize = 0;
+			downloadProgress = 0;
+		}
 		try {
 			HttpURLConnection connection = (HttpURLConnection) new URL(url + res).openConnection();
 			if(lastFetch == 0) connection.setIfModifiedSince(lastFetch);
@@ -182,7 +192,15 @@ public class HTTPConnection implements IClientConnection, Runnable {
 			lastStatus = connection.getResponseCode();
 		} catch(Throwable e) {
 			lastStatus = -1;
+			finishProgress();
 			throw new IOException(e);
+		}
+	}
+
+	private void finishProgress() {
+		synchronized (PROGRESS_SYNC) {
+			downloadSize = -1;
+			downloadProgress = -1;
 		}
 	}
 
