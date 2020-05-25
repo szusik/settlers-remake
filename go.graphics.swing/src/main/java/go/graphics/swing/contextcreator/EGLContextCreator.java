@@ -151,6 +151,7 @@ public class EGLContextCreator extends JAWTContextCreator {
 	@Override
 	protected void onInit() throws ContextException {
 		int i = 0;
+		EGL14.eglBindAPI(EGL14.EGL_OPENGL_API);
 		while(egl_context == 0 && ctx_attrs.length > i) {
 			egl_context = EGL10.eglCreateContext(egl_display, egl_config, 0, ctx_attrs[i++][debug?0:1]);
 			if(egl_context != 0 && EGL10.eglGetError() != EGL10.EGL_SUCCESS) {
@@ -175,6 +176,6 @@ public class EGLContextCreator extends JAWTContextCreator {
 		EGL10.eglQuerySurface(egl_display, egl_surface, EGL10.EGL_WIDTH, re);
 		int surfaceWidth = re[0];
 
-		return surfaceWidth/(float)SwingUtilities.windowForComponent(canvas).getWidth();
+		return surfaceWidth/(float)canvas.getWidth();
 	}
 }

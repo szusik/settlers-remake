@@ -19,11 +19,11 @@ task releaseJar(type: Jar) {
         attributes 'Main-Class': mainClassName
     }
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     with jar
 }
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.6'
+    compile 'com.google.code.gson:gson:2.8.2'
 }

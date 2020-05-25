@@ -53,13 +53,13 @@ subprojects {
 
         task copyMainResources(type: Copy) {
             from sourceSets.main.resources
-            into sourceSets.main.output.classesDir
+            into sourceSets.main.output.classesDirs[0]
         }
         processResources.dependsOn copyMainResources
 
         task copyTestResources(type: Copy) {
             from sourceSets.test.resources
-            into sourceSets.test.output.classesDir
+            into sourceSets.test.output.classesDirs[0]
         }
         processTestResources.dependsOn copyTestResources
     }
@@ -105,11 +105,13 @@ subprojects {
 }
 
 // This is a hack to make ./gradlew run only run the swing version.
-task run(dependsOn: ':jsettlers.main.swing:run') << {
-    // We do not need any more tasks.
-    tasks.getAsMap().values().each { Task task ->
-        if (!task.state.executed && task != tasks.getByPath(":run")) task.onlyIf {
-            false
+task run(dependsOn: ':jsettlers.main.swing:run') {
+    doLast {
+        // We do not need any more tasks.
+        tasks.getAsMap().values().each { Task task ->
+            if (!task.state.executed && task != tasks.getByPath(":run")) task.onlyIf {
+                false
+            }
         }
     }
 }
@@ -120,25 +122,27 @@ task runMapCreator(dependsOn: ':jsettlers.mapcreator:run') {}
 
 if (findProject(':jsettlers.main.android')) {
     // Android is present.
-    task runAndroid(dependsOn: ':jsettlers.main.android:assembleDebug') << {
-        def androidHome = System.env.ANDROID_HOME;
-        if (!androidHome) {
-            Properties local = new Properties()
-            local.load(new FileInputStream("local.properties"))
-            androidHome = local.getProperty('sdk.dir');
+    task runAndroid(dependsOn: ':jsettlers.main.android:assembleDebug') {
+        doLast {
+            def androidHome = System.env.ANDROID_HOME;
+            if (!androidHome) {
+                Properties local = new Properties()
+                local.load(new FileInputStream("local.properties"))
+                androidHome = local.getProperty('sdk.dir');
+            }
+            def adb = androidHome + '/platform-tools/adb'
+            println 'Copy files to your device...'
+            exec {
+                commandLine adb, 'uninstall', 'jsettlers.main.android'
+            }
+            exec {
+                commandLine adb, 'install', '-r', './jsettlers.main.android/build/outputs/apk/jsettlers.main.android-debug.apk'
+            }
+            exec {
+                commandLine adb, 'shell', 'am', 'start', '-n', 'jsettlers.main.android/jsettlers.main.android.JsettlersActivity'
+            }
+            println 'The application should have started now.'
         }
-        def adb = androidHome + '/platform-tools/adb'
-        println 'Copy files to your device...'
-        exec {
-            commandLine adb, 'uninstall', 'jsettlers.main.android'
-        }
-        exec {
-            commandLine adb, 'install', '-r', './jsettlers.main.android/build/outputs/apk/jsettlers.main.android-debug.apk'
-        }
-        exec {
-            commandLine adb, 'shell', 'am', 'start', '-n', 'jsettlers.main.android/jsettlers.main.android.JsettlersActivity'
-        }
-        println 'The application should have started now.'
     }
 }
 
