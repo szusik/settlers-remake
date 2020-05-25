@@ -99,6 +99,7 @@ subprojects {
     }
 
     plugins.withId('java', addGlobalDependencies)
+    plugins.withId('java-library', addGlobalDependencies)
     plugins.withId('application', addGlobalDependencies)
     plugins.withId('com.android.application', addGlobalDependencies)
     plugins.withId('com.android.library', addGlobalDependencies)

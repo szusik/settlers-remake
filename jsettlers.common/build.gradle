@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 
 
 import jsettlers.textures.generation.TextureGenerationTask
@@ -62,6 +62,6 @@ clean {
 }
 
 dependencies {
-    implementation project(':go.graphics')
+    api project(':go.graphics')
     testImplementation project(':jsettlers.testutils')
 }
