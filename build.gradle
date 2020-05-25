@@ -88,11 +88,11 @@ subprojects {
     // Add streamsupport dependency
     def addGlobalDependencies = {
         dependencies {
-            compile 'net.sourceforge.streamsupport:streamsupport:' + rootProject.ext.streamSupportVersion
-            compile 'net.sourceforge.streamsupport:streamsupport-cfuture:' + rootProject.ext.streamSupportVersion
-            compile 'net.sourceforge.streamsupport:streamsupport-atomic:' + rootProject.ext.streamSupportVersion
-            compile 'net.sourceforge.streamsupport:streamsupport-flow:' + rootProject.ext.streamSupportVersion
-            compile 'net.sourceforge.streamsupport:streamsupport-literal:' + rootProject.ext.streamSupportVersion
+            implementation 'net.sourceforge.streamsupport:streamsupport:' + rootProject.ext.streamSupportVersion
+            implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:' + rootProject.ext.streamSupportVersion
+            implementation 'net.sourceforge.streamsupport:streamsupport-atomic:' + rootProject.ext.streamSupportVersion
+            implementation 'net.sourceforge.streamsupport:streamsupport-flow:' + rootProject.ext.streamSupportVersion
+            implementation 'net.sourceforge.streamsupport:streamsupport-literal:' + rootProject.ext.streamSupportVersion
 
             testImplementation 'junit:junit:4.12'
         }
@@ -169,7 +169,7 @@ task releaseJSettlers(type: Zip) {
 
 
 task releaseDedicatedServer(type: Copy) {
-    from tasks.getByPath(':jsettlers.network:jar')
+    from tasks.getByPath(':jsettlers.network:releaseJar')
     into releaseDir
 }
 

@@ -15,5 +15,5 @@
 
 apply plugin: 'java'
 dependencies {
-    compile gradleApi()
+    implementation gradleApi()
 }
