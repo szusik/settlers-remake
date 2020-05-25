@@ -29,12 +29,13 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import jsettlers.common.menu.IMultiplayerConnector;
 import jsettlers.graphics.localization.Labels;
+import jsettlers.main.MultiplayerConnector;
 import jsettlers.main.swing.lookandfeel.ELFStyle;
 import jsettlers.network.client.EServerType;
 import jsettlers.network.client.HTTPConnection;
 import jsettlers.network.client.IClientConnection;
-import jsettlers.network.client.JSettlersConnection;
 import jsettlers.network.infrastructure.log.ConsoleConsumerLogger;
 import jsettlers.network.infrastructure.log.Logger;
 
@@ -43,17 +44,20 @@ public class ServerEntry implements Cloneable {
 	private String alias;
 	private EServerType type;
 	private String address;
-	private String nickname;
+	private String username;
 	private String uuid;
 	private String url;
+
+	public static final String URL_EMPTY = "https://";
 
 	private transient IClientConnection connection = null;
 	private transient StringBuffer connectionLog;
 	private transient Consumer<String> listener = null;
 
 	public ServerEntry() {
-		type = EServerType.JSETTLERS;
+		setType(EServerType.JSETTLERS);
 		connectionLog = new StringBuffer();
+		username = SettingsManager.getInstance().getUserName();
 	}
 
 	public String getAlias() {
@@ -68,8 +72,8 @@ public class ServerEntry implements Cloneable {
 		return address;
 	}
 
-	public String getNickname() {
-		return nickname;
+	public String getUsername() {
+		return username;
 	}
 
 	public UUID getUUID() {
@@ -88,6 +92,10 @@ public class ServerEntry implements Cloneable {
 	public void setType(EServerType type) {
 		if(connection != null) throw new AssertionError();
 		this.type = type;
+
+		if(type == EServerType.JSETTLERS) {
+			setUUID(UUID.randomUUID());
+		}
 	}
 
 	public void setAddress(String address) {
@@ -95,8 +103,8 @@ public class ServerEntry implements Cloneable {
 		this.address = address;
 	}
 
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
+	public void setusername(String username) {
+		this.username = username;
 	}
 
 	public void setUUID(UUID uuid) {
@@ -105,6 +113,7 @@ public class ServerEntry implements Cloneable {
 
 	public void setURL(String url) {
 		if(connection != null) throw new AssertionError();
+		if(URL_EMPTY.equals(url)) return;
 		this.url = url;
 	}
 
@@ -132,7 +141,7 @@ public class ServerEntry implements Cloneable {
 				connection = new HTTPConnection(url, log);
 				break;
 			case JSETTLERS:
-				connection = new JSettlersConnection(address, nickname, uuid, log);
+				connection = new MultiplayerConnector(address, uuid, username, log);
 				break;
 		}
 	}
@@ -214,9 +223,10 @@ public class ServerEntry implements Cloneable {
 		public Component getListCellRendererComponent(JList<? extends ServerEntry> jList, ServerEntry serverEntry, int i, boolean b, boolean b1) {
 			serverName.setText(serverEntry.alias);
 
-			if(serverEntry.connection.isConnected()) {
+			IClientConnection connection = serverEntry.getConnection();
+			if(connection.isConnected()) {
 				status.setText(Labels.getString("multiplayer-online"));
-			} else if(serverEntry.connection.hasConnectionFailed()){
+			} else if(connection.hasConnectionFailed()){
 				status.setText(Labels.getString("multiplayer-offline"));
 			} else {
 				status.setText(Labels.getString("multiplayer-connecting"));
@@ -232,8 +242,8 @@ public class ServerEntry implements Cloneable {
 				}
 			}
 
-			setColor(false, matchIcon);
-			setColor(serverEntry.connection.getMaps("/")!=null, mapsIcon);
+			setColor(connection.isConnected() && connection instanceof IMultiplayerConnector, matchIcon);
+			setColor(connection.getMaps("/")!=null, mapsIcon);
 			setColor(false, resIcon);
 			setColor(false, authIcon);
 

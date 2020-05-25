@@ -19,8 +19,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.WeakHashMap;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -30,7 +32,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
-import jsettlers.common.menu.IMultiplayerConnector;
 import jsettlers.common.menu.IStartingGame;
 import jsettlers.graphics.localization.Labels;
 import jsettlers.logic.map.loading.MapLoader;
@@ -59,6 +60,7 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 	private final JPanel         emptyPanel  = new JPanel();
 	private final ButtonGroup    buttonGroup = new ButtonGroup();
 	private JList<ServerEntry> serverOverview;
+	private Map<ServerEntry, ServerConnectionPanel> serverConnectionPanels = new WeakHashMap<>();
 
 	/**
 	 * Panel with the selection Buttons
@@ -70,7 +72,7 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 	 */
 	private final JPanel mainButtonPanel = new JPanel();
 
-	public MainMenuPanel(JSettlersFrame settlersFrame, IMultiplayerConnector multiPlayerConnector) {
+	public MainMenuPanel(JSettlersFrame settlersFrame) {
 		this.settlersFrame = settlersFrame;
 
 		OpenPanel openSinglePlayerPanel = new OpenPanel(MapList.getDefaultList().getFreshMaps().getItems(), settlersFrame::showNewSinglePlayerGameMenu);
@@ -127,7 +129,12 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 			ServerEntry selected = serverOverview.getSelectedValue();
 			if(selected == null) return;
 			buttonGroup.clearSelection();
-			setCenter(selected.getAlias(), new ServerConnectionPanel(selected, this::reset));
+			ServerConnectionPanel connPanel = serverConnectionPanels.get(selected);
+			if(connPanel == null) {
+				connPanel = new ServerConnectionPanel(selected, this::reset, settlersFrame);
+				serverConnectionPanels.put(selected, connPanel);
+			}
+			setCenter(selected.getAlias(), connPanel);
 		});
 		serverOverview.setCellRenderer(new ServerEntry.ServerEntryCellRenderer());
 		serverOverview.setOpaque(false);

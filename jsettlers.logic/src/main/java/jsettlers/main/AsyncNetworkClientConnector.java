@@ -94,6 +94,10 @@ public class AsyncNetworkClientConnector {
 		}
 	}
 
+	public synchronized AsyncNetworkClientFactoryState getState() {
+		return state;
+	}
+
 	/**
 	 * This call blocks until the network client is fully connected or failed to connect.
 	 * 

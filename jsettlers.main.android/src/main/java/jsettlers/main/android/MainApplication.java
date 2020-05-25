@@ -37,6 +37,7 @@ import jsettlers.main.android.core.GameStarter;
 import jsettlers.main.android.core.controls.ControlsAdapter;
 import jsettlers.main.android.core.controls.GameMenu;
 import jsettlers.main.android.core.resources.scanner.AndroidResourcesLoader;
+import jsettlers.network.client.IClientConnection;
 
 @EApplication
 public class MainApplication extends Application implements GameStarter, GameManager {
@@ -74,7 +75,7 @@ public class MainApplication extends Application implements GameStarter, GameMan
 	public IMultiplayerConnector getMultiPlayerConnector() {
 		if (multiplayerConnector == null) {
 			AndroidPreferences androidPreferences = new AndroidPreferences(this);
-			multiplayerConnector = new MultiplayerConnector(androidPreferences.getServer(), androidPreferences.getPlayerId(), androidPreferences.getPlayerName());
+			multiplayerConnector = new MultiplayerConnector(androidPreferences.getServer(), androidPreferences.getPlayerId(), androidPreferences.getPlayerName(), null);
 		}
 		return multiplayerConnector;
 	}
@@ -82,7 +83,7 @@ public class MainApplication extends Application implements GameStarter, GameMan
 	@Override
 	public void closeMultiPlayerConnector() {
 		if (multiplayerConnector != null) {
-			multiplayerConnector.shutdown();
+			((IClientConnection)multiplayerConnector).action(IClientConnection.EClientAction.CLOSE, null);
 			multiplayerConnector = null;
 		}
 	}

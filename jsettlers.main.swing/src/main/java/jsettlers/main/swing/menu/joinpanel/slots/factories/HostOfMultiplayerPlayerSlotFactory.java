@@ -15,6 +15,7 @@
 package jsettlers.main.swing.menu.joinpanel.slots.factories;
 
 import jsettlers.common.ai.EPlayerType;
+import jsettlers.common.menu.IMultiplayerConnector;
 import jsettlers.main.swing.settings.SettingsManager;
 import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.main.swing.menu.joinpanel.slots.PlayerSlot;
@@ -24,13 +25,18 @@ import jsettlers.main.swing.menu.joinpanel.slots.PlayerSlot;
  */
 public class HostOfMultiplayerPlayerSlotFactory implements IPlayerSlotFactory {
 
+	private IMultiplayerConnector connector;
+
+	public HostOfMultiplayerPlayerSlotFactory(IMultiplayerConnector connector) {
+		this.connector = connector;
+	}
+
 	@Override
 	public PlayerSlot createPlayerSlot(byte slot, MapLoader mapLoader) {
 		PlayerSlot playerSlot = new PlayerSlot();
 
 		if (slot == 0) {
-			SettingsManager settingsManager = SettingsManager.getInstance();
-			playerSlot.setPlayerName(settingsManager.getPlayer().getName());
+			playerSlot.setPlayerName(connector.getPlayerName());
 			playerSlot.setPossibleTypes(new EPlayerType[] { EPlayerType.HUMAN });
 			playerSlot.setReadyButtonEnabled(true);
 			playerSlot.setReady(false);

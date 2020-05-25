@@ -57,7 +57,6 @@ import jsettlers.main.swing.settings.UiPlayer;
 public class JSettlersFrame extends JFrame {
 	private static final long serialVersionUID = 2607082717493797224L;
 
-	private final IMultiplayerConnector multiPlayerConnector;
 	private final MainMenuPanel mainPanel;
 	private final EndgameStatsPanel endgameStatsPanel = new EndgameStatsPanel(this);
 	private final StartingGamePanel startingGamePanel = new StartingGamePanel(this);
@@ -73,9 +72,7 @@ public class JSettlersFrame extends JFrame {
 
 		SettingsManager settingsManager = SettingsManager.getInstance();
 
-		UiPlayer uiPlayer = settingsManager.getPlayer();
-		multiPlayerConnector = new MultiplayerConnector(settingsManager.getServer(), uiPlayer.getId(), uiPlayer.getName());
-		mainPanel = new MainMenuPanel(this, multiPlayerConnector);
+		mainPanel = new MainMenuPanel(this);
 
 		showMainMenu();
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -187,12 +184,8 @@ public class JSettlersFrame extends JFrame {
 		setNewContentPane(joinGamePanel);
 	}
 
-	public IMultiplayerConnector getMultiPlayerConnector() {
-		return multiPlayerConnector;
-	}
-
-	public void showJoinMultiplayerMenu(IJoinPhaseMultiplayerGameConnector joinPhaseMultiplayerGameConnector, MapLoader mapLoader) {
-		joinGamePanel.setJoinMultiPlayerMap(joinPhaseMultiplayerGameConnector, mapLoader);
+	public void showJoinMultiplayerMenu(IJoinPhaseMultiplayerGameConnector joinPhaseMultiplayerGameConnector, MapLoader mapLoader, String playerUUID) {
+		joinGamePanel.setJoinMultiPlayerMap(joinPhaseMultiplayerGameConnector, mapLoader, playerUUID);
 		setNewContentPane(joinGamePanel);
 	}
 

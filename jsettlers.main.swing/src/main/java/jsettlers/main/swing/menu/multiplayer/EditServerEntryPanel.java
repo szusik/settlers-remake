@@ -40,6 +40,8 @@ public class EditServerEntryPanel extends JPanel {
 	private JComboBox<EServerType> entryType;
 
 	private JTextField addressField;
+	private JTextField usernameField;
+
 	private JTextField urlField;
 
 	public EditServerEntryPanel(Runnable exitAction) {
@@ -63,7 +65,7 @@ public class EditServerEntryPanel extends JPanel {
 		JPanel jsettlersOptions = new JPanel();
 		// bottom options variant for http
 		JPanel httpOptions = new JPanel();
-		// safe, reset, cancel buttons
+		// save, reset, cancel buttons
 		JPanel saveOptions = new JPanel();
 
 		setLayout(new BorderLayout());
@@ -123,7 +125,18 @@ public class EditServerEntryPanel extends JPanel {
 		addressField.getDocument().addDocumentListener((SimpleDocumentListener) () -> edit.setAddress(addressField.getText()));
 		jsettlersOptions.add(addressField);
 
+		// username
+		JLabel usernameLabel = new JLabel(Labels.getString("multiplayer-server-username"));
+		usernameLabel.putClientProperty(ELFStyle.KEY, ELFStyle.LABEL_SHORT);
+		jsettlersOptions.add(usernameLabel);
+
+		usernameField = new JTextField();
+		usernameField.putClientProperty(ELFStyle.KEY, ELFStyle.TEXT_DEFAULT);
+		jsettlersOptions.add(usernameField);
+
 		// http
+
+		// url
 		JLabel urlLabel = new JLabel(Labels.getString("multiplayer-server-url"));
 		urlLabel.putClientProperty(ELFStyle.KEY, ELFStyle.LABEL_SHORT);
 		httpOptions.add(urlLabel);
@@ -133,7 +146,7 @@ public class EditServerEntryPanel extends JPanel {
 		urlField.getDocument().addDocumentListener((SimpleDocumentListener) () -> edit.setURL(urlField.getText()));
 		httpOptions.add(urlField);
 
-		// safe options
+		// save options
 		JButton cancel = new JButton();
 		if(origEntry != null) {
 			cancel.setText(Labels.getString("multiplayer-server-delete"));
@@ -181,6 +194,7 @@ public class EditServerEntryPanel extends JPanel {
 		switch (edit.getType()) {
 			case JSETTLERS:
 				if(edit.getAddress().isEmpty()) return false;
+				if(edit.getUsername().isEmpty()) return false;
 				break;
 			case HTTP:
 				if(edit.getURL().isEmpty()) return false;
@@ -197,9 +211,10 @@ public class EditServerEntryPanel extends JPanel {
 		entryType.setSelectedIndex(edit.getType().ordinal());
 
 		addressField.setText(edit.getAddress());
+		usernameField.setText(edit.getUsername());
 
 		String url = edit.getURL();
-		if(url == null) url = "https://";
+		if(url == null) url = ServerEntry.URL_EMPTY;
 		urlField.setText(url);
 	}
 }

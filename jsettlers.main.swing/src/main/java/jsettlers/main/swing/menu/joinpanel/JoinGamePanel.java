@@ -250,7 +250,7 @@ public class JoinGamePanel extends BackgroundPanel {
 	}
 
 	public void setNewMultiPlayerMap(MapLoader mapLoader, IMultiplayerConnector connector) {
-		this.playerSlotFactory = new HostOfMultiplayerPlayerSlotFactory();
+		this.playerSlotFactory = new HostOfMultiplayerPlayerSlotFactory(connector);
 		titleLabel.setText(Labels.getString("join-game-panel-new-multi-player-game-title"));
 		numberOfPlayersComboBox.setEnabled(false);
 		peaceTimeComboBox.setEnabled(false);
@@ -259,6 +259,7 @@ public class JoinGamePanel extends BackgroundPanel {
 		setChatVisible(true);
 		setStartButtonActionListener(e -> {
 		});
+		String myId = connector.getPlayerUUID();
 		IJoiningGame joiningGame = connector.openNewMultiplayerGame(new OpenMultiPlayerGameInfo(mapLoader));
 		joiningGame.setListener(new IJoiningGameListener() {
 			@Override
@@ -271,7 +272,7 @@ public class JoinGamePanel extends BackgroundPanel {
 				SwingUtilities.invokeLater(() -> {
 					initializeChatFor(connector);
 					setStartButtonActionListener(e -> connector.startGame());
-					connector.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, connector));
+					connector.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, connector, myId));
 					connector.setMultiplayerListener(new IMultiplayerListener() {
 						@Override
 						public void gameIsStarting(IStartingGame game) {
@@ -284,7 +285,7 @@ public class JoinGamePanel extends BackgroundPanel {
 						}
 					});
 
-					onPlayersChanges(connector.getPlayers(), connector); // init the UI with the players
+					onPlayersChanges(connector.getPlayers(), connector, myId); // init the UI with the players
 				});
 			}
 		});
@@ -297,7 +298,7 @@ public class JoinGamePanel extends BackgroundPanel {
 		prepareUiFor(mapLoader);
 	}
 
-	public void setJoinMultiPlayerMap(IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap, MapLoader mapLoader) {
+	public void setJoinMultiPlayerMap(IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap, MapLoader mapLoader, String playerUUID) {
 		playerSlotFactory = new ClientOfMultiplayerPlayerSlotFactory();
 		titleLabel.setText(Labels.getString("join-game-panel-join-multi-player-game-title"));
 		numberOfPlayersComboBox.setEnabled(false);
@@ -309,7 +310,7 @@ public class JoinGamePanel extends BackgroundPanel {
 
 		prepareUiFor(mapLoader);
 
-		joinMultiPlayerMap.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, joinMultiPlayerMap));
+		joinMultiPlayerMap.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, joinMultiPlayerMap, playerUUID));
 		joinMultiPlayerMap.setMultiplayerListener(new IMultiplayerListener() {
 			@Override
 			public void gameIsStarting(IStartingGame game) {
@@ -323,7 +324,7 @@ public class JoinGamePanel extends BackgroundPanel {
 		});
 		initializeChatFor(joinMultiPlayerMap);
 
-		onPlayersChanges(joinMultiPlayerMap.getPlayers(), joinMultiPlayerMap); // init the UI with the players
+		onPlayersChanges(joinMultiPlayerMap.getPlayers(), joinMultiPlayerMap, playerUUID); // init the UI with the players
 	}
 
 	private void initializeChatFor(IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap) {
@@ -360,16 +361,15 @@ public class JoinGamePanel extends BackgroundPanel {
 		chatInputField.setText("");
 	}
 
-	private void onPlayersChanges(ChangingList<? extends IMultiplayerPlayer> changingPlayers, IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap) {
+	private void onPlayersChanges(ChangingList<? extends IMultiplayerPlayer> changingPlayers, IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap, String myId) {
 		SwingUtilities.invokeLater(() -> {
 			List<? extends IMultiplayerPlayer> players = changingPlayers.getItems();
-			String myId = SettingsManager.getInstance().getUUID();
 			for (int i = 0; i < players.size(); i++) {
 				PlayerSlot playerSlot = playerSlots.get(i);
 				IMultiplayerPlayer player = players.get(i);
 				playerSlot.setPlayerName(player.getName());
-				playerSlot.setReady(player.isReady());
 				playerSlot.setPlayerType(EPlayerType.HUMAN, false);
+				playerSlot.setReady(player.isReady());
 				if (player.getId().equals(myId)) {
 					playerSlot.setReadyButtonEnabled(true);
 					playerSlot.informGameAboutReady(joinMultiPlayerMap);

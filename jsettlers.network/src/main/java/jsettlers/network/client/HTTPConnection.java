@@ -192,6 +192,10 @@ public class HTTPConnection implements IClientConnection, Runnable {
 			lastStatus = connection.getResponseCode();
 		} catch(Throwable e) {
 			lastStatus = -1;
+			if(lastConnection != null) {
+				lastConnection.disconnect();
+				lastConnection = null;
+			}
 			finishProgress();
 			throw new IOException(e);
 		}
