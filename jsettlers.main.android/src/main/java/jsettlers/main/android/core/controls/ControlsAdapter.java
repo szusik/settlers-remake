@@ -58,14 +58,14 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 
 	private ISelectionSet selection;
 	private ShortPoint2D displayCenter;
+	private static final AndroidSoundPlayer SOUND_PLAYER = new AndroidSoundPlayer(SOUND_THREADS);
 
 	public ControlsAdapter(Context context, IStartedGame game, IGameClock gameClock) {
 		this.player = game.getInGamePlayer();
 
-		AndroidSoundPlayer soundPlayer = new AndroidSoundPlayer(SOUND_THREADS);
 		androidControls = new AndroidControls(this);
-		mapContent = new MapContent(game, soundPlayer, ETextDrawPosition.TOP_LEFT, androidControls);
-		gameMenu = new GameMenu(context, soundPlayer, this, new GameSpeedLiveData(gameClock, this), game.isMultiplayerGame());
+		mapContent = new MapContent(game, SOUND_PLAYER, ETextDrawPosition.TOP_LEFT, androidControls);
+		gameMenu = new GameMenu(context, SOUND_PLAYER, this, new GameSpeedLiveData(gameClock, this), game.isMultiplayerGame());
 		graphicsGrid = game.getMap();
 	}
 
