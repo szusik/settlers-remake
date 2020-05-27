@@ -21,7 +21,6 @@ import org.androidannotations.annotations.ViewById;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -50,7 +49,7 @@ public class SpecialistsSelectionFragment extends SelectionFragment {
 			EMovableType.GEOLOGIST,
 	};
 
-	public static Fragment newInstance() {
+	public static SpecialistsSelectionFragment newInstance() {
 		return new SpecialistsSelectionFragment_();
 	}
 

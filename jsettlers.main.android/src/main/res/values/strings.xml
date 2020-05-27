@@ -162,4 +162,5 @@
 	<string name="ask_workarea">Choose work area</string>
 	<string name="ask_dock">Choose dock position</string>
 	<string name="ask_spell">Choose spell position</string>
+	<string name="force_move">Force moving to location</string>
 </resources>

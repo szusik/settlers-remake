@@ -24,7 +24,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-import java.lang.reflect.Method;
+import java.util.Set;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -38,38 +38,30 @@ import go.graphics.UIPoint;
 import go.graphics.area.Area;
 import go.graphics.event.GOEvent;
 import go.graphics.event.GOEventHandlerProvider;
+import go.graphics.event.command.EModifier;
 import go.graphics.event.interpreter.AbstractEventConverter;
+import java8.util.function.Supplier;
 
 public class GOSurfaceView extends GLSurfaceView implements RedrawListener, GOEventHandlerProvider {
 
 	private final Area area;
 
-	private final ActionAdapter actionAdapter = new ActionAdapter(getContext(), this);
+	private final ActionAdapter actionAdapter;
 
 	private GLESDrawContext drawcontext;
 
 	private IContextDestroyedListener contextDestroyedListener = null;
 
-	public GOSurfaceView(Context context, Area area) {
+	public GOSurfaceView(Context context, Area area, Supplier<Set<EModifier>> modifiers) {
 		super(context);
 		this.area = area;
+		actionAdapter = new ActionAdapter(getContext(), this, modifiers);
 
 		setEGLContextFactory(new Factory());
 		setRenderer(new Renderer(context));
 		setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-		tryEnableContextPreservation();
+		setPreserveEGLContextOnPause(true);
 		area.addRedrawListener(this);
-	}
-
-	private void tryEnableContextPreservation() {
-		// api level 11 :-(
-		// super.setPreserveEGLContextOnPause(true);
-		try {
-			Method m = GLSurfaceView.class.getMethod("setPreserveEGLContextOnPause", Boolean.TYPE);
-			m.invoke(this, true);
-		} catch (Throwable t) {
-			Log.d("gl", "Could not enable context preservation");
-		}
 	}
 
 	@Override
@@ -92,15 +84,23 @@ public class GOSurfaceView extends GLSurfaceView implements RedrawListener, GOEv
 
 	private class ActionAdapter extends AbstractEventConverter {
 
-		protected ActionAdapter(Context context, GOEventHandlerProvider provider) {
+		private final Supplier<Set<EModifier>> modifiers;
+
+		protected ActionAdapter(Context context, GOEventHandlerProvider provider, Supplier<Set<EModifier>> modifiers) {
 			super(provider);
 			gestureDetector = new GestureDetector(context, gestureListener);
 			longPressDetector = new GestureDetector(context, longPressListener);
 			scaleGestureDetector = new ScaleGestureDetector(context, scaleGestureListener);
+			this.modifiers = modifiers;
 
 			gestureDetector.setIsLongpressEnabled(false);
 
 			vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+		}
+
+		@Override
+		protected Set<EModifier> getCurrentModifiers() {
+			return modifiers.get();
 		}
 
 		private final Vibrator vibrator;

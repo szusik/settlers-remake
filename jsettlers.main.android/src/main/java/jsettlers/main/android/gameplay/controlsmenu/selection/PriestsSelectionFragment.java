@@ -19,12 +19,10 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
 import android.app.Activity;
-import android.arch.lifecycle.Transformations;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +49,7 @@ import jsettlers.main.android.gameplay.navigation.MenuNavigator;
 
 @EFragment(R.layout.menu_selection_priests)
 public class PriestsSelectionFragment extends SelectionFragment implements ActionListener {
-	public static Fragment newInstance() {
+	public static PriestsSelectionFragment newInstance() {
 		return new PriestsSelectionFragment_();
 	}
 

@@ -41,6 +41,7 @@ import biz.laenger.android.vpbs.ViewPagerBottomSheetBehavior;
 import go.graphics.android.GOSurfaceView;
 import go.graphics.area.Area;
 import go.graphics.region.Region;
+import java8.util.Sets2;
 import jsettlers.common.selectable.ISelectionSet;
 import jsettlers.graphics.map.MapContent;
 import jsettlers.graphics.map.draw.ImageProvider;
@@ -57,6 +58,7 @@ import jsettlers.main.android.gameplay.controlsmenu.goods.GoodsMenuFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.BuildingSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.CarriersSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.PriestsSelectionFragment;
+import jsettlers.main.android.gameplay.controlsmenu.selection.SelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.ShipsSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.SoldiersSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.SpecialistsSelectionFragment;
@@ -78,6 +80,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 	private TaskControls taskControls;
 	private GameMenu gameMenu;
 	private ViewPagerBottomSheetBehavior bottomSheetBehavior;
+	private SelectionFragment currentSelectionManager = null;
 
 	private final LinkedList<BackPressedListener> backPressedListeners = new LinkedList<>();
 
@@ -123,7 +126,10 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 		Area goArea = new Area();
 		goArea.set(goRegion);
 
-		GOSurfaceView goView = new GOSurfaceView(getActivity(), goArea);
+		GOSurfaceView goView = new GOSurfaceView(getActivity(), goArea, () -> {
+			if(currentSelectionManager != null) return currentSelectionManager.getModifiers();
+			return Sets2.of();
+		});
 		goView.setContextDestroyedListener(() -> ImageProvider.getInstance().invalidateAll());
 		frameLayout.addView(goView);
 	}
@@ -246,6 +252,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 		Fragment fragment = getChildFragmentManager().findFragmentByTag(TAG_FRAGMENT_SELECTION_MENU);
 		if (fragment != null) {
 			getChildFragmentManager().beginTransaction().remove(fragment).commit();
+			currentSelectionManager = null;
 			return true;
 		}
 		return false;
@@ -321,41 +328,33 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 		switch (selectionControls.getCurrentSelection().getSelectionType()) {
 		case BUILDING:
 			showMenu();
-			getChildFragmentManager().beginTransaction()
-					.replace(R.id.container_menu, BuildingSelectionFragment.newInstance(), TAG_FRAGMENT_SELECTION_MENU)
-					.commit();
+			currentSelectionManager = BuildingSelectionFragment.newInstance();
 			break;
 		case SOLDIERS:
-			getChildFragmentManager().beginTransaction()
-					.replace(R.id.container_menu, SoldiersSelectionFragment.newInstance(), TAG_FRAGMENT_SELECTION_MENU)
-					.commit();
+			currentSelectionManager = SoldiersSelectionFragment.newInstance();
 			break;
 		case PRIESTS:
 			showMenu();
-			getChildFragmentManager().beginTransaction()
-					.replace(R.id.container_menu, PriestsSelectionFragment.newInstance(), TAG_FRAGMENT_SELECTION_MENU)
-					.commit();
+			currentSelectionManager = PriestsSelectionFragment.newInstance();
 			break;
 		case SPECIALISTS:
-			getChildFragmentManager().beginTransaction()
-					.replace(R.id.container_menu, SpecialistsSelectionFragment.newInstance(), TAG_FRAGMENT_SELECTION_MENU)
-					.commit();
+			currentSelectionManager = SpecialistsSelectionFragment.newInstance();
 			break;
 		case PEOPLE:
 			showMenu();
-			getChildFragmentManager().beginTransaction()
-					.replace(R.id.container_menu, CarriersSelectionFragment.newInstance(), TAG_FRAGMENT_SELECTION_MENU)
-					.commit();
+			currentSelectionManager = CarriersSelectionFragment.newInstance();
 			break;
 		case SHIPS:
-			getChildFragmentManager().beginTransaction()
-					.replace(R.id.container_menu, ShipsSelectionFragment.newInstance(), TAG_FRAGMENT_SELECTION_MENU)
-					.commit();
+			currentSelectionManager = ShipsSelectionFragment.newInstance();
 			break;
 		default:
 			Log.d("Settlers", "No selection menu for selection type " + selectionControls.getCurrentSelection().getSelectionType().name());
-			break;
+			return;
 		}
+
+		getChildFragmentManager().beginTransaction()
+				.replace(R.id.container_menu, currentSelectionManager, TAG_FRAGMENT_SELECTION_MENU)
+				.commit();
 	}
 
 	private Observer<Boolean> pauseObserver = paused -> {
