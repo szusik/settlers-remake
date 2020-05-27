@@ -83,11 +83,11 @@ public class SoldiersSelectionFragment extends SelectionFragment {
 				LinearLayout soldiersLayout = getLevelLayout(movableType);
 
 				View view = layoutInflater.inflate(R.layout.view_specialist, soldiersLayout, false);
-				ImageView imageView = (ImageView) view.findViewById(R.id.image_view_specialist);
-				TextView textView = (TextView) view.findViewById(R.id.text_view_specialist_count);
+				ImageView imageView = view.findViewById(R.id.image_view_specialist);
+				TextView textView = view.findViewById(R.id.text_view_specialist_count);
 
 				OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.ROMAN, ECommonLinkType.SETTLER_GUI, movableType)).setAsImage(imageView);
-				textView.setText(count + "");
+				textView.setText(Integer.toString(count));
 
 				soldiersLayout.addView(view);
 			}
@@ -119,7 +119,7 @@ public class SoldiersSelectionFragment extends SelectionFragment {
 		case PIKEMAN_L3:
 			return soldiers3Layout;
 		default:
-			throw new RuntimeException("SoldiersSelctionFragment can't display movable: " + movableType.name());
+			throw new RuntimeException("SoldiersSelectionFragment can't display movable: " + movableType.name());
 		}
 	}
 

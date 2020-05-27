@@ -1,6 +1,8 @@
 package jsettlers.common.movable;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import jsettlers.common.images.ImageLink;
@@ -133,4 +135,22 @@ public enum ESpellType {
 			EMovableType.BOWMAN_L1, EMovableType.BOWMAN_L2, EMovableType.BOWMAN_L3,
 			EMovableType.PIKEMAN_L1, EMovableType.PIKEMAN_L2, EMovableType.PIKEMAN_L3,
 			EMovableType.PIONEER, EMovableType.GEOLOGIST, EMovableType.THIEF, EMovableType.MAGE);
+
+	private static final ESpellType[][] spellsForCivilisation = new ESpellType[ECivilisation.VALUES.length][];
+
+	static {
+		List<ESpellType> civSpells = new ArrayList<>();
+		for(ECivilisation civilisation : ECivilisation.VALUES) {
+			for(ESpellType spell : ESpellType.values()) {
+				if(spell.availableForCiv(civilisation)) civSpells.add(spell);
+			}
+
+			spellsForCivilisation[civilisation.ordinal] = civSpells.toArray(new ESpellType[0]);
+			civSpells.clear();
+		}
+	}
+
+	public static ESpellType[] getSpellsForCivilisation(ECivilisation civilisation) {
+		return spellsForCivilisation[civilisation.ordinal];
+	}
 }

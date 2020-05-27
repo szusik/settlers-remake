@@ -117,10 +117,13 @@
 	<string name="normal">Normale Geschwindigkeit</string>
 
 	<string name="service_description">JSettlers Spiel-Service, welcher das aktuelle Spiel ausführt.</string>
-	<string name="dock">Dock</string>
+	<string name="dock">Steg</string>
 	<string name="destination">Ziel</string>
 	<string name="global_stock_message">Die globalen Lagereinstellungen können nur in einer eigenen Siedlung gesetzt werden.</string>
 	<string name="goods_stock_title">Globale Lagereinstellungen</string>
 
 	<string name="game_menu_skip_minute">Eine Minute vorspulen</string>
+	<string name="ask_workarea">Arbeitsbereich auswählen</string>
+	<string name="ask_dock">Stegposition auswählen</string>
+	<string name="ask_spell">Zauberstelle auswählen</string>
 </resources>

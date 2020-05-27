@@ -20,7 +20,9 @@ import go.graphics.UIPoint;
 import go.graphics.event.mouse.GODrawEvent;
 import java8.util.Optional;
 import jsettlers.common.action.Action;
+import jsettlers.common.action.AskCastSpellAction;
 import jsettlers.common.action.BuildAction;
+import jsettlers.common.action.CastSpellAction;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.action.IAction;
@@ -74,15 +76,13 @@ public class AndroidControls implements IControls, ActionFireable, TaskControls 
 			}
 			break;
 		case ASK_SET_WORK_AREA:
-			startTask(action);
-			break;
+		case ASK_CAST_SPELL:
 		case ASK_SET_DOCK:
-			startTask(action);
-			break;
 		case ASK_SET_TRADING_WAYPOINT:
 			startTask(action);
 			break;
 		case SET_WORK_AREA:
+		case CAST_SPELL:
 		case SET_DOCK:
 		case SET_TRADING_WAYPOINT:
 		case BUILD:
@@ -109,6 +109,8 @@ public class AndroidControls implements IControls, ActionFireable, TaskControls 
 					return new BuildAction(showConstructionMarksAction.getBuildingType(), pointAction.getPosition());
 				case ASK_SET_WORK_AREA:
 					return new PointAction(EActionType.SET_WORK_AREA, pointAction.getPosition());
+				case ASK_CAST_SPELL:
+					return new CastSpellAction(((AskCastSpellAction)taskAction).getSpell(), pointAction.getPosition());
 				case ASK_SET_DOCK:
 					return new SetDockAction(pointAction.getPosition());
 				case ASK_SET_TRADING_WAYPOINT:

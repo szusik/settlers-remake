@@ -56,6 +56,7 @@ import jsettlers.main.android.gameplay.controlsmenu.buildings.BuildingsMenuFragm
 import jsettlers.main.android.gameplay.controlsmenu.goods.GoodsMenuFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.BuildingSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.CarriersSelectionFragment;
+import jsettlers.main.android.gameplay.controlsmenu.selection.PriestsSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.ShipsSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.SoldiersSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.SpecialistsSelectionFragment;
@@ -327,6 +328,12 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 		case SOLDIERS:
 			getChildFragmentManager().beginTransaction()
 					.replace(R.id.container_menu, SoldiersSelectionFragment.newInstance(), TAG_FRAGMENT_SELECTION_MENU)
+					.commit();
+			break;
+		case PRIESTS:
+			showMenu();
+			getChildFragmentManager().beginTransaction()
+					.replace(R.id.container_menu, PriestsSelectionFragment.newInstance(), TAG_FRAGMENT_SELECTION_MENU)
 					.commit();
 			break;
 		case SPECIALISTS:

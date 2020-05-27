@@ -26,6 +26,8 @@ public enum ECivilisation {
 	private int fileIndex;
 	public final int ordinal;
 
+	public static final ECivilisation[] VALUES = values();
+
 	ECivilisation(int fileIndex) {
 		ordinal = ordinal();
 		this.fileIndex = fileIndex;
