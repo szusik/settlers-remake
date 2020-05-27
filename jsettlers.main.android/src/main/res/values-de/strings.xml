@@ -65,8 +65,8 @@
 	<string name="filechoser_message">Wo sind die GFX und SND Ordner?</string>
 	<string name="cancel">Abbrechen</string>
 	<string name="confirm_kill">Soldaten töten?</string>
-	<string name="convert_all">Alle konvertieren</string>
-	<string name="convert_one">Einen konvertieren</string>
+	<string name="convert_all">Alle umwandeln</string>
+	<string name="convert_one">Einen umwandeln</string>
 	<string name="convert_to_carriers">Konvertiere zu Trägern</string>
 	<string name="empty_directory">Dieses Verzeichnis ist leer</string>
 	<string name="game_menu_pause">Pause</string>
