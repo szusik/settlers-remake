@@ -112,6 +112,9 @@ public final class Movable implements ILogicMovable, FoWTask {
 	// the following data only for ship passengers
 	private ILogicMovable ferryToEnter = null;
 
+	private ILogicMovable patient = null;
+	private ShortPoint2D targetingHealSpot = null;
+
 	public Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player) {
 		this.grid = grid;
 		this.position = position;
@@ -149,6 +152,45 @@ public final class Movable implements ILogicMovable, FoWTask {
 				}
 			}
 		}
+	}
+
+	@Override
+	public boolean pingWounded(ILogicMovable healer) {
+		if(!healer.requestTreatment(this)) return false;
+
+		targetingHealSpot = new ShortPoint2D(healer.getPosition().x+2, healer.getPosition().y+2);
+		moveTo(targetingHealSpot, EMoveToType.FORCED);
+		return true;
+	}
+
+	@Override
+	public boolean requestTreatment(ILogicMovable movable) {
+		if(movableType != EMovableType.HEALER) throw new AssertionError("Only healers can treat patients!");
+
+		ShortPoint2D healSpot = new ShortPoint2D(position.x+2, position.y+2);
+		if(patient != null &&
+			patient.getPath() != null &&
+			patient.getPath().getTargetPosition().equals(healSpot)) return false;
+
+		patient = movable;
+		return true;
+	}
+
+	@Override
+	public boolean needsTreatment() {
+		if(!EMovableType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(movableType)) return false;
+		if(health == movableType.getHealth()) return false;
+		if(path != null && path.getTargetPosition().equals(targetingHealSpot)) return false;
+		return true;
+	}
+
+	public ILogicMovable getPatient() {
+		return patient;
+	}
+
+	@Override
+	public void heal() {
+		health = movableType.getHealth();
 	}
 
 	@SuppressWarnings("unchecked")

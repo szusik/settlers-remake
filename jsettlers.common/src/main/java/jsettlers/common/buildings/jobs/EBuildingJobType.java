@@ -321,4 +321,19 @@ public enum EBuildingJobType {
 	 * no donkey yet, one will appear.
 	 */
 	GROW_DONKEY,
+
+	/**
+	 * Checks if a there is a human and player controlled settler at the given position, fails otherwise
+	 */
+	CAN_HEAL,
+
+	/**
+	 * Searches for wounded settlers in its vicinity and call the nearest one to attend treatment at the given position
+	 */
+	CALL_WOUNDED,
+
+	/**
+	 * Set the HP to maximum of a human and player controlled settler at the given position.
+	 */
+	HEAL,
 }

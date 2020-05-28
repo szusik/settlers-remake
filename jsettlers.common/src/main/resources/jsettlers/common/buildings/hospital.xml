@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE building SYSTEM "building.dtd" >
-<building worker="BAKER">
+<building worker="HEALER" workradius="20">
 	<ground groundtype="GRASS" />
 	<ground groundtype="EARTH" />
 	<ground groundtype="FLATTENED" />
@@ -106,8 +106,15 @@
 
 	<startjob name="gohome"/>
 
-	<job name="gohome" type="GO_TO" successjob="hide" failjob="hide"/>
-	<job name="hide" type="HIDE" successjob="reset1" failjob="reset1"/>
-	<job name="reset1" type="SET_MATERIAL" successjob="hide" failjob="hide" material="NO_MATERIAL"/>
-	<!-- TODO: Jobs -->
+	<job name="gohome"		successjob="reset"		failjob="reset"		type="GO_TO"/>
+	<job name="reset"		successjob="hide"		failjob="hide"		type="SHOW" dx="2" dy="2"/>
+	<job name="hide"		successjob="start"		failjob="start"		type="HIDE"/>
+
+	<job name="start"		successjob="checkheal"	failjob="waitheal"	type="CALL_WOUNDED" dx="4" dy="4"/>
+	<job name="checkheal"	successjob="show"		failjob="hide"		type="CAN_HEAL" dx="4" dy="4"/>
+	<job name="show"		successjob="heal1"		failjob="hide"		type="SHOW" dx="2" dy="2" direction="SOUTH_EAST"/>
+	<job name="heal1"		successjob="heal2"		failjob="hideheal"	type="HEAL"/>
+	<job name="heal2"		successjob="hideheal"	failjob="hideheal"	type="PLAY_ACTION1" time="1"/>
+	<job name="hideheal"	successjob="waitheal"	failjob="waitheal"	type="HIDE"/>
+	<job name="waitheal"	successjob="hide"		failjob="hide"		type="WAIT" time="2"/>
 </building>

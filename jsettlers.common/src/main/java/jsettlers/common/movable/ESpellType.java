@@ -130,12 +130,6 @@ public enum ESpellType {
 
 	public static final int BURN_FOREST_MAX_TREE_COUNT = 5;
 
-	public static final Set<EMovableType> PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES = EnumSet.of(
-			EMovableType.SWORDSMAN_L1, EMovableType.SWORDSMAN_L2, EMovableType.SWORDSMAN_L3,
-			EMovableType.BOWMAN_L1, EMovableType.BOWMAN_L2, EMovableType.BOWMAN_L3,
-			EMovableType.PIKEMAN_L1, EMovableType.PIKEMAN_L2, EMovableType.PIKEMAN_L3,
-			EMovableType.PIONEER, EMovableType.GEOLOGIST, EMovableType.THIEF, EMovableType.MAGE);
-
 	private static final ESpellType[][] spellsForCivilisation = new ESpellType[ECivilisation.VALUES.length][];
 
 	static {

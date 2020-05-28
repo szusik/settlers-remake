@@ -102,6 +102,12 @@ public enum EMovableType {
 		PIKEMAN_L1, PIKEMAN_L2, PIKEMAN_L3
 	);
 
+	public static final Set<EMovableType> PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES = EnumSet.of(
+			SWORDSMAN_L1, SWORDSMAN_L2, SWORDSMAN_L3,
+			BOWMAN_L1, BOWMAN_L2, BOWMAN_L3,
+			PIKEMAN_L1, PIKEMAN_L2, PIKEMAN_L3,
+			PIONEER, GEOLOGIST, THIEF, MAGE);
+
 	public static final Set<EMovableType> SHIPS = EnumSet.of(FERRY, CARGO_SHIP);
 
 	public final EMaterialType  tool;

@@ -261,7 +261,8 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 							new PlaceBuildingTool(EBuildingType.BIG_TOWER, this),
 							new PlaceBuildingTool(EBuildingType.CASTLE, this),
 							new PlaceBuildingTool(EBuildingType.WEAPONSMITH, this),
-							new PlaceBuildingTool(EBuildingType.DOCKYARD, this)
+							new PlaceBuildingTool(EBuildingType.DOCKYARD, this),
+							new PlaceBuildingTool(EBuildingType.HOSPITAL, this),
 							}),
 					new ToolBox(EditorLabels.getLabel("tools.category.social"), new ToolNode[] {
 							new PlaceBuildingTool(EBuildingType.SMALL_LIVINGHOUSE, this),

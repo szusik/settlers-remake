@@ -96,7 +96,7 @@ public class DockyardBuilding extends WorkerBuilding implements IBuilding.IShipC
 		}
 
 		ShortPoint2D shipPosition = getShipPosition();
-		Movable existingShip = (Movable) grid.getMovableGrid().getMovableAt(shipPosition.x, getShipPosition().y);
+		Movable existingShip = (Movable) grid.getMovableGrid().getMovableAt(shipPosition.x, shipPosition.y);
 		if (existingShip != null) {
 			existingShip.leavePosition();
 		}

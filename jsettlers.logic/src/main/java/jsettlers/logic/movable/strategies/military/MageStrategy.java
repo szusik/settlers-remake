@@ -153,7 +153,7 @@ public class MageStrategy extends MovableStrategy {
 				case SHIELD:
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive())
-							.filter(lm -> ESpellType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
+							.filter(lm -> EMovableType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
 							.filter(lm -> teamId(lm) == teamId(movable))
 							.limit(ESpellType.SHIELD_MAX_SOLDIERS)
 							.forEach(movable -> movable.addEffect(EEffectType.SHIELDED));
@@ -172,7 +172,7 @@ public class MageStrategy extends MovableStrategy {
 				case FREEZE_FOES:
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive())
-							.filter(lm -> ESpellType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
+							.filter(lm -> EMovableType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.FREEZE_FOES_MAX_SOLDIERS)
 							.forEach(movable -> movable.addEffect(EEffectType.FROZEN));
@@ -185,7 +185,7 @@ public class MageStrategy extends MovableStrategy {
 							.map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive())
 							.filter(lm -> teamId(lm) != teamId(movable))
-							.filter(lm -> ESpellType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
+							.filter(lm -> EMovableType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
 							.limit(ESpellType.SEND_FOES_MAX_SOLDIERS)
 							.forEach(sendEnemies::add);
 
@@ -206,7 +206,7 @@ public class MageStrategy extends MovableStrategy {
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
 							.filter(lm -> lm!=null&&lm.isAlive())
 							.filter(lm -> teamId(lm) == teamId(movable))
-							.filter(lm -> ESpellType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
+							.filter(lm -> EMovableType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(lm.getMovableType()))
 							.limit(ESpellType.CALL_HELP_MAX_SOLDIERS)
 							.forEach(callDefenders::add);
 

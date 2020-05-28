@@ -26,6 +26,7 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.IGuiMovable;
 import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
+import jsettlers.logic.movable.Movable;
 import jsettlers.logic.player.Player;
 import jsettlers.logic.timer.IScheduledTimerable;
 
@@ -70,4 +71,14 @@ public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, I
 
 	void defectTo(Player player);
 	void setPosition(ShortPoint2D to);
+
+	boolean pingWounded(ILogicMovable healer);
+
+	boolean requestTreatment(ILogicMovable movable);
+
+	boolean needsTreatment();
+
+	ILogicMovable getPatient();
+
+	void heal();
 }

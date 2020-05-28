@@ -23,6 +23,8 @@ import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.jobs.EBuildingJobType;
 import jsettlers.common.buildings.jobs.IBuildingJob;
 import jsettlers.common.landscape.EResourceType;
+import jsettlers.common.map.shapes.MapCircle;
+import jsettlers.common.map.shapes.MapCircleIterator;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
@@ -39,6 +41,7 @@ import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IWorker
 import jsettlers.logic.movable.EGoInDirectionMode;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
+import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 /**
  * @author Andreas Eberle
@@ -56,6 +59,7 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 	private int searchFailedCtr = 0;
 
 	private ShortPoint2D markedPosition;
+	private int nextPatient = -1;
 
 	public BuildingWorkerStrategy(Movable movable) {
 		super(movable);
@@ -280,6 +284,77 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 
 		case GROW_DONKEY:
 			growDonkeyAction();
+			break;
+
+		case CAN_HEAL: {
+			ShortPoint2D jobPos = getCurrentJobPos();
+
+			ILogicMovable movable = super.getGrid().getMovableAt(jobPos.x, jobPos.y);
+			if(movable != null && movable.needsTreatment()) {
+				nextPatient = movable.getID();
+				jobFinished();
+			} else {
+				nextPatient = -1;
+				if(movable != null) movable.push(this.movable);
+				jobFailed();
+			}
+			break;
+		}
+
+		case CALL_WOUNDED: {
+			// check if patient is still interested
+			if(movable.getPatient() != null) {
+				int healX = movable.getPosition().x + 2;
+				int healY = movable.getPosition().y + 2;
+
+				if(movable.getPatient().getPath() == null ||
+					!movable.getPatient().getPath().getTargetPosition().equals(healX, healY)) {
+					// reset patient
+					movable.requestTreatment(null);
+				}
+			}
+
+			if(movable.getPatient() == null) {
+				ILogicMovable bestPatient = null;
+				float patientHealth = Float.MAX_VALUE;
+				MapCircleIterator iter = new MapCircleIterator(new MapCircle(building.getWorkAreaCenter(), building.getBuildingType().getWorkRadius()));
+
+				int width = getGrid().getWidth();
+				int height = getGrid().getHeight();
+				while(iter.hasNext()) {
+					ShortPoint2D next = iter.next();
+					if(next.x > 0 && next.x < width && next.y > 0 && next.y < height) {
+						ILogicMovable potentialPatient = getGrid().getMovableAt(next.x, next.y);
+						if (potentialPatient != null && potentialPatient.getPlayer() == movable.getPlayer() && potentialPatient.needsTreatment()) {
+							float newHealth = potentialPatient.getHealth();
+							if (newHealth < patientHealth) {
+								bestPatient = potentialPatient;
+								patientHealth = newHealth;
+							}
+						}
+					}
+				}
+
+				if(bestPatient != null && bestPatient.pingWounded(movable)) {
+					jobFinished();
+				} else {
+					jobFailed();
+				}
+			} else {
+				jobFinished();
+			}
+			break;
+		}
+
+		case HEAL:
+			ILogicMovable movable = Movable.getMovableByID(nextPatient);
+			if(movable != null) {
+				movable.heal();
+				this.movable.requestTreatment(null);
+				jobFinished();
+			} else {
+				jobFailed();
+			}
 			break;
 		}
 	}

@@ -8,4 +8,5 @@ dependencies {
     implementation project(':jsettlers.graphics')
     implementation project(':jsettlers.logic')
     implementation project(':jsettlers.main.swing')
+    implementation project(':jsettlers.network')
 }
