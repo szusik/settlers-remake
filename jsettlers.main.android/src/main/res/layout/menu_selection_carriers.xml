@@ -14,13 +14,12 @@
 		app:layout_columnWeight="1"
 		app:layout_gravity="center_vertical"/>
 
-		<ImageView
-			android:id="@+id/image_view_pioneer"
-			android:layout_width="@dimen/menu_tile_occupied_height"
-			android:layout_height="@dimen/menu_tile_occupied_height"
-			app:layout_gravity="center"
-			android:scaleType="fitCenter"
-			android:src="@drawable/building_destroy"/>
+	<ImageView
+		android:id="@+id/image_view_pioneer"
+		android:layout_width="@dimen/menu_tile_occupied_height"
+		android:layout_height="@dimen/menu_tile_occupied_height"
+		app:layout_gravity="center"
+		android:scaleType="fitCenter"/>
 
 	<Button
 		android:id="@+id/button_convert_all_pioneer"
@@ -41,13 +40,12 @@
 		app:layout_columnWeight="1"
 		app:layout_gravity="center_vertical"/>
 
-		<ImageView
-			android:id="@+id/image_view_geologist"
-			android:layout_width="@dimen/menu_tile_occupied_height"
-			android:layout_height="@dimen/menu_tile_occupied_height"
-			app:layout_gravity="center"
-			android:scaleType="fitCenter"
-			android:src="@drawable/building_destroy"/>
+	<ImageView
+		android:id="@+id/image_view_geologist"
+		android:layout_width="@dimen/menu_tile_occupied_height"
+		android:layout_height="@dimen/menu_tile_occupied_height"
+		app:layout_gravity="center"
+		android:scaleType="fitCenter"/>
 
 	<Button
 		android:id="@+id/button_convert_all_geologist"
@@ -68,13 +66,12 @@
 		app:layout_columnWeight="1"
 		app:layout_gravity="center_vertical"/>
 
-		<ImageView
-			android:id="@+id/image_view_thief"
-			android:layout_width="@dimen/menu_tile_occupied_height"
-			android:layout_height="@dimen/menu_tile_occupied_height"
-			app:layout_gravity="center"
-			android:scaleType="fitCenter"
-			android:src="@drawable/building_destroy"/>
+	<ImageView
+		android:id="@+id/image_view_thief"
+		android:layout_width="@dimen/menu_tile_occupied_height"
+		android:layout_height="@dimen/menu_tile_occupied_height"
+		app:layout_gravity="center"
+		android:scaleType="fitCenter"/>
 
 	<Button
 		android:id="@+id/button_convert_all_thief"
