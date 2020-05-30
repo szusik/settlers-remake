@@ -158,13 +158,12 @@ class WhatToDoAi implements IWhatToDoAi {
 	}
 
 	@Override
-	public Void call() {
-		applyRules();
-		return null;
+	public void applyLightRules() {
+		armyGeneral.healTroops();
 	}
 
 	@Override
-	public void applyRules() {
+	public void applyHeavyRules() {
 		if (aiStatistics.isAlive(playerId)) {
 			economyMinister.update();
 			isEndGame = economyMinister.isEndGame();

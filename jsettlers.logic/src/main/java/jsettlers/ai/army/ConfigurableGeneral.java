@@ -15,7 +15,10 @@
 package jsettlers.ai.army;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -34,7 +37,10 @@ import jsettlers.input.tasks.MoveToGuiTask;
 import jsettlers.input.tasks.SetMaterialProductionGuiTask;
 import jsettlers.input.tasks.UpgradeSoldiersGuiTask;
 import jsettlers.logic.buildings.military.occupying.OccupyingBuilding;
+import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.movable.MovableGrid;
+import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.player.Player;
 import jsettlers.network.client.interfaces.ITaskScheduler;
 
@@ -61,22 +67,37 @@ public class ConfigurableGeneral implements ArmyGeneral {
 			EBuildingType.BARRACK };
 	private static final ESoldierType[] SOLDIER_UPGRADE_ORDER = new ESoldierType[] { ESoldierType.BOWMAN, ESoldierType.PIKEMAN, ESoldierType.SWORDSMAN };
 
+	private static final int MAX_SOLDIERS_PER_HOSPITAL = 30;
+	private static final float SOLDIERS_MIN_HEALTH = 0.6f;
+
 	private final AiStatistics aiStatistics;
 	private final Player player;
 	private final ITaskScheduler taskScheduler;
 	private final MovableGrid movableGrid;
 	private final float attackerCountFactor;
+	private final float healPropFactor;
+	private final Map<Integer, ShortPoint2D> woundedSoldiers = new HashMap<>();
 
-	public ConfigurableGeneral(AiStatistics aiStatistics, Player player, MovableGrid movableGrid, ITaskScheduler taskScheduler, EPlayerType playerType) {
+	/**
+	 *
+	 * @param  healPropFactor
+	 * 		The fraction of wounded soldiers that get send to the hospital
+	 */
+	public ConfigurableGeneral(AiStatistics aiStatistics, Player player, MovableGrid movableGrid, ITaskScheduler taskScheduler, EPlayerType playerType, float healPropFactor) {
 		this.aiStatistics = aiStatistics;
 		this.player = player;
 		this.taskScheduler = taskScheduler;
 		this.movableGrid = movableGrid;
 		this.attackerCountFactor = ATTACKER_COUNT_FACTOR_BY_PLAYER_TYPE[playerType.ordinal()];
+		this.healPropFactor = healPropFactor;
+
+		// setup woundedSoldiers
+		doHealTroops(false);
 	}
 
 	@Override
 	public void commandTroops(Set<Integer> soldiersWithOrders) {
+		soldiersWithOrders.addAll(woundedSoldiers.keySet());
 		ensureAllTowersFullyMounted();
 
 		SoldierPositions soldierPositions = calculateSituation(player.playerId);
@@ -188,25 +209,111 @@ public class ConfigurableGeneral implements ArmyGeneral {
 		}
 	}
 
+	@Override
+	public void healTroops() {
+		doHealTroops(true);
+	}
+
+	private void doHealTroops(boolean commit) {
+		if(healPropFactor == 0) return;
+
+		// we use the hospitals from the statistics because their positions should not change that often
+		ShortPoint2D[] myHospitals = aiStatistics.getBuildingPositionsOfTypeForPlayer(EBuildingType.HOSPITAL, player.playerId).toArray(new ShortPoint2D[0]);
+		int hospitalCount = myHospitals.length;
+		if(hospitalCount == 0) {
+			woundedSoldiers.clear();
+			return;
+		}
+
+		List<List<Integer>> soldiersForHospitals = new ArrayList<>(hospitalCount);
+		int[] assignedPerHospital = new int[hospitalCount];
+		for(int i = 0; i < hospitalCount; i++) {
+			soldiersForHospitals.add(new Vector<>());
+		}
+
+		Iterator<Map.Entry<Integer, ShortPoint2D>> woundedIter = woundedSoldiers.entrySet().iterator();
+		while(woundedIter.hasNext()) {
+			Map.Entry<Integer, ShortPoint2D> wounded = woundedIter.next();
+
+			ILogicMovable mov = Movable.getMovableByID(wounded.getKey());
+			// remove healed soldiers from woundedSoldiers
+			if(mov == null || mov.getHealth() == mov.getMovableType().getHealth()) {
+				woundedIter.remove();
+			} else {
+				// remove soldiers that are going to destroyed hospitals from wounded list
+				// they are going to be reassigned like newly wounded
+				ShortPoint2D targetingHospital = wounded.getValue();
+				int hospitalIndex = -1;
+				for (int i = 0; i < hospitalCount; i++) {
+					if (myHospitals[i].equals(targetingHospital)) {
+						hospitalIndex = i;
+						break;
+					}
+				}
+
+				if(hospitalIndex != -1 && assignedPerHospital[hospitalIndex] < MAX_SOLDIERS_PER_HOSPITAL) {
+					if(targetingHospital.getOnGridDistTo(mov.getPosition())  >= EBuildingType.HOSPITAL.getWorkRadius()) {
+						soldiersForHospitals.get(hospitalIndex).add(wounded.getKey());
+					}
+				} else {
+					woundedIter.remove();
+				}
+			}
+		}
+
+		for(ILogicMovable mov : Movable.getAllMovables()) {
+			if(mov.getPlayer() != player) continue;
+
+			EMovableType type = mov.getMovableType();
+			if(!EMovableType.SOLDIERS.contains(type)) continue;
+			if(mov.getHealth() >= type.getHealth() * SOLDIERS_MIN_HEALTH) continue;
+			if(woundedSoldiers.containsKey(mov.getID())) continue;
+			// only heal some wounded soldiers (based on ai difficulty)
+			if(healPropFactor != 1 && MatchConstants.aiRandom().nextFloat() > healPropFactor) continue;
+
+			ShortPoint2D pos = mov.getPosition();
+			int shortestDistance = Integer.MAX_VALUE;
+			int hospital = -1;
+
+			for(int i = 0; i < hospitalCount; i++) {
+				int hDistance = myHospitals[i].getOnGridDistTo(pos);
+				if(hDistance < shortestDistance && assignedPerHospital[i] < MAX_SOLDIERS_PER_HOSPITAL) {
+					shortestDistance = hDistance;
+					hospital = i;
+				}
+			}
+
+			if(hospital != -1 && shortestDistance >= EBuildingType.HOSPITAL.getWorkRadius()) {
+				soldiersForHospitals.get(hospital).add(mov.getID());
+				woundedSoldiers.put(mov.getID(), myHospitals[hospital]);
+				assignedPerHospital[hospital]++;
+			}
+		}
+
+		for(int i = 0; i < hospitalCount; i++) {
+			sendTroopsToById(soldiersForHospitals.get(i), myHospitals[i], null, EMoveToType.FORCED);
+		}
+	}
+
 	private void defend(SoldierPositions soldierPositions, Set<Integer> soldiersWithOrders) {
 		List<ShortPoint2D> allMyTroops = new Vector<>();
 		allMyTroops.addAll(soldierPositions.bowmenPositions);
 		allMyTroops.addAll(soldierPositions.pikemenPositions);
 		allMyTroops.addAll(soldierPositions.swordsmenPositions);
-		sendTroopsTo(allMyTroops, aiStatistics.getEnemiesInTownOf(player.playerId).iterator().next(), soldiersWithOrders);
+		sendTroopsTo(allMyTroops, aiStatistics.getEnemiesInTownOf(player.playerId).iterator().next(), soldiersWithOrders, EMoveToType.DEFAULT);
 	}
 
 	private void attack(SoldierPositions soldierPositions, boolean infantryWouldDie, Set<Integer> soldiersWithOrders) {
 		IPlayer weakestEnemy = getWeakestEnemy();
 		ShortPoint2D targetDoor = getTargetEnemyDoorToAttack(weakestEnemy);
 		if (infantryWouldDie) {
-			sendTroopsTo(soldierPositions.bowmenPositions, targetDoor, soldiersWithOrders);
+			sendTroopsTo(soldierPositions.bowmenPositions, targetDoor, soldiersWithOrders, EMoveToType.DEFAULT);
 		} else {
 			List<ShortPoint2D> soldiers = new ArrayList<>(soldierPositions.bowmenPositions.size() + soldierPositions.pikemenPositions.size() + soldierPositions.swordsmenPositions.size());
 			soldiers.addAll(soldierPositions.bowmenPositions);
 			soldiers.addAll(soldierPositions.pikemenPositions);
 			soldiers.addAll(soldierPositions.swordsmenPositions);
-			sendTroopsTo(soldiers, targetDoor, soldiersWithOrders);
+			sendTroopsTo(soldiers, targetDoor, soldiersWithOrders, EMoveToType.DEFAULT);
 		}
 	}
 
@@ -225,16 +332,22 @@ public class ConfigurableGeneral implements ArmyGeneral {
 		return weakestEnemyPlayer;
 	}
 
-	private void sendTroopsTo(List<ShortPoint2D> attackerPositions, ShortPoint2D target, Set<Integer> soldiersWithOrders) {
-		List<Integer> attackerIds = new Vector<>();
+	private void sendTroopsTo(List<ShortPoint2D> attackerPositions, ShortPoint2D target, Set<Integer> soldiersWithOrders, EMoveToType moveToType) {
+		List<Integer> attackerIds = new Vector<>(attackerPositions.size());
 		for (ShortPoint2D attackerPosition : attackerPositions) {
-			int movableId = movableGrid.getMovableAt(attackerPosition.x, attackerPosition.y).getID();
-			if (!soldiersWithOrders.contains(movableId)) {
-				attackerIds.add(movableId);
-			}
+			attackerIds.add(movableGrid.getMovableAt(attackerPosition.x, attackerPosition.y).getID());
 		}
 
-		taskScheduler.scheduleTask(new MoveToGuiTask(player.playerId, target, attackerIds, EMoveToType.DEFAULT));
+		sendTroopsToById(attackerIds, target, soldiersWithOrders, moveToType);
+	}
+
+	private void sendTroopsToById(List<Integer> attackerIds, ShortPoint2D target, Set<Integer> soldiersWithOrders, EMoveToType moveToType) {
+		if(soldiersWithOrders != null) {
+			attackerIds.removeAll(soldiersWithOrders);
+			soldiersWithOrders.addAll(attackerIds);
+		}
+
+		taskScheduler.scheduleTask(new MoveToGuiTask(player.playerId, target, attackerIds, moveToType));
 	}
 
 	private ShortPoint2D getTargetEnemyDoorToAttack(IPlayer enemyToAttack) {

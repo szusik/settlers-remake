@@ -237,7 +237,7 @@ public class JSettlersGame {
 				// ConstructionMarksThread has it's mapArea variable initialized via the EActionType.SCREEN_CHANGE event.
 
 				aiExecutor = new AiExecutor(playerSettings, mainGrid, networkConnector.getTaskScheduler());
-				networkConnector.getGameClock().schedule(aiExecutor, (short) 10000);
+				networkConnector.getGameClock().schedule(aiExecutor, (short) 1000);
 
 				winLoseTracker = new WinLoseTracker(mainGrid, playerId);
 				networkConnector.getGameClock().schedule(winLoseTracker, (short) 5000);

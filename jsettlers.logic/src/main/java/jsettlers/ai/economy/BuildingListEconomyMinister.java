@@ -14,34 +14,7 @@
  *******************************************************************************/
 package jsettlers.ai.economy;
 
-import static jsettlers.common.buildings.EBuildingType.BAKER;
-import static jsettlers.common.buildings.EBuildingType.BARRACK;
-import static jsettlers.common.buildings.EBuildingType.BIG_TEMPLE;
-import static jsettlers.common.buildings.EBuildingType.BIG_TOWER;
-import static jsettlers.common.buildings.EBuildingType.CASTLE;
-import static jsettlers.common.buildings.EBuildingType.COALMINE;
-import static jsettlers.common.buildings.EBuildingType.FARM;
-import static jsettlers.common.buildings.EBuildingType.FISHER;
-import static jsettlers.common.buildings.EBuildingType.FORESTER;
-import static jsettlers.common.buildings.EBuildingType.GOLDMELT;
-import static jsettlers.common.buildings.EBuildingType.GOLDMINE;
-import static jsettlers.common.buildings.EBuildingType.IRONMELT;
-import static jsettlers.common.buildings.EBuildingType.IRONMINE;
-import static jsettlers.common.buildings.EBuildingType.LUMBERJACK;
-import static jsettlers.common.buildings.EBuildingType.MEDIUM_LIVINGHOUSE;
-import static jsettlers.common.buildings.EBuildingType.MILL;
-import static jsettlers.common.buildings.EBuildingType.PIG_FARM;
-import static jsettlers.common.buildings.EBuildingType.SAWMILL;
-import static jsettlers.common.buildings.EBuildingType.SLAUGHTERHOUSE;
-import static jsettlers.common.buildings.EBuildingType.SMALL_LIVINGHOUSE;
-import static jsettlers.common.buildings.EBuildingType.STOCK;
-import static jsettlers.common.buildings.EBuildingType.STONECUTTER;
-import static jsettlers.common.buildings.EBuildingType.TEMPLE;
-import static jsettlers.common.buildings.EBuildingType.TOOLSMITH;
-import static jsettlers.common.buildings.EBuildingType.TOWER;
-import static jsettlers.common.buildings.EBuildingType.WATERWORKS;
-import static jsettlers.common.buildings.EBuildingType.WEAPONSMITH;
-import static jsettlers.common.buildings.EBuildingType.WINEGROWER;
+import static jsettlers.common.buildings.EBuildingType.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +38,7 @@ import jsettlers.logic.player.Player;
 public class BuildingListEconomyMinister implements EconomyMinister {
 
 	private static final Collection<EBuildingType> RUSH_DEFENCE_BUILDINGS = EnumSet.of(LUMBERJACK, SAWMILL, STONECUTTER, IRONMELT, WEAPONSMITH, BARRACK, SMALL_LIVINGHOUSE, COALMINE, IRONMINE,
-			MEDIUM_LIVINGHOUSE);
+			MEDIUM_LIVINGHOUSE, HOSPITAL);
 	private static final Collection<EBuildingType> BUILDING_INDUSTRY = EnumSet.of(LUMBERJACK, FORESTER, SAWMILL, STONECUTTER);
 
 	private final AiStatistics aiStatistics;
@@ -109,6 +82,7 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 		buildingsToBuild.clear();
 		this.mapBuildingCounts = aiStatistics.getAiMapInformation().getBuildingCounts(player.getPlayerId());
 		addMinimalBuildingMaterialBuildings();
+		addHospitals();
 		if (isVerySmallMap()) {
 			addSmallWeaponProduction();
 			addFoodAndBuildingMaterialAndWeaponAndGoldIndustry();
@@ -118,6 +92,16 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 			addFoodAndBuildingMaterialAndWeaponAndGoldIndustry();
 			addSecondToolSmith();
 		}
+	}
+
+	private void addHospitals() {
+		if(aiStatistics.getBuildingPositionsOfTypeForPlayer(COALMINE, playerId).size() >= 2) buildingsToBuild.add(HOSPITAL);
+		if(aiStatistics.getBuildingPositionsOfTypeForPlayer(COALMINE, playerId).size() >= 3) buildingsToBuild.add(HOSPITAL);
+
+		int armySize = aiStatistics.getCountOfMovablesOfPlayer(player, EMovableType.SOLDIERS);
+		if(armySize > 200) buildingsToBuild.add(HOSPITAL);
+		if(armySize > 300) buildingsToBuild.add(HOSPITAL);
+		if(armySize > 400) buildingsToBuild.add(HOSPITAL);
 	}
 
 	private void addSecondToolSmith() {

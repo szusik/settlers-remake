@@ -31,6 +31,12 @@ public interface ArmyGeneral {
 	void commandTroops(Set<Integer> soldiersWithOrders);
 
 	/**
+	 * Move troops to hospitals
+	 */
+	void healTroops();
+
+	/**
+	 * TODO
 	 * - upgrades soldiers
 	 * - enable and disable recruitment (not implemented yet)
 	 * - choose the weapons to produce (not implemented yet)

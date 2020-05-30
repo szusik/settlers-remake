@@ -52,6 +52,18 @@ class WhatToDoAiFactory {
 
 	private ArmyGeneral determineArmyGeneral(EPlayerType playerType, ECivilisation civilisation, AiStatistics aiStatistics, Player player, MovableGrid movableGrid, ITaskScheduler taskScheduler) {
 		// TODO: use civilisation to determine different general when there is more than ROMAN
-		return new ConfigurableGeneral(aiStatistics, player, movableGrid, taskScheduler, playerType);
+		switch(playerType) {
+			case AI_VERY_EASY:
+				// don't heal soldiers
+				return new ConfigurableGeneral(aiStatistics, player, movableGrid, taskScheduler, playerType, 0f);
+			case AI_EASY:
+				return new ConfigurableGeneral(aiStatistics, player, movableGrid, taskScheduler, playerType, .3f);
+			case AI_HARD:
+				return new ConfigurableGeneral(aiStatistics, player, movableGrid, taskScheduler, playerType, .7f);
+			default:
+				// AI_VERY_HARD
+				// let the enemy kill as few soldiers as possible
+				return new ConfigurableGeneral(aiStatistics, player, movableGrid, taskScheduler, playerType, 1);
+		}
 	}
 }
