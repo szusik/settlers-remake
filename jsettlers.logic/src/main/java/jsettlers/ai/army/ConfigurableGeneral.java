@@ -290,8 +290,10 @@ public class ConfigurableGeneral implements ArmyGeneral {
 			}
 		}
 
-		for(int i = 0; i < hospitalCount; i++) {
-			sendTroopsToById(soldiersForHospitals.get(i), myHospitals[i], null, EMoveToType.FORCED);
+		if(commit) {
+			for (int i = 0; i < hospitalCount; i++) {
+				sendTroopsToById(soldiersForHospitals.get(i), myHospitals[i], null, EMoveToType.FORCED);
+			}
 		}
 	}
 
