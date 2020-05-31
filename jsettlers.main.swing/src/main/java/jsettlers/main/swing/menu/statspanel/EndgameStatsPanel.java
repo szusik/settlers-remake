@@ -15,6 +15,7 @@
 package jsettlers.main.swing.menu.statspanel;
 
 import java.awt.BorderLayout;
+import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -69,6 +70,11 @@ public class EndgameStatsPanel extends BackgroundPanel {
 
 	private String[] getPlayerRow(IInGamePlayer player) {
 		String[] row = new String[5];
+		if(player == null) {
+			Arrays.fill(row, "");
+			return row;
+		}
+
 		IEndgameStatistic igs = player.getEndgameStatistic();
 
 		row[0] = igs.getName();
