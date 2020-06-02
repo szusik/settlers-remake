@@ -14,8 +14,10 @@
  *******************************************************************************/
 package jsettlers.common.buildings;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -25,6 +27,7 @@ import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.landscape.ELandscapeType;
+import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.RelativePoint;
 
@@ -133,6 +136,8 @@ public enum EBuildingType {
 
 	private final RelativePoint[] buildMarks;
 
+	private final RelativePoint[] buildingAreaBorder;
+
 	private final EnumSet<ELandscapeType> groundTypes;
 
 	private final short viewDistance;
@@ -180,6 +185,28 @@ public enum EBuildingType {
 		if (mine) {
 			this.buildingAreaBitSet.setCenter((short) 1, (short) 1);
 		}
+
+		List<RelativePoint> buildingAreaBorder = new ArrayList<>();
+		for(RelativePoint pt : protectedTiles) {
+			for(EDirection dir : EDirection.VALUES) {
+				int x = pt.getDx() + dir.gridDeltaX;
+				int y = pt.getDy() + dir.gridDeltaY;
+
+				boolean collision = false;
+				for(RelativePoint potentialCollision : protectedTiles) {
+					if(potentialCollision.getDy() == y && potentialCollision.getDx() == x) {
+						collision = true;
+						break;
+					}
+				}
+
+				if(!collision) {
+					buildingAreaBorder.add(new RelativePoint(x, y));
+				}
+			}
+		}
+
+		this.buildingAreaBorder = buildingAreaBorder.toArray(new RelativePoint[0]);
 	}
 
 	private byte calculateNumberOfConstructionMaterials() {
@@ -192,6 +219,10 @@ public enum EBuildingType {
 
 	public RelativePoint[] getBuildingArea() {
 		return protectedTiles;
+	}
+
+	public RelativePoint[] getBuildingAreaBorder() {
+		return buildingAreaBorder;
 	}
 
 	/**

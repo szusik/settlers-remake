@@ -1096,6 +1096,19 @@ public final class MainGrid implements Serializable {
 					return false;
 				}
 			}
+
+			Set<ELandscapeType> allowedGroundType = buildingType.getGroundTypes();
+
+			for(RelativePoint border : buildingType.getBuildingAreaBorder()) {
+				int currX = border.calculateX(x);
+				int currY = border.calculateY(y);
+
+				if(!isInBounds(currX, currY)) continue;
+
+				ELandscapeType type = landscapeGrid.getLandscapeTypeAt(currX, currY);
+				if(!allowedGroundType.contains(type)) return false;
+			}
+
 			return !buildingType.needsFlattenedGround() || calculateConstructionMarkValue(x, y, buildingArea) >= 0;
 		}
 
