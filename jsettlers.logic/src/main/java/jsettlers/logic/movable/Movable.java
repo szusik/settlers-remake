@@ -132,9 +132,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 		allMovables.offer(this);
 
 		if((fowTeam != -1 && MatchConstants.ENABLE_ALL_PLAYER_FOG_OF_WAR) || fowTeam == player.getTeamId()) {
-			synchronized (FogOfWar.instance.refThread.nextTasks) {
-					FogOfWar.instance.refThread.nextTasks.offer(this);
-			}
+			FogOfWar.instance.refThread.nextTasks.offer(this);
 		}
 
 		grid.enterPosition(position, this, true);
@@ -146,9 +144,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 			if(lm instanceof Movable) {
 				Movable mv = (Movable) lm;
 				if(MatchConstants.ENABLE_ALL_PLAYER_FOG_OF_WAR || lm.getPlayer().getTeamId() == fowTeam) {
-					synchronized (FogOfWar.instance.refThread.nextTasks) {
-						FogOfWar.instance.refThread.nextTasks.offer(mv);
-					}
+					FogOfWar.instance.refThread.nextTasks.offer(mv);
 				}
 			}
 		}

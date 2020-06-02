@@ -86,7 +86,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 	private static final ConcurrentLinkedQueue<Building> allBuildings = new ConcurrentLinkedQueue<>();
 	private static byte fowTeam = -1;
 	private boolean occupied;
-	private boolean fow = false;
+	private transient boolean fow = false;
 
 	protected final EBuildingType type;
 	protected final ShortPoint2D pos;

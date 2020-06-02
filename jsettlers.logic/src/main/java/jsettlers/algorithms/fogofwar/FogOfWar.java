@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jsettlers.common.CommonConstants;
@@ -79,9 +80,7 @@ public final class FogOfWar implements Serializable {
 		foWTask.from = from;
 		foWTask.to = to;
 		foWTask.at = at;
-		synchronized (instance.refThread.nextTasks) {
-			instance.refThread.nextTasks.add(foWTask);
-		}
+		instance.refThread.nextTasks.add(foWTask);
 	}
 
 	public static FogOfWar instance;
@@ -153,17 +152,13 @@ public final class FogOfWar implements Serializable {
 	public void showMap() {
 		ShowHideFoWTask foWTask = new ShowHideFoWTask();
 		foWTask.addRef = true;
-		synchronized (instance.refThread.nextTasks) {
-			instance.refThread.nextTasks.add(foWTask);
-		}
+		instance.refThread.nextTasks.add(foWTask);
 	}
 
 	public void hideMap() {
 		ShowHideFoWTask foWTask = new ShowHideFoWTask();
 		foWTask.addRef = false;
-		synchronized (instance.refThread.nextTasks) {
-			instance.refThread.nextTasks.add(foWTask);
-		}
+		instance.refThread.nextTasks.add(foWTask);
 	}
 
 	public static final int CIRCLE_REMOVE = 1;
@@ -172,7 +167,6 @@ public final class FogOfWar implements Serializable {
 
 	public class FoWRefThread extends FoWThread {
 		public final ConcurrentLinkedQueue<FoWTask> nextTasks = new ConcurrentLinkedQueue<>();
-		public final ConcurrentLinkedQueue<FoWTask> tasks = new ConcurrentLinkedQueue<>();
 
 		FoWRefThread() {
 			super("FOW-reference-updater");
@@ -187,12 +181,8 @@ public final class FogOfWar implements Serializable {
 
 		@Override
 		public void taskProcessor() {
-			synchronized (nextTasks) {
-				tasks.addAll(nextTasks);
-				nextTasks.clear();
-			}
 			if (enabled) {
-				Iterator<FoWTask> it = tasks.iterator();
+				Iterator<FoWTask> it = nextTasks.iterator();
 				while(it.hasNext()) {
 					if(runTask(it.next())) {
 						it.remove();
@@ -205,9 +195,9 @@ public final class FogOfWar implements Serializable {
 		boolean runTask(FoWTask task) {
 			if(task instanceof BuildingFoWTask) {
 				BuildingFoWTask bFOW = (BuildingFoWTask) task;
-				if (bFOW.to > 0) circleDrawer.drawCircleToBuffer(bFOW.at.x, bFOW.at.y, bFOW.to, CIRCLE_ADD);
-				if (bFOW.from > 0) circleDrawer.drawCircleToBuffer(bFOW.at.x, bFOW.at.y, bFOW.from, CIRCLE_REMOVE);
-				circleDrawer.drawCircleToBuffer(bFOW.at.x, bFOW.at.y, bFOW.to>bFOW.from ? bFOW.to : bFOW.from, CIRCLE_DIM);
+				if (bFOW.to > 0) circleDrawer.drawCircleToBuffer(bFOW.at, bFOW.to, CIRCLE_ADD);
+				if (bFOW.from > 0) circleDrawer.drawCircleToBuffer(bFOW.at, bFOW.from, CIRCLE_REMOVE);
+				circleDrawer.drawCircleToBuffer(bFOW.at, bFOW.to>bFOW.from ? bFOW.to : bFOW.from, CIRCLE_DIM);
 				return true;
 			} else if(task instanceof ShowHideFoWTask) {
 				ShowHideFoWTask shFOW = (ShowHideFoWTask) task;
@@ -218,9 +208,9 @@ public final class FogOfWar implements Serializable {
 				ShortPoint2D currentPos = mv.getPosition();
 				boolean alive = mv.isAlive();
 				if(mv.isOnFerry() || !alive) currentPos = null;
-				if(mv.fowPosition != currentPos) {
-					if(currentPos != null) circleDrawer.drawCircleToBuffer(currentPos.x, currentPos.y, Constants.MOVABLE_VIEW_DISTANCE, CIRCLE_ADD|CIRCLE_DIM);
-					if(mv.fowPosition != null) circleDrawer.drawCircleToBuffer(mv.fowPosition.x, mv.fowPosition.y, Constants.MOVABLE_VIEW_DISTANCE, CIRCLE_REMOVE|CIRCLE_DIM);
+				if(!Objects.equals(mv.fowPosition, currentPos)) {
+					if(currentPos != null) circleDrawer.drawCircleToBuffer(currentPos, Constants.MOVABLE_VIEW_DISTANCE, CIRCLE_ADD|CIRCLE_DIM);
+					if(mv.fowPosition != null) circleDrawer.drawCircleToBuffer(mv.fowPosition, Constants.MOVABLE_VIEW_DISTANCE, CIRCLE_REMOVE|CIRCLE_DIM);
 					mv.fowPosition = currentPos;
 				}
 				return !alive; // remove if Movable is deleted
@@ -350,7 +340,11 @@ public final class FogOfWar implements Serializable {
 			init();
 
 			while (!canceled) {
-				if(!MatchConstants.clock().isPausing()) taskProcessor();
+				try {
+					if (!MatchConstants.clock().isPausing()) taskProcessor();
+				} catch(Throwable ex) {
+					ex.printStackTrace();
+				}
 				fc.nextFrame(framerate);
 			}
 		}
@@ -427,9 +421,9 @@ public final class FogOfWar implements Serializable {
 		/**
 		 * Draws a circle to the buffer line. Each point is only brightened and onlydrawn if its x coordinate is in [0, mapWidth - 1] and its computed y coordinate is bigger than 0.
 		 */
-		final void drawCircleToBuffer(int bufferX, int bufferY, int viewDistance, int state) {
+		final void drawCircleToBuffer(ShortPoint2D at, int viewDistance, int state) {
 			CachedViewCircle circle = getCachedCircle(viewDistance);
-			CachedViewCircle.CachedViewCircleIterator iterator = circle.iterator(bufferX, bufferY);
+			CachedViewCircle.CachedViewCircleIterator iterator = circle.iterator(at.x, at.y);
 			draw(iterator, state);
 		}
 
