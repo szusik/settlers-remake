@@ -394,6 +394,11 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
+		public boolean canChangeLandscapeTo(int x, int y, ELandscapeType type) {
+			return false;
+		}
+
+		@Override
 		public ELandscapeType getLandscapeTypeAt(int x, int y) {
 			return ELandscapeType.GRASS;
 		}

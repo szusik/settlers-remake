@@ -89,7 +89,7 @@ public final class MineBuilding extends ResourceBuilding {
 	}
 
 	@Override
-	protected boolean shouldBeFlatened() {
+	protected boolean shouldBeFlattened() {
 		return false;
 	}
 

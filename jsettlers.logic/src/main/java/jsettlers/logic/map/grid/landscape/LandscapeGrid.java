@@ -28,10 +28,6 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.common.utils.coordinates.CoordinateStream;
-import jsettlers.common.utils.coordinates.IBooleanCoordinateFunction;
-import jsettlers.common.utils.coordinates.ICoordinateConsumer;
-import jsettlers.common.utils.coordinates.ICoordinatePredicate;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.MainGrid;
@@ -173,7 +169,22 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		}
 	}
 
-	public final void setLandscapeTypeAt(int x, int y, ELandscapeType landscapeType) {
+	public final boolean canChangeLandscapeTo(int x, int y, ELandscapeType landscapeType) {
+		for (EDirection dir : EDirection.VALUES) {
+			int nbIndex = (x + dir.gridDeltaX) + (y + dir.gridDeltaY) * width;
+			if (nbIndex < 0 || nbIndex >= width * height) continue;
+
+			int dirX = x + dir.gridDeltaX;
+			int dirY = y + dir.gridDeltaY;
+
+			if(!ELandscapeType.values()[landscapeGrid[dirX+dirY*width]].isAllowedNeighbor(landscapeType)) return false;
+		}
+		return true;
+	}
+
+	public final void setLandscapeTypeAt(int x, int y, ELandscapeType landscapeType, boolean checked) {
+		if(checked && !canChangeLandscapeTo(x, y, landscapeType)) return;
+
 		if (landscapeType == ELandscapeType.FLATTENED && this.landscapeGrid[x + y * width] != ELandscapeType.FLATTENED.ordinal) {
 			flattenedResetter.addPosition(x, y);
 		}
@@ -191,7 +202,7 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		final int index = x + y * width;
 
 		this.heightGrid[x][y] += Math.signum(targetHeight - this.heightGrid[x][y]);
-		this.landscapeGrid[index] = ELandscapeType.FLATTENED.ordinal;
+		setLandscapeTypeAt(x, y, ELandscapeType.FLATTENED, true);
 		this.temporaryFlatened[index] = Byte.MAX_VALUE; // cancel the flattening
 
 		backgroundListener.backgroundShapeChangedAt(x, y);
@@ -285,7 +296,7 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 	 */
 	private void flatten(int x, int y) {
 		if (isHexAreaOfType(x, y, 1, ELandscapeType.GRASS, ELandscapeType.FLATTENED)) {
-			setLandscapeTypeAt((short) x, (short) y, ELandscapeType.FLATTENED);
+			setLandscapeTypeAt((short) x, (short) y, ELandscapeType.FLATTENED, true);
 		}
 	}
 
@@ -308,7 +319,7 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		temporaryFlatened[index] = flattenedValue;
 		if (flattenedValue <= -30) { // if the value is smaller than the hysteresis, set it to zero
 			temporaryFlatened[index] = 0;
-			setLandscapeTypeAt(x, y, ELandscapeType.GRASS);
+			setLandscapeTypeAt(x, y, ELandscapeType.GRASS, true);
 			return true; // tell the flattened resetter that it does not need to work on this pos again.
 		} else {
 			return false;
@@ -370,7 +381,7 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 			int y = currPos.calculateY(position.y);
 			int index =x + y * width;
 
-			if (heightGrid[x][y] != expectedHeight || landscapeGrid[index] != ELandscapeType.FLATTENED.ordinal) {
+			if (heightGrid[x][y] != expectedHeight || (canChangeLandscapeTo(x, y, ELandscapeType.FLATTENED) && landscapeGrid[index] != ELandscapeType.FLATTENED.ordinal)) {
 				return false;
 			}
 		}

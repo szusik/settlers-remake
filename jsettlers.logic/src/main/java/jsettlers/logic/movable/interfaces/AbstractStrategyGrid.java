@@ -206,6 +206,8 @@ public abstract class AbstractStrategyGrid implements Serializable {
 	 */
 	public abstract ELandscapeType getLandscapeTypeAt(int x, int y);
 
+	public abstract boolean canChangeLandscapeTo(int x, int y, ELandscapeType type);
+
 	/**
 	 * Searches for an enemy around the position of the given movable in it's search radius.
 	 *

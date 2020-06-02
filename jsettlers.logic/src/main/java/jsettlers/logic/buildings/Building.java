@@ -281,7 +281,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 	}
 
 	private void requestDiggers() {
-		if (shouldBeFlatened()) {
+		if (shouldBeFlattened()) {
 			RelativePoint[] protectedTiles = getFlattenTiles();
 			int heightSum = 0;
 
@@ -304,12 +304,12 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 		}
 	}
 
-	protected boolean shouldBeFlatened() {
+	protected boolean shouldBeFlattened() {
 		return true;
 	}
 
-	private boolean isFlatened() {
-		if (shouldBeFlatened()) {
+	private boolean isFlattened() {
+		if (shouldBeFlattened()) {
 			return grid.isAreaFlattenedAtHeight(pos, getFlattenTiles(), heightAvg);
 		} else {
 			return true;
@@ -328,7 +328,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 			}
 
 		case IN_FLATTERNING:
-			if (!isFlatened()) {
+			if (!isFlattened()) {
 				return IS_FLATTENED_RECHECK_PERIOD;
 			} else {
 				placeAdditionalMapObjects(grid, pos, false);
@@ -694,7 +694,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 	}
 
 	public final RelativePoint[] getFlattenTiles() {
-		if (shouldBeFlatened()) {
+		if (shouldBeFlattened()) {
 			return type.getProtectedTiles();
 		} else {
 			return new RelativePoint[0];

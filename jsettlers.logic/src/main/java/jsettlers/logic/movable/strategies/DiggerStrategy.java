@@ -129,6 +129,9 @@ public final class DiggerStrategy extends MovableStrategy implements IManageable
 	}
 
 	private boolean isNotFlattened(ShortPoint2D pos) {
+		// some places can't be flattened
+		if(!getGrid().canChangeLandscapeTo(pos.x, pos.y, ELandscapeType.FLATTENED)) return false;
+
 		return super.getGrid().getLandscapeTypeAt(pos.x, pos.y) != ELandscapeType.FLATTENED;
 	}
 

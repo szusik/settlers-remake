@@ -238,7 +238,7 @@ public final class MainGrid implements Serializable {
 		for (short y = 0; y < height; y++) {
 			for (short x = 0; x < width; x++) {
 				ELandscapeType landscape = mapGrid.getLandscape(x, y);
-				setLandscapeTypeAt(x, y, landscape);
+				setLandscapeTypeAt(x, y, landscape, false);
 				landscapeGrid.setHeightAt(x, y, mapGrid.getLandscapeHeight(x, y));
 				landscapeGrid.setResourceAt(x, y, mapGrid.getResourceType(x, y), mapGrid.getResourceAmount(x, y));
 				landscapeGrid.setBlockedPartition(x, y, mapGrid.getBlockedPartition(x, y));
@@ -470,7 +470,7 @@ public final class MainGrid implements Serializable {
 		return building;
 	}
 
-	final void setLandscapeTypeAt(int x, int y, ELandscapeType newType) {
+	final void setLandscapeTypeAt(int x, int y, ELandscapeType newType, boolean checked) {
 		if (newType.isBlocking) {
 			flagsGrid.setBlockedAndProtected(x, y, true);
 		} else {
@@ -478,7 +478,7 @@ public final class MainGrid implements Serializable {
 				flagsGrid.setBlockedAndProtected(x, y, false);
 			}
 		}
-		landscapeGrid.setLandscapeTypeAt(x, y, newType);
+		landscapeGrid.setLandscapeTypeAt(x, y, newType, checked);
 	}
 
 	final void checkPositionThatChangedPlayer(int x, int y) {
@@ -907,7 +907,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public final void setLandscape(int x, int y, ELandscapeType landscapeType) {
-			setLandscapeTypeAt(x, y, landscapeType);
+			setLandscapeTypeAt(x, y, landscapeType, true);
 		}
 
 		@Override
@@ -1369,14 +1369,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public void setLandscape(int x, int y, ELandscapeType type) {
-			for(EDirection dir : EDirection.VALUES) {
-				int nbIndex = (x+dir.gridDeltaX) + (y+dir.gridDeltaY) * width;
-				if(nbIndex < 0 || nbIndex >= width*height) continue;
-
-				if(!landscapeGrid.getLandscapeTypeAt(x+dir.gridDeltaX, y+dir.gridDeltaY).isAllowedNeighbor(type)) return;
-			}
-
-			setLandscapeTypeAt(x, y, type);
+			setLandscapeTypeAt(x, y, type, true);
 		}
 
 		@Override
@@ -1465,6 +1458,11 @@ public final class MainGrid implements Serializable {
 			} else {
 				return false;
 			}
+		}
+
+		@Override
+		public boolean canChangeLandscapeTo(int x, int y, ELandscapeType type) {
+			return landscapeGrid.canChangeLandscapeTo(x, y, type);
 		}
 
 		@Override
