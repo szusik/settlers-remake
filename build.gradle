@@ -156,8 +156,8 @@ def releaseDir = project.file('release')
 task releaseJSettlers(type: Zip) {
     into('JSettlers') {
         from { project.getRootProject().file('LICENSE.txt') }
-        from tasks.getByPath(':jsettlers.main.swing:releaseJar')
-        from tasks.getByPath(':jsettlers.mapcreator:releaseJar')
+        from tasks.getByPath(':jsettlers.main.swing:shadowJar')
+        from tasks.getByPath(':jsettlers.mapcreator:shadowJar')
 
         into('maps') {
             from project.getRootProject().file('maps/release')
@@ -170,7 +170,7 @@ task releaseJSettlers(type: Zip) {
 
 
 task releaseDedicatedServer(type: Copy) {
-    from tasks.getByPath(':jsettlers.network:releaseJar')
+    from tasks.getByPath(':jsettlers.network:shadowJar')
     into releaseDir
 }
 

@@ -1,7 +1,10 @@
-apply plugin: 'application'
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'application'
+}
 
 startScripts {
-    applicationName = "JSettlers"
+    applicationName = "jsettlers.main.swing"
 }
 
 mainClassName = 'jsettlers.main.swing.SwingManagedJSettlers'
@@ -12,15 +15,9 @@ jar {
     }
 }
 
-task releaseJar(type: Jar) {
-    archivesBaseName = 'JSettlers'
-    manifest {
-        attributes 'Main-Class': mainClassName
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    with jar
+shadowJar {
+    baseName = 'JSettlers'
+    classifier = ''
 }
 
 dependencies {

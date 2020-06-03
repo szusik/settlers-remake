@@ -1,8 +1,10 @@
-apply plugin: 'application'
-
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'application'
+}
 
 startScripts {
-    applicationName = "MapCreator"
+    applicationName = "jsettlers.mapcreator"
 }
 
 mainClassName = 'jsettlers.mapcreator.main.MapCreatorApp'
@@ -13,17 +15,9 @@ jar {
     }
 }
 
-
-
-task releaseJar(type: Jar) {
-    archivesBaseName = 'MapCreator'
-    manifest {
-        attributes 'Main-Class': mainClassName
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    with jar
+shadowJar {
+    baseName = 'MapCreator'
+    classifier = ''
 }
 
 dependencies {
