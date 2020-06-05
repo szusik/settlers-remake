@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 - 2017
+ * Copyright (c) 2020
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -14,46 +14,36 @@
  *******************************************************************************/
 package jsettlers.logic.map.loading.original.data;
 
-/**
- * @author Thomas Zeugner
- * @author codingberlin
- */
-public enum EOriginalMapFilePartType {
-	EOF(0, ""), // End of File and Padding
-	MAP_INFO(1, "Map Info"),
-	PLAYER_INFO(2, "Player Info"),
-	TEAM_INFO(3, "Team Info"),
-	PREVIEW(4, "Preview"),
-	UNKNOWN_5(5, "UNKNOWN_5"),
-	AREA(6, "Area"),
-	SETTLERS(7, "Settlers"),
-	BUILDINGS(8, "Buildings"),
-	STACKS(9, "Stacks"),
-	WIN_COND(10, "Victory Condition"),
-	QUEST_TEXT(11, "QuestText"),
-	QUEST_TIP(12, "QuestTip");
+import java.io.Serializable;
 
-	private static final EOriginalMapFilePartType[] VALUES = EOriginalMapFilePartType.values();
-	public final int value;
-	private final String typeText;
+import jsettlers.common.buildings.EBuildingType;
 
-	EOriginalMapFilePartType(int typeValue, String typeText) {
-		this.value = typeValue;
-		this.typeText = typeText;
+public final class OriginalDestroyBuildingsWinCondition implements Serializable {
+	private static final long serialVersionUID = 1;
+
+	private final EBuildingType buildingType;
+	private final byte playerId;
+
+	public OriginalDestroyBuildingsWinCondition(byte playerId, EBuildingType buildingType) {
+		this.buildingType = buildingType;
+		this.playerId = playerId;
+	}
+
+	public EBuildingType getBuildingType() {
+		return buildingType;
+	}
+
+	public byte getPlayerId() {
+		return playerId;
 	}
 
 	@Override
-	public String toString() {
-		return typeText;
-	}
-
-	public static EOriginalMapFilePartType getTypeByInt(int intType) {
-		int val = intType & 0x0000FFFF;
-		if (val <= 0 || val >= VALUES.length) {
-			return EOF;
+	public boolean equals(Object obj) {
+		if(obj instanceof OriginalDestroyBuildingsWinCondition) {
+			OriginalDestroyBuildingsWinCondition obj2 = (OriginalDestroyBuildingsWinCondition) obj;
+			return obj2.buildingType == buildingType && obj2.playerId == playerId;
 		} else {
-			return VALUES[val];
+			return false;
 		}
 	}
-
 }

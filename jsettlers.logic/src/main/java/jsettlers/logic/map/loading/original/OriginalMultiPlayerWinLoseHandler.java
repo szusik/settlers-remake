@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 - 2017
+ * Copyright (c) 2020
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -12,48 +12,44 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package jsettlers.logic.map.loading.original.data;
+package jsettlers.logic.map.loading.original;
 
-/**
- * @author Thomas Zeugner
- * @author codingberlin
- */
-public enum EOriginalMapFilePartType {
-	EOF(0, ""), // End of File and Padding
-	MAP_INFO(1, "Map Info"),
-	PLAYER_INFO(2, "Player Info"),
-	TEAM_INFO(3, "Team Info"),
-	PREVIEW(4, "Preview"),
-	UNKNOWN_5(5, "UNKNOWN_5"),
-	AREA(6, "Area"),
-	SETTLERS(7, "Settlers"),
-	BUILDINGS(8, "Buildings"),
-	STACKS(9, "Stacks"),
-	WIN_COND(10, "Victory Condition"),
-	QUEST_TEXT(11, "QuestText"),
-	QUEST_TIP(12, "QuestTip");
+import jsettlers.common.player.EWinState;
+import jsettlers.logic.map.grid.MainGrid;
+import jsettlers.logic.map.loading.WinLoseHandler;
+import jsettlers.logic.player.Player;
 
-	private static final EOriginalMapFilePartType[] VALUES = EOriginalMapFilePartType.values();
-	public final int value;
-	private final String typeText;
+import static java8.util.J8Arrays.stream;
 
-	EOriginalMapFilePartType(int typeValue, String typeText) {
-		this.value = typeValue;
-		this.typeText = typeText;
+public class OriginalMultiPlayerWinLoseHandler extends WinLoseHandler {
+	private static final long serialVersionUID = 1;
+
+	public OriginalMultiPlayerWinLoseHandler(MainGrid mainGrid) {
+		super(mainGrid);
 	}
 
 	@Override
-	public String toString() {
-		return typeText;
-	}
+	public void updateWinLose() {
+		Player[] players = mainGrid.getPartitionsGrid().getPlayers();
 
-	public static EOriginalMapFilePartType getTypeByInt(int intType) {
-		int val = intType & 0x0000FFFF;
-		if (val <= 0 || val >= VALUES.length) {
-			return EOF;
-		} else {
-			return VALUES[val];
-		}
-	}
+		// Update defeated status
+		defeatDeadPlayers();
 
+		// end game if only one team is left
+		Byte[] teamsWithAlivePlayer = stream(players)
+				.filter(player -> player.getWinState() != EWinState.LOST)
+				.map(Player::getTeamId)
+				.distinct()
+				.toArray(Byte[]::new);
+
+		if(teamsWithAlivePlayer.length > 1) return;
+
+		byte winnerTeam = teamsWithAlivePlayer[0];
+
+		stream(players).filter(player -> player.getTeamId() == winnerTeam)
+				.forEach(player -> player.setWinState(EWinState.WON));
+
+		// game has ended. everybody can know see the whole map
+		mainGrid.disableFogOfWar();
+	}
 }

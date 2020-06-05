@@ -42,8 +42,8 @@ public abstract class MapLoader implements IGameCreator, Comparable<MapLoader>, 
 	public abstract MapFileHeader getFileHeader();
 
 	public static MapLoader getLoaderForListedMap(IListedMap listedMap) throws MapLoadException {
-		if ((checkExtention(listedMap.getFileName(), MapLoader.MAP_EXTENSION_ORIGINAL))
-				|| (checkExtention(listedMap.getFileName(), MapLoader.MAP_EXTENSION_ORIGINAL_MAP_EDITOR))) {
+		if ((checkExtension(listedMap.getFileName(), MapLoader.MAP_EXTENSION_ORIGINAL))
+				|| (checkExtension(listedMap.getFileName(), MapLoader.MAP_EXTENSION_ORIGINAL_MAP_EDITOR))) {
 			// - original Siedler 3 Map
 			return new OriginalMapLoader(listedMap);
 		} else {
@@ -61,20 +61,20 @@ public abstract class MapLoader implements IGameCreator, Comparable<MapLoader>, 
 		}
 	}
 
-	public static boolean checkExtention(String filename, String Extention) {
+	public static boolean checkExtension(String filename, String Extention) {
 		if (filename == null)
 			return false;
 		return filename.toLowerCase(Locale.ENGLISH).endsWith(Extention.toLowerCase(Locale.ENGLISH));
 	}
 
 	public static boolean isExtensionKnown(String filename) {
-		if (checkExtention(filename, MAP_EXTENSION_ORIGINAL))
+		if (checkExtension(filename, MAP_EXTENSION_ORIGINAL))
 			return true;
-		if (checkExtention(filename, MAP_EXTENSION))
+		if (checkExtension(filename, MAP_EXTENSION))
 			return true;
-		if (checkExtention(filename, MAP_EXTENSION_COMPRESSED))
+		if (checkExtension(filename, MAP_EXTENSION_COMPRESSED))
 			return true;
-		return checkExtention(filename, MAP_EXTENSION_ORIGINAL_MAP_EDITOR);
+		return checkExtension(filename, MAP_EXTENSION_ORIGINAL_MAP_EDITOR);
 	}
 
 	// - Interface: Comparable<MapLoader>

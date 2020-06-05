@@ -191,6 +191,12 @@ public class OriginalMapLoader extends MapLoader {
 
 		MainGrid mainGrid = new MainGrid(getMapId(), getMapName(), mapData, playerSettings);
 
+		if(mapContent.isSinglePlayerMap()) {
+			 mapContent.readWinCondition(mainGrid).schedule();
+		} else {
+			new OriginalMultiPlayerWinLoseHandler(mainGrid).schedule();
+		}
+
 		PlayerState[] playerStates = new PlayerState[numberOfPlayers];
 
 		for (byte playerId = 0; playerId < numberOfPlayers; playerId++) {

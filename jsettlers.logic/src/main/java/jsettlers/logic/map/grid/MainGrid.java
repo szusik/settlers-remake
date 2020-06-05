@@ -208,7 +208,7 @@ public final class MainGrid implements Serializable {
 		if (fogOfWar != null) {
 			this.fogOfWar = fogOfWar;
 		} else {
-			this.fogOfWar = new FogOfWar(width, height, partitionsGrid.getPlayer(playerId));
+			this.fogOfWar = new FogOfWar(width, height, partitionsGrid.getPlayer(playerId).getTeamId());
 		}
 	}
 
@@ -519,6 +519,14 @@ public final class MainGrid implements Serializable {
 	}
 
 	public final void disableFogOfWar() {
+		if(fogOfWar == null) return;
+
+		fogOfWar.showMap();
+	}
+
+	public final void disableFogOfWar(byte teamId) {
+		if(fogOfWar == null || fogOfWar.team != teamId) return;
+
 		fogOfWar.showMap();
 	}
 

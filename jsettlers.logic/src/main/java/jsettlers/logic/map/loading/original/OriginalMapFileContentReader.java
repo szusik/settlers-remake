@@ -19,29 +19,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jsettlers.common.Color;
 import java8.util.Optional;
 import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.material.EMaterialType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.map.grid.MainGrid;
 import jsettlers.logic.map.loading.EMapStartResources;
 import jsettlers.logic.map.loading.MapLoadException;
 import jsettlers.logic.map.loading.data.objects.BuildingMapDataObject;
 import jsettlers.logic.map.loading.data.objects.MapDataObject;
+import jsettlers.logic.map.loading.original.data.EOriginalMapBuildingType;
 import jsettlers.logic.map.loading.original.data.EOriginalMapFilePartType;
 import jsettlers.logic.map.loading.original.data.EOriginalMapFileVersion;
+import jsettlers.logic.map.loading.original.data.EOriginalMapStackType;
+import jsettlers.logic.map.loading.original.data.OriginalDestroyBuildingsWinCondition;
+import jsettlers.logic.map.loading.original.data.OriginalProduceGoodsWinCondition;
+import jsettlers.logic.map.loading.original.data.OriginalSurviveDurationWinCondition;
 import jsettlers.logic.player.PlayerSetting;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
 
 /**
  * @author Thomas Zeugner
@@ -109,7 +111,7 @@ class OriginalMapFileContentReader {
 
 	private int fileChecksum = 0;
 	int widthHeight;
-	private boolean isSinglePlayerMap = false;
+	private boolean singlePlayerMap = false;
 	private boolean hasBuildings = false;
 
 	private byte[] mapContent;
@@ -152,6 +154,21 @@ class OriginalMapFileContentReader {
 			return os.toByteArray();
 		} catch (Exception e) {
 			return new byte[0];
+		}
+	}
+
+	// - Read boolean as single byte from Buffer
+	private boolean readBooleanFrom(int offset) throws MapLoadException {
+		if(mapContent == null) return false;
+		int value = mapContent[offset] & 0xFF;
+
+		switch(value) {
+			case 0:
+				return false;
+			case 1:
+				return true;
+			default:
+				throw new MapLoadException("Illegal boolean: " + value);
 		}
 	}
 
@@ -256,6 +273,10 @@ class OriginalMapFileContentReader {
 
 		// - return TRUE if the checksum is OK!
 		return (currentChecksum == fileChecksum);
+	}
+
+	boolean isSinglePlayerMap() {
+		return singlePlayerMap;
 	}
 
 	// - Reads in the Map-File-Structure
@@ -487,16 +508,16 @@ class OriginalMapFileContentReader {
 		int pos = filePartOptional.offset;
 
 		// ----------------------------------
-		// - read mapType (single / multiplayer map?)
+		// - read mapType (single / multiplayer map)
 		int mapType = readBEIntFrom(pos);
 		pos += 4;
 
 		if (mapType == 1) {
-			isSinglePlayerMap = true;
+			singlePlayerMap = true;
 		} else if (mapType == 0) {
-			isSinglePlayerMap = false;
+			singlePlayerMap = false;
 		} else {
-			throw new MapLoadException("wrong value for 'isSinglePlayerMap' " + Integer.toString(mapType) + " in mapfile!");
+			throw new MapLoadException("wrong value for 'singlePlayerMap' " + Integer.toString(mapType) + " in mapfile!");
 		}
 
 		// ----------------------------------
@@ -672,6 +693,86 @@ class OriginalMapFileContentReader {
 
 			mapData.setPlayer(i, startX, startY, nation, playerName);
 		}
+	}
+
+	OriginalSinglePlayerWinCondition readWinCondition(MainGrid mainGrid) throws MapLoadException {
+		MapResourceInfo filePart = findAndDecryptFilePartSafe(EOriginalMapFilePartType.WIN_COND);
+
+		OriginalSinglePlayerWinCondition winCondition = new OriginalSinglePlayerWinCondition(mainGrid);
+
+		// - file position
+		int pos = filePart.offset;
+
+		int killWinBase = pos;
+		if(readBooleanFrom(killWinBase)) {
+			BitSet killToWin = new BitSet(20);
+			for(int i = 0; i < 20; i++) {
+				killToWin.set(i, readBooleanFrom(killWinBase+i+1));
+			}
+
+			winCondition.killPlayersToWin(killToWin);
+		}
+
+		int destroyBuildingsBase = pos+21;
+		if(readBooleanFrom(destroyBuildingsBase)) {
+			Set<OriginalDestroyBuildingsWinCondition> destroyBuildingsConditions = new HashSet<>();
+
+			for(int i = 0; i < 10; i++) {
+				int playerId = readByteFrom(destroyBuildingsBase+(i*2)+1);
+				EBuildingType buildingType = EOriginalMapBuildingType.getTypeByInt(readByteFrom(destroyBuildingsBase+(i*2)+2)).getValue();
+				if(buildingType == null || playerId == 0xFF) continue;
+
+				destroyBuildingsConditions.add(new OriginalDestroyBuildingsWinCondition((byte)playerId, buildingType));
+			}
+
+			winCondition.destroyAllBuildingsToWin(destroyBuildingsConditions);
+		}
+
+		int conquerPositionBase = pos+21+21;
+		if(readBooleanFrom(conquerPositionBase)) {
+			Set<ShortPoint2D> conquerPositionConditions = new HashSet<>();
+			for (int i = 0; i < 5; i++) {
+				if (readBooleanFrom(conquerPositionBase+(i*5)+1)) {
+					int x = readBEWordFrom(conquerPositionBase+(i*5)+2);
+					int y = readBEWordFrom(conquerPositionBase+(i*5)+4);
+
+					conquerPositionConditions.add(new ShortPoint2D(x, y));
+				}
+			}
+
+			winCondition.conquerPositionsToWin(conquerPositionConditions);
+		}
+
+		int surviveDurationBase = pos+21+21+26;
+		if(readBooleanFrom(surviveDurationBase)) {
+			Set<OriginalSurviveDurationWinCondition> surviveDurations = new HashSet<>();
+			for(int playerId = 0; playerId < 20; playerId++) {
+				int time = readBEWordFrom(surviveDurationBase+(playerId*2)+1);
+				if(time > 0) {
+					surviveDurations.add(new OriginalSurviveDurationWinCondition((byte)playerId, time));
+				}
+
+				winCondition.surviveDurationToWin(surviveDurations);
+			}
+		}
+
+		int producedGoodsBase = pos+21+21+26+41;
+		if(readBooleanFrom(producedGoodsBase)) {
+			Set<OriginalProduceGoodsWinCondition> produceGoods = new HashSet<>();
+
+			for(int i = 0; i < 3; i++) {
+				int amount = readBEWordFrom(producedGoodsBase+(i*3)+1);
+				EMaterialType type = EOriginalMapStackType.getTypeByInt(readByteFrom(producedGoodsBase+(i*3)+2)).value;
+
+				if(amount > 0) {
+					produceGoods.add(new OriginalProduceGoodsWinCondition(type, amount));
+				}
+			}
+
+			winCondition.produceGoodsToWin(produceGoods);
+		}
+
+		return winCondition;
 	}
 
 	/**

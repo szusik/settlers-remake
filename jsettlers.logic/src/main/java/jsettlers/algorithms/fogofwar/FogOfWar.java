@@ -59,10 +59,10 @@ public final class FogOfWar implements Serializable {
 	public transient boolean enabled;
 	public transient boolean canceled;
 
-	public FogOfWar(short width, short height, IPlayer player) {
+	public FogOfWar(short width, short height, byte teamId) {
 		this.width = width;
 		this.height = height;
-		this.team = player.getTeamId();
+		this.team = teamId;
 		this.sight = new byte[width][height];
 		this.visibleRefs = new short[width][height][0];
 
