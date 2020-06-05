@@ -216,6 +216,7 @@ public final class MainGrid implements Serializable {
 		ois.defaultReadObject();
 		initAdditional();
 		this.bordersThread.checkArea(0, 0, width, height);
+		movablePathfinderGrid.initPathfinders();
 	}
 
 	public void startThreads() {
@@ -1180,11 +1181,6 @@ public final class MainGrid implements Serializable {
 		private transient InAreaFinder      inAreaFinder;
 
 		public MovablePathfinderGrid() {
-			initPathfinders();
-		}
-
-		private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-			ois.defaultReadObject();
 			initPathfinders();
 		}
 
