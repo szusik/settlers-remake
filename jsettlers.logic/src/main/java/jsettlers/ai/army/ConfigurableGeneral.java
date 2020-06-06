@@ -356,6 +356,12 @@ public class ConfigurableGeneral implements ArmyGeneral {
 		List<ShortPoint2D> myMilitaryBuildings = aiStatistics.getBuildingPositionsOfTypesForPlayer(EBuildingType.MILITARY_BUILDINGS, player.playerId);
 		ShortPoint2D myBaseAveragePoint = AiStatistics.calculateAveragePointFromList(myMilitaryBuildings);
 		List<ShortPoint2D> enemyMilitaryBuildings = aiStatistics.getBuildingPositionsOfTypesForPlayer(EBuildingType.MILITARY_BUILDINGS, enemyToAttack.getPlayerId());
+		Iterator<ShortPoint2D> iter = enemyMilitaryBuildings.iterator();
+		// ignore unfinished buildings
+		while(iter.hasNext()) {
+			if(!aiStatistics.getBuildingAt(iter.next()).isConstructionFinished()) iter.remove();
+		}
+
 		ShortPoint2D nearestEnemyBuildingPosition = AiStatistics.detectNearestPointFromList(myBaseAveragePoint, enemyMilitaryBuildings);
 		return aiStatistics.getBuildingAt(nearestEnemyBuildingPosition).getDoor();
 	}
