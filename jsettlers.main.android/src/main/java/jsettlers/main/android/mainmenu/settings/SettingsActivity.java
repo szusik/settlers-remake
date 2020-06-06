@@ -33,9 +33,13 @@ import jsettlers.main.android.core.ui.dialogs.EditTextDialog;
 @EActivity(R.layout.activity_settings)
 public class SettingsActivity extends AppCompatActivity implements SettingsView, EditTextDialog.Listener {
 	private static final int REQUEST_CODE_PLAYER_NAME = 10;
+	private static final int REQUEST_CODE_SERVER_ADDRESS = 11;
 
 	@ViewById(R.id.text_view_player_name)
 	TextView textViewPlayerName;
+
+	@ViewById(R.id.text_view_server_address)
+	TextView textViewServerAddress;
 
 	@ViewById(R.id.toolbar)
 	Toolbar toolbar;
@@ -67,6 +71,11 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 		EditTextDialog.create(REQUEST_CODE_PLAYER_NAME, R.string.settings_player_name, R.string.settings_name, textViewPlayerName.getText()).show(getSupportFragmentManager(), null);
 	}
 
+	@Click(R.id.layout_server_address)
+	void onClickServerAddressLayout() {
+		EditTextDialog.create(REQUEST_CODE_SERVER_ADDRESS, R.string.settings_server_address, R.string.settings_address, textViewServerAddress.getText()).show(getSupportFragmentManager(), null);
+	}
+
 	@OptionsItem(android.R.id.home)
 	void homeSelected() {
 		finish();
@@ -78,10 +87,18 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 	}
 
 	@Override
+	public void setServerAddress(String serverAddress) {
+		textViewServerAddress.setText(serverAddress);
+	}
+
+	@Override
 	public void saveEditTextDialog(int requestCode, String text) {
 		switch (requestCode) {
 		case REQUEST_CODE_PLAYER_NAME:
 			presenter.playerNameEdited(text);
+			break;
+		case REQUEST_CODE_SERVER_ADDRESS:
+			presenter.serverAddressEdited(text);
 			break;
 		}
 	}

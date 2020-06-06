@@ -32,10 +32,16 @@ public class SettingsPresenter {
 
 	public void bindView() {
 		view.setPlayerName(androidPreferences.getPlayerName());
+		view.setServerAddress(androidPreferences.getServer());
 	}
 
 	public void playerNameEdited(String playerName) {
 		androidPreferences.setPlayerName(playerName);
 		view.setPlayerName(playerName);
+	}
+
+	public void serverAddressEdited(String serverAddress) {
+		androidPreferences.setServer(serverAddress);
+		view.setServerAddress(serverAddress);
 	}
 }

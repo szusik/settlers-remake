@@ -34,7 +34,8 @@ import jsettlers.network.infrastructure.log.Logger;
 
 public class HTTPConnection implements IClientConnection, Runnable {
 
-	public static final int TIMEOUT = 3000;
+	public static final int TIMEOUT = 3000; // 3 sec
+	private static final long MIN_FETCH_DELAY = 10000; // 10 sec
 
 	private static final Gson GSON = new Gson();
 
@@ -154,6 +155,8 @@ public class HTTPConnection implements IClientConnection, Runnable {
 		RemoteMapDirectory cached = mapDirectoryMap.get(directory);
 		long lastFetch = (cached==null) ? 0 : cached.date;
 		long currentDate = new Date().getTime();
+
+		if(lastFetch+MIN_FETCH_DELAY>currentDate) return;
 
 		openResource(directory + "index.json", "GET", lastFetch);
 		if(cached != null && lastConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {

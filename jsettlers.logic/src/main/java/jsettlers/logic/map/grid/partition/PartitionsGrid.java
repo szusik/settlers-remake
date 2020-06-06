@@ -133,10 +133,6 @@ public final class PartitionsGrid implements Serializable {
 		oos.defaultWriteObject();
 	}
 
-	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-		ois.defaultReadObject();
-	}
-
 	public boolean isDefaultPartition(short partitionId) {
 		return partitionId == NO_PLAYER_PARTITION_ID;
 	}
