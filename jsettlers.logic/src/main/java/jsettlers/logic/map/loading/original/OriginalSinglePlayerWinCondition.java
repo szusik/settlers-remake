@@ -33,7 +33,6 @@ import jsettlers.logic.map.loading.original.data.OriginalProduceGoodsWinConditio
 import jsettlers.logic.map.loading.original.data.OriginalSurviveDurationWinCondition;
 import jsettlers.logic.player.Player;
 
-import static java8.util.J8Arrays.stream;
 import static java8.util.stream.StreamSupport.stream;
 
 public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements Serializable {
@@ -91,7 +90,7 @@ public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements 
 	public void updateWinLose() {
 		if(killToWin.isEmpty() && destroyToWin.isEmpty() && conquerToWin.isEmpty() && surviveToWin.isEmpty() && produceToWin.isEmpty()) {
 			// not all maps set win condition, the default one is just to kill all enemies
-			stream(players).filter(player -> player.getTeamId() != MAIN_TEAM).forEach(player -> killToWin.set(player.getPlayerId()));
+			playerStream().filter(player -> player.getTeamId() != MAIN_TEAM).forEach(player -> killToWin.set(player.getPlayerId()));
 		}
 
 
@@ -113,10 +112,10 @@ public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements 
 
 		// player lost
 		if(players[MAIN_PLAYER].getWinState() == EWinState.LOST) {
-			stream(players).filter(player -> player.getTeamId() != MAIN_TEAM)
+			playerStream().filter(player -> player.getTeamId() != MAIN_TEAM)
 					.forEach(player -> player.setWinState(EWinState.WON));
 
-			stream(players).map(Player::getTeamId).distinct().filter(teamId -> teamId!=MAIN_TEAM).forEach(mainGrid::disableFogOfWar);
+			playerStream().map(Player::getTeamId).distinct().filter(teamId -> teamId!=MAIN_TEAM).forEach(mainGrid::disableFogOfWar);
 			return;
 		}
 
@@ -132,7 +131,7 @@ public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements 
 		players[MAIN_PLAYER].setWinState(EWinState.WON);
 		mainGrid.disableFogOfWar(MAIN_TEAM);
 
-		stream(players).filter(player -> player.getTeamId() != MAIN_TEAM)
+		playerStream().filter(player -> player.getTeamId() != MAIN_TEAM)
 				.forEach(player -> player.setWinState(EWinState.LOST));
 	}
 
@@ -141,7 +140,7 @@ public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements 
 
 		for(int i = 0; i < players.length; i++) {
 			// test failed if the player is alive but supposed to be dead
-			if(players[i].getWinState() == EWinState.UNDECIDED && killToWin.get(i)) return false;
+			if(players[i] != null && players[i].getWinState() == EWinState.UNDECIDED && killToWin.get(i)) return false;
 		}
 
 		return true;
@@ -176,7 +175,7 @@ public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements 
 			byte playerId = surviveTime.getPlayerId();
 
 			// ???
-			if(playerId >= players.length) continue;
+			if(playerId >= players.length || players[playerId] == null) continue;
 
 			if(players[playerId].getWinState() == EWinState.LOST && time < surviveTime.getTime()) return true;
 		}
@@ -190,7 +189,7 @@ public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements 
 			byte playerId = surviveTime.getPlayerId();
 
 			// ???
-			if(playerId >= players.length) continue;
+			if(playerId >= players.length || players[playerId] == null) continue;
 
 			// we wouldn't be here if player has lost /  target player died
 			if(time < surviveTime.getTime()) return false;

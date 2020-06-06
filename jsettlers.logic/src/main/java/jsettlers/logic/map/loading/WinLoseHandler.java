@@ -16,6 +16,8 @@ package jsettlers.logic.map.loading;
 
 import java.io.Serializable;
 
+import java8.util.Objects;
+import java8.util.stream.Stream;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.player.EWinState;
 import jsettlers.logic.map.grid.MainGrid;
@@ -23,6 +25,8 @@ import jsettlers.logic.map.grid.partition.data.BuildingCounts;
 import jsettlers.logic.player.Player;
 import jsettlers.logic.timer.IScheduledTimerable;
 import jsettlers.logic.timer.RescheduleTimer;
+
+import static java8.util.J8Arrays.stream;
 
 public abstract class WinLoseHandler implements IScheduledTimerable, Serializable {
 	private static final long serialVersionUID = 1;
@@ -63,12 +67,14 @@ public abstract class WinLoseHandler implements IScheduledTimerable, Serializabl
 		return militaryBuildingsCount == 0;
 	}
 
+	protected Stream<Player> playerStream() {
+		return stream(players).filter(Objects::nonNull);
+	}
+
 	protected void defeatDeadPlayers() {
-		for (Player player : players) {
-			if(isPlayerDead(player)) {
-				player.setWinState(EWinState.LOST);
-				System.out.println(player + " was defeated");
-			}
-		}
+		playerStream().filter(this::isPlayerDead).forEach(player -> {
+			player.setWinState(EWinState.LOST);
+			System.out.println(player + " was defeated");
+		});
 	}
 }

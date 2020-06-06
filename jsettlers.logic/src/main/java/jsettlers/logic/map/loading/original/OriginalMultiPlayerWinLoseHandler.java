@@ -30,13 +30,11 @@ public class OriginalMultiPlayerWinLoseHandler extends WinLoseHandler {
 
 	@Override
 	public void updateWinLose() {
-		Player[] players = mainGrid.getPartitionsGrid().getPlayers();
-
 		// Update defeated status
 		defeatDeadPlayers();
 
 		// end game if only one team is left
-		Byte[] teamsWithAlivePlayer = stream(players)
+		Byte[] teamsWithAlivePlayer = playerStream()
 				.filter(player -> player.getWinState() != EWinState.LOST)
 				.map(Player::getTeamId)
 				.distinct()
@@ -46,7 +44,7 @@ public class OriginalMultiPlayerWinLoseHandler extends WinLoseHandler {
 
 		byte winnerTeam = teamsWithAlivePlayer[0];
 
-		stream(players).filter(player -> player.getTeamId() == winnerTeam)
+		playerStream().filter(player -> player.getTeamId() == winnerTeam)
 				.forEach(player -> player.setWinState(EWinState.WON));
 
 		// game has ended. everybody can know see the whole map
