@@ -15,6 +15,7 @@
 package jsettlers.main.swing.menu.multiplayer;
 
 import java.awt.BorderLayout;
+import java.io.File;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,7 +26,11 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
 import jsettlers.graphics.localization.Labels;
+import jsettlers.logic.map.loading.MapLoader;
+import jsettlers.logic.map.loading.list.DirectoryMapLister;
+import jsettlers.logic.map.loading.list.MapList;
 import jsettlers.main.swing.lookandfeel.ELFStyle;
+import jsettlers.main.swing.menu.openpanel.OpenPanel;
 import jsettlers.network.client.IClientConnection;
 import jsettlers.network.client.RemoteMapDirectory;
 
@@ -40,7 +45,7 @@ public class RemoteMapEntryPanel extends JPanel {
 	private String file;
 	private String dir;
 
-	public RemoteMapEntryPanel(IClientConnection connection, JProgressBar progressBar) {
+	public RemoteMapEntryPanel(IClientConnection connection, JProgressBar progressBar, OpenPanel openSinglePlayerPanel) {
 		this.connection = connection;
 		this.progressBar = progressBar;
 
@@ -51,7 +56,13 @@ public class RemoteMapEntryPanel extends JPanel {
 		desc.setOpaque(false);
 
 		download.addActionListener(e -> {
-			connection.action(IClientConnection.EClientAction.DOWNLOAD_MAP, new String[] {dir, file});
+			connection.action(IClientConnection.EClientAction.DOWNLOAD_MAP, new Object[] {dir, file,
+				(Runnable) () -> {
+					DirectoryMapLister.ListedMapFile newMap = new DirectoryMapLister.ListedMapFile(new File("maps", file));
+					MapList.getDefaultList().foundMap(newMap);
+					openSinglePlayerPanel.setMapLoaders(MapList.getDefaultList().getFreshMaps().getItems());
+				}
+			});
 			progressBar.setVisible(true);
 			download.setSelected(true);
 		});

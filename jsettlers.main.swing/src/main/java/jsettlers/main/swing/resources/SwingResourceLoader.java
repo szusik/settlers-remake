@@ -21,6 +21,7 @@ import jsettlers.graphics.map.draw.ImageProvider;
 import jsettlers.graphics.sound.SoundManager;
 import jsettlers.logic.map.loading.list.MapList;
 import jsettlers.logic.map.loading.list.MapList.DefaultMapListFactory;
+import jsettlers.main.swing.settings.ServerManager;
 import jsettlers.main.swing.settings.SettingsManager;
 
 import java.io.File;
@@ -83,6 +84,8 @@ public class SwingResourceLoader {
 			mapListFactory.addMapDirectory(additionalMaps, false);
 		}
 
+
+		MapList.setMapDownloader(ServerManager::downloadById);
 		MapList.setDefaultListFactory(mapListFactory);
 	}
 

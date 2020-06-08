@@ -16,6 +16,7 @@ package jsettlers.network.client;
 
 import com.google.gson.Gson;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,7 +30,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 
+import java8.util.function.Consumer;
 import jsettlers.network.infrastructure.log.Logger;
 
 public class HTTPConnection implements IClientConnection, Runnable {
@@ -99,9 +103,15 @@ public class HTTPConnection implements IClientConnection, Runnable {
 					case GET_MAPS_DIR:
 						readIndex(nextAction.argument.toString());
 						break;
-					case DOWNLOAD_MAP:
-						String[] args = (String[]) nextAction.argument;
-						download(args[0], args[1]);
+					case DOWNLOAD_MAP: {
+						Object[] args = (Object[]) nextAction.argument;
+						download((String)args[0], (String)args[1], (Runnable)args[2]);
+						}
+						break;
+					case FIND_MAP: {
+						Object[] args = (Object[]) nextAction.argument;
+						findMap((String)args[0], (Consumer<String>)args[1]);
+						}
 						break;
 					case CLOSE:
 						if(lastConnection != null) lastConnection.disconnect();
@@ -120,12 +130,42 @@ public class HTTPConnection implements IClientConnection, Runnable {
 		}
 	}
 
+	private void findMap(String arg, Consumer<String> arg1) throws IOException {
+		openResource("/find/" + arg, "GET", 0L);
+
+		if(lastConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+			arg1.accept(null);
+			return;
+		}
+
+		try(BufferedReader reader = new BufferedReader(new InputStreamReader(lastConnection.getInputStream()))) {
+			String line = reader.readLine();
+			arg1.accept(line);
+		}
+	}
+
+	@Override
+	public String findMap(String id) {
+		Semaphore finishLock = new Semaphore(1);
+		AtomicReference<String> path = new AtomicReference<>(null);
+
+		finishLock.acquireUninterruptibly();
+		action(EClientAction.FIND_MAP, new Object[] {id,
+			(Consumer<String>) str -> {
+			path.set(str);
+			finishLock.release();
+		}});
+
+		finishLock.acquireUninterruptibly();
+
+		return path.get();
+	}
+
 	private static final int BUFFER_SIZE = 256*1024;
 
-	private void download(String dir, String map) throws IOException {
+	private void download(String dir, String map, Runnable finish) throws IOException {
 		openResource(dir + map, "GET", 0L);
-		File str = new File(map);
-		str.createNewFile();
+		File str = new File("maps", map);
 
 		synchronized (PROGRESS_SYNC) {
 			downloadSize = lastConnection.getHeaderFieldInt("Content-Length", 0);
@@ -141,12 +181,10 @@ public class HTTPConnection implements IClientConnection, Runnable {
 				synchronized (PROGRESS_SYNC) {
 					downloadProgress += read;
 				}
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-				}
 			}
 		}
+
+		finish.run();
 
 		finishProgress();
 	}

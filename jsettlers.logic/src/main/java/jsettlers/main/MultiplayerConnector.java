@@ -116,6 +116,11 @@ public class MultiplayerConnector implements IMultiplayerConnector, IClientConne
 	}
 
 	@Override
+	public String findMap(String id) {
+		return null;
+	}
+
+	@Override
 	public long getDownloadProgress() {
 		return -1;
 	}
@@ -131,6 +136,7 @@ public class MultiplayerConnector implements IMultiplayerConnector, IClientConne
 			case CLOSE:
 				networkClientFactory.close();
 				break;
+			case FIND_MAP:
 			case DOWNLOAD_MAP:
 			case GET_MAPS_DIR:
 				break;

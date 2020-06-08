@@ -27,6 +27,7 @@ import javax.swing.SwingUtilities;
 
 import jsettlers.graphics.localization.Labels;
 import jsettlers.main.swing.lookandfeel.ELFStyle;
+import jsettlers.main.swing.menu.openpanel.OpenPanel;
 import jsettlers.network.client.IClientConnection;
 import jsettlers.network.client.RemoteMapDirectory;
 
@@ -42,12 +43,12 @@ public class RemoteMapDirectoryPanel extends JPanel {
 	private static final String RETURN = "..";
 	private static final String REFRESH = Labels.getString("multiplayer-mapslist-refresh");
 
-	public RemoteMapDirectoryPanel(IClientConnection connection) {
+	public RemoteMapDirectoryPanel(IClientConnection connection, OpenPanel openSinglePlayerPanel) {
 		this.connection = connection;
 
 		progressBar = new JProgressBar(JProgressBar.HORIZONTAL);
 		progressBar.putClientProperty(ELFStyle.KEY, ELFStyle.PROGRESSBAR_SLIDER);
-		selectedPanel = new RemoteMapEntryPanel(connection, progressBar);
+		selectedPanel = new RemoteMapEntryPanel(connection, progressBar, openSinglePlayerPanel);
 		progressBar.setVisible(false);
 		progressBar.setStringPainted(true);
 		selectedPanel.setVisible(false);

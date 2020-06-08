@@ -52,9 +52,10 @@ public class ServerConnectionPanel extends JPanel {
 	private OpenPanel joinMatch = null;
 	private JSettlersFrame settlersFrame;
 
-	private List<JoinGamePanel> waitingMatches = new ArrayList<>();
+	private final OpenPanel openSinglePlayerPanel;
 
-	public ServerConnectionPanel(ServerEntry entry, Runnable leave, JSettlersFrame settlersFrame) {
+	public ServerConnectionPanel(ServerEntry entry, Runnable leave, JSettlersFrame settlersFrame, OpenPanel openSinglePlayerPanel) {
+		this.openSinglePlayerPanel = openSinglePlayerPanel;
 		this.settlersFrame = settlersFrame;
 		this.entry = entry;
 
@@ -76,7 +77,7 @@ public class ServerConnectionPanel extends JPanel {
 			root.removeTabAt(i);
 			maps = null;
 		} else if(conMaps && maps == null) {
-			root.insertTab(Labels.getString("multiplayer-mapslist-title"), null, maps = new RemoteMapDirectoryPanel(connection),  null, i);
+			root.insertTab(Labels.getString("multiplayer-mapslist-title"), null, maps = new RemoteMapDirectoryPanel(connection, openSinglePlayerPanel),  null, i);
 		}
 		if(maps != null) {
 			maps.update();

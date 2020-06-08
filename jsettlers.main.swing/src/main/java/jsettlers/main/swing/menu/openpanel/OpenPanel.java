@@ -17,7 +17,9 @@ package jsettlers.main.swing.menu.openpanel;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,6 +35,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import java8.util.stream.StreamSupport;
 import jsettlers.common.utils.collections.ChangingList;
 import jsettlers.graphics.localization.Labels;
 import jsettlers.logic.map.loading.MapLoader;
@@ -70,7 +73,7 @@ public class OpenPanel extends JPanel {
 	/**
 	 * Unfiltered map list
 	 */
-	private MapLoader[] availableMaps;
+	private List<MapLoader> availableMaps;
 
 	/**
 	 * Currently active filter
@@ -167,14 +170,19 @@ public class OpenPanel extends JPanel {
 		}
 	}
 
+	public void addMapLoader(MapLoader newMap) {
+		availableMaps.add(newMap);
+		searchChanged();
+	}
+
 	public void setMapLoaders(final List<? extends MapLoader> maps) {
 		setMapLoadersWithoutSearchChanged(maps);
 		searchChanged();
 	}
 
 	private void setMapLoadersWithoutSearchChanged(final List<? extends MapLoader> maps) {
-		availableMaps = maps.toArray(new MapLoader[maps.size()]);
-		Arrays.sort(availableMaps);
+		availableMaps = new ArrayList<>(maps);
+		Collections.sort(availableMaps);
 	}
 
 	/**
@@ -214,7 +222,7 @@ public class OpenPanel extends JPanel {
 
 		listModelFiltered.clear();
 
-		Arrays.stream(availableMaps)
+		StreamSupport.stream(availableMaps)
 				.filter(currentFilter::filter)
 				.filter(mapLoader -> matchesSearch(mapLoader, search))
 				.forEach(listModelFiltered::addElement);
@@ -255,6 +263,6 @@ public class OpenPanel extends JPanel {
 	 * @return true if there are no maps in the list
 	 */
 	public boolean isEmpty() {
-		return availableMaps.length == 0;
+		return availableMaps.isEmpty();
 	}
 }

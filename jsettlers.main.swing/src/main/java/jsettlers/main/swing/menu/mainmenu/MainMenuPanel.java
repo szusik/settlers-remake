@@ -72,10 +72,12 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 	 */
 	private final JPanel mainButtonPanel = new JPanel();
 
+	private final OpenPanel openSinglePlayerPanel;
+
 	public MainMenuPanel(JSettlersFrame settlersFrame) {
 		this.settlersFrame = settlersFrame;
 
-		OpenPanel openSinglePlayerPanel = new OpenPanel(MapList.getDefaultList().getFreshMaps().getItems(), settlersFrame::showNewSinglePlayerGameMenu);
+		openSinglePlayerPanel = new OpenPanel(MapList.getDefaultList().getFreshMaps().getItems(), settlersFrame::showNewSinglePlayerGameMenu);
 		OpenPanel openSaveGamePanel = new OpenPanel(MapList.getDefaultList().getSavedMaps(), this::loadSavegame);
 		SettingsMenuPanel settingsPanel = new SettingsMenuPanel(this);
 
@@ -131,7 +133,7 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 			buttonGroup.clearSelection();
 			ServerConnectionPanel connPanel = serverConnectionPanels.get(selected);
 			if(connPanel == null) {
-				connPanel = new ServerConnectionPanel(selected, this::reset, settlersFrame);
+				connPanel = new ServerConnectionPanel(selected, this::reset, settlersFrame, openSinglePlayerPanel);
 				serverConnectionPanels.put(selected, connPanel);
 			}
 			setCenter(selected.getAlias(), connPanel);

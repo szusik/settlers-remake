@@ -34,10 +34,15 @@ public interface IClientConnection {
 
 	void action(EClientAction action, Object argument);
 
+	String findMap(String id);
+
 	enum EClientAction {
 		GET_MAPS_DIR,
 		CLOSE,
-		DOWNLOAD_MAP;
+		DOWNLOAD_MAP,
+
+		// internal
+		FIND_MAP
 	}
 
 	class Action {
