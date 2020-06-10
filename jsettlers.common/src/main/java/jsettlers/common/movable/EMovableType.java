@@ -221,4 +221,15 @@ public enum EMovableType {
 			return null;
 		}
 	}
+
+	public int getViewDistance() {
+		switch (this) {
+			case DONKEY:
+				return 0; // only padding view
+			case THIEF:
+				return 14;
+			default:
+				return 8;
+		}
+	}
 }

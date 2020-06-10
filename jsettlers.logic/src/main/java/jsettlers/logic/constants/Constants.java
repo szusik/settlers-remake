@@ -44,8 +44,6 @@ public final class Constants {
 
 	public static final short MOVABLE_BEND_DURATION = 500;
 
-	public static final short MOVABLE_VIEW_DISTANCE = 8;
-
 	public static final short MOVABLE_FLOCK_TO_DECENTRALIZE_MAX_RADIUS = 2;
 
 	/**

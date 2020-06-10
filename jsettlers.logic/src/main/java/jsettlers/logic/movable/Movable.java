@@ -1045,9 +1045,11 @@ public final class Movable implements ILogicMovable, FoWTask {
 		}
 
 		this.health = (this.health * newMovableType.getHealth()) / this.movableType.getHealth();
+		EMovableType oldType = this.movableType;
 		this.movableType = newMovableType;
 		setVisible(true); // ensure the movable is visible
 		setStrategy(MovableStrategy.getStrategy(this, newMovableType));
+		FogOfWar.queueResizeCircle(this, oldType);
 	}
 
 	@Override
