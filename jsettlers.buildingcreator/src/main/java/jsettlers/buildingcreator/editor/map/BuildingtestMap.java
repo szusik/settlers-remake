@@ -24,6 +24,7 @@ import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionData;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 
 public class BuildingtestMap implements IGraphicsGrid {
@@ -91,8 +92,8 @@ public class BuildingtestMap implements IGraphicsGrid {
 	}
 
 	@Override
-	public byte getPlayerIdAt(int x, int y) {
-		return 0;
+	public IPlayer getPlayerAt(int x, int y) {
+		return IPlayer.DEFAULT_DUMMY_PLAYER0;
 	}
 
 	public PseudoTile getTile(ShortPoint2D pos) {

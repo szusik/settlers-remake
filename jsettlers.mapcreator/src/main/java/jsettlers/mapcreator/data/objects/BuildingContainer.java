@@ -44,7 +44,7 @@ public class BuildingContainer implements ObjectContainer, IBuilding, LandscapeC
 	public BuildingContainer(BuildingMapDataObject buildingObject, ShortPoint2D position) {
 		this.buildingObject = buildingObject;
 		this.position = position;
-		this.player = new IPlayer.DummyPlayer(buildingObject.getPlayerId());
+		this.player = IPlayer.DummyPlayer.getCached(buildingObject.getPlayerId());
 	}
 
 	@Override

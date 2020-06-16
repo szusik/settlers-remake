@@ -21,6 +21,7 @@ import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 import jsettlers.graphics.map.MapDrawContext;
 import jsettlers.graphics.map.minimap.MinimapMode.OccupiedAreaMode;
 import jsettlers.graphics.map.minimap.MinimapMode.SettlersMode;
@@ -231,16 +232,16 @@ public abstract class AbstractLineLoader implements Runnable {
 
 				if (visible && displayOccupied == OccupiedAreaMode.BORDERS) {
 					if (map.isBorder(x, y)) {
-						byte player = map.getPlayerIdAt(x, y);
-						Color playerColor = MapDrawContext.getPlayerColor(player);
+						IPlayer player = map.getPlayerAt(x, y);
+						Color playerColor = MapDrawContext.getPlayerColor(player.getPlayerId());
 						occupiedColor = playerColor.toShortColor(1);
 						displayOccupied = OccupiedAreaMode.NONE;
 					}
 
 				} else if (visible && displayOccupied == OccupiedAreaMode.AREA) {
-					byte player = map.getPlayerIdAt(x, y);
-					if (player >= 0 && !map.getLandscapeTypeAt(x, y).isBlocking) {
-						Color playerColor = MapDrawContext.getPlayerColor(player);
+					IPlayer player = map.getPlayerAt(x, y);
+					if (player != null && !map.getLandscapeTypeAt(x, y).isBlocking) {
+						Color playerColor = MapDrawContext.getPlayerColor(player.getPlayerId());
 						// Now add a landscape below that....
 						Color landscape = getColorForArea(map, mapminX, mapminY, mapmaxX, mapmaxY);
 						playerColor = landscape.toGreyScale().multiply(playerColor);

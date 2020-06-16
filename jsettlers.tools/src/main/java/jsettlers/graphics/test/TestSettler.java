@@ -41,7 +41,7 @@ public class TestSettler implements IMovable {
 		this.type = type;
 		this.setDirection(direction);
 		this.setPosition(tile);
-		this.player = new IPlayer.DummyPlayer(player);
+		this.player = IPlayer.DummyPlayer.getCached(player);
 	}
 
 	@Override
@@ -181,5 +181,10 @@ public class TestSettler implements IMovable {
 	@Override
 	public boolean hasEffect(EEffectType effect) {
 		return false;
+	}
+
+	@Override
+	public boolean isUncoveredBy(byte team) {
+		return true;
 	}
 }

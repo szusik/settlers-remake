@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import android.content.Context;
 
 import go.graphics.android.AndroidSoundPlayer;
+import java8.util.Objects;
 import jsettlers.common.action.Action;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.action.IAction;
@@ -240,7 +241,7 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 			return false;
 		}
 
-		return graphicsGrid.getPlayerIdAt(displayCenter.x, displayCenter.y) == player.getPlayerId();
+		return Objects.equals(graphicsGrid.getPlayerAt(displayCenter.x, displayCenter.y), player);
 	}
 
 	@Override

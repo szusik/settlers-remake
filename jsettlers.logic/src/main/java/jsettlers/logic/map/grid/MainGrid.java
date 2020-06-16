@@ -875,8 +875,8 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final byte getPlayerIdAt(int x, int y) {
-			return partitionsGrid.getPlayerIdAt(x, y);
+		public final IPlayer getPlayerAt(int x, int y) {
+			return partitionsGrid.getPlayerAt(x, y);
 		}
 
 		@Override
@@ -1027,8 +1027,8 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final byte getPlayerIdAt(int x, int y) {
-			return partitionsGrid.getPlayerIdAt(x, y);
+		public final IPlayer getPlayerAt(int x, int y) {
+			return partitionsGrid.getPlayerAt(x, y);
 		}
 
 		private void destroyBuildingOrTakeOver(int x, int y, byte playerId) {

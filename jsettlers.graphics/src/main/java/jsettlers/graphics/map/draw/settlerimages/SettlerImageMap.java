@@ -303,14 +303,14 @@ public final class SettlerImageMap {
 	 * @return The image or an null-image.
 	 * @see SettlerImageMap#getImageForSettler(ECivilisation, EMovableType, EMovableAction, EMaterialType, EDirection, float)
 	 */
-	public Image getImageForSettler(IMovable movable, float progress) {
+	public Image getImageForSettler(IMovable movable, float progress, ECivilisation stealthCiv) {
 		if (movable.getAction() == EMovableAction.WALKING) {
 			progress = progress / 2;
 			if (movable.isRightstep()) {
 				progress += .5f;
 			}
 		}
-		return getImageForSettler(movable.getPlayer().getCivilisation(), movable.getMovableType(),
+		return getImageForSettler(stealthCiv!=null?stealthCiv:movable.getPlayer().getCivilisation(), stealthCiv!=null?EMovableType.BEARER:movable.getMovableType(),
 				movable.getAction(), movable.getMaterial(),
 				movable.getDirection(), progress);
 	}

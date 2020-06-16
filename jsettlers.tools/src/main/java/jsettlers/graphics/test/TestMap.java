@@ -28,6 +28,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 
 import java.util.ArrayList;
@@ -489,8 +490,8 @@ public class TestMap implements IGraphicsGrid {
 	}
 
 	@Override
-	public byte getPlayerIdAt(int x, int y) {
-		return 0;
+	public IPlayer getPlayerAt(int x, int y) {
+		return IPlayer.DEFAULT_DUMMY_PLAYER0;
 	}
 
 	@Override

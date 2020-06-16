@@ -119,7 +119,7 @@ public final class PioneerStrategy extends MovableStrategy {
 
 	@Override
 	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
-		this.state = EPioneerState.GOING_TO_POS;
+		this.state = moveToType.isWorkOnDestination()? EPioneerState.GOING_TO_POS : EPioneerState.JOBLESS;
 		centerPos = null;
 	}
 

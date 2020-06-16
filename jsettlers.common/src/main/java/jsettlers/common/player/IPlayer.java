@@ -15,6 +15,8 @@
 
 package jsettlers.common.player;
 
+import java.util.HashMap;
+
 /**
  * Created by Andreas Eberle on 27.06.2017.
  */
@@ -31,12 +33,10 @@ public interface IPlayer {
 
 	ECivilisation getCivilisation();
 
+	public static final IPlayer DEFAULT_DUMMY_PLAYER0 = DummyPlayer.getCached((byte)0);
+
 	class DummyPlayer implements IPlayer {
 		private final byte playerAndTeamId;
-
-		public DummyPlayer() {
-			this.playerAndTeamId = 0;
-		}
 
 		public DummyPlayer(byte playerAndTeamId) {
 			this.playerAndTeamId = playerAndTeamId;
@@ -60,6 +60,22 @@ public interface IPlayer {
 		@Override
 		public ECivilisation getCivilisation() {
 			return ECivilisation.ROMAN;
+		}
+
+
+
+		private static final java.util.Map<Byte, IPlayer> playerHandles = new HashMap<>();
+
+		public static IPlayer getCached(byte playerId) {
+			if(playerId == -1) return null;
+
+			if(playerHandles.containsKey(playerId)) {
+				return playerHandles.get(playerId);
+			} else {
+				IPlayer dummy = new DummyPlayer(playerId);
+				playerHandles.put(playerId, dummy);
+				return dummy;
+			}
 		}
 	}
 }

@@ -15,6 +15,7 @@
 package jsettlers.algorithms;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import jsettlers.TestToolUtils;
 import jsettlers.algorithms.landmarks.EnclosedBlockedAreaFinderAlgorithm;
@@ -32,6 +33,7 @@ import jsettlers.common.menu.IMapInterfaceConnector;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.movable.IMovable;
 import jsettlers.common.action.PointAction;
+import jsettlers.common.player.IPlayer;
 import jsettlers.main.swing.lookandfeel.JSettlersLookAndFeelExecption;
 import jsettlers.main.swing.resources.SwingResourceLoader;
 
@@ -138,8 +140,8 @@ public class LandmarksThreadTester {
 		}
 
 		@Override
-		public byte getPlayerIdAt(int x, int y) {
-			return players[x][y];
+		public IPlayer getPlayerAt(int x, int y) {
+			return IPlayer.DummyPlayer.getCached(players[x][y]);
 		}
 
 		void setBlocked(int x, int y, boolean blocked) {
@@ -194,7 +196,7 @@ public class LandmarksThreadTester {
 		@Override
 		public int getDebugColorAt(int x, int y, EDebugColorModes debugColorMode) {
 			return Color.getARGB(isPioneerBlockedAndWithoutTowerProtection((short) x, (short) y) ? 1 : 0, 0,
-					getPlayerIdAt((short) x, (short) y) / 2f, 1);
+					getPlayerAt((short) x, (short) y).getPlayerId() / 2f, 1);
 		}
 
 		@Override

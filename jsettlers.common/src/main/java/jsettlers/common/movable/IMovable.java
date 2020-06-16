@@ -108,4 +108,6 @@ public interface IMovable extends IPlayerable, ISelectable, ILocatable, ISoundab
 	EBuildingType getGarrisonedBuildingType();
 
 	boolean hasEffect(EEffectType effect);
+
+	boolean isUncoveredBy(byte team);
 }

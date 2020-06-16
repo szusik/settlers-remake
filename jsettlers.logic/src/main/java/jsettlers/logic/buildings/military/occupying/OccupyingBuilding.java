@@ -597,5 +597,9 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 		public boolean isTower() {
 			return true;
 		}
+
+		@Override
+		public void uncoveredBy(byte teamId) {
+		}
 	}
 }

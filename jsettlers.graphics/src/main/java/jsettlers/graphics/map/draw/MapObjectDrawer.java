@@ -44,6 +44,9 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.movable.IMovable;
 import jsettlers.common.movable.IShipInConstruction;
+import jsettlers.common.player.ECivilisation;
+import jsettlers.common.player.IInGamePlayer;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.player.IPlayerable;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.sound.ISoundable;
@@ -198,16 +201,17 @@ public class MapObjectDrawer {
 	private SettlerImageMap imageMap;
 	private float           betweenTilesY;
 	private Image playerBorderObjectImage;
-	//private SharedDrawing playerBorderObjectUpdater = null;
+	private IInGamePlayer localPlayer;
 
 	/**
 	 * Creates a new {@link MapObjectDrawer}.
-	 *  @param context
+	 * @param context
 	 * 		The context to use for computing the positions.
 	 * @param sound
-	 *      The handle to play sound
+	 * @param localPlayer
 	 */
-	public MapObjectDrawer(MapDrawContext context, SoundManager sound) {
+	public MapObjectDrawer(MapDrawContext context, SoundManager sound, IInGamePlayer localPlayer) {
+		this.localPlayer = localPlayer;
 		this.context = context;
 		this.sound = sound;
 
@@ -828,14 +832,33 @@ public class MapObjectDrawer {
 		}
 	}
 
-	// TODO pioneers are at a significant offset
 	private void drawMovableAt(IMovable movable, int x, int y) {
 		byte fogStatus = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
 		if (fogStatus <= CommonConstants.FOG_OF_WAR_EXPLORED) {
 			return; // break
 		}
+		boolean isUndercover = false;
+		if(!CommonConstants.CONTROL_ALL && localPlayer != null &&
+				movable.getMovableType() == EMovableType.THIEF &&
+				movable.getPlayer().getTeamId() != localPlayer.getTeamId() &&
+				!movable.isUncoveredBy(localPlayer.getTeamId())) {
+			isUndercover = true;
+		}
+
 		final float moveProgress = movable.getMoveProgress();
-		Color color = MapDrawContext.getPlayerColor(movable.getPlayer().getPlayerId());
+
+		IPlayer movablePlayer;
+		if (!isUndercover || localPlayer == null) {
+			movablePlayer = movable.getPlayer();
+		} else {
+			IPlayer localPlayer = context.getMap().getPlayerAt(x, y);
+			if(localPlayer != null) {
+				movablePlayer = localPlayer;
+			} else {
+				movablePlayer = this.localPlayer;
+			}
+		}
+		Color color = MapDrawContext.getPlayerColor(movablePlayer.getPlayerId());
 		float shade = MapObjectDrawer.getColor(fogStatus);
 		Image image;
 		float viewX;
@@ -888,7 +911,8 @@ public class MapObjectDrawer {
 			viewX = context.getConverter().getViewX(x, y, height);
 			viewY = context.getConverter().getViewY(x, y, height);
 		}
-		image = this.imageMap.getImageForSettler(movable, moveProgress);
+
+		image = this.imageMap.getImageForSettler(movable, moveProgress, isUndercover?movablePlayer.getCivilisation():null);
 		image.drawAt(context.getGl(), viewX, viewY, getZ(0, y), color, shade);
 
 		drawSettlerMark(viewX, viewY, movable);
@@ -1122,14 +1146,14 @@ public class MapObjectDrawer {
 	 * @param player
 	 * 		The player.
 	 */
-	public void drawPlayerBorderObject(int x, int y, byte player) {
+	public void drawPlayerBorderObject(int x, int y, IPlayer player) {
 		forceSetup();
 
 		byte fogStatus = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
 		if (fogStatus <= CommonConstants.FOG_OF_WAR_EXPLORED) {
 			return; // break
 		}
-		Color color = MapDrawContext.getPlayerColor(player);
+		Color color = MapDrawContext.getPlayerColor(player.getPlayerId());
 
 		draw(playerBorderObjectImage, x, y, BACKGROUND_Z, color);
 	}
@@ -1328,7 +1352,7 @@ public class MapObjectDrawer {
 						break;
 					case BOWMAN:
 					default:
-						image = this.imageMap.getImageForSettler(movable, movable.getMoveProgress());
+						image = this.imageMap.getImageForSettler(movable, movable.getMoveProgress(), null);
 						break;
 				}
 				float viewX = towerX + place.getOffsetX();

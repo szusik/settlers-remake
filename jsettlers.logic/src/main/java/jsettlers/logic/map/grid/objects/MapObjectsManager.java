@@ -537,10 +537,6 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		return false;
 	}
 
-	public final EMaterialType stealMaterialAt(short x, short y) {
-		return popMaterialTypeAt(x, y, null);
-	}
-
 	private StackMapObject getStackAtPosition(int x, int y, EMaterialType materialType) {
 		StackMapObject stackObject = (StackMapObject) grid.getMapObject(x, y, EMapObjectType.STACK_OBJECT);
 

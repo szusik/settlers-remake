@@ -226,7 +226,7 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 
 	private IMaterialDistributionSettings currentDistributionSettingsProvider(IGraphicsGrid grid, ShortPoint2D position) {
 		if (currentTab != null) {
-			if (grid.getPlayerIdAt(position.x, position.y) >= 0) {
+			if (grid.getPlayerAt(position.x, position.y) != null) {
 				return grid.getPartitionData(position.x, position.y).getPartitionSettings().getDistributionSettings(currentTab.materialButton.getMaterial());
 			}
 		}

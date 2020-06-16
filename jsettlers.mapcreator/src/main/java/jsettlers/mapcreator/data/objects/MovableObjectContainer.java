@@ -35,12 +35,12 @@ public class MovableObjectContainer implements ObjectContainer, IMovable {
 
 	private final MovableObject movableObject;
 	private final ShortPoint2D position;
-	private final IPlayer.DummyPlayer player;
+	private final IPlayer player;
 
 	public MovableObjectContainer(MovableObject movableObject, int x, int y) {
 		this.movableObject = movableObject;
 		this.position = new ShortPoint2D(x, y);
-		this.player = new IPlayer.DummyPlayer(movableObject.getPlayerId());
+		this.player = IPlayer.DummyPlayer.getCached(movableObject.getPlayerId());
 	}
 
 	@Override
@@ -168,5 +168,10 @@ public class MovableObjectContainer implements ObjectContainer, IMovable {
 	@Override
 	public boolean hasEffect(EEffectType effect) {
 		return false;
+	}
+
+	@Override
+	public boolean isUncoveredBy(byte team) {
+		return true;
 	}
 }

@@ -49,7 +49,6 @@ import jsettlers.common.action.ScreenChangeAction;
 import jsettlers.common.action.SelectAreaAction;
 import jsettlers.common.action.ShowConstructionMarksAction;
 import jsettlers.common.buildings.EBuildingType;
-import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.images.AnimationSequence;
 import jsettlers.common.images.EImageLinkType;
 import jsettlers.common.images.ImageLink;
@@ -68,6 +67,7 @@ import jsettlers.common.action.EMoveToType;
 import jsettlers.common.action.MoveToAction;
 import jsettlers.common.menu.messages.IMessage;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.FloatRectangle;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ISelectionSet;
@@ -263,7 +263,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		this.soundmanager = new SoundManager(soundPlayer);
 		this.background = new Background(context);
 
-		objectDrawer = new MapObjectDrawer(context, soundmanager);
+		objectDrawer = new MapObjectDrawer(context, soundmanager, localPlayer);
 		backgroundSound = new BackgroundSound(context, soundmanager);
 		backgroundSound.start();
 
@@ -567,7 +567,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		}
 
 		if(borderGrid != null ? borderGrid.get(tileIndex) : map.isBorder(x, y)) {
-			byte player = map.getPlayerIdAt(x, y);
+			IPlayer player = map.getPlayerAt(x, y);
 			objectDrawer.drawPlayerBorderObject(x, y, player);
 		}
 	}
@@ -846,7 +846,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		if (modifiers.contains(EModifier.CTRL)) {
 			return EMoveToType.FORCED;
 		} else if (modifiers.contains(EModifier.ALT)) {
-			return EMoveToType.WORK;
+			return EMoveToType.PATROL;
 		} else {
 			return EMoveToType.DEFAULT;
 		}

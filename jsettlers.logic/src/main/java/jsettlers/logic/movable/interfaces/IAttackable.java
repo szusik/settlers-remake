@@ -69,4 +69,5 @@ public interface IAttackable extends ILocatable, IInformable {
 	 */
 	boolean isTower();
 
+	void uncoveredBy(byte teamId);
 }

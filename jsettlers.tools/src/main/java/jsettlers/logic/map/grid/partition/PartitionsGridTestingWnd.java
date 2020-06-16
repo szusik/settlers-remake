@@ -17,6 +17,7 @@ package jsettlers.logic.map.grid.partition;
 import java.io.IOException;
 import java.util.BitSet;
 
+import java8.util.Objects;
 import jsettlers.TestToolUtils;
 import jsettlers.common.Color;
 import jsettlers.common.CommonConstants;
@@ -35,6 +36,7 @@ import jsettlers.common.menu.IMapInterfaceConnector;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.action.Action;
 import jsettlers.logic.player.PlayerSetting;
@@ -157,11 +159,11 @@ public class PartitionsGridTestingWnd {
 
 			@Override
 			public boolean isBorder(int x, int y) {
-				byte playerAtPos = getPlayerIdAt(x, y);
+				IPlayer playerAtPos = getPlayerAt(x, y);
 				for (EDirection dir : EDirection.VALUES) {
 					int currX = x + dir.gridDeltaX;
 					int currY = y + dir.gridDeltaY;
-					if (currX >= 0 && currY >= 0 && currX < WIDTH && currY < HEIGHT && playerAtPos != getPlayerIdAt(currX, currY)) {
+					if (currX >= 0 && currY >= 0 && currX < WIDTH && currY < HEIGHT && !Objects.equals(playerAtPos, getPlayerAt(currX, currY))) {
 						return true;
 					}
 				}
@@ -179,8 +181,8 @@ public class PartitionsGridTestingWnd {
 			}
 
 			@Override
-			public byte getPlayerIdAt(int x, int y) {
-				return grid.getPlayerIdAt(x, y);
+			public IPlayer getPlayerAt(int x, int y) {
+				return grid.getPlayerAt(x, y);
 			}
 
 			@Override

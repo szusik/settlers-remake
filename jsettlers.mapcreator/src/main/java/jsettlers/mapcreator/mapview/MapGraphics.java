@@ -23,6 +23,7 @@ import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionData;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 import jsettlers.mapcreator.data.MapData;
 import jsettlers.mapcreator.data.objects.ObjectContainer;
 
@@ -105,8 +106,8 @@ public class MapGraphics implements IGraphicsGrid {
 	}
 
 	@Override
-	public byte getPlayerIdAt(int x, int y) {
-		return data.getPlayer(x, y);
+	public IPlayer getPlayerAt(int x, int y) {
+		return IPlayer.DummyPlayer.getCached(data.getPlayer(x, y));
 	}
 
 	@Override

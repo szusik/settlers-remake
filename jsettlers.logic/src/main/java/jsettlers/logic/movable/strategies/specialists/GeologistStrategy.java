@@ -143,7 +143,7 @@ public final class GeologistStrategy extends MovableStrategy {
 
 	@Override
 	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
-		this.state = EGeologistState.GOING_TO_POS;
+		this.state = moveToType.isWorkOnDestination()? EGeologistState.GOING_TO_POS : EGeologistState.JOBLESS;
 		centerPos = null;
 
 		super.getGrid().setMarked(oldPosition, false);

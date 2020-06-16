@@ -22,6 +22,7 @@ import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionData;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 
 public class GraphicsGridAdapter implements IGraphicsGrid {
 
@@ -74,8 +75,8 @@ public class GraphicsGridAdapter implements IGraphicsGrid {
 	}
 
 	@Override
-	public byte getPlayerIdAt(int x, int y) {
-		return 0;
+	public IPlayer getPlayerAt(int x, int y) {
+		return IPlayer.DEFAULT_DUMMY_PLAYER0;
 	}
 
 	@Override

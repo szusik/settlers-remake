@@ -17,6 +17,7 @@ package jsettlers.logic.movable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -114,6 +115,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 
 	private ILogicMovable patient = null;
 	private ShortPoint2D targetingHealSpot = null;
+	private BitSet uncoveredBy = new BitSet();
 
 	public Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player) {
 		this.grid = grid;
@@ -1206,7 +1208,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 	@Override
 	public void moveToCast(ShortPoint2D at, ESpellType spell) {
 		if(strategy instanceof MageStrategy) {
-			moveTo(at, EMoveToType.WORK);
+			moveTo(at, EMoveToType.DEFAULT);
 			((MageStrategy)strategy).castSpellAt(spell, at);
 		}
 	}
@@ -1218,5 +1220,15 @@ public final class Movable implements ILogicMovable, FoWTask {
 	@Override
 	public boolean hasEffect(EEffectType effect) {
 		return effectEnd[effect.ordinal()] >= MatchConstants.clock().getTime();
+	}
+
+	@Override
+	public boolean isUncoveredBy(byte team) {
+		return uncoveredBy.get(team);
+	}
+
+	@Override
+	public void uncoveredBy(byte teamId) {
+		uncoveredBy.set(teamId);
 	}
 }

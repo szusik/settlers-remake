@@ -16,6 +16,7 @@ package jsettlers.logic.movable.testmap;
 
 import java.util.LinkedList;
 
+import java8.util.Objects;
 import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
 import jsettlers.algorithms.path.astar.BucketQueueAStar;
@@ -34,6 +35,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBearer;
@@ -117,8 +119,8 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 	}
 
 	@Override
-	public byte getPlayerIdAt(int x, int y) {
-		return 0;
+	public IPlayer getPlayerAt(int x, int y) {
+		return IPlayer.DEFAULT_DUMMY_PLAYER0;
 	}
 
 	@Override
@@ -350,7 +352,7 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 
 		@Override
 		public boolean isValidPosition(IPathCalculatable pathCalculatable, int x, int y) {
-			return isInBounds(x, y) && !isBlocked(x, y) && (!pathCalculatable.needsPlayersGround() || pathCalculatable.getPlayer().getPlayerId() == getPlayerIdAt(x, y));
+			return isInBounds(x, y) && !isBlocked(x, y) && (!pathCalculatable.needsPlayersGround() || Objects.equals(pathCalculatable.getPlayer(), MovableTestsMap.this.getPlayerAt(x, y)));
 		}
 
 		@Override

@@ -29,6 +29,7 @@ import jsettlers.logic.movable.EGoInDirectionMode;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
 import jsettlers.logic.movable.interfaces.IAttackable;
+import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 public abstract class SoldierStrategy extends MovableStrategy implements IBuildingOccupyableMovable {
 	private static final long serialVersionUID = 5246120883607071865L;
@@ -101,6 +102,7 @@ public abstract class SoldierStrategy extends MovableStrategy implements IBuildi
 			final short minSearchDistance = getMinSearchDistance();
 			IAttackable oldEnemy = enemy;
 			enemy = super.getGrid().getEnemyInSearchArea(getAttackPosition(), movable, minSearchDistance, getMaxSearchDistance(isInTower), !defending);
+			if(enemy != null) enemy.uncoveredBy(movable.getPlayer().getTeamId());
 
 			// check if we have a new enemy. If so, go in unsafe mode again.
 			if (oldEnemy != null && oldEnemy != enemy) {

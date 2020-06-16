@@ -34,7 +34,6 @@ import jsettlers.common.selectable.ESelectionType;
  *
  */
 public class PlacementBuilding implements IBuilding, IBuilding.IMill, IBuilding.ISoundRequestable {
-	private final DummyPlayer player = new DummyPlayer();
 	private final EBuildingType typeToPlace;
 
 	/**
@@ -84,7 +83,7 @@ public class PlacementBuilding implements IBuilding, IBuilding.IMill, IBuilding.
 
 	@Override
 	public IPlayer getPlayer() {
-		return player;
+		return IPlayer.DEFAULT_DUMMY_PLAYER0;
 	}
 
 	@Override

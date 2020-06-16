@@ -209,7 +209,7 @@ class WhatToDoAi implements IWhatToDoAi {
 					aiStatistics.getPositionOfPartition(playerId), resourceType, Integer.MAX_VALUE, geologistFilters[resourceType.ordinal]);
 		}
 		if (resourcePoint != null) {
-			sendMovableTo(geologist, resourcePoint, EMoveToType.WORK);
+			sendMovableTo(geologist, resourcePoint, EMoveToType.DEFAULT);
 		}
 	}
 
@@ -482,7 +482,7 @@ class WhatToDoAi implements IWhatToDoAi {
 			PioneerGroup pioneersWithNoAction = broadenerPioneers.getPioneersWithNoAction();
 			ShortPoint2D broadenTarget = pioneerAi.findBroadenTarget();
 			if (broadenTarget != null) {
-				taskScheduler.scheduleTask(new MoveToGuiTask(playerId, broadenTarget, pioneersWithNoAction.getPioneerIds(), EMoveToType.WORK));
+				taskScheduler.scheduleTask(new MoveToGuiTask(playerId, broadenTarget, pioneersWithNoAction.getPioneerIds(), EMoveToType.DEFAULT));
 			}
 		}
 	}
@@ -491,7 +491,7 @@ class WhatToDoAi implements IWhatToDoAi {
 		if (resourcePioneers.isNotEmpty()) {
 			ShortPoint2D resourceTarget = pioneerAi.findResourceTarget();
 			if (resourceTarget != null) {
-				taskScheduler.scheduleTask(new MoveToGuiTask(playerId, resourceTarget, resourcePioneers.getPioneerIds(), EMoveToType.WORK));
+				taskScheduler.scheduleTask(new MoveToGuiTask(playerId, resourceTarget, resourcePioneers.getPioneerIds(), EMoveToType.DEFAULT));
 			}
 		}
 	}
