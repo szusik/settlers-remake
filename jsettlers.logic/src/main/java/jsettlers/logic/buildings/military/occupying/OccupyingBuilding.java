@@ -24,6 +24,7 @@ import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
 import jsettlers.algorithms.path.dijkstra.DijkstraAlgorithm.DijkstraContinuableRequest;
 import jsettlers.common.CommonConstants;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuildingOccupier;
@@ -36,6 +37,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.movable.ESoldierType;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.collections.map.ArrayListMap;
 import jsettlers.common.utils.collections.map.ArrayListMap.Entry;
@@ -68,6 +70,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 	private final ArrayListMap<IBuildingOccupyableMovable, SoldierRequest> comingSoldiers = new ArrayListMap<>();
 	private final LinkedList<TowerOccupier> sortedOccupiers = new LinkedList<>();
 	private final LinkedList<TowerOccupier> toBeReleasedOccupiers = new LinkedList<>();
+	private final ECivilisation civilisation;
 
 	private DijkstraContinuableRequest dijkstraRequest;
 
@@ -78,12 +81,18 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 
 	public OccupyingBuilding(EBuildingType type, Player player, ShortPoint2D position, IBuildingsGrid buildingsGrid) {
 		super(type, player, position, buildingsGrid);
+		civilisation = player.getCivilisation();
 
 		initSoldierRequests();
 	}
 
+	@Override
+	public BuildingVariant getBuildingVariant() {
+		return type.getVariant(civilisation);
+	}
+
 	private void initSoldierRequests() {
-		final OccupierPlace[] occupierPlaces = super.getBuildingType().getOccupierPlaces();
+		final OccupierPlace[] occupierPlaces = super.getBuildingVariant().getOccupierPlaces();
 		if (occupierPlaces.length > 0) {
 			emptyPlaces.addAll(Arrays.asList(occupierPlaces));
 			requestSoldier(ESoldierClass.INFANTRY);
@@ -138,7 +147,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 	}
 
 	private FreeMapArea getGroundArea() {
-		return new FreeMapArea(super.pos, getBuildingType().getProtectedTiles());
+		return new FreeMapArea(super.pos, getBuildingVariant().getProtectedTiles());
 	}
 
 	private void resetSoldierSearch() {

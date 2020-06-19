@@ -21,6 +21,7 @@ import java8.util.Objects;
 import jsettlers.TestToolUtils;
 import jsettlers.common.Color;
 import jsettlers.common.CommonConstants;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.logging.MilliStopWatch;
@@ -36,6 +37,7 @@ import jsettlers.common.menu.IMapInterfaceConnector;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.action.Action;
@@ -74,10 +76,13 @@ public class PartitionsGridTestingWnd {
 	}
 
 	private final PartitionsGrid grid;
+	private final BuildingVariant testTower;
 
 	private PartitionsGridTestingWnd() {
 		this.grid = new PartitionsGrid(WIDTH, HEIGHT, PlayerSetting.createDefaultSettings((byte) 0, (byte) 10),
 				(x, y) -> blockedGrid.get(x + y * WIDTH));
+
+		testTower = EBuildingType.TOWER.getVariant(ECivilisation.ROMAN);
 	}
 
 	private void startTest() {
@@ -133,7 +138,7 @@ public class PartitionsGridTestingWnd {
 	}
 
 	private FreeMapArea getGroundArea(ShortPoint2D pos) {
-		return new FreeMapArea(pos, EBuildingType.TOWER.getProtectedTiles());
+		return new FreeMapArea(pos, testTower.getProtectedTiles());
 	}
 
 	private void addTower(int playerId, int x, int y, int radius) {
@@ -142,7 +147,7 @@ public class PartitionsGridTestingWnd {
 	}
 
 	private IMapArea getTowerBlockArea(int x, int y) {
-		return new FreeMapArea(new ShortPoint2D(x, y), EBuildingType.TOWER.getBlockedTiles());
+		return new FreeMapArea(new ShortPoint2D(x, y), testTower.getBlockedTiles());
 	}
 
 	private void blockArea(IMapArea area, boolean block) {

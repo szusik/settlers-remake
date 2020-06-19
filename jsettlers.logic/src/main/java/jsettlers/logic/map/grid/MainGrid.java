@@ -41,6 +41,7 @@ import jsettlers.algorithms.previewimage.PreviewImageCreator;
 import jsettlers.algorithms.traversing.area.IAreaVisitor;
 import jsettlers.common.Color;
 import jsettlers.common.buildings.BuildingAreaBitSet;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.landscape.ELandscapeType;
@@ -1086,8 +1087,11 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public boolean canConstructAt(int x, int y, EBuildingType buildingType, byte playerId) {
-			RelativePoint[] buildingArea = buildingType.getBuildingArea();
-			BuildingAreaBitSet areaBitSet = buildingType.getBuildingAreaBitSet();
+			BuildingVariant building = buildingType.getVariant(partitionsGrid.getPlayer(playerId).getCivilisation());
+			if(building == null) return false;
+
+			RelativePoint[] buildingArea = building.getBuildingArea();
+			BuildingAreaBitSet areaBitSet = building.getBuildingAreaBitSet();
 			if (!isInBounds(areaBitSet.minX + x, areaBitSet.minY + y) || !isInBounds(areaBitSet.maxX + x, areaBitSet.maxY + y)) {
 				return false;
 			}
@@ -1101,14 +1105,14 @@ public final class MainGrid implements Serializable {
 				int currX = curr.calculateX(x);
 				int currY = curr.calculateY(y);
 
-				if (!canUsePositionForConstruction(currX, currY, buildingType.getRequiredGroundTypeAt(currX, currY), partitionId)) {
+				if (!canUsePositionForConstruction(currX, currY, building.getRequiredGroundTypeAt(currX, currY), partitionId)) {
 					return false;
 				}
 			}
 
-			Set<ELandscapeType> allowedGroundType = buildingType.getGroundTypes();
+			Set<ELandscapeType> allowedGroundType = building.getGroundTypes();
 
-			for(RelativePoint border : buildingType.getBuildingAreaBorder()) {
+			for(RelativePoint border : building.getBuildingAreaBorder()) {
 				int currX = border.calculateX(x);
 				int currY = border.calculateY(y);
 

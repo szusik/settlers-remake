@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -144,6 +145,10 @@ public class BuildingVariant {
 
 	public EBuildingType getType() {
 		return type;
+	}
+
+	public boolean isVariantOf(EBuildingType buildingType) {
+		return type == buildingType;
 	}
 
 	public ECivilisation getCivilisation() {
@@ -399,5 +404,24 @@ public class BuildingVariant {
 		} else {
 			return groundTypes;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "BuildingVariant{type=" + type + ", civ=" + civilisation + "}";
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		BuildingVariant that = (BuildingVariant) o;
+		return type == that.type &&
+				civilisation == that.civilisation;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(type, civilisation);
 	}
 }

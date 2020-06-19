@@ -168,7 +168,7 @@ public abstract class TradingBuilding extends Building implements IBuilding.ITra
 
 		MultiRequestStackSharedData sharedData = new MultiRequestStackSharedData(requestedMaterials);
 
-		for (RelativeStack stack : type.getRequestStacks()) {
+		for (RelativeStack stack : getBuildingVariant().getRequestStacks()) {
 			newStacks.add(new MultiRequestStack(grid.getRequestStackGrid(), stack.calculatePoint(this.pos), type, super.getPriority(), sharedData));
 		}
 

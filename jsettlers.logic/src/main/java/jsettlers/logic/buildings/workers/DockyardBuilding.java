@@ -52,7 +52,7 @@ public class DockyardBuilding extends WorkerBuilding implements IBuilding.IShipC
 
 		List<RequestStack> newStacks = new LinkedList<>();
 
-		for (RelativeStack stack : type.getRequestStacks()) {
+		for (RelativeStack stack : getBuildingVariant().getRequestStacks()) {
 			short requiredAmount = orderedShipType.getRequiredMaterial(stack.getMaterialType());
 			if (requiredAmount > 0) {
 				newStacks.add(new RequestStack(grid.getRequestStackGrid(), stack.calculatePoint(this.pos), stack.getMaterialType(), type, getPriority(), requiredAmount));

@@ -126,14 +126,6 @@ public enum EBuildingType {
 		return buildingVariants.get(civilisation);
 	}
 
-	public RelativePoint[] getBuildingArea() {
-		return buildingVariants.get(REPLACE_ME).getBuildingArea();
-	}
-
-	public RelativePoint[] getBuildingAreaBorder() {
-		return buildingVariants.get(REPLACE_ME).getBuildingAreaBorder();
-	}
-
 	/**
 	 * Gets the job a worker for this building should start with.
 	 * 
@@ -262,25 +254,6 @@ public enum EBuildingType {
 	}
 
 	/**
-	 * Gets the distance the FOW should be set to visible around this building.
-	 * 
-	 * @return The view distance.
-	 */
-	public final short getViewDistance() {
-		return buildingVariants.get(REPLACE_ME).getViewDistance();
-	}
-
-	/**
-	 * Gets the places where occupiers can be in this building.
-	 * 
-	 * @return The places.
-	 * @see OccupierPlace
-	 */
-	public final OccupierPlace[] getOccupierPlaces() {
-		return buildingVariants.get(REPLACE_ME).getOccupierPlaces();
-	}
-
-	/**
 	 * Queries a building job with the given name that needs to be accessible from the start job.
 	 * 
 	 * @param jobname
@@ -291,15 +264,6 @@ public enum EBuildingType {
 	 */
 	public final IBuildingJob getJobByName(String jobname) {
 		return buildingVariants.get(REPLACE_ME).getJobByName(jobname);
-	}
-
-	/**
-	 * Gets the area for this building.
-	 * 
-	 * @return The building area.
-	 */
-	public final BuildingAreaBitSet getBuildingAreaBitSet() {
-		return buildingVariants.get(REPLACE_ME).getBuildingAreaBitSet();
 	}
 
 	/**
@@ -358,9 +322,5 @@ public enum EBuildingType {
 	 */
 	public boolean isMilitaryBuilding() {
 		return MILITARY_BUILDINGS.contains(this);
-	}
-
-	public Set<ELandscapeType> getRequiredGroundTypeAt(int relativeX, int relativeY) {
-		return buildingVariants.get(REPLACE_ME).getRequiredGroundTypeAt(relativeX, relativeY);
 	}
 }
