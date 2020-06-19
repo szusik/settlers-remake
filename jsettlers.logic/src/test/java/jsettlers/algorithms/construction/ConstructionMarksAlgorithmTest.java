@@ -22,9 +22,11 @@ import java.util.Set;
 import org.junit.Test;
 
 import jsettlers.common.buildings.BuildingAreaBitSet;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.map.shapes.MapRectangle;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.RelativePoint;
 
 /**
@@ -50,13 +52,15 @@ public class ConstructionMarksAlgorithmTest {
 				{ false, false, false, false, false, false, false, false, false, false, false, false },
 				{ false, false, false, false, false, false, false, false, false, false, false, false } };
 
+		BuildingVariant romanTower = EBuildingType.TOWER.getVariant(ECivilisation.ROMAN);
+
 		MapRectangle mapArea = new MapRectangle(-15, -15, 30, 30);
 
-		BuildingAreaBitSet buildingSet = new BuildingAreaBitSet(EBuildingType.TOWER.getBuildingArea());
+		BuildingAreaBitSet buildingSet = new BuildingAreaBitSet(romanTower.getBuildingArea());
 
 		TestMap map = new TestMap(blocked);
 		NewConstructionMarksAlgorithm algorithm = new NewConstructionMarksAlgorithm(map, (byte) 0);
-		algorithm.calculateConstructMarks(mapArea, EBuildingType.TOWER);
+		algorithm.calculateConstructMarks(mapArea, romanTower);
 
 		// print(map, blocked, buildingSet);
 

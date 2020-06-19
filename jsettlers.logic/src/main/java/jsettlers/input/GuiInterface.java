@@ -113,6 +113,7 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 	private final IGuiInputGrid           grid;
 	private final IGameStoppable          gameStoppable;
 	private final byte                    playerId;
+	private final Player				  player;
 	private final boolean                 multiplayer;
 	private final ConstructionMarksThread constructionMarksCalculator;
 	private final Timer                   refreshSelectionTimer;
@@ -140,7 +141,7 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 			}
 		}, 1000, 1000);
 
-		Player player = grid.getPlayer(playerId);
+		player = grid.getPlayer(playerId);
 		if (player != null) {
 			player.setMessenger(connector);
 		}
@@ -160,7 +161,8 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 				break;
 
 			case SHOW_CONSTRUCTION_MARK:
-				constructionMarksCalculator.setBuildingType(((ShowConstructionMarksAction) action).getBuildingType());
+				EBuildingType buildingType = ((ShowConstructionMarksAction) action).getBuildingType();
+				constructionMarksCalculator.setBuilding(buildingType.getVariant(player.getCivilisation()));
 				break;
 
 			case DEBUG_ACTION:
