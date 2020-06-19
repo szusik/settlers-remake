@@ -18,9 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jsettlers.ai.highlevel.AiStatistics;
-import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
+
+import static jsettlers.common.buildings.EBuildingType.FORESTER;
 
 /**
  * Assumptions: foresters are placed after lumberjacks were placed
@@ -30,23 +31,21 @@ import jsettlers.common.position.ShortPoint2D;
  * 
  * @author codingberlin
  */
-public class BestForesterConstructionPositionFinder implements IBestConstructionPositionFinder {
+public class ForesterConstructionPositionFinder extends ConstructionPositionFinder {
 
-	private EBuildingType buildingType;
-
-	public BestForesterConstructionPositionFinder(EBuildingType buildingType) {
-		this.buildingType = buildingType;
+	protected ForesterConstructionPositionFinder(Factory factory) {
+		super(factory);
 	}
 
 	@Override
-	public ShortPoint2D findBestConstructionPosition(AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, byte playerId) {
+	public ShortPoint2D findBestConstructionPosition() {
 		List<ShortPoint2D> lumberJacks = aiStatistics.getBuildingPositionsOfTypeForPlayer(EBuildingType.LUMBERJACK, playerId);
-		List<ShortPoint2D> foresters = aiStatistics.getBuildingPositionsOfTypeForPlayer(EBuildingType.FORESTER, playerId);
+		List<ShortPoint2D> foresters = aiStatistics.getBuildingPositionsOfTypeForPlayer(FORESTER, playerId);
 
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
-			if (constructionMap.canConstructAt(point.x, point.y, buildingType, playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, buildingType)) {
+			if (constructionMap.canConstructAt(point.x, point.y, FORESTER, playerId)
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, FORESTER)) {
 				int foresterDistance = 0;
 				int lumberJackDistance = 0;
 				ShortPoint2D nearestLumberJackPoint = AiStatistics.detectNearestPointFromList(point, lumberJacks);

@@ -24,7 +24,7 @@ import java.util.Set;
 
 import java8.util.stream.Collectors;
 import jsettlers.ai.army.ArmyGeneral;
-import jsettlers.ai.construction.BestConstructionPositionFinderFactory;
+import jsettlers.ai.construction.ConstructionPositionFinder;
 import jsettlers.ai.economy.EconomyMinister;
 import jsettlers.ai.highlevel.pioneers.PioneerAi;
 import jsettlers.ai.highlevel.pioneers.PioneerGroup;
@@ -120,7 +120,7 @@ class WhatToDoAi implements IWhatToDoAi {
 	private final ITaskScheduler taskScheduler;
 	private final AiStatistics aiStatistics;
 	private final ArmyGeneral armyGeneral;
-	private final BestConstructionPositionFinderFactory bestConstructionPositionFinderFactory;
+	private final ConstructionPositionFinder.Factory constructionPositionFinderFactory;
 	private final EconomyMinister economyMinister;
 	private final PioneerAi pioneerAi;
 	private boolean isEndGame = false;
@@ -138,7 +138,11 @@ class WhatToDoAi implements IWhatToDoAi {
 		this.armyGeneral = armyGeneral;
 		this.economyMinister = economyMinister;
 		this.pioneerAi = new PioneerAi(aiStatistics, playerId);
-		bestConstructionPositionFinderFactory = new BestConstructionPositionFinderFactory();
+		constructionPositionFinderFactory = new ConstructionPositionFinder.Factory(
+				mainGrid.getPartitionsGrid().getPlayer(playerId).getCivilisation(),
+				aiStatistics,
+				mainGrid.getConstructionMarksGrid(),
+				playerId);
 		resourcePioneers = new PioneerGroup(RESOURCE_PIONEER_GROUP_COUNT);
 		broadenerPioneers = new PioneerGroup(BROADEN_PIONEER_GROUP_COUNT);
 		List<Integer> allPioneers = stream(aiStatistics.getPositionsOfMovablesWithTypeForPlayer(playerId, EMovableType.PIONEER))
@@ -343,9 +347,9 @@ class WhatToDoAi implements IWhatToDoAi {
 			return false;
 		}
 
-		ShortPoint2D position = bestConstructionPositionFinderFactory
+		ShortPoint2D position = constructionPositionFinderFactory
 				.getBorderDefenceConstructionPosition(threatenedBorder)
-				.findBestConstructionPosition(aiStatistics, mainGrid.getConstructionMarksGrid(), playerId);
+				.findBestConstructionPosition();
 		if (position != null) {
 			taskScheduler.scheduleTask(new ConstructBuildingTask(EGuiAction.BUILD, playerId, position, TOWER));
 			sendSwordsmenToTower(position);
@@ -532,9 +536,9 @@ class WhatToDoAi implements IWhatToDoAi {
 		if (failedConstructingBuildings.size() > 1 && failedConstructingBuildings.contains(type)) {
 			return false;
 		}
-		ShortPoint2D position = bestConstructionPositionFinderFactory
+		ShortPoint2D position = constructionPositionFinderFactory
 				.getBestConstructionPositionFinderFor(type)
-				.findBestConstructionPosition(aiStatistics, mainGrid.getConstructionMarksGrid(), playerId);
+				.findBestConstructionPosition();
 		if (position != null) {
 			taskScheduler.scheduleTask(new ConstructBuildingTask(EGuiAction.BUILD, playerId, position, type));
 			if (type.isMilitaryBuilding()) {

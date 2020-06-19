@@ -14,33 +14,23 @@
  *******************************************************************************/
 package jsettlers.ai.construction;
 
-import jsettlers.ai.highlevel.AiStatistics;
-import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.map.grid.MainGrid;
 
 /**
+ * This searches for positions where the most corn can grow withing the work area
+ *
  * @author codingberlin
  */
-public class BestTempleConstructionPositionFinder extends NearRequiredBuildingConstructionPositionFinder implements IBestConstructionPositionFinder {
+public class FarmConstructionPositionFinder extends PlantingBuildingConstructionPositionFinder {
 
-	public static final int WINE_PER_TEMPLE = 15;
-
-	public BestTempleConstructionPositionFinder() {
-		super(EBuildingType.TEMPLE, EBuildingType.WINEGROWER);
+	protected FarmConstructionPositionFinder(Factory factory) {
+		super(factory, EBuildingType.FARM);
 	}
 
 	@Override
-	public ShortPoint2D findBestConstructionPosition(
-			AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, byte playerId) {
-		int availableWine = aiStatistics.getTotalWineCountForPlayer(playerId);
-		int usedWine = aiStatistics.getTotalNumberOfBuildingTypeForPlayer(EBuildingType.TEMPLE, playerId) * WINE_PER_TEMPLE;
-		if (availableWine - usedWine >= WINE_PER_TEMPLE) {
-			return super.findBestConstructionPosition(aiStatistics, constructionMap, playerId);
-		} else {
-			// reject construction of temple - the wine is not grown yet
-			return null;
-		}
+	protected boolean isMyPlantPlantable(MainGrid mainGrid, ShortPoint2D position) {
+		return mainGrid.isCornPlantable(position);
 	}
-
 }

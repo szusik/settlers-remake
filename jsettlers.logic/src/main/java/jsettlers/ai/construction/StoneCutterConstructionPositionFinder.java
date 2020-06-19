@@ -29,9 +29,10 @@ import jsettlers.common.position.ShortPoint2D;
  * 
  * @author codingberlin
  */
-public class BestStoneCutterConstructionPositionFinder implements IBestConstructionPositionFinder {
+public class StoneCutterConstructionPositionFinder extends ConstructionPositionFinder {
 
-	public BestStoneCutterConstructionPositionFinder() {
+	protected StoneCutterConstructionPositionFinder(Factory factory) {
+		super(factory);
 	}
 
 	public static class StoneCutterPositionRater implements AiPositions.PositionRater {
@@ -93,7 +94,7 @@ public class BestStoneCutterConstructionPositionFinder implements IBestConstruct
 	}
 
 	@Override
-	public ShortPoint2D findBestConstructionPosition(AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, byte playerId) {
+	public ShortPoint2D findBestConstructionPosition() {
 		AiPositions stones = aiStatistics.getStonesForPlayer(playerId);
 		if (stones.size() == 0) {
 			return null;

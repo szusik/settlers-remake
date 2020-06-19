@@ -14,17 +14,35 @@
  *******************************************************************************/
 package jsettlers.ai.construction;
 
-import jsettlers.ai.highlevel.AiStatistics;
 import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
+import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 
+import java.util.Collection;
+
 /**
- * This is the low level KI. It is called by the high level KI which decites what to build. The purpose of this low level KI is, to determine WHERE to
- * build.
+ * Builds the military building right next to one other tower
  *
  * @author codingberlin
  */
-public interface IBestConstructionPositionFinder {
+public class MilitaryConstructionPositionFinder extends ConstructionPositionFinder {
 
-	ShortPoint2D findBestConstructionPosition(AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, byte playerId);
+	private final EBuildingType buildingType;
+
+	public MilitaryConstructionPositionFinder(Factory factory, EBuildingType buildingType) {
+		super(factory);
+		this.buildingType = buildingType;
+	}
+
+	@Override
+	public ShortPoint2D findBestConstructionPosition() {
+		Collection<ShortPoint2D> towerPositions = aiStatistics.getBuildingPositionsOfTypeForPlayer(EBuildingType.TOWER, playerId);
+		if (towerPositions.isEmpty()) {
+			return null;
+		}
+
+		final AbstractConstructionMarkableMap constructionGrid = aiStatistics.getMainGrid().getConstructionMarksGrid();
+		return aiStatistics.getLandForPlayer(playerId).getNearestPoint(towerPositions.iterator().next(), Integer.MAX_VALUE,
+				(x, y) -> constructionGrid.canConstructAt((short) x, (short) y, buildingType, playerId));
+	}
 }

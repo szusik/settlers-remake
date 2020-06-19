@@ -18,10 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jsettlers.ai.highlevel.AiPositions;
-import jsettlers.ai.highlevel.AiStatistics;
-import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
-import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
+
+import static jsettlers.common.buildings.EBuildingType.WATERWORKS;
 
 /**
  * Algorithm: find all possible construction points within the borders of the player - calculates a score based on the distance from the most near river of the possible construction position - takes
@@ -29,25 +28,23 @@ import jsettlers.common.position.ShortPoint2D;
  * 
  * @author codingberlin
  */
-public class BestWaterWorksConstructionPositionFinder implements IBestConstructionPositionFinder {
+public class WaterWorksConstructionPositionFinder extends ConstructionPositionFinder {
 
-	private EBuildingType buildingType;
-
-	public BestWaterWorksConstructionPositionFinder(EBuildingType buildingType) {
-		this.buildingType = buildingType;
+	protected WaterWorksConstructionPositionFinder(Factory factory) {
+		super(factory);
 	}
 
 	@Override
-	public ShortPoint2D findBestConstructionPosition(AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, byte playerId) {
+	public ShortPoint2D findBestConstructionPosition() {
 		AiPositions rivers = aiStatistics.getRiversForPlayer(playerId);
 		if (rivers.size() == 0) {
 			return null;
 		}
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
-			if (constructionMap.canConstructAt(point.x, point.y, buildingType, playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, buildingType)) {
-				ShortPoint2D nearestRiverPosition = rivers.getNearestPoint(point, buildingType.getWorkRadius(), null);
+			if (constructionMap.canConstructAt(point.x, point.y, WATERWORKS, playerId)
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, WATERWORKS)) {
+				ShortPoint2D nearestRiverPosition = rivers.getNearestPoint(point, WATERWORKS.getWorkRadius(), null);
 				if (nearestRiverPosition != null) {
 					int riverDistance = point.getOnGridDistTo(nearestRiverPosition);
 					scoredConstructionPositions.add(new ScoredConstructionPosition(point, riverDistance));

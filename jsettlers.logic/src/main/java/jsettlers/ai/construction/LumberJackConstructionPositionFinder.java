@@ -26,10 +26,10 @@ import jsettlers.common.buildings.EBuildingType;
  * 
  * @author codingberlin
  */
-public class BestLumberJackConstructionPositionFinder extends BestWorkareaConstructionPositionFinder {
+public class LumberJackConstructionPositionFinder extends WorkareaConstructionPositionFinder {
 
-	public BestLumberJackConstructionPositionFinder(EBuildingType buildingType) {
-		super(buildingType);
+	public LumberJackConstructionPositionFinder(Factory factory) {
+		super(factory, EBuildingType.LUMBERJACK);
 	}
 
 	@Override

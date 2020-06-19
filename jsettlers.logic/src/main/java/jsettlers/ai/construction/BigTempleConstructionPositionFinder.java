@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015
+ * Copyright (c) 2016
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -14,35 +14,23 @@
  *******************************************************************************/
 package jsettlers.ai.construction;
 
-import jsettlers.ai.highlevel.AiStatistics;
-import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 
-import java.util.Collection;
-
 /**
- * Builds the military building right next to one other tower
- *
  * @author codingberlin
  */
-public class BestMilitaryConstructionPositionFinder implements IBestConstructionPositionFinder {
+public class BigTempleConstructionPositionFinder extends NearDiggersConstructionPositionFinder {
 
-	private final EBuildingType buildingType;
-
-	public BestMilitaryConstructionPositionFinder(EBuildingType buildingType) {
-		this.buildingType = buildingType;
+	public BigTempleConstructionPositionFinder(Factory factory) {
+		super(factory, EBuildingType.BIG_TEMPLE);
 	}
-
 	@Override
-	public ShortPoint2D findBestConstructionPosition(AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, final byte playerId) {
-		Collection<ShortPoint2D> towerPositions = aiStatistics.getBuildingPositionsOfTypeForPlayer(EBuildingType.TOWER, playerId);
-		if (towerPositions.isEmpty()) {
-			return null;
+	public ShortPoint2D findBestConstructionPosition() {
+		if (aiStatistics.getTotalNumberOfBuildingTypeForPlayer(EBuildingType.TEMPLE, playerId) < 1) {
+			return null; // do not construct big temple - you don't need it before small temples produce the remaining 2 mana for first level2
+		} else {
+			return super.findBestConstructionPosition();
 		}
-
-		final AbstractConstructionMarkableMap constructionGrid = aiStatistics.getMainGrid().getConstructionMarksGrid();
-		return aiStatistics.getLandForPlayer(playerId).getNearestPoint(towerPositions.iterator().next(), Integer.MAX_VALUE,
-				(x, y) -> constructionGrid.canConstructAt((short) x, (short) y, buildingType, playerId));
 	}
 }

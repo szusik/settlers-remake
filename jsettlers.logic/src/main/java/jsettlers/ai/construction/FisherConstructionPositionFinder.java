@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016
+ * Copyright (c) 2015 - 2017
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -14,36 +14,40 @@
  *******************************************************************************/
 package jsettlers.ai.construction;
 
-import jsettlers.common.buildings.EBuildingType;
-import jsettlers.common.position.RelativePoint;
+import java.util.ArrayList;
+import java.util.List;
+
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.map.grid.MainGrid;
+
+import static jsettlers.common.buildings.EBuildingType.FISHER;
 
 /**
- * This searches for positions where the most wine can grow withing the work area
- *
+ * Algorithm: find all possible construction points within the borders of the player - calculates a score based on the amount of fish
+ * 
  * @author codingberlin
  */
-public class BestWinegrowerConstructionPositionFinder extends BestPlantingBuildingConstructionPositionFinder {
+public class FisherConstructionPositionFinder extends ConstructionPositionFinder {
 
-	static final RelativePoint[] WINEGROWER_WORK_AREA_POINTS;
-
-	static {
-		WINEGROWER_WORK_AREA_POINTS = calculateMyRelativeWorkAreaPoints(EBuildingType.WINEGROWER);
+	protected FisherConstructionPositionFinder(Factory factory) {
+		super(factory);
 	}
 
 	@Override
-	protected EBuildingType myBuildingType() {
-		return EBuildingType.WINEGROWER;
-	}
+	public ShortPoint2D findBestConstructionPosition() {
+		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 
-	@Override
-	protected RelativePoint[] myRelativeWorkAreaPoints() {
-		return WINEGROWER_WORK_AREA_POINTS;
-	}
+		int fishDistance = FISHER.getWorkRadius();
+		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
+			if (aiStatistics.wasFishNearByAtGameStart(point) && constructionMap.canConstructAt(point.x, point.y, FISHER, playerId)
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, FISHER)) {
+				ShortPoint2D fishPosition = aiStatistics.getNearestFishPointForPlayer(point, playerId, fishDistance);
+				if (fishPosition != null) {
+					fishDistance = point.getOnGridDistTo(fishPosition);
+					scoredConstructionPositions.add(new ScoredConstructionPosition(point, fishDistance));
+				}
+			}
+		}
 
-	@Override
-	protected boolean isMyPlantPlantable(MainGrid mainGrid, ShortPoint2D position) {
-		return mainGrid.isWinePlantable(position);
+		return ScoredConstructionPosition.detectPositionWithLowestScore(scoredConstructionPositions);
 	}
 }

@@ -17,8 +17,6 @@ package jsettlers.ai.construction;
 import java.util.ArrayList;
 import java.util.List;
 
-import jsettlers.ai.highlevel.AiStatistics;
-import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
@@ -27,16 +25,26 @@ import jsettlers.logic.map.grid.MainGrid;
 /**
  * @author codingberlin
  */
-abstract public class BestPlantingBuildingConstructionPositionFinder implements IBestConstructionPositionFinder {
+abstract public class PlantingBuildingConstructionPositionFinder extends ConstructionPositionFinder {
+
+	private final RelativePoint[] workAreaPoints;
+	private final EBuildingType type;
+
+	protected PlantingBuildingConstructionPositionFinder(Factory factory, EBuildingType type) {
+		super(factory);
+		this.type = type;
+
+		workAreaPoints = calculateMyRelativeWorkAreaPoints();
+	}
 
 	@Override
-	public ShortPoint2D findBestConstructionPosition(AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, byte playerId) {
+	public ShortPoint2D findBestConstructionPosition() {
 
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
-			if (constructionMap.canConstructAt(point.x, point.y, myBuildingType(), playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, myBuildingType())) {
+			if (constructionMap.canConstructAt(point.x, point.y, type, playerId)
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, type)) {
 				int score = calculateScoreFor(point, aiStatistics.getMainGrid(), playerId);
 				if (score > 0) {
 					scoredConstructionPositions.add(new ScoredConstructionPosition(point, -score));
@@ -49,7 +57,7 @@ abstract public class BestPlantingBuildingConstructionPositionFinder implements 
 
 	private int calculateScoreFor(ShortPoint2D point, MainGrid mainGrid, byte playerId) {
 		int score = 0;
-		for (RelativePoint relativePoint : myRelativeWorkAreaPoints()) {
+		for (RelativePoint relativePoint : workAreaPoints) {
 			ShortPoint2D workAreaPoint = relativePoint.calculatePoint(point);
 			if (mainGrid.isInBounds(workAreaPoint.x, workAreaPoint.y)
 					&& mainGrid.getPartitionsGrid().getPlayerIdAt(workAreaPoint.x, workAreaPoint.y) == playerId
@@ -60,10 +68,10 @@ abstract public class BestPlantingBuildingConstructionPositionFinder implements 
 		return score;
 	}
 
-	protected static RelativePoint[] calculateMyRelativeWorkAreaPoints(EBuildingType myBuildingType) {
+	protected RelativePoint[] calculateMyRelativeWorkAreaPoints() {
 		List<RelativePoint> workAreaPoints = new ArrayList<>();
-		RelativePoint center = myBuildingType.getDefaultWorkcenter();
-		short workRadius = myBuildingType.getWorkRadius();
+		RelativePoint center = type.getDefaultWorkcenter();
+		short workRadius = type.getWorkRadius();
 		for (short x = (short) -workRadius; x < workRadius; x++) {
 			for (short y = (short) -workRadius; y < workRadius; y++) {
 				if (Math.sqrt(x * x + y * y) <= workRadius) {
@@ -76,10 +84,6 @@ abstract public class BestPlantingBuildingConstructionPositionFinder implements 
 		relativeWorkAreaPoints = workAreaPoints.toArray(relativeWorkAreaPoints);
 		return relativeWorkAreaPoints;
 	}
-
-	abstract protected EBuildingType myBuildingType();
-
-	abstract protected RelativePoint[] myRelativeWorkAreaPoints();
 
 	abstract protected boolean isMyPlantPlantable(MainGrid mainGrid, ShortPoint2D position);
 }

@@ -21,7 +21,7 @@ import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 
-public abstract class BestWorkareaConstructionPositionFinder implements IBestConstructionPositionFinder {
+public abstract class WorkareaConstructionPositionFinder extends ConstructionPositionFinder {
 
 	protected final EBuildingType buildingType;
 
@@ -76,12 +76,14 @@ public abstract class BestWorkareaConstructionPositionFinder implements IBestCon
 		}
 	}
 
-	public BestWorkareaConstructionPositionFinder(EBuildingType buildingType) {
-		this.buildingType = buildingType;
+	public WorkareaConstructionPositionFinder(Factory factory, EBuildingType type) {
+		super(factory);
+
+		buildingType = type;
 	}
 
 	@Override
-	public ShortPoint2D findBestConstructionPosition(AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, byte playerId) {
+	public ShortPoint2D findBestConstructionPosition() {
 		AiPositions objects = getRelevantObjects(aiStatistics, playerId);
 		if (objects.size() == 0) {
 			return null;

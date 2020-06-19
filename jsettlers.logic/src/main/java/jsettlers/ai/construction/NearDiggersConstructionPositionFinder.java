@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jsettlers.ai.highlevel.AiStatistics;
-import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 
@@ -30,16 +29,18 @@ import jsettlers.common.position.ShortPoint2D;
  *
  * @author codingberlin
  */
-public class NearDiggersConstructionPositionFinder implements IBestConstructionPositionFinder {
+public class NearDiggersConstructionPositionFinder extends ConstructionPositionFinder {
 
 	private EBuildingType buildingType;
 
-	public NearDiggersConstructionPositionFinder(EBuildingType buildingType) {
+	public NearDiggersConstructionPositionFinder(Factory factory, EBuildingType buildingType) {
+		super(factory);
+
 		this.buildingType = buildingType;
 	}
 
 	@Override
-	public ShortPoint2D findBestConstructionPosition(AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, byte playerId) {
+	public ShortPoint2D findBestConstructionPosition() {
 		List<ShortPoint2D> diggers = aiStatistics.getPositionsOfMovablesWithTypeForPlayer(playerId, DIGGER);
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 

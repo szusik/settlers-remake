@@ -20,29 +20,18 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.map.grid.MainGrid;
 
 /**
- * This searches for positions where the most corn can grow withing the work area
+ * This searches for positions where the most wine can grow withing the work area
  *
  * @author codingberlin
  */
-public class BestFarmConstructionPositionFinder extends BestPlantingBuildingConstructionPositionFinder {
-	static final RelativePoint[] FARM_WORK_AREA_POINTS;
+public class WinegrowerConstructionPositionFinder extends PlantingBuildingConstructionPositionFinder {
 
-	static {
-		FARM_WORK_AREA_POINTS = calculateMyRelativeWorkAreaPoints(EBuildingType.FARM);
-	}
-
-	@Override
-	protected EBuildingType myBuildingType() {
-		return EBuildingType.FARM;
-	}
-
-	@Override
-	protected RelativePoint[] myRelativeWorkAreaPoints() {
-		return FARM_WORK_AREA_POINTS;
+	protected WinegrowerConstructionPositionFinder(Factory factory) {
+		super(factory, EBuildingType.WINEGROWER);
 	}
 
 	@Override
 	protected boolean isMyPlantPlantable(MainGrid mainGrid, ShortPoint2D position) {
-		return mainGrid.isCornPlantable(position);
+		return mainGrid.isWinePlantable(position);
 	}
 }

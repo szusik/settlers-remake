@@ -14,8 +14,6 @@
  *******************************************************************************/
 package jsettlers.ai.construction;
 
-import jsettlers.ai.highlevel.AiStatistics;
-import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.position.RelativePoint;
@@ -30,19 +28,21 @@ import java.util.List;
  *
  * @author codingberlin
  */
-public class BestMineConstructionPositionFinder implements IBestConstructionPositionFinder {
+public class MineConstructionPositionFinder extends ConstructionPositionFinder {
 	private static final float DISTANCE_PENALTY_FACTOR = 0.01f;
 
 	private final EBuildingType buildingType;
 	private final EResourceType resourceType;
 
-	public BestMineConstructionPositionFinder(EBuildingType buildingType, EResourceType resourceType) {
+	public MineConstructionPositionFinder(Factory factory, EBuildingType buildingType, EResourceType resourceType) {
+		super(factory);
+
 		this.buildingType = buildingType;
 		this.resourceType = resourceType;
 	}
 
 	@Override
-	public ShortPoint2D findBestConstructionPosition(AiStatistics aiStatistics, AbstractConstructionMarkableMap constructionMap, byte playerId) {
+	public ShortPoint2D findBestConstructionPosition() {
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
 			if (constructionMap.canConstructAt(point.x, point.y, buildingType, playerId)) {
