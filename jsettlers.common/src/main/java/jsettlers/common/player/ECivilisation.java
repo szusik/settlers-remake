@@ -28,6 +28,8 @@ public enum ECivilisation {
 
 	public static final ECivilisation[] VALUES = values();
 
+	public static final ECivilisation REPLACE_ME = ROMAN;
+
 	ECivilisation(int fileIndex) {
 		ordinal = ordinal();
 		this.fileIndex = fileIndex;

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE building SYSTEM "building.dtd" >
+<building worker="HEALER" workradius="20">
+	<ground groundtype="GRASS" />
+	<ground groundtype="EARTH" />
+	<ground groundtype="FLATTENED" />
+	<blocked dx="-2" dy="-3" />
+	<blocked dx="-2" dy="-2" />
+	<blocked dx="-2" dy="-1" />
+	<blocked dx="-2" dy="0" />
+	<blocked dx="-1" dy="1" />
+	<blocked dx="-1" dy="0" />
+	<blocked dx="-1" dy="-1" />
+	<blocked dx="-1" dy="-2" />
+	<blocked dx="-1" dy="-3" />
+	<blocked dx="0" dy="-2" />
+	<blocked dx="0" dy="-1" />
+	<blocked dx="0" dy="0" />
+	<blocked dx="0" dy="1" />
+	<blocked dx="0" dy="2" />
+	<blocked dx="1" dy="3" />
+	<blocked dx="1" dy="2" />
+	<blocked dx="1" dy="1" />
+	<blocked dx="1" dy="0" />
+	<blocked dx="1" dy="-1" />
+	<blocked dx="2" dy="0" />
+	<blocked dx="2" dy="1" />
+	<blocked dx="3" dy="1" />
+	<blocked dx="-3" dy="-1" />
+	<blocked dx="-3" dy="-2" />
+	<blocked dx="-3" dy="-3" />
+	<blocked dx="-3" dy="-4" />
+	<blocked dx="4" dy="1" />
+	<blocked dx="3" dy="0" />
+	<blocked dx="2" dy="-1" />
+	<blocked dx="1" dy="-2" />
+	<blocked dx="4" dy="-1" />
+	<blocked dx="3" dy="-2" />
+	<blocked dx="4" dy="0" />
+	<blocked dx="3" dy="-1" />
+	<blocked dx="2" dy="-2" />
+	<blocked dx="1" dy="-3" />
+	<blocked dx="0" dy="-3" />
+	<blocked dx="-2" dy="-4" />
+	<blocked dx="-1" dy="-4" />
+	<blocked dx="0" dy="-4" />
+	<blocked dx="-2" dy="-5" />
+	<blocked dx="-3" dy="-5" />
+
+	<blocked dx="4" dy="2" block="false" />
+	<blocked dx="4" dy="3" block="false" />
+	<blocked dx="2" dy="4" block="false" />
+	<blocked dx="1" dy="4" block="false" />
+	<blocked dx="0" dy="3" block="false" />
+	<blocked dx="-1" dy="2" block="false" />
+	<blocked dx="-2" dy="1" block="false" />
+	<blocked dx="3" dy="2" block="false" />
+	<blocked dx="-3" dy="0" block="false" />
+	<blocked dx="2" dy="5" block="false" />
+	<blocked dx="3" dy="3" block="false" />
+	<blocked dx="2" dy="2" block="false" />
+	<blocked dx="2" dy="3" block="false" />
+	<blocked dx="5" dy="2" block="false" />
+	<blocked dx="5" dy="1" block="false" />
+	<blocked dx="5" dy="0" block="false" />
+	<blocked dx="5" dy="-1" block="false" />
+	<blocked dx="2" dy="-3" block="false" />
+	<blocked dx="1" dy="-4" block="false" />
+	<blocked dx="-4" dy="-2" block="false" />
+	<blocked dx="-4" dy="-4" block="false" />
+	<blocked dx="-4" dy="-6" block="false" />
+	<blocked dx="-4" dy="-3" block="false" />
+	<blocked dx="-4" dy="-5" block="false" />
+	<blocked dx="-3" dy="-6" block="false" />
+	<blocked dx="-2" dy="-6" block="false" />
+	<blocked dx="0" dy="-5" block="false" />
+	<blocked dx="-1" dy="-6" block="false" />
+	<blocked dx="-1" dy="-5" block="false" />
+	<blocked dx="-4" dy="-1" block="false" />
+	<blocked dx="3" dy="-3" block="false" />
+	<blocked dx="2" dy="-4" block="false" />
+	<blocked dx="4" dy="-2" block="false" />
+
+	<door dx="2" dy="2" />
+
+	<constructionStack dx="2" dy="3" material="PLANK" buildrequired="1" />
+	<constructionStack dx="4" dy="3" material="STONE" buildrequired="1" />
+
+	<bricklayer dx="-1" dy="2" direction="NORTH_EAST" />
+	<bricklayer dx="1" dy="4" direction="NORTH_EAST" />
+	<bricklayer dx="4" dy="4" direction="NORTH_WEST" />
+	<bricklayer dx="4" dy="2" direction="NORTH_WEST" />
+
+	<flag dx="3" dy="-2" />
+
+	<buildmark dx="-2" dy="0" />
+	<buildmark dx="4" dy="1" />
+	<buildmark dx="4" dy="-1" />
+	<buildmark dx="1" dy="3" />
+	<buildmark dx="-3" dy="-1" />
+	<buildmark dx="-3" dy="-5" />
+
+	<image file="14" for="GUI" type="GUI" sequence="93" image="0"/>
+	<image file="13" for="FINAL" type="SETTLER" sequence="29" image="0"/>
+	<image file="13" for="BUILD" type="SETTLER" sequence="29" image="1"/>
+
+	<startjob name="gohome"/>
+
+	<job name="gohome"		successjob="reset"		failjob="reset"		type="GO_TO"/>
+	<job name="reset"		successjob="hide"		failjob="hide"		type="SHOW" dx="2" dy="2"/>
+	<job name="hide"		successjob="start"		failjob="start"		type="HIDE"/>
+
+	<job name="start"		successjob="checkheal"	failjob="waitheal"	type="CALL_WOUNDED" dx="4" dy="4"/>
+	<job name="checkheal"	successjob="show"		failjob="hide"		type="CAN_HEAL" dx="4" dy="4"/>
+	<job name="show"		successjob="heal1"		failjob="hide"		type="SHOW" dx="2" dy="2" direction="SOUTH_EAST"/>
+	<job name="heal1"		successjob="heal2"		failjob="hideheal"	type="HEAL"/>
+	<job name="heal2"		successjob="hideheal"	failjob="hideheal"	type="PLAY_ACTION1" time="1"/>
+	<job name="hideheal"	successjob="waitheal"	failjob="waitheal"	type="HIDE"/>
+	<job name="waitheal"	successjob="hide"		failjob="hide"		type="WAIT" time="2"/>
+</building>
