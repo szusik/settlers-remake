@@ -1698,7 +1698,7 @@ public final class MainGrid implements Serializable {
 		@Override
 		public final boolean setBuilding(ShortPoint2D position, Building newBuilding) {
 			if (MainGrid.this.isInBounds(position.x, position.y)) {
-				FreeMapArea protectedArea = new FreeMapArea(position, newBuilding.getBuildingType().getProtectedTiles());
+				FreeMapArea protectedArea = new FreeMapArea(position, newBuilding.getBuildingVariant().getProtectedTiles());
 
 				if (canConstructAt(protectedArea)) {
 					setProtectedState(protectedArea, true);

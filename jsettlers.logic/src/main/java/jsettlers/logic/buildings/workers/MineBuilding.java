@@ -97,7 +97,7 @@ public final class MineBuilding extends ResourceBuilding {
 	protected void placeAdditionalMapObjects(IBuildingsGrid grid, ShortPoint2D pos, boolean place) {
 		if (place) {
 			MapObjectsManager objectsManager = grid.getMapObjectsManager();
-			for (ShortPoint2D currPos : new FreeMapArea(pos, super.getBuildingType().getProtectedTiles())) {
+			for (ShortPoint2D currPos : new FreeMapArea(pos, super.getBuildingVariant().getProtectedTiles())) {
 				objectsManager.removeMapObjectType(currPos.x, currPos.y, EMapObjectType.FOUND_COAL);
 				objectsManager.removeMapObjectType(currPos.x, currPos.y, EMapObjectType.FOUND_GOLD);
 				objectsManager.removeMapObjectType(currPos.x, currPos.y, EMapObjectType.FOUND_IRON);
