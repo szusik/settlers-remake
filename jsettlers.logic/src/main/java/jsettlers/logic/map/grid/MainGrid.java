@@ -1122,7 +1122,7 @@ public final class MainGrid implements Serializable {
 				if(!allowedGroundType.contains(type)) return false;
 			}
 
-			return !buildingType.needsFlattenedGround() || calculateConstructionMarkValue(x, y, buildingArea) >= 0;
+			return !building.needsFlattenedGround() || calculateConstructionMarkValue(x, y, buildingArea) >= 0;
 		}
 
 		@Override

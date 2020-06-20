@@ -21,6 +21,7 @@ import go.graphics.text.EFontSize;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionData;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.graphics.action.ActionFireable;
 import jsettlers.graphics.localization.Labels;
@@ -113,6 +114,10 @@ public class InventoryPanel extends AbstractContentProvider {
 	public void showMapPosition(ShortPoint2D position, IGraphicsGrid grid) {
 		super.showMapPosition(position, grid);
 		uiContentUpdater.updatePosition(grid, position);
+	}
+
+	public void setPlayer(IInGamePlayer player) {
+		uiContentUpdater.setPlayer(player);
 	}
 
 	@Override

@@ -20,7 +20,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import jsettlers.buildingcreator.editor.jobeditor.BuildingPersonJobProperties;
-import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.RelativeBricklayer;
 import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
@@ -34,7 +34,7 @@ import jsettlers.common.position.RelativePoint;
  * @author michael
  */
 public class BuildingDefinition {
-	private final EBuildingType type;
+	private final BuildingVariant building;
 
 	/**
 	 * A table of known actions and their names.
@@ -54,26 +54,26 @@ public class BuildingDefinition {
 	private RelativePoint door = new RelativePoint(0, 0);
 	private RelativePoint flag = new RelativePoint(0, 0);
 
-	public BuildingDefinition(EBuildingType type) {
-		this.type = type;
-		for (RelativePoint pos : type.getBlockedTiles()) {
+	public BuildingDefinition(BuildingVariant building) {
+		this.building = building;
+		for (RelativePoint pos : building.getBlockedTiles()) {
 			blocked.add(pos);
 		}
-		for (RelativePoint pos : type.getProtectedTiles()) {
+		for (RelativePoint pos : building.getProtectedTiles()) {
 			if (!blocked.contains(pos)) {
 				justProtected.add(pos);
 			}
 		}
 
-		buildmarks.addAll(Arrays.asList(type.getBuildMarks()));
-		bricklayers.addAll(Arrays.asList(type.getBricklayers()));
+		buildmarks.addAll(Arrays.asList(building.getBuildMarks()));
+		bricklayers.addAll(Arrays.asList(building.getBricklayers()));
 
-		door = type.getDoorTile();
-		flag = type.getFlag();
+		door = building.getDoorTile();
+		flag = building.getFlag();
 
-		constructionStacks.addAll(Arrays.asList(type.getConstructionStacks()));
-		requestStacks.addAll(Arrays.asList(type.getRequestStacks()));
-		offerStacks.addAll(Arrays.asList(type.getOfferStacks()));
+		constructionStacks.addAll(Arrays.asList(building.getConstructionStacks()));
+		requestStacks.addAll(Arrays.asList(building.getRequestStacks()));
+		offerStacks.addAll(Arrays.asList(building.getOfferStacks()));
 	}
 
 	public Set<String> getActionNames() {
@@ -88,8 +88,8 @@ public class BuildingDefinition {
 		actions.put(name, new BuildingPersonJobProperties());
 	}
 
-	public EBuildingType getType() {
-		return type;
+	public BuildingVariant getBuilding() {
+		return building;
 	}
 
 	public boolean getBlockedStatus(RelativePoint relative) {

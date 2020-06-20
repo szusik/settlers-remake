@@ -72,7 +72,7 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 		if (currentJobName.equals("null")) {
 			currentJob = null;
 		} else {
-			currentJob = building.getBuildingType().getJobByName(currentJobName);
+			currentJob = building.getBuildingVariant().getJobByName(currentJobName);
 		}
 	}
 
@@ -317,7 +317,7 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 			if(movable.getPatient() == null) {
 				ILogicMovable bestPatient = null;
 				float patientHealth = Float.MAX_VALUE;
-				MapCircleIterator iter = new MapCircleIterator(new MapCircle(building.getWorkAreaCenter(), building.getBuildingType().getWorkRadius()));
+				MapCircleIterator iter = new MapCircleIterator(new MapCircle(building.getWorkAreaCenter(), building.getBuildingVariant().getWorkRadius()));
 
 				int width = getGrid().getWidth();
 				int height = getGrid().getHeight();
@@ -534,7 +534,7 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 	@Override
 	public void setWorkerJob(IWorkerRequestBuilding building) {
 		this.building = building;
-		this.currentJob = building.getBuildingType().getStartJob();
+		this.currentJob = building.getBuildingVariant().getStartJob();
 		super.enableNothingToDoAction(false);
 		this.done = false;
 		building.occupyBuilding(this);

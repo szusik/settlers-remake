@@ -17,6 +17,7 @@ package jsettlers.common.menu;
 import java8.util.function.Consumer;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.player.IInGamePlayer;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.statistics.IGameTimeProvider;
 
 /**
@@ -30,7 +31,7 @@ public class FakeMapGame implements IStartedGame {
 	private final IInGamePlayer player;
 
 	public FakeMapGame(IGraphicsGrid map) {
-		this(map, null);
+		this(map, new IPlayer.DummyPlayer((byte)0));
 	}
 
 	public FakeMapGame(IGraphicsGrid map, IInGamePlayer player) {

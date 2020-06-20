@@ -42,7 +42,7 @@ public abstract class WorkAreaBuilding extends Building {
 
 	@Override
 	protected void placedAtEvent(ShortPoint2D pos) {
-		this.workAreaCenter = getBuildingType().getDefaultWorkcenter().calculatePoint(pos);
+		this.workAreaCenter = getBuildingVariant().getDefaultWorkcenter().calculatePoint(pos);
 	}
 
 	public final ShortPoint2D getWorkAreaCenter() {
@@ -90,7 +90,7 @@ public abstract class WorkAreaBuilding extends Building {
 	@Override
 	public EPriority[] getSupportedPriorities() {
 		if (isConstructionFinished()) {
-			if (getBuildingType().getRequestStacks().length == 0) { // has no request stacks
+			if (getBuildingVariant().getRequestStacks().length == 0) { // has no request stacks
 				return SUPPORTED_PRIORITIES_FOR_NON_REQUESTERS;
 			} else {
 				return SUPPORTED_PRIORITIES_FOR_REQUESTERS;

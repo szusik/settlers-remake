@@ -160,8 +160,7 @@ public class MainPanel extends UIPanel {
 	public MainPanel(ActionFireable actionFireable, IStartedGame game) {
 		this.actionFireable = actionFireable;
 		this.game = game;
-		ContentType.WARRIORS.setPlayer(game.getInGamePlayer());
-		ContentType.SETTLER_STATISTIC.setPlayer(game.getInGamePlayer());
+		ContentType.setPlayer(game.getInGamePlayer());
 
 		layoutPanel(ControlPanelLayoutProperties.getLayoutPropertiesFor(480));
 	}

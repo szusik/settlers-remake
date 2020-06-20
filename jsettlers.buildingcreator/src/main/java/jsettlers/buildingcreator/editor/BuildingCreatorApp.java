@@ -15,6 +15,7 @@
 package jsettlers.buildingcreator.editor;
 
 import java8.util.Comparators;
+import java8.util.J8Arrays;
 import jsettlers.buildingcreator.editor.map.BuildingtestMap;
 import jsettlers.buildingcreator.editor.map.PseudoTile;
 import jsettlers.common.Color;
@@ -22,6 +23,7 @@ import jsettlers.common.action.Action;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.action.IAction;
 import jsettlers.common.action.PointAction;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.RelativeBricklayer;
 import jsettlers.common.buildings.stacks.ConstructionStack;
@@ -31,6 +33,7 @@ import jsettlers.common.menu.FakeMapGame;
 import jsettlers.common.menu.IMapInterfaceConnector;
 import jsettlers.common.menu.IMapInterfaceListener;
 import jsettlers.common.movable.EDirection;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.main.swing.SwingManagedJSettlers;
@@ -69,8 +72,9 @@ public class BuildingCreatorApp implements IMapInterfaceListener, Runnable {
 	public void run() {
 		try {
 			EBuildingType type = askType();
+			BuildingVariant variant = askVariant(type);
 
-			definition = new BuildingDefinition(type);
+			definition = new BuildingDefinition(variant);
 			map = new BuildingtestMap(definition);
 			for (int x = 0; x < map.getWidth(); x++) {
 				for (int y = 0; y < map.getHeight(); y++) {
@@ -83,7 +87,7 @@ public class BuildingCreatorApp implements IMapInterfaceListener, Runnable {
 
 			JPanel menu = generateMenu();
 
-			window = new JFrame("Edit " + type.toString());
+			window = new JFrame("Edit " + variant.toString());
 			window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			window.add(menu);
 			window.pack();
@@ -135,6 +139,12 @@ public class BuildingCreatorApp implements IMapInterfaceListener, Runnable {
 		EBuildingType[] buildingTypes = EBuildingType.values();
 		Arrays.sort(buildingTypes, Comparators.comparing(EBuildingType::name));
 		return (EBuildingType) JOptionPane.showInputDialog(null, "Select building type", "Building Type", JOptionPane.QUESTION_MESSAGE, null, buildingTypes, null);
+	}
+
+	private BuildingVariant askVariant(EBuildingType type) {
+		BuildingVariant[] variants = type.getVariants();
+		ECivilisation[] civs = J8Arrays.stream(variants).map(BuildingVariant::getCivilisation).toArray(ECivilisation[]::new);
+		return type.getVariant((ECivilisation)JOptionPane.showInputDialog(null, "Select building variant", "Building Variant", JOptionPane.QUESTION_MESSAGE, null, civs, null));
 	}
 
 	public static void main(String[] args) throws InvocationTargetException, InterruptedException, IOException {

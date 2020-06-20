@@ -17,6 +17,7 @@ package jsettlers.ai.construction;
 import java.util.ArrayList;
 import java.util.List;
 
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
@@ -28,11 +29,11 @@ import jsettlers.logic.map.grid.MainGrid;
 abstract public class PlantingBuildingConstructionPositionFinder extends ConstructionPositionFinder {
 
 	private final RelativePoint[] workAreaPoints;
-	private final EBuildingType type;
+	private final BuildingVariant building;
 
 	protected PlantingBuildingConstructionPositionFinder(Factory factory, EBuildingType type) {
 		super(factory);
-		this.type = type;
+		this.building = type.getVariant(factory.civilisation);
 
 		workAreaPoints = calculateMyRelativeWorkAreaPoints();
 	}
@@ -43,8 +44,8 @@ abstract public class PlantingBuildingConstructionPositionFinder extends Constru
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
-			if (constructionMap.canConstructAt(point.x, point.y, type, playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, type)) {
+			if (constructionMap.canConstructAt(point.x, point.y, building.getType(), playerId)
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, building.getType())) {
 				int score = calculateScoreFor(point, aiStatistics.getMainGrid(), playerId);
 				if (score > 0) {
 					scoredConstructionPositions.add(new ScoredConstructionPosition(point, -score));
@@ -70,8 +71,8 @@ abstract public class PlantingBuildingConstructionPositionFinder extends Constru
 
 	protected RelativePoint[] calculateMyRelativeWorkAreaPoints() {
 		List<RelativePoint> workAreaPoints = new ArrayList<>();
-		RelativePoint center = type.getDefaultWorkcenter();
-		short workRadius = type.getWorkRadius();
+		RelativePoint center = building.getDefaultWorkcenter();
+		short workRadius = building.getWorkRadius();
 		for (short x = (short) -workRadius; x < workRadius; x++) {
 			for (short y = (short) -workRadius; y < workRadius; y++) {
 				if (Math.sqrt(x * x + y * y) <= workRadius) {

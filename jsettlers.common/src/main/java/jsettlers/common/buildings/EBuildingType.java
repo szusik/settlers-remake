@@ -126,22 +126,8 @@ public enum EBuildingType {
 		return buildingVariants.get(civilisation);
 	}
 
-	/**
-	 * Gets the job a worker for this building should start with.
-	 * 
-	 * @return That {@link IBuildingJob}
-	 */
-	public final IBuildingJob getStartJob() {
-		return buildingVariants.get(REPLACE_ME).getStartJob();
-	}
-
-	/**
-	 * Gets the type of worker required for the building.
-	 * 
-	 * @return The worker or <code>null</code> if no worker is required.
-	 */
-	public final EMovableType getWorkerType() {
-		return buildingVariants.get(REPLACE_ME).getWorkerType();
+	public BuildingVariant[] getVariants() {
+		return buildingVariants.values().toArray(new BuildingVariant[0]);
 	}
 
 	/**
@@ -208,40 +194,12 @@ public enum EBuildingType {
 	}
 
 	/**
-	 * Gets the default work center for the building type.
-	 * 
-	 * @return The default work center position.
-	 */
-	public final RelativePoint getDefaultWorkcenter() {
-		return buildingVariants.get(REPLACE_ME).getDefaultWorkcenter();
-	}
-
-	/**
 	 * Gets the position of the flag for this building. The flag type is determined by the building itself.
 	 * 
 	 * @return The flag position.
 	 */
 	public final RelativePoint getFlag() {
 		return buildingVariants.get(REPLACE_ME).getFlag();
-	}
-
-	/**
-	 * Gets the positions where the bricklayers should stand to build the house.
-	 * 
-	 * @return The positions.
-	 * @see RelativeBricklayer
-	 */
-	public final RelativeBricklayer[] getBricklayers() {
-		return buildingVariants.get(REPLACE_ME).getBricklayers();
-	}
-
-	/**
-	 * Gets the positions of the build marks (sticks) for this building.
-	 * 
-	 * @return The positions of the marks.
-	 */
-	public final RelativePoint[] getBuildMarks() {
-		return buildingVariants.get(REPLACE_ME).getBuildMarks();
 	}
 
 	/**
@@ -254,52 +212,12 @@ public enum EBuildingType {
 	}
 
 	/**
-	 * Queries a building job with the given name that needs to be accessible from the start job.
-	 * 
-	 * @param jobname
-	 *            The name of the job.
-	 * @return The job if found.
-	 * @throws IllegalArgumentException
-	 *             If the name was not found.
-	 */
-	public final IBuildingJob getJobByName(String jobname) {
-		return buildingVariants.get(REPLACE_ME).getJobByName(jobname);
-	}
-
-	/**
-	 * Gets the materials required to build this building and where to place them.
-	 * 
-	 * @return The array of material stacks.
-	 */
-	public ConstructionStack[] getConstructionStacks() {
-		return buildingVariants.get(REPLACE_ME).getConstructionStacks();
-	}
-
-	/**
-	 * Get the amount of material required to build this house. Usually the number of stone + planks.
-	 * 
-	 * @return The number of materials required to construct the building.
-	 */
-	public final byte getNumberOfConstructionMaterials() {
-		return buildingVariants.get(REPLACE_ME).getNumberOfConstructionMaterials();
-	}
-
-	/**
 	 * Gets the request stacks required to operate this building.
 	 * 
 	 * @return The request stacks.
 	 */
 	public RelativeStack[] getRequestStacks() {
 		return buildingVariants.get(REPLACE_ME).getRequestStacks();
-	}
-
-	/**
-	 * Gets the positions where the building should offer materials.
-	 * 
-	 * @return The offer positions.
-	 */
-	public RelativeStack[] getOfferStacks() {
-		return buildingVariants.get(REPLACE_ME).getOfferStacks();
 	}
 
 	/**

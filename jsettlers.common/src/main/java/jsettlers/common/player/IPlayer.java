@@ -33,9 +33,9 @@ public interface IPlayer {
 
 	ECivilisation getCivilisation();
 
-	public static final IPlayer DEFAULT_DUMMY_PLAYER0 = DummyPlayer.getCached((byte)0);
+	IPlayer DEFAULT_DUMMY_PLAYER0 = DummyPlayer.getCached((byte)0);
 
-	class DummyPlayer implements IPlayer {
+	class DummyPlayer implements IInGamePlayer {
 		private final byte playerAndTeamId;
 
 		public DummyPlayer(byte playerAndTeamId) {
@@ -55,6 +55,26 @@ public interface IPlayer {
 		@Override
 		public EWinState getWinState() {
 			return EWinState.UNDECIDED;
+		}
+
+		@Override
+		public IMannaInformation getMannaInformation() {
+			return null;
+		}
+
+		@Override
+		public ICombatStrengthInformation getCombatStrengthInformation() {
+			return null;
+		}
+
+		@Override
+		public IEndgameStatistic getEndgameStatistic() {
+			return null;
+		}
+
+		@Override
+		public ISettlerInformation getSettlerInformation() {
+			return null;
 		}
 
 		@Override

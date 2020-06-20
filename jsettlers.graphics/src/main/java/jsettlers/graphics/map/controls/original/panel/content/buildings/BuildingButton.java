@@ -17,7 +17,7 @@ package jsettlers.graphics.map.controls.original.panel.content.buildings;
 import go.graphics.GLDrawContext;
 import go.graphics.text.EFontSize;
 
-import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.images.EImageLinkType;
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.images.OriginalImageLink;
@@ -44,7 +44,7 @@ public class BuildingButton extends Button implements UiContentUpdater.IUiConten
 	private static final float ICON_BUTTON_RATIO = 0.85f;
 
 	private final ImageLink buildingImageLink;
-	private final EBuildingType buildingType;
+	private final BuildingVariant building;
 	private Image buildingImage = NullImage.getInstance();
 
 	private float lastButtonHeight;
@@ -57,10 +57,10 @@ public class BuildingButton extends Button implements UiContentUpdater.IUiConten
 	private float iconHeight;
 	private final Label constructedLabel = new Label("", EFontSize.SMALL, EHorizontalAlignment.RIGHT, EVerticalAlignment.TOP);
 
-	public BuildingButton(EBuildingType buildingType) {
-		super(new ShowConstructionMarksAction(buildingType), null, null, Labels.getName(buildingType));
-		this.buildingType = buildingType;
-		buildingImageLink = buildingType.getGuiImage();
+	public BuildingButton(BuildingVariant building) {
+		super(new ShowConstructionMarksAction(building.getType()), null, null, Labels.getName(building.getType()));
+		this.building = building;
+		buildingImageLink = building.getGuiImage();
 		addChild(constructedLabel, 0.05f, 0.05f, .95f, .95f);
 	}
 
@@ -107,15 +107,15 @@ public class BuildingButton extends Button implements UiContentUpdater.IUiConten
 		lastImageWidth = imageWidth;
 	}
 
-	public EBuildingType getBuildingType() {
-		return buildingType;
+	public BuildingVariant getBuilding() {
+		return building;
 	}
 
 	@Override
 	public void update(IBuildingCounts buildingCounts) {
 		if (buildingCounts != null) {
-			int constructed = buildingCounts.buildingsInPartition(getBuildingType());
-			int inConstruction = buildingCounts.buildingsInPartitionUnderConstruction(getBuildingType());
+			int constructed = buildingCounts.buildingsInPartition(getBuilding().getType());
+			int inConstruction = buildingCounts.buildingsInPartitionUnderConstruction(getBuilding().getType());
 			String text = constructed + (inConstruction == 0 ? "" : "\n+" + inConstruction);
 			constructedLabel.setText(text);
 		} else {

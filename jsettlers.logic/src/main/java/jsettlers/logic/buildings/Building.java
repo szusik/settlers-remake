@@ -410,7 +410,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 		}
 
 		remainingMaterialActions--;
-		constructionProgress += 1f / (Constants.BRICKLAYER_ACTIONS_PER_MATERIAL * getBuildingType().getNumberOfConstructionMaterials());
+		constructionProgress += 1f / (Constants.BRICKLAYER_ACTIONS_PER_MATERIAL * getBuildingVariant().getNumberOfConstructionMaterials());
 		if (remainingMaterialActions > 0) {
 			return true;
 		} else {

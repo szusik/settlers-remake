@@ -62,7 +62,7 @@ public class WorkerBuilding extends WorkAreaBuilding implements IWorkerRequestBu
 	}
 
 	private void requestWorker() {
-		super.grid.requestBuildingWorker(super.getBuildingType().getWorkerType(), this);
+		super.grid.requestBuildingWorker(super.getBuildingVariant().getWorkerType(), this);
 	}
 
 	@Override
