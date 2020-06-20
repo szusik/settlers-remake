@@ -131,15 +131,6 @@ public enum EBuildingType {
 	}
 
 	/**
-	 * Gets the position of the door for this building.
-	 * 
-	 * @return The door.
-	 */
-	public final RelativePoint getDoorTile() {
-		return buildingVariants.get(REPLACE_ME).getDoorTile();
-	}
-
-	/**
 	 * Gets a list of blocked positions.
 	 * 
 	 * @return The list of blocked positions.
@@ -191,15 +182,6 @@ public enum EBuildingType {
 	 */
 	public final short getWorkRadius() {
 		return buildingVariants.get(REPLACE_ME).getWorkRadius();
-	}
-
-	/**
-	 * Gets the position of the flag for this building. The flag type is determined by the building itself.
-	 * 
-	 * @return The flag position.
-	 */
-	public final RelativePoint getFlag() {
-		return buildingVariants.get(REPLACE_ME).getFlag();
 	}
 
 	/**

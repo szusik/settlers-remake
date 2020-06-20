@@ -64,7 +64,7 @@ public final class MineBuilding extends ResourceBuilding {
 
 	@Override
 	public boolean tryTakingResource() {
-		RelativePoint[] blockedPositions = super.getBuildingType().getBlockedTiles();
+		RelativePoint[] blockedPositions = super.getBuildingVariant().getBlockedTiles();
 		int randomPositionIndex = MatchConstants.random().nextInt(blockedPositions.length);
 		ShortPoint2D randomPosition = blockedPositions[randomPositionIndex].calculatePoint(super.pos);
 
@@ -111,6 +111,6 @@ public final class MineBuilding extends ResourceBuilding {
 	@Override
 	public int getRemainingResourceAmount() {
 		return super.grid.getAmountOfResource(getProducedResource(),
-				new RelativeToRealPointIterable(super.getBuildingType().getBlockedTiles(), super.pos));
+				new RelativeToRealPointIterable(super.getBuildingVariant().getBlockedTiles(), super.pos));
 	}
 }

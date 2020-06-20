@@ -497,7 +497,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 	protected abstract EMapObjectType getFlagType();
 
 	public final ShortPoint2D getDoor() {
-		return getBuildingType().getDoorTile().calculatePoint(pos);
+		return getBuildingVariant().getDoorTile().calculatePoint(pos);
 	}
 
 	@Override

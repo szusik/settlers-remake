@@ -14,6 +14,7 @@
  *******************************************************************************/
 package jsettlers.ai.construction;
 
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.position.RelativePoint;
@@ -31,13 +32,13 @@ import java.util.List;
 public class MineConstructionPositionFinder extends ConstructionPositionFinder {
 	private static final float DISTANCE_PENALTY_FACTOR = 0.01f;
 
-	private final EBuildingType buildingType;
+	private final BuildingVariant building;
 	private final EResourceType resourceType;
 
 	public MineConstructionPositionFinder(Factory factory, EBuildingType buildingType, EResourceType resourceType) {
 		super(factory);
 
-		this.buildingType = buildingType;
+		this.building = buildingType.getVariant(civilisation);
 		this.resourceType = resourceType;
 	}
 
@@ -45,10 +46,10 @@ public class MineConstructionPositionFinder extends ConstructionPositionFinder {
 	public ShortPoint2D findBestConstructionPosition() {
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
-			if (constructionMap.canConstructAt(point.x, point.y, buildingType, playerId)) {
+			if (constructionMap.canConstructAt(point.x, point.y, building.getType(), playerId)) {
 				int resourceAmount = 0;
 				LandscapeGrid landscapeGrid = aiStatistics.getMainGrid().getLandscapeGrid();
-				for (RelativePoint relativePoint : buildingType.getBlockedTiles()) {
+				for (RelativePoint relativePoint : building.getBlockedTiles()) {
 					int x = point.x + relativePoint.getDx();
 					int y = point.y + relativePoint.getDy();
 					if (landscapeGrid.getResourceTypeAt(x, y) == resourceType) {
