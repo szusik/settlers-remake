@@ -48,9 +48,9 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 	private final EndgameStatistic	endgameStatistic = new EndgameStatistic(this);
 
 	private EWinState winState;
+	private ECivilisation civilisation;
 
 	private transient EPlayerType               playerType;
-	private transient ECivilisation             civilisation;
 	private transient CombatStrengthInformation combatStrengthInfo = new CombatStrengthInformation();
 	private transient IMessenger                messenger;
 
