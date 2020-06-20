@@ -23,7 +23,6 @@ package jsettlers.input.tasks;
 public enum EGuiAction {
 	BUILD,
 	SET_WORK_AREA,
-	CAST_SPELL,
 
 	SET_DOCK,
 	ORDER_SHIP,
@@ -54,7 +53,8 @@ public enum EGuiAction {
 	SET_TRADING_WAYPOINT,
 
 	CHANGE_TOWER_SOLDIERS,
-	SET_ACCEPTED_STOCK_MATERIAL;
+	SET_ACCEPTED_STOCK_MATERIAL,
+	CAST_SPELL;
 
 	public static final EGuiAction[] VALUES = values();
 }
