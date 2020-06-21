@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jsettlers.ai.highlevel.AiStatistics;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 
@@ -33,8 +34,11 @@ import static jsettlers.common.buildings.EBuildingType.FORESTER;
  */
 public class ForesterConstructionPositionFinder extends ConstructionPositionFinder {
 
+	private final BuildingVariant forester;
+
 	protected ForesterConstructionPositionFinder(Factory factory) {
 		super(factory);
+		forester = FORESTER.getVariant(civilisation);
 	}
 
 	@Override
@@ -45,7 +49,7 @@ public class ForesterConstructionPositionFinder extends ConstructionPositionFind
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
 			if (constructionMap.canConstructAt(point.x, point.y, FORESTER, playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, FORESTER)) {
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, forester)) {
 				int foresterDistance = 0;
 				int lumberJackDistance = 0;
 				ShortPoint2D nearestLumberJackPoint = AiStatistics.detectNearestPointFromList(point, lumberJacks);

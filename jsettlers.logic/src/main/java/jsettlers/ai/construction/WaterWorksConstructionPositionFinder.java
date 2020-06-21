@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jsettlers.ai.highlevel.AiPositions;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.position.ShortPoint2D;
 
 import static jsettlers.common.buildings.EBuildingType.WATERWORKS;
@@ -30,8 +31,12 @@ import static jsettlers.common.buildings.EBuildingType.WATERWORKS;
  */
 public class WaterWorksConstructionPositionFinder extends ConstructionPositionFinder {
 
+	private final BuildingVariant waterworks;
+
 	protected WaterWorksConstructionPositionFinder(Factory factory) {
 		super(factory);
+
+		waterworks = WATERWORKS.getVariant(civilisation);
 	}
 
 	@Override
@@ -43,8 +48,8 @@ public class WaterWorksConstructionPositionFinder extends ConstructionPositionFi
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
 			if (constructionMap.canConstructAt(point.x, point.y, WATERWORKS, playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, WATERWORKS)) {
-				ShortPoint2D nearestRiverPosition = rivers.getNearestPoint(point, WATERWORKS.getWorkRadius(), null);
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, waterworks)) {
+				ShortPoint2D nearestRiverPosition = rivers.getNearestPoint(point, waterworks.getWorkRadius(), null);
 				if (nearestRiverPosition != null) {
 					int riverDistance = point.getOnGridDistTo(nearestRiverPosition);
 					scoredConstructionPositions.add(new ScoredConstructionPosition(point, riverDistance));

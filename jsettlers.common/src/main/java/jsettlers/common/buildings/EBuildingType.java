@@ -131,15 +131,6 @@ public enum EBuildingType {
 	}
 
 	/**
-	 * Gets a list of blocked positions.
-	 * 
-	 * @return The list of blocked positions.
-	 */
-	public final RelativePoint[] getBlockedTiles() {
-		return buildingVariants.get(REPLACE_ME).getBlockedTiles();
-	}
-
-	/**
 	 * Gets the tiles that are protected by this building. On thse tiles, no other buildings may be build.
 	 * 
 	 * @return The tiles as array.

@@ -16,6 +16,7 @@ package jsettlers.ai.construction;
 
 import jsettlers.ai.highlevel.AiPositions;
 import jsettlers.common.CommonConstants;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 
@@ -27,9 +28,13 @@ import java.util.List;
 public class BorderDefenceConstructionPositionFinder extends ConstructionPositionFinder {
 	private final List<ShortPoint2D> threatenedBorders;
 
+	private final BuildingVariant tower;
+
 	public BorderDefenceConstructionPositionFinder(Factory factory, List<ShortPoint2D> threatenedBorders) {
 		super(factory);
 		this.threatenedBorders = threatenedBorders;
+
+		tower = EBuildingType.TOWER.getVariant(civilisation);
 	}
 
 	@Override
@@ -38,7 +43,7 @@ public class BorderDefenceConstructionPositionFinder extends ConstructionPositio
 		for (ShortPoint2D threatenedBorder : threatenedBorders) {
 			ShortPoint2D constructionPosition = landToBuildOn.getNearestPoint(threatenedBorder, CommonConstants.TOWER_RADIUS,
 					(x, y) -> constructionMap.canConstructAt((short) x, (short) y, EBuildingType.TOWER, playerId)
-							&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(x, y, playerId, EBuildingType.TOWER));
+							&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(x, y, playerId, tower));
 			if (constructionPosition != null) {
 				return constructionPosition;
 			}

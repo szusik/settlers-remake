@@ -26,6 +26,8 @@ import jsettlers.ai.highlevel.pioneers.target.StoneCutterTargetFinder;
 import jsettlers.ai.highlevel.pioneers.target.TreesForLumberJackTargetFinder;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.EResourceType;
+import jsettlers.common.player.ECivilisation;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.MatchConstants;
 
@@ -40,21 +42,23 @@ public class PioneerAi {
 	private final AbstractPioneerTargetFinder[] targetFinders;
 	private ShortPoint2D lastResourceTarget;
 
-	public PioneerAi(AiStatistics aiStatistics, byte playerId) {
+	public PioneerAi(AiStatistics aiStatistics, IPlayer player) {
 		this.aiStatistics = aiStatistics;
-		this.playerId = playerId;
+		this.playerId = player.getPlayerId();
 		this.searchDistance = aiStatistics.getMainGrid().getWidth() / 2;
 		this.lastResourceTarget = aiStatistics.getPositionOfPartition(playerId);
+
+		ECivilisation playerCivilisation = player.getCivilisation();
 
 		this.targetFinders = new AbstractPioneerTargetFinder[] {
 				new TreesForLumberJackTargetFinder(aiStatistics, playerId, searchDistance, 10),
 				new NearStonesTargetFinder(aiStatistics, playerId, searchDistance),
 				new StoneCutterTargetFinder(aiStatistics, playerId, searchDistance, 6),
 				new ConnectPartitionsTargetFinder(aiStatistics, playerId, searchDistance),
-				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.COAL, EBuildingType.COALMINE),
-				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.IRONORE, EBuildingType.IRONMINE),
+				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.COAL, EBuildingType.COALMINE.getVariant(playerCivilisation)),
+				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.IRONORE, EBuildingType.IRONMINE.getVariant(playerCivilisation)),
 				new RiverTargetFinder(aiStatistics, playerId, searchDistance),
-				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.GOLDORE, EBuildingType.GOLDMINE),
+				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.GOLDORE, EBuildingType.GOLDMINE.getVariant(playerCivilisation)),
 				new FishTargetFinder(aiStatistics, playerId, searchDistance)
 		};
 	}

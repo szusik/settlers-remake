@@ -17,6 +17,8 @@ package jsettlers.ai.construction;
 import java.util.ArrayList;
 import java.util.List;
 
+import jsettlers.common.buildings.BuildingVariant;
+import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 
 import static jsettlers.common.buildings.EBuildingType.FISHER;
@@ -28,18 +30,22 @@ import static jsettlers.common.buildings.EBuildingType.FISHER;
  */
 public class FisherConstructionPositionFinder extends ConstructionPositionFinder {
 
+	private final BuildingVariant fisher;
+
 	protected FisherConstructionPositionFinder(Factory factory) {
 		super(factory);
+
+		fisher = FISHER.getVariant(civilisation);
 	}
 
 	@Override
 	public ShortPoint2D findBestConstructionPosition() {
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 
-		int fishDistance = FISHER.getWorkRadius();
+		int fishDistance = fisher.getWorkRadius();
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
 			if (aiStatistics.wasFishNearByAtGameStart(point) && constructionMap.canConstructAt(point.x, point.y, FISHER, playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, FISHER)) {
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, fisher)) {
 				ShortPoint2D fishPosition = aiStatistics.getNearestFishPointForPlayer(point, playerId, fishDistance);
 				if (fishPosition != null) {
 					fishDistance = point.getOnGridDistTo(fishPosition);

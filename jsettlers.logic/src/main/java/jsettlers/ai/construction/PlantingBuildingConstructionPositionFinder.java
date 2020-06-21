@@ -45,7 +45,7 @@ abstract public class PlantingBuildingConstructionPositionFinder extends Constru
 
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
 			if (constructionMap.canConstructAt(point.x, point.y, building.getType(), playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, building.getType())) {
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, building)) {
 				int score = calculateScoreFor(point, aiStatistics.getMainGrid(), playerId);
 				if (score > 0) {
 					scoredConstructionPositions.add(new ScoredConstructionPosition(point, -score));

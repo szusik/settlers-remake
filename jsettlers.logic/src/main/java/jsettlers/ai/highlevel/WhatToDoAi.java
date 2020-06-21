@@ -35,6 +35,7 @@ import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.tasks.ConstructBuildingTask;
 import jsettlers.input.tasks.ConvertGuiTask;
@@ -117,6 +118,7 @@ class WhatToDoAi implements IWhatToDoAi {
 	private final MainGrid mainGrid;
 	private final MovableGrid movableGrid;
 	private final byte playerId;
+	private final IPlayer player;
 	private final ITaskScheduler taskScheduler;
 	private final AiStatistics aiStatistics;
 	private final ArmyGeneral armyGeneral;
@@ -129,15 +131,16 @@ class WhatToDoAi implements IWhatToDoAi {
 	private PioneerGroup broadenerPioneers;
 	private AiPositions.AiPositionFilter[] geologistFilters = new AiPositions.AiPositionFilter[EResourceType.values().length];
 
-	WhatToDoAi(byte playerId, AiStatistics aiStatistics, EconomyMinister economyMinister, ArmyGeneral armyGeneral, MainGrid mainGrid, ITaskScheduler taskScheduler) {
-		this.playerId = playerId;
+	WhatToDoAi(IPlayer player, AiStatistics aiStatistics, EconomyMinister economyMinister, ArmyGeneral armyGeneral, MainGrid mainGrid, ITaskScheduler taskScheduler) {
+		this.player = player;
+		this.playerId = player.getPlayerId();
 		this.mainGrid = mainGrid;
 		this.movableGrid = mainGrid.getMovableGrid();
 		this.taskScheduler = taskScheduler;
 		this.aiStatistics = aiStatistics;
 		this.armyGeneral = armyGeneral;
 		this.economyMinister = economyMinister;
-		this.pioneerAi = new PioneerAi(aiStatistics, playerId);
+		this.pioneerAi = new PioneerAi(aiStatistics, player);
 		constructionPositionFinderFactory = new ConstructionPositionFinder.Factory(
 				mainGrid.getPartitionsGrid().getPlayer(playerId).getCivilisation(),
 				aiStatistics,
@@ -246,13 +249,15 @@ class WhatToDoAi implements IWhatToDoAi {
 	}
 
 	private void destroyBuildings() {
+		int stonecutterWorkRadius = STONECUTTER.getVariant(player.getCivilisation()).getWorkRadius();
+
 		// destroy stonecutters or set their work areas
 		for (ShortPoint2D stoneCutterPosition : aiStatistics.getBuildingPositionsOfTypeForPlayer(STONECUTTER, playerId)) {
 			if (aiStatistics.getBuildingAt(stoneCutterPosition).cannotWork()) {
 				int numberOfStoneCutters = aiStatistics.getNumberOfBuildingTypeForPlayer(STONECUTTER, playerId);
 
 				ShortPoint2D nearestStone = aiStatistics.getStonesForPlayer(playerId)
-						.getNearestPoint(stoneCutterPosition, STONECUTTER.getWorkRadius() * MAXIMUM_STONECUTTER_WORK_RADIUS_FACTOR, null);
+						.getNearestPoint(stoneCutterPosition, stonecutterWorkRadius * MAXIMUM_STONECUTTER_WORK_RADIUS_FACTOR, null);
 				if (nearestStone != null && numberOfStoneCutters < economyMinister.getMidGameNumberOfStoneCutters()) {
 					taskScheduler.scheduleTask(new WorkAreaGuiTask(EGuiAction.SET_WORK_AREA, playerId, nearestStone, stoneCutterPosition));
 				} else {

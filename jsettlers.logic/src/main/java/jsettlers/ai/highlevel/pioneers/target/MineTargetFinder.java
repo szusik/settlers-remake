@@ -16,8 +16,10 @@ package jsettlers.ai.highlevel.pioneers.target;
 
 import jsettlers.ai.highlevel.AiPositions;
 import jsettlers.ai.highlevel.AiStatistics;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.EResourceType;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 
 /**
@@ -26,14 +28,14 @@ import jsettlers.common.position.ShortPoint2D;
 public class MineTargetFinder extends AbstractPioneerTargetFinder {
 
 	private final EResourceType resourceType;
-	private final EBuildingType mineBuildingType;
+	private final BuildingVariant mineBuilding;
 	private final AiPositions.AiPositionFilter mineFilters;
 
 	public MineTargetFinder(final AiStatistics aiStatistics, final byte playerId, final int searchDistance, final EResourceType resourceType,
-			final EBuildingType mineBuildingType) {
+			final BuildingVariant mineBuilding) {
 		super(aiStatistics, playerId, searchDistance);
 		this.resourceType = resourceType;
-		this.mineBuildingType = mineBuildingType;
+		this.mineBuilding = mineBuilding;
 		AiPositions.AiPositionFilter firstFilter = new SameBlockedPartitionLikePlayerFilter(this.aiStatistics, playerId);
 		SurroundedByResourcesFilter secondFilter = new SurroundedByResourcesFilter(aiStatistics.getMainGrid(),
 				aiStatistics.getMainGrid().getLandscapeGrid(), resourceType);
@@ -45,8 +47,8 @@ public class MineTargetFinder extends AbstractPioneerTargetFinder {
 		if (aiStatistics.resourceCountInDefaultPartition(resourceType) == 0)
 			return null;
 
-		int buildingCount = aiStatistics.getTotalNumberOfBuildingTypeForPlayer(mineBuildingType, playerId) + 1;
-		int tiles = mineBuildingType.getProtectedTiles().length * 2;
+		int buildingCount = aiStatistics.getTotalNumberOfBuildingTypeForPlayer(mineBuilding.getType(), playerId) + 1;
+		int tiles = mineBuilding.getProtectedTiles().length * 2;
 
 		if (aiStatistics.resourceCountOfPlayer(resourceType, playerId) > tiles * buildingCount)
 			return null;

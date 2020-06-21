@@ -19,6 +19,8 @@ import static jsettlers.common.buildings.EBuildingType.STONECUTTER;
 import jsettlers.ai.highlevel.AiPositions;
 import jsettlers.ai.highlevel.AiStatistics;
 import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
+import jsettlers.common.buildings.BuildingVariant;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 
 /**
@@ -43,12 +45,15 @@ public class StoneCutterConstructionPositionFinder extends ConstructionPositionF
 		private final AiStatistics aiStatistics;
 		private final byte playerId;
 		private final AiPositions objects;
+		private final BuildingVariant stonecutter;
 
-		public StoneCutterPositionRater(AbstractConstructionMarkableMap constructionMap, AiStatistics aiStatistics, byte playerId, AiPositions stones) {
+		public StoneCutterPositionRater(AbstractConstructionMarkableMap constructionMap, AiStatistics aiStatistics, byte playerId, ECivilisation civilisation, AiPositions stones) {
 			this.constructionMap = constructionMap;
 			this.aiStatistics = aiStatistics;
 			this.playerId = playerId;
 			this.objects = stones;
+
+			stonecutter = STONECUTTER.getVariant(civilisation);
 		}
 
 		@Override
@@ -59,14 +64,14 @@ public class StoneCutterConstructionPositionFinder extends ConstructionPositionF
 				int score = 0;
 				ShortPoint2D p = new ShortPoint2D(x, y);
 
-				if (aiStatistics.blocksWorkingAreaOfOtherBuilding(p.x, p.y, playerId, STONECUTTER)) {
+				if (aiStatistics.blocksWorkingAreaOfOtherBuilding(p.x, p.y, playerId, stonecutter)) {
 					score += BLOCKS_WORK_AREA_MALUS;
 				}
 				if (score >= currentBestRating) {
 					return RATE_INVALID;
 				}
 
-				short workradius = STONECUTTER.getWorkRadius();
+				short workradius = stonecutter.getWorkRadius();
 				for (ShortPoint2D otherStoneCutterPositions : aiStatistics.getBuildingPositionsOfTypeForPlayer(STONECUTTER, playerId)) {
 					if (otherStoneCutterPositions.getOnGridDistTo(p) <= workradius) {
 						score += NEAR_OTHER_STONE_CUTTER_MALUS;
@@ -99,7 +104,7 @@ public class StoneCutterConstructionPositionFinder extends ConstructionPositionF
 		if (stones.size() == 0) {
 			return null;
 		}
-		AiPositions.PositionRater rater = new StoneCutterPositionRater(constructionMap, aiStatistics, playerId, stones);
+		AiPositions.PositionRater rater = new StoneCutterPositionRater(constructionMap, aiStatistics, playerId, civilisation, stones);
 
 		return aiStatistics.getLandForPlayer(playerId).getBestRatedPoint(rater);
 	}

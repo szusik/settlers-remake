@@ -78,6 +78,8 @@ public class ConfigurableGeneral implements ArmyGeneral {
 	private final float healPropFactor;
 	private final Map<Integer, ShortPoint2D> woundedSoldiers = new HashMap<>();
 
+	private final int hospitalWorkRadius;
+
 	/**
 	 *
 	 * @param  healPropFactor
@@ -93,6 +95,8 @@ public class ConfigurableGeneral implements ArmyGeneral {
 
 		// setup woundedSoldiers
 		doHealTroops(false);
+
+		hospitalWorkRadius = EBuildingType.HOSPITAL.getVariant(player.getCivilisation()).getWorkRadius();
 	}
 
 	@Override
@@ -252,7 +256,7 @@ public class ConfigurableGeneral implements ArmyGeneral {
 				}
 
 				if(hospitalIndex != -1 && assignedPerHospital[hospitalIndex] < MAX_SOLDIERS_PER_HOSPITAL) {
-					if(targetingHospital.getOnGridDistTo(mov.getPosition())  >= EBuildingType.HOSPITAL.getWorkRadius()) {
+					if(targetingHospital.getOnGridDistTo(mov.getPosition())  >= hospitalWorkRadius) {
 						soldiersForHospitals.get(hospitalIndex).add(wounded.getKey());
 					}
 				} else {
@@ -283,7 +287,7 @@ public class ConfigurableGeneral implements ArmyGeneral {
 				}
 			}
 
-			if(hospital != -1 && shortestDistance >= EBuildingType.HOSPITAL.getWorkRadius()) {
+			if(hospital != -1 && shortestDistance >= hospitalWorkRadius) {
 				soldiersForHospitals.get(hospital).add(mov.getID());
 				woundedSoldiers.put(mov.getID(), myHospitals[hospital]);
 				assignedPerHospital[hospital]++;

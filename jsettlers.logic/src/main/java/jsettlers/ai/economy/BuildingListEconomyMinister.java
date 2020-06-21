@@ -80,7 +80,7 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 	@Override
 	public void update() {
 		buildingsToBuild.clear();
-		this.mapBuildingCounts = aiStatistics.getAiMapInformation().getBuildingCounts(player.getPlayerId());
+		this.mapBuildingCounts = aiStatistics.getAiMapInformation().getBuildingCounts(player);
 		addMinimalBuildingMaterialBuildings();
 		addHospitals();
 		if (isVerySmallMap()) {
@@ -113,7 +113,7 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 
 	@Override
 	public boolean isEndGame() {
-		double remainingGrass = aiStatistics.getAiMapInformation().getRemainingGrassTiles(aiStatistics, playerId)
+		double remainingGrass = aiStatistics.getAiMapInformation().getRemainingGrassTiles(aiStatistics, player)
 				- aiStatistics.getTreesForPlayer(playerId).size()
 				- aiStatistics.getStonesForPlayer(playerId).size();
 		double availableGrass = aiStatistics.getAiMapInformation().getGrassTilesOf(playerId);

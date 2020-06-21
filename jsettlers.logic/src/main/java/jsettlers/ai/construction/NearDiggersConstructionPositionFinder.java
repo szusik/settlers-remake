@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jsettlers.ai.highlevel.AiStatistics;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 
@@ -31,12 +32,12 @@ import jsettlers.common.position.ShortPoint2D;
  */
 public class NearDiggersConstructionPositionFinder extends ConstructionPositionFinder {
 
-	private EBuildingType buildingType;
+	private BuildingVariant building;
 
 	public NearDiggersConstructionPositionFinder(Factory factory, EBuildingType buildingType) {
 		super(factory);
 
-		this.buildingType = buildingType;
+		this.building = buildingType.getVariant(civilisation);
 	}
 
 	@Override
@@ -45,14 +46,14 @@ public class NearDiggersConstructionPositionFinder extends ConstructionPositionF
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
-			if (constructionMap.canConstructAt(point.x, point.y, buildingType, playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, buildingType)) {
+			if (constructionMap.canConstructAt(point.x, point.y, building.getType(), playerId)
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, building)) {
 				ShortPoint2D nearestDiggerPosition = AiStatistics.detectNearestPointFromList(point, diggers);
 				int nearestDiggerDistance = 0;
 				if (nearestDiggerPosition != null) {
 					nearestDiggerDistance = point.getOnGridDistTo(nearestDiggerPosition);
 				}
-				byte flatternEffort = aiStatistics.getFlatternEffortAtPositionForBuilding(point, buildingType);
+				byte flatternEffort = aiStatistics.getFlatternEffortAtPositionForBuilding(point, building);
 				scoredConstructionPositions.add(new ScoredConstructionPosition(point, nearestDiggerDistance + flatternEffort));
 			}
 		}

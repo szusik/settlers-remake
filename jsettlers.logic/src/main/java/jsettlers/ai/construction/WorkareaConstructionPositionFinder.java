@@ -18,7 +18,9 @@ import jsettlers.ai.highlevel.AiPositions;
 import jsettlers.ai.highlevel.AiPositions.PositionRater;
 import jsettlers.ai.highlevel.AiStatistics;
 import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 
 public abstract class WorkareaConstructionPositionFinder extends ConstructionPositionFinder {
@@ -33,19 +35,19 @@ public abstract class WorkareaConstructionPositionFinder extends ConstructionPos
 		private final AiStatistics aiStatistics;
 		private final byte playerId;
 		private final AiPositions objects;
-		private final EBuildingType buildingType;
+		private final BuildingVariant building;
 
-		public WorkAreaPositionRater(AbstractConstructionMarkableMap constructionMap, AiStatistics aiStatistics, byte playerId, AiPositions objects, EBuildingType buildingType) {
+		public WorkAreaPositionRater(AbstractConstructionMarkableMap constructionMap, AiStatistics aiStatistics, byte playerId, AiPositions objects, BuildingVariant building) {
 			this.constructionMap = constructionMap;
 			this.aiStatistics = aiStatistics;
 			this.playerId = playerId;
 			this.objects = objects;
-			this.buildingType = buildingType;
+			this.building = building;
 		}
 
 		@Override
 		public int rate(int x, int y, int currentBestRating) {
-			if (!constructionMap.canConstructAt((short) x, (short) y, buildingType, playerId)) {
+			if (!constructionMap.canConstructAt((short) x, (short) y, building.getType(), playerId)) {
 				return RATE_INVALID;
 			} else {
 				int score = 0;
@@ -53,7 +55,7 @@ public abstract class WorkareaConstructionPositionFinder extends ConstructionPos
 				if (!aiStatistics.southIsFreeForPlayer(p, playerId)) {
 					score += NO_WORK_AREA_MALUS;
 				}
-				if (aiStatistics.blocksWorkingAreaOfOtherBuilding(p.x, p.y, playerId, buildingType)) {
+				if (aiStatistics.blocksWorkingAreaOfOtherBuilding(p.x, p.y, playerId, building)) {
 					score += BLOCKS_WORK_AREA_MALUS;
 				}
 
@@ -61,7 +63,7 @@ public abstract class WorkareaConstructionPositionFinder extends ConstructionPos
 					return RATE_INVALID;
 				}
 
-				short workRadius = buildingType.getWorkRadius();
+				short workRadius = building.getWorkRadius();
 				ShortPoint2D nearestTreePosition = objects.getNearestPoint(p, Math.min(workRadius, currentBestRating - score), null);
 				if (nearestTreePosition == null) {
 					return RATE_INVALID;
@@ -88,7 +90,7 @@ public abstract class WorkareaConstructionPositionFinder extends ConstructionPos
 		if (objects.size() == 0) {
 			return null;
 		}
-		PositionRater rater = new WorkAreaPositionRater(constructionMap, aiStatistics, playerId, objects, buildingType);
+		PositionRater rater = new WorkAreaPositionRater(constructionMap, aiStatistics, playerId, objects, buildingType.getVariant(civilisation));
 
 		return aiStatistics.getLandForPlayer(playerId).getBestRatedPoint(rater);
 	}

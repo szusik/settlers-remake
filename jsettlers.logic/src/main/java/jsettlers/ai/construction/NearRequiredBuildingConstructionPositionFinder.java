@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jsettlers.ai.highlevel.AiStatistics;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 
@@ -29,12 +30,12 @@ import jsettlers.common.position.ShortPoint2D;
  */
 public class NearRequiredBuildingConstructionPositionFinder extends ConstructionPositionFinder {
 
-	private final EBuildingType buildingType;
+	private final BuildingVariant building;
 	private final EBuildingType neededBuildingType;
 
 	public NearRequiredBuildingConstructionPositionFinder(Factory factory, EBuildingType ownBuildingType, EBuildingType neededBuildingType) {
 		super(factory);
-		this.buildingType = ownBuildingType;
+		this.building = ownBuildingType.getVariant(civilisation);
 		this.neededBuildingType = neededBuildingType;
 	}
 
@@ -43,14 +44,14 @@ public class NearRequiredBuildingConstructionPositionFinder extends Construction
 		List<ShortPoint2D> neededBuildings = aiStatistics.getBuildingPositionsOfTypeForPlayer(neededBuildingType, playerId);
 		List<ScoredConstructionPosition> scoredConstructionPositions = new ArrayList<>();
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
-			if (constructionMap.canConstructAt(point.x, point.y, buildingType, playerId)
-					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, buildingType)) {
+			if (constructionMap.canConstructAt(point.x, point.y, building.getType(), playerId)
+					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, building)) {
 				ShortPoint2D nearestNeededBuilding = AiStatistics.detectNearestPointFromList(point, neededBuildings);
 				int nearestNeededBuildingDistance = 0;
 				if (nearestNeededBuilding != null) {
 					nearestNeededBuildingDistance = point.getOnGridDistTo(nearestNeededBuilding);
 				}
-				byte flatternEffort = aiStatistics.getFlatternEffortAtPositionForBuilding(point, buildingType);
+				byte flatternEffort = aiStatistics.getFlatternEffortAtPositionForBuilding(point, building);
 				scoredConstructionPositions.add(new ScoredConstructionPosition(point, nearestNeededBuildingDistance + flatternEffort));
 			}
 		}
