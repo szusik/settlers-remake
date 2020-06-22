@@ -45,9 +45,10 @@ import jsettlers.main.android.core.resources.OriginalImageProvider;
 @EFragment(R.layout.menu_buildings_category)
 public class BuildingsCategoryFragment extends Fragment {
 	private static final String ARG_BUILDINGS_CATEGORY = "arg_buildings_category";
+	private static final String ARG_BUILDINGS_CIVILISATION = "arg_buildings_civilisation";
 
-	public static BuildingsCategoryFragment newInstance(EBuildingsCategory buildingsCategory) {
-		return BuildingsCategoryFragment_.builder().buildingsCategory(buildingsCategory).build();
+	public static BuildingsCategoryFragment newInstance(EBuildingsCategory buildingsCategory, ECivilisation civilisation) {
+		return BuildingsCategoryFragment_.builder().buildingsCategory(buildingsCategory).civilisation(civilisation).build();
 	}
 
 	private BuildingsCategoryViewModel viewModel;
@@ -56,6 +57,8 @@ public class BuildingsCategoryFragment extends Fragment {
 	RecyclerView recyclerView;
 	@FragmentArg(ARG_BUILDINGS_CATEGORY)
 	EBuildingsCategory buildingsCategory;
+	@FragmentArg(ARG_BUILDINGS_CIVILISATION)
+	ECivilisation civilisation;
 
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -141,7 +144,7 @@ public class BuildingsCategoryFragment extends Fragment {
 		}
 
 		void setBuilding(BuildingViewState buildingViewState) {
-			OriginalImageProvider.get(buildingViewState.getBuildingType().getVariant(ECivilisation.REPLACE_ME)).setAsImage(imageView);
+			OriginalImageProvider.get(buildingViewState.getBuildingType().getVariant(civilisation)).setAsImage(imageView);
 			nameTextView.setText(buildingViewState.getName());
 			buildingCountTextView.setText(buildingViewState.getCount());
 			buildingConstructionCountTextView.setText(buildingViewState.getConstructionCount());

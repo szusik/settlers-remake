@@ -958,7 +958,8 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			scrollTo(messenger.getPosition(), true);
 			break;
 		case SHOW_CONSTRUCTION_MARK:
-			BuildingVariant buildingVariant = ((ShowConstructionMarksAction) action).getBuildingType().getVariant(localPlayer.getCivilisation());
+			EBuildingType buildingType = ((ShowConstructionMarksAction) action).getBuildingType();
+			BuildingVariant buildingVariant = buildingType == null ? null : buildingType.getVariant(localPlayer.getCivilisation());
 			placementBuilding = buildingVariant == null ? null : new PlacementBuilding(buildingVariant);
 			break;
 		default:

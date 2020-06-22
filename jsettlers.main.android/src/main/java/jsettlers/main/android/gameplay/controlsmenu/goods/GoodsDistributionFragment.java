@@ -16,6 +16,7 @@
 package jsettlers.main.android.gameplay.controlsmenu.goods;
 
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.ViewById;
 
 import android.app.Activity;
@@ -32,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 
+import java8.util.J8Arrays;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.main.android.R;
@@ -58,13 +60,16 @@ public class GoodsDistributionFragment extends Fragment implements BackPressedLi
 	@ViewById(R.id.recyclerView)
 	RecyclerView recyclerView;
 
+	@FragmentArg
+	ECivilisation playerCivilisation;
+
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		viewModel = ViewModelProviders.of(this, new DistributionViewModel.Factory(getActivity())).get(DistributionViewModel.class);
+		viewModel = ViewModelProviders.of(this, new DistributionViewModel.Factory(getActivity(), playerCivilisation)).get(DistributionViewModel.class);
 		menuNavigator = ((MenuNavigatorProvider) getActivity()).getMenuNavigator();
 
-		MaterialsAdapter materialsAdapter = new MaterialsAdapter(getActivity(), viewModel.getDistributionMaterials());
+		MaterialsAdapter materialsAdapter = new MaterialsAdapter(getActivity());
 		recyclerView.setHasFixedSize(true);
 		recyclerView.setAdapter(materialsAdapter);
 	}
@@ -102,7 +107,7 @@ public class GoodsDistributionFragment extends Fragment implements BackPressedLi
 			ImageView imageView = view.findViewById(R.id.imageView_building);
 			SeekBar seekBar = view.findViewById(R.id.seekBar);
 
-			OriginalImageProvider.get(distributionState.getBuildingType().getVariant(ECivilisation.REPLACE_ME)).setAsImage(imageView);
+			OriginalImageProvider.get(distributionState.getBuildingType().getVariant(playerCivilisation)).setAsImage(imageView);
 			seekBar.setProgress(Math.round(distributionState.getRatio() * seekBar.getMax()));
 
 			seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -141,9 +146,11 @@ public class GoodsDistributionFragment extends Fragment implements BackPressedLi
 
 		private EMaterialType[] materialTypes;
 
-		public MaterialsAdapter(Activity activity, EMaterialType[] materialTypes) {
+		public MaterialsAdapter(Activity activity) {
 			inflater = LayoutInflater.from(activity);
-			this.materialTypes = materialTypes;
+			this.materialTypes = J8Arrays.stream(EMaterialType.VALUES)
+					.filter(EMaterialType::isDistributionConfigurable)
+					.toArray(EMaterialType[]::new);
 		}
 
 		@Override

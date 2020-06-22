@@ -53,6 +53,8 @@ public class InventoryViewModel extends ViewModel {
 	}
 
 	private InventoryMaterialState[] productionStates() {
+		if(!positionControls.isInPlayerPartition()) return new InventoryMaterialState[0];
+
 		IPartitionData partitionData = positionControls.getCurrentPartitionData();
 
 		return stream(inventoryMaterials)

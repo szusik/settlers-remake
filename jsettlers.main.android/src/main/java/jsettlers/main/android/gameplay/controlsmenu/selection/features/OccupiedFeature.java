@@ -156,7 +156,7 @@ public class OccupiedFeature extends SelectionFeature implements DrawListener {
 				OriginalImageProvider.get(SOILDER_COMING).setAsImage(occupierImageView);
 				occupierImageView.setLayoutParams(waitingLayoutParams);
 			} else {
-				OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.REPLACE_ME, ECommonLinkType.SETTLER_GUI, occupierState.getMovable().getMovableType())).setAsImage(occupierImageView);
+				OriginalImageProvider.get(ImageLinkMap.get(occupierState.getMovable().getPlayer().getCivilisation(), ECommonLinkType.SETTLER_GUI, occupierState.getMovable().getMovableType())).setAsImage(occupierImageView);
 				occupierImageView.setLayoutParams(occupiedLayoutParams);
 			}
 

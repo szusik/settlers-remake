@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.Building;
@@ -76,7 +77,7 @@ public class PartitionManager implements IScheduledTimerable, Serializable, IWor
 		priorityForTool[EMaterialType.BLADE.ordinal] = 1;
 	}
 
-	private final PartitionManagerSettings settings = new PartitionManagerSettings();
+	private final PartitionManagerSettings settings;
 
 	private final PositionableList<IManageableBearer> joblessBearer = new PositionableList<>();
 	private final OffersList materialOffers;
@@ -97,7 +98,8 @@ public class PartitionManager implements IScheduledTimerable, Serializable, IWor
 
 	private boolean stopped = true;
 
-	public PartitionManager(IOffersCountListener offersCountListener) {
+	public PartitionManager(IPlayer player, IOffersCountListener offersCountListener) {
+		settings = new PartitionManagerSettings(player!=null?player.getCivilisation():null);
 		materialOffers = new OffersList(offersCountListener);
 		materialsManager = new MaterialsManager(new IJoblessSupplier() {
 			private static final long serialVersionUID = -113397265091126902L;

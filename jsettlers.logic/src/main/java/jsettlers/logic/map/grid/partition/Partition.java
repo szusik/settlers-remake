@@ -16,6 +16,7 @@ package jsettlers.logic.map.grid.partition;
 
 import java.io.Serializable;
 
+import jsettlers.common.player.IPlayer;
 import jsettlers.logic.map.grid.partition.data.PartitionDataSupplier;
 import jsettlers.logic.map.grid.partition.manager.PartitionManager;
 import jsettlers.logic.map.grid.partition.manager.materials.offers.IOffersCountListener;
@@ -36,14 +37,14 @@ public final class Partition extends PartitionManager implements Serializable {
 	private int xSum    = 0;
 	private int ySum    = 0;
 
-	public Partition(short partitionId, byte playerId, IOffersCountListener countListener) {
-		super(countListener);
+	public Partition(short partitionId, IPlayer player, IOffersCountListener countListener) {
+		super(player, countListener);
 		this.partitionId = partitionId;
-		this.playerId = playerId;
+		this.playerId = player!=null?player.getPlayerId():(byte)-1;
 	}
 
-	public Partition(short partitionId, byte playerId, int size) {
-		this(partitionId, playerId, null);
+	public Partition(short partitionId, IPlayer player, int size) {
+		this(partitionId, player, null);
 		this.counter = size;
 	}
 

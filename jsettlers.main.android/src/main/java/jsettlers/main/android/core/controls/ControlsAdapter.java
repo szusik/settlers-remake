@@ -82,7 +82,8 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 		return gameMenu;
 	}
 
-	public IInGamePlayer getInGamePlayer() {
+	@Override
+	public IInGamePlayer getPlayer() {
 		return player;
 	}
 
@@ -246,6 +247,8 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 
 	@Override
 	public IPartitionData getCurrentPartitionData() {
+		if(!isInPlayerPartition()) return null;
+
 		return graphicsGrid.getPartitionData(displayCenter.x, displayCenter.y);
 	}
 

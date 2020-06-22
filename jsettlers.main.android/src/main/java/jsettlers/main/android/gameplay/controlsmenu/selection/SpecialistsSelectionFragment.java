@@ -73,7 +73,9 @@ public class SpecialistsSelectionFragment extends SelectionFragment {
 				ImageView imageView = (ImageView) view.findViewById(R.id.image_view_specialist);
 				TextView textView = (TextView) view.findViewById(R.id.text_view_specialist_count);
 
-				OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.REPLACE_ME, ECommonLinkType.SETTLER_GUI, movableType)).setAsImage(imageView);
+				ECivilisation civilisation = getSelection().get(0).getPlayer().getCivilisation();
+
+				OriginalImageProvider.get(ImageLinkMap.get(civilisation, ECommonLinkType.SETTLER_GUI, movableType)).setAsImage(imageView);
 				textView.setText(count + "");
 
 				specialistsLayout.addView(view);

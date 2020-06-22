@@ -28,6 +28,7 @@ public enum ECivilisation {
 
 	public static final ECivilisation[] VALUES = values();
 
+	@Deprecated
 	public static final ECivilisation REPLACE_ME = ROMAN;
 
 	ECivilisation(int fileIndex) {

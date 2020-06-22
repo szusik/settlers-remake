@@ -149,15 +149,6 @@ public enum EBuildingType {
 	}
 
 	/**
-	 * Gets the request stacks required to operate this building.
-	 * 
-	 * @return The request stacks.
-	 */
-	public RelativeStack[] getRequestStacks() {
-		return buildingVariants.get(REPLACE_ME).getRequestStacks();
-	}
-
-	/**
 	 * Checks if this building is a mine.
 	 * 
 	 * @return <code>true</code> iff this building is a mine.

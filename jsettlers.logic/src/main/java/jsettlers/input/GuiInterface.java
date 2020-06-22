@@ -47,6 +47,7 @@ import jsettlers.common.action.SetSpeedAction;
 import jsettlers.common.action.SetTradingWaypointAction;
 import jsettlers.common.action.ShowConstructionMarksAction;
 import jsettlers.common.action.SoldierAction;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.map.shapes.HexGridArea;
@@ -162,7 +163,8 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 
 			case SHOW_CONSTRUCTION_MARK:
 				EBuildingType buildingType = ((ShowConstructionMarksAction) action).getBuildingType();
-				constructionMarksCalculator.setBuilding(buildingType.getVariant(player.getCivilisation()));
+				BuildingVariant buildingVariant = buildingType == null ? null : buildingType.getVariant(player.getCivilisation());
+				constructionMarksCalculator.setBuilding(buildingVariant);
 				break;
 
 			case DEBUG_ACTION:

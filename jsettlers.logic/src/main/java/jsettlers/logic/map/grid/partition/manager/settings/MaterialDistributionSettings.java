@@ -22,6 +22,7 @@ import jsettlers.common.map.partition.IMaterialDistributionSettings;
 import jsettlers.common.material.EMaterialType;
 
 import java8.util.J8Arrays;
+import jsettlers.common.player.ECivilisation;
 
 /**
  * This class holds the distribution settings for a given {@link EMaterialType}.
@@ -31,6 +32,7 @@ import java8.util.J8Arrays;
 public final class MaterialDistributionSettings implements IMaterialDistributionSettings, Serializable {
 	private static final long serialVersionUID = -8519244429973606793L;
 
+	private final ECivilisation civilisation;
 	private final EMaterialType materialType;
 	private final RelativeSettings<EBuildingType> distributionSettings = new RelativeSettings<>(EBuildingType.NUMBER_OF_BUILDINGS, index -> EBuildingType.VALUES[index], false);
 	private float requestValueSum = 0f;
@@ -40,8 +42,9 @@ public final class MaterialDistributionSettings implements IMaterialDistribution
 	 * @param materialType
 	 * 		Defines the {@link EMaterialType}, this settings are used for.
 	 */
-	MaterialDistributionSettings(EMaterialType materialType) {
+	MaterialDistributionSettings(EMaterialType materialType, ECivilisation civilisation) {
 		this.materialType = materialType;
+		this.civilisation = civilisation;
 
 		EBuildingType[] requestingBuildings = getBuildingTypes();
 		requestValueSum = requestingBuildings.length;
@@ -50,7 +53,7 @@ public final class MaterialDistributionSettings implements IMaterialDistribution
 	}
 
 	public final EBuildingType[] getBuildingTypes() {
-		return MaterialsOfBuildings.getBuildingTypesRequestingMaterial(materialType);
+		return MaterialsOfBuildings.getBuildingTypesRequestingMaterial(materialType, civilisation);
 	}
 
 	public void setUserConfiguredDistributionValue(EBuildingType buildingType, float value) {

@@ -319,7 +319,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 	private void addBuildingsMenuFragment() {
 		if (getChildFragmentManager().findFragmentByTag(TAG_FRAGMENT_BUILDINGS_MENU) == null) {
 			getChildFragmentManager().beginTransaction()
-					.replace(R.id.container_menu, BuildingsMenuFragment.newInstance(), TAG_FRAGMENT_BUILDINGS_MENU)
+					.replace(R.id.container_menu, BuildingsMenuFragment.newInstance(selectionControls.getPlayer().getCivilisation()), TAG_FRAGMENT_BUILDINGS_MENU)
 					.commit();
 		}
 	}

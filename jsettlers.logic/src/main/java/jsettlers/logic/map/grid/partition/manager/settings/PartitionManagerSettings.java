@@ -19,6 +19,8 @@ import java.io.Serializable;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.map.partition.IPartitionSettings;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.player.ECivilisation;
+import jsettlers.common.player.IPlayer;
 import jsettlers.logic.buildings.stack.multi.StockSettings;
 import jsettlers.logic.map.grid.partition.manager.PartitionManager;
 
@@ -31,12 +33,14 @@ import jsettlers.logic.map.grid.partition.manager.PartitionManager;
 public final class PartitionManagerSettings implements IPartitionSettings, Serializable {
 	private static final long serialVersionUID = -6269898822727665606L;
 
-	private static final MaterialDistributionSettings[] defaultSettings = new MaterialDistributionSettings[EMaterialType.NUMBER_OF_MATERIALS];
+	private static final MaterialDistributionSettings[][] defaultSettings = new MaterialDistributionSettings[ECivilisation.VALUES.length][EMaterialType.NUMBER_OF_MATERIALS];
 	private static final boolean[] INITIAL_STOCK_SETTINGS = new boolean[EMaterialType.NUMBER_OF_DROPPABLE_MATERIALS];
 
 	static {
-		for (int i = 0; i < EMaterialType.NUMBER_OF_MATERIALS; i++) {
-			defaultSettings[i] = new MaterialDistributionSettings(EMaterialType.VALUES[i]);
+		for(ECivilisation civilisation : ECivilisation.VALUES) {
+			for(EMaterialType materialType : EMaterialType.VALUES) {
+				defaultSettings[civilisation.ordinal][materialType.ordinal] = new MaterialDistributionSettings(materialType, civilisation);
+			}
 		}
 
 		INITIAL_STOCK_SETTINGS[EMaterialType.GOLD.ordinal] = true; // GOLD is active by default
@@ -47,18 +51,20 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 	private final MaterialProductionSettings materialProductionSettings;
 	private final StockSettings stockSettings;
 
-	public PartitionManagerSettings() {
+	public PartitionManagerSettings(ECivilisation civilisation) {
 		materialTypeForPriorities = new EMaterialType[EMaterialType.NUMBER_OF_DROPPABLE_MATERIALS];
 		System.arraycopy(EMaterialType.DROPPABLE_MATERIALS, 0, materialTypeForPriorities, 0, EMaterialType.NUMBER_OF_DROPPABLE_MATERIALS);
+
+		if(civilisation == null) civilisation = ECivilisation.ROMAN;
 
 		settingsOfMaterials = new MaterialDistributionSettings[EMaterialType.NUMBER_OF_MATERIALS];
 		for (int i = 0; i < EMaterialType.NUMBER_OF_MATERIALS; i++) {
 			EMaterialType materialType = EMaterialType.VALUES[i];
 
 			if (materialType.isDistributionConfigurable()) {
-				settingsOfMaterials[i] = new MaterialDistributionSettings(materialType);
+				settingsOfMaterials[i] = new MaterialDistributionSettings(materialType, civilisation);
 			} else {
-				settingsOfMaterials[i] = defaultSettings[i];
+				settingsOfMaterials[i] = defaultSettings[civilisation.ordinal][i];
 			}
 		}
 

@@ -29,6 +29,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import java8.util.Lists2;
 import java8.util.stream.Collectors;
 import jsettlers.common.action.SetAcceptedStockMaterialAction;
 import jsettlers.common.map.partition.IStockSettings;
@@ -106,6 +107,8 @@ public class GoodsStockFragment extends Fragment implements DrawListener {
 	}
 
 	private List<StockMaterialState> materialStates() {
+		if(!positionControls.isInPlayerPartition()) return Lists2.of();
+
 		IStockSettings stockSettings = positionControls.getCurrentPartitionData().getPartitionSettings().getStockSettings();
 
 		return stream(EMaterialType.STOCK_MATERIALS)

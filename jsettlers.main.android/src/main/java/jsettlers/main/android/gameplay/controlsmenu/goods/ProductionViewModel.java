@@ -80,6 +80,8 @@ public class ProductionViewModel extends ViewModel {
 	}
 
 	private ProductionState[] productionStates() {
+		if(!positionControls.isInPlayerPartition()) return new ProductionState[0];
+
 		IMaterialProductionSettings materialProductionSettings = positionControls.getCurrentPartitionData().getPartitionSettings().getMaterialProductionSettings();
 
 		return stream(productionMaterials)

@@ -23,6 +23,7 @@ import jsettlers.common.buildings.MaterialsOfBuildings;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IMaterialDistributionSettings;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.position.IPositionSupplier;
 import jsettlers.common.position.ShortPoint2D;
@@ -46,17 +47,6 @@ import java8.util.Optional;
 import java8.util.stream.Collectors;
 
 public class DistributionPanel extends AbstractContentProvider implements IUiContentReceiver<IMaterialDistributionSettings> {
-	private static final EMaterialType[] MATERIAL_TYPES_FOR_DISTRIBUTION = new EMaterialType[] {
-			EMaterialType.COAL,
-			EMaterialType.IRON,
-			EMaterialType.PLANK,
-			EMaterialType.CROP,
-			EMaterialType.WATER,
-			EMaterialType.BREAD,
-			EMaterialType.MEAT,
-			EMaterialType.FISH
-	};
-
 	private static final float contentHeight_px = 216;
 	private static final float contentWidth_px = 118;
 
@@ -126,7 +116,7 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 		private final List<BuildingDistributionSettingPanel> buildingDistributionSettings;
 
 		MaterialDistributionPanel(EMaterialType materialType, IPositionSupplier positionSupplier) {
-			EBuildingType[] buildingsForMaterial = MaterialsOfBuildings.getBuildingTypesRequestingMaterial(materialType);
+			EBuildingType[] buildingsForMaterial = MaterialsOfBuildings.getBuildingTypesRequestingMaterial(materialType, ECivilisation.REPLACE_ME);
 
 			buildingDistributionSettings = J8Arrays.stream(buildingsForMaterial)
 					.map(buildingType -> new BuildingDistributionSettingPanel(materialType, buildingType, positionSupplier))
@@ -193,12 +183,16 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 		return panel;
 	}
 
+	private IInGamePlayer player = null;
+
 	public void setPlayer(IInGamePlayer player) {
 		uiContentUpdater.setPlayer(player);
+		this.player = player;
 	}
 
 	private List<MaterialDistributionTab> createTabs(IPositionSupplier positionSupplier) {
-		return J8Arrays.stream(MATERIAL_TYPES_FOR_DISTRIBUTION)
+		return J8Arrays.stream(EMaterialType.values())
+				.filter(EMaterialType::isDistributionConfigurable)
 				.map(materialType -> new MaterialDistributionTab(materialType, positionSupplier))
 				.collect(Collectors.toList());
 	}
@@ -231,7 +225,7 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 
 	private IMaterialDistributionSettings currentDistributionSettingsProvider(IGraphicsGrid grid, ShortPoint2D position) {
 		if (currentTab != null) {
-			if (grid.getPlayerAt(position.x, position.y) != null) {
+			if (player != null && player.equals(grid.getPlayerAt(position.x, position.y))) {
 				return grid.getPartitionData(position.x, position.y).getPartitionSettings().getDistributionSettings(currentTab.materialButton.getMaterial());
 			}
 		}
