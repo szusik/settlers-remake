@@ -425,7 +425,7 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 
 		if (currentSelection.getSelectionType() == ESelectionType.BUILDING) {
 			final Building building = (Building) currentSelection.get(0);
-			final EBuildingType buildingType = building.getBuildingType();
+			final EBuildingType buildingType = building.getBuildingVariant().getType();
 			Building first = null;
 			Building next = null;
 			boolean buildingFound = false;
@@ -434,7 +434,7 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 				if (currBuilding == building) {
 					buildingFound = true;
 				} else {
-					if (currBuilding.getBuildingType() == buildingType && currBuilding.getPlayer().getPlayerId() == playerId) {
+					if (currBuilding.getBuildingVariant().isVariantOf(buildingType) && currBuilding.getPlayer().getPlayerId() == playerId) {
 						if (first == null) {
 							first = currBuilding;
 						}

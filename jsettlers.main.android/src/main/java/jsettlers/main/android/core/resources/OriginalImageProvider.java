@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.widget.ImageView;
 
 import jsettlers.common.Color;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.material.EMaterialType;
@@ -41,7 +42,7 @@ public class OriginalImageProvider {
 	private ImageLoaderThread imageLoadThread;
 	private final LinkedBlockingQueue<ImageReference> toLoad = new LinkedBlockingQueue<>();
 
-	public static ImageReference get(EBuildingType building) {
+	public static ImageReference get(BuildingVariant building) {
 		return INSTANCE.create(building.getGuiImage());
 	}
 

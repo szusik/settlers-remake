@@ -97,7 +97,7 @@ public class SoldiersSelectionFragment extends SelectionFragment {
 				ImageView imageView = view.findViewById(R.id.image_view_specialist);
 				TextView textView = view.findViewById(R.id.text_view_specialist_count);
 
-				OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.ROMAN, ECommonLinkType.SETTLER_GUI, movableType)).setAsImage(imageView);
+				OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.REPLACE_ME, ECommonLinkType.SETTLER_GUI, movableType)).setAsImage(imageView);
 				textView.setText(Integer.toString(count));
 
 				soldiersLayout.addView(view);

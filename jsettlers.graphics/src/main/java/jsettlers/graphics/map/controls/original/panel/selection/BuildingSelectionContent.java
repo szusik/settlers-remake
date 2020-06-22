@@ -19,6 +19,7 @@ import java8.util.Optional;
 
 import go.graphics.GLDrawContext;
 import go.graphics.text.EFontSize;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.images.EImageLinkType;
@@ -38,7 +39,6 @@ import jsettlers.common.action.SetBuildingPriorityAction;
 import jsettlers.common.action.SetTradingWaypointAction;
 import jsettlers.common.action.SetTradingWaypointAction.EWaypointType;
 import jsettlers.common.action.SoldierAction;
-import jsettlers.graphics.image.Image;
 import jsettlers.graphics.localization.Labels;
 import jsettlers.graphics.map.controls.original.panel.button.SelectionManagedMaterialButton;
 import jsettlers.graphics.map.controls.original.panel.button.SelectionManager;
@@ -348,7 +348,7 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 			root = createNormalBuildingContent(state);
 		}
 
-		ImageLink[] images = building.getBuildingType().getImages();
+		ImageLink[] images = building.getBuildingVariant().getImages();
 		root.setImages(images);
 		rootPanel.addChild(root, 0, 0, 1, 1);
 	}
@@ -358,11 +358,11 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 
 		loadPriorityButton(layout.background, layout.priority, state);
 
-		if (building.getBuildingType().getWorkRadius() <= 0) {
+		if (building.getBuildingVariant().getWorkRadius() <= 0) {
 			layout.background.removeChild(layout.buttonWorkRadius);
 		}
 
-		layout.nameText.setType(building.getBuildingType(), state.isConstruction());
+		layout.nameText.setType(building.getBuildingVariant(), state.isConstruction());
 
 		String text = "";
 		if (state.isConstruction()) {
@@ -460,8 +460,8 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 		 * @param workplace
 		 *            <code>true</code> if it is currently under construction.
 		 */
-		public void setType(EBuildingType type, boolean workplace) {
-			String text = Labels.getName(type);
+		public void setType(BuildingVariant variant, boolean workplace) {
+			String text = Labels.getName(variant.getType());
 			if (workplace) {
 				text = Labels.getString("building-build-in-progress", text);
 			}
@@ -533,7 +533,7 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 
 	private BuildingBackgroundPanel createOccupiedBuildingContent(BuildingState state) {
 		OccupiableSelectionLayout layout = new OccupiableSelectionLayout();
-		layout.nameText.setType(building.getBuildingType(), false);
+		layout.nameText.setType(building.getBuildingVariant(), false);
 		addOccupyerPlaces(layout.infantry_places, layout.infantry_missing, state.getOccupiers(ESoldierClass.INFANTRY));
 		addOccupyerPlaces(layout.bowman_places, layout.bowman_missing, state.getOccupiers(ESoldierClass.BOWMAN));
 		return layout._root;
@@ -566,7 +566,7 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 
 	private BuildingBackgroundPanel createStockBuildingContent(BuildingState state) {
 		StockSelectionLayout layout = new StockSelectionLayout();
-		layout.nameText.setType(building.getBuildingType(), false);
+		layout.nameText.setType(building.getBuildingVariant(), false);
 		selectionManager.setButtons(layout.getAll(StockControlButton.class));
 		for (StateDependingElement i : layout.getAll(StateDependingElement.class)) {
 			i.setState(state);
@@ -580,7 +580,7 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 
 	private BuildingBackgroundPanel createTradingBuildingContent(BuildingState state) {
 		TradingSelectionLayout layout = new TradingSelectionLayout();
-		layout.nameText.setType(building.getBuildingType(), false);
+		layout.nameText.setType(building.getBuildingVariant(), false);
 		selectionManager.setButtons(layout.getAll(SelectionManagedMaterialButton.class));
 		EPriority[] supported = state.getSupportedPriorities();
 		if (supported.length < 2) {
@@ -616,7 +616,7 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 	private BuildingBackgroundPanel createDockyardBuildingContent(BuildingState state) {
 		DockyardSelectionLayout layout = new DockyardSelectionLayout(null, building.getPlayer().getCivilisation());
 		loadPriorityButton(layout.background, layout.priority, state);
-		layout.nameText.setType(building.getBuildingType(), state.isConstruction());
+		layout.nameText.setType(building.getBuildingVariant(), state.isConstruction());
 
 		if (state.isWorkingDockyard()) {
 			layout.materialText.setText(Labels.getString("materials_required"));

@@ -161,7 +161,7 @@ public class AiStatistics {
 	private void updateBuildingStatistics() {
 		for (Building building : buildings) {
 			PlayerStatistic playerStatistic = playerStatistics[building.getPlayer().getPlayerId()];
-			EBuildingType type = building.getBuildingType();
+			EBuildingType type = building.getBuildingVariant().getType();
 			updateNumberOfNotFinishedBuildings(playerStatistic, building);
 			updateBuildingsNumbers(playerStatistic, building, type);
 			updateBuildingPositions(playerStatistic, type, building);
@@ -192,10 +192,10 @@ public class AiStatistics {
 		playerStatistic.numberOfTotalBuildings++;
 		if (building.getStateProgress() < 1f) {
 			playerStatistic.numberOfNotFinishedBuildings++;
-			if (building.getBuildingType().isMilitaryBuilding()) {
+			if (building.getBuildingVariant().getType().isMilitaryBuilding()) {
 				playerStatistic.numberOfNotOccupiedMilitaryBuildings++;
 			}
-		} else if (building.getBuildingType().isMilitaryBuilding()) {
+		} else if (building.getBuildingVariant().getType().isMilitaryBuilding()) {
 			if (!building.isOccupied()) {
 				playerStatistic.numberOfNotOccupiedMilitaryBuildings++;
 			}
@@ -644,8 +644,8 @@ public class AiStatistics {
 				&& landscapeGrid.isHexAreaOfType(x, y, 2, ELandscapeType.GRASS, ELandscapeType.EARTH);
 	}
 
-	public boolean wasFishNearByAtGameStart(ShortPoint2D position) {
-		return aiMapInformation.wasFishNearByAtGameStart.get(position.x * partitionsGrid.getWidth() + position.y);
+	public boolean wasFishNearByAtGameStart(ShortPoint2D position, ECivilisation civilisation) {
+		return aiMapInformation.wasFishNearByAtGameStart[civilisation.ordinal].get(position.x * partitionsGrid.getWidth() + position.y);
 	}
 
 	IMovable getNearestSwordsmanOf(ShortPoint2D targetPosition, byte playerId) {

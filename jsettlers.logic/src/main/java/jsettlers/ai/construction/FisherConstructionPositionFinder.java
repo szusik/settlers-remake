@@ -44,7 +44,7 @@ public class FisherConstructionPositionFinder extends ConstructionPositionFinder
 
 		int fishDistance = fisher.getWorkRadius();
 		for (ShortPoint2D point : aiStatistics.getLandForPlayer(playerId)) {
-			if (aiStatistics.wasFishNearByAtGameStart(point) && constructionMap.canConstructAt(point.x, point.y, FISHER, playerId)
+			if (aiStatistics.wasFishNearByAtGameStart(point, civilisation) && constructionMap.canConstructAt(point.x, point.y, FISHER, playerId)
 					&& !aiStatistics.blocksWorkingAreaOfOtherBuilding(point.x, point.y, playerId, fisher)) {
 				ShortPoint2D fishPosition = aiStatistics.getNearestFishPointForPlayer(point, playerId, fishDistance);
 				if (fishPosition != null) {

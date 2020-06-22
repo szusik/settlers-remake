@@ -33,6 +33,7 @@ import android.widget.PopupWindow;
 import android.widget.SeekBar;
 
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.main.android.R;
 import jsettlers.main.android.core.navigation.BackPressedListener;
 import jsettlers.main.android.core.resources.OriginalImageProvider;
@@ -101,7 +102,7 @@ public class GoodsDistributionFragment extends Fragment implements BackPressedLi
 			ImageView imageView = view.findViewById(R.id.imageView_building);
 			SeekBar seekBar = view.findViewById(R.id.seekBar);
 
-			OriginalImageProvider.get(distributionState.getBuildingType()).setAsImage(imageView);
+			OriginalImageProvider.get(distributionState.getBuildingType().getVariant(ECivilisation.REPLACE_ME)).setAsImage(imageView);
 			seekBar.setProgress(Math.round(distributionState.getRatio() * seekBar.getMax()));
 
 			seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

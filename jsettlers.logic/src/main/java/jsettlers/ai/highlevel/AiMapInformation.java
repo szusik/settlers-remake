@@ -65,17 +65,19 @@ public class AiMapInformation {
 	// max 10 fisher to prevent AI from building only fishermen which on the one hand looks very unnatural and on the other hand is unproductive in
 	// the late game caused by over fishing.
 	public long[][] resourceAndGrassCount;
-	public final BitSet wasFishNearByAtGameStart;
+	public final BitSet[] wasFishNearByAtGameStart = new BitSet[ECivilisation.VALUES.length];
 
 	public AiMapInformation(PartitionsGrid partitionsGrid, LandscapeGrid landscapeGrid) {
 		resourceAndGrassCount = new long[partitionsGrid.getNumberOfPlayers() + 1][EResourceType.VALUES.length + 1];
-		wasFishNearByAtGameStart = calculateIsFishNearBy(partitionsGrid, landscapeGrid);
+		for(ECivilisation civ : ECivilisation.VALUES) {
+			wasFishNearByAtGameStart[civ.ordinal] = calculateIsFishNearBy(partitionsGrid, landscapeGrid, civ);
+		}
 	}
 
-	private BitSet calculateIsFishNearBy(PartitionsGrid partitionsGrid, LandscapeGrid landscapeGrid) {
+	private BitSet calculateIsFishNearBy(PartitionsGrid partitionsGrid, LandscapeGrid landscapeGrid, ECivilisation civilisation) {
 		return DistancesCalculationAlgorithm.calculatePositionsInDistance(partitionsGrid.getWidth(), partitionsGrid.getHeight(),
 				(x, y) -> landscapeGrid.getResourceTypeAt(x, y) == EResourceType.FISH && landscapeGrid.getResourceAmountAt(x, y) > 0,
-				FISHER.getWorkRadius());
+				FISHER.getVariant(civilisation).getWorkRadius());
 	}
 
 	public void clear() {

@@ -29,6 +29,7 @@ import jsettlers.common.Color;
 import java8.util.Optional;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.map.grid.MainGrid;
@@ -806,10 +807,6 @@ class OriginalMapFileContentReader {
 		}
 	}
 
-	public void addStartTowerMaterialsAndSettlers(EMapStartResources startResources) {
-		addStartTowerMaterialsAndSettlers(startResources, null);
-	}
-
 	public void addStartTowerMaterialsAndSettlers(EMapStartResources startResources, PlayerSetting[] playerSettings) {
 		// - only if there are no buildings
 		if (hasBuildings) {
@@ -831,7 +828,8 @@ class OriginalMapFileContentReader {
 			mapObjects.addAll(EMapStartResources.generateMovableObjects(startResources, playerId));
 
 			// - blocking area of the tower
-			List<RelativePoint> towerTiles = Arrays.asList(EBuildingType.TOWER.getProtectedTiles());
+			ECivilisation playerCiv = playerSettings!=null?playerSettings[playerId].getCivilisation():ECivilisation.REPLACE_ME;
+			List<RelativePoint> towerTiles = Arrays.asList(EBuildingType.TOWER.getVariant(playerCiv).getProtectedTiles());
 
 			RelativePoint relativeMapObjectPoint = new RelativePoint(-3, 3);
 

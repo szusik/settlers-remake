@@ -48,6 +48,7 @@ import jsettlers.common.action.PointAction;
 import jsettlers.common.action.ScreenChangeAction;
 import jsettlers.common.action.SelectAreaAction;
 import jsettlers.common.action.ShowConstructionMarksAction;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.images.AnimationSequence;
 import jsettlers.common.images.EImageLinkType;
@@ -957,8 +958,8 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			scrollTo(messenger.getPosition(), true);
 			break;
 		case SHOW_CONSTRUCTION_MARK:
-			EBuildingType buildingType = ((ShowConstructionMarksAction) action).getBuildingType();
-			placementBuilding = buildingType == null ? null : new PlacementBuilding(buildingType);
+			BuildingVariant buildingVariant = ((ShowConstructionMarksAction) action).getBuildingType().getVariant(localPlayer.getCivilisation());
+			placementBuilding = buildingVariant == null ? null : new PlacementBuilding(buildingVariant);
 			break;
 		default:
 			break;

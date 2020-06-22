@@ -53,9 +53,9 @@ public class CarriersSelectionFragment extends SelectionFragment {
 
 	@AfterViews
 	void setupImageProvider() {
-		OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.ROMAN, ECommonLinkType.SETTLER_GUI, EMovableType.PIONEER)).setAsImage(pioneerImageView);
-		OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.ROMAN, ECommonLinkType.SETTLER_GUI, EMovableType.GEOLOGIST)).setAsImage(geologistImageView);
-		OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.ROMAN, ECommonLinkType.SETTLER_GUI, EMovableType.THIEF)).setAsImage(thiefImageView);
+		OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.REPLACE_ME, ECommonLinkType.SETTLER_GUI, EMovableType.PIONEER)).setAsImage(pioneerImageView);
+		OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.REPLACE_ME, ECommonLinkType.SETTLER_GUI, EMovableType.GEOLOGIST)).setAsImage(geologistImageView);
+		OriginalImageProvider.get(ImageLinkMap.get(ECivilisation.REPLACE_ME, ECommonLinkType.SETTLER_GUI, EMovableType.THIEF)).setAsImage(thiefImageView);
 
 		actionControls = new ControlsResolver(getActivity()).getActionControls();
 	}

@@ -102,7 +102,7 @@ public final class DiggerStrategy extends MovableStrategy implements IManageable
 	}
 
 	private boolean allPositionsFlattened() {
-		for (RelativePoint relativePosition : requester.getBuildingType().getProtectedTiles()) {
+		for (RelativePoint relativePosition : requester.getBuildingVariant().getProtectedTiles()) {
 			if (needsToBeWorkedOn(relativePosition.calculatePoint(requester.getPosition()))) {
 				return false;
 			}
@@ -111,7 +111,7 @@ public final class DiggerStrategy extends MovableStrategy implements IManageable
 	}
 
 	private ShortPoint2D getDiggablePosition() {
-		RelativePoint[] blockedTiles = requester.getBuildingType().getProtectedTiles();
+		RelativePoint[] blockedTiles = requester.getBuildingVariant().getProtectedTiles();
 		ShortPoint2D buildingPos = requester.getPosition();
 		int offset = MatchConstants.random().nextInt(blockedTiles.length);
 

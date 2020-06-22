@@ -169,7 +169,7 @@ public class BuildingState {
 			stackStates.add(new StackState(mat));
 		}
 		isSeaTrading = building instanceof IBuilding.ITrading && ((IBuilding.ITrading) building).isSeaTrading();
-		isDockyard = building.getBuildingType() == EBuildingType.DOCKYARD;
+		isDockyard = building.getBuildingVariant().isVariantOf(EBuildingType.DOCKYARD);
 		isWorkingDockyard = (building instanceof IBuilding.IShipConstruction && ((IBuilding.IShipConstruction) building).getOrderedShipType() != null);
 	}
 

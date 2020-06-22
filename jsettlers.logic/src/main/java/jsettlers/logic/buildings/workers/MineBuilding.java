@@ -74,7 +74,7 @@ public final class MineBuilding extends ResourceBuilding {
 	}
 
 	private EResourceType getProducedResource() {
-		switch (super.getBuildingType()) {
+		switch (super.getBuildingVariant().getType()) {
 		case COALMINE:
 			return EResourceType.COAL;
 		case IRONMINE:
@@ -84,7 +84,7 @@ public final class MineBuilding extends ResourceBuilding {
 		case SULFURMINE:
 			return EResourceType.BRIMSTONE;
 		default:
-			throw new IllegalArgumentException("Unknown building type for a mine: " + super.getBuildingType());
+			throw new IllegalArgumentException("Unknown building type for a mine: " + super.getBuildingVariant());
 		}
 	}
 

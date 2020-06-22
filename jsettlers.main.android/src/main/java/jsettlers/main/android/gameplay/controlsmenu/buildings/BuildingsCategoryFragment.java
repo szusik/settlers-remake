@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.graphics.map.controls.original.panel.content.buildings.EBuildingsCategory;
 import jsettlers.main.android.R;
 import jsettlers.main.android.core.resources.OriginalImageProvider;
@@ -140,7 +141,7 @@ public class BuildingsCategoryFragment extends Fragment {
 		}
 
 		void setBuilding(BuildingViewState buildingViewState) {
-			OriginalImageProvider.get(buildingViewState.getBuildingType()).setAsImage(imageView);
+			OriginalImageProvider.get(buildingViewState.getBuildingType().getVariant(ECivilisation.REPLACE_ME)).setAsImage(imageView);
 			nameTextView.setText(buildingViewState.getName());
 			buildingCountTextView.setText(buildingViewState.getCount());
 			buildingConstructionCountTextView.setText(buildingViewState.getConstructionCount());

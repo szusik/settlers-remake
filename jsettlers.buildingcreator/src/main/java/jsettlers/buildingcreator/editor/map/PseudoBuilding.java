@@ -17,6 +17,7 @@ package jsettlers.buildingcreator.editor.map;
 import java.util.Collections;
 import java.util.List;
 
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuildingMaterial;
@@ -28,17 +29,17 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 
 public class PseudoBuilding implements IBuilding, IBuilding.IMill {
-	private final EBuildingType type;
+	private final BuildingVariant building;
 	private final ShortPoint2D pos;
 
-	PseudoBuilding(EBuildingType type, ShortPoint2D pos) {
-		this.type = type;
+	PseudoBuilding(BuildingVariant building, ShortPoint2D pos) {
+		this.building = building;
 		this.pos = pos;
 	}
 
 	@Override
-	public EBuildingType getBuildingType() {
-		return type;
+	public BuildingVariant getBuildingVariant() {
+		return building;
 	}
 
 	@Override

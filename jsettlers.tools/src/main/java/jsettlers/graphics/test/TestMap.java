@@ -28,6 +28,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IMovable;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 
@@ -159,11 +160,11 @@ public class TestMap implements IGraphicsGrid {
 			TestTile tile = getTile(cx, cy);
 			TestBuilding building = null;
 			if (tile.getLandscapeType() == ELandscapeType.GRASS) {
-				building = new TestBuilding(tile.getPosition(), EBuildingType.LUMBERJACK);
+				building = new TestBuilding(tile.getPosition(), EBuildingType.LUMBERJACK.getVariant(ECivilisation.ROMAN));
 			} else if (tile.getLandscapeType() == ELandscapeType.MOUNTAIN) {
-				building = new TestBuilding(tile.getPosition(), EBuildingType.COALMINE);
+				building = new TestBuilding(tile.getPosition(), EBuildingType.COALMINE.getVariant(ECivilisation.ROMAN));
 			} else if (tile.getLandscapeType() == ELandscapeType.SAND) {
-				building = new TestBuilding(tile.getPosition(), EBuildingType.FISHER);
+				building = new TestBuilding(tile.getPosition(), EBuildingType.FISHER.getVariant(ECivilisation.ROMAN));
 			}
 			if (building != null) {
 				this.buildings.add(building);

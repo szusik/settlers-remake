@@ -22,6 +22,7 @@ import java.util.List;
 import go.graphics.GLDrawContext;
 import jsettlers.common.Color;
 import jsettlers.common.CommonConstants;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuilding.IOccupied;
@@ -44,7 +45,6 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.movable.IMovable;
 import jsettlers.common.movable.IShipInConstruction;
-import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.player.IPlayerable;
@@ -602,7 +602,7 @@ public class MapObjectDrawer {
 	}
 
 	private void drawPlacementBuilding(int x, int y, IMapObject object, float color) {
-		ImageLink[] images = ((IBuilding) object).getBuildingType().getImages();
+		ImageLink[] images = ((IBuilding) object).getBuildingVariant().getImages();
 		Image image;
 		for (ImageLink image1 : images) {
 			image = imageProvider.getImage(image1);
@@ -1237,23 +1237,23 @@ public class MapObjectDrawer {
 	 * 		Gray color shade
 	 */
 	private void drawBuilding(int x, int y, IBuilding building, float color) {
-		EBuildingType type = building.getBuildingType();
+		BuildingVariant variant = building.getBuildingVariant();
 
 		float state = building.getStateProgress();
 
 		if (state >= 0.99) {
-			if (type == EBuildingType.SLAUGHTERHOUSE && ((IBuilding.ISoundRequestable) building).isSoundRequested()) {
+			if (variant.isVariantOf(EBuildingType.SLAUGHTERHOUSE) && ((IBuilding.ISoundRequestable) building).isSoundRequested()) {
 				playSound(building, SOUND_SLAUGHTERHOUSE, x, y);
 			}
 
-			if (type == EBuildingType.MILL && ((IBuilding.IMill) building).isRotating()) {
+			if (variant.isVariantOf(EBuildingType.MILL) && ((IBuilding.IMill) building).isRotating()) {
 				Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(MILL_FILE, MILL_SEQ);
 
 				if (seq.length() > 0) {
 					int i = getAnimationStep(x, y);
 					int step = i % seq.length();
 					drawOnlyImage(seq.getImageSafe(step, () -> "mill-" + step), x, y, 0, MapDrawContext.getPlayerColor(building.getPlayer().getPlayerId()), color);
-					ImageLink[] images = type.getImages();
+					ImageLink[] images = variant.getImages();
 					if (images.length > 0) {
 						Image image = imageProvider.getImage(images[0]);
 						drawOnlyShadow(image, x, y);
@@ -1261,17 +1261,17 @@ public class MapObjectDrawer {
 				}
 				playSound(building, SOUND_MILL, x, y);
 
-			} else if(type == EBuildingType.STOCK) {
+			} else if(variant.isVariantOf(EBuildingType.STOCK)) {
 				float[] zvalues = new float[] {-4*z_per_y, -2*z_per_y, 2*z_per_y, 3*z_per_y, 2*z_per_y, -2*z_per_y};
-				ImageLink[] images = EBuildingType.STOCK.getImages();
+				ImageLink[] images = variant.getImages();
 				for (int i = 0; i != 6; i++) {
 					draw(imageProvider.getImage(images[i]), x, y, zvalues[i], color);
 				}
 			} else {
-				ImageLink[] images = type.getImages();
+				ImageLink[] images = variant.getImages();
 				if (images.length > 0) {
 					Image image = imageProvider.getImage(images[0]);
-					draw(image, x, y, building.getBuildingType() == EBuildingType.MARKET_PLACE ? BACKGROUND_Z : 0, null, color);
+					draw(image, x, y, building.getBuildingVariant().isVariantOf(EBuildingType.MARKET_PLACE) ? BACKGROUND_Z : 0, null, color);
 				}
 
 				byte fow = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
@@ -1286,7 +1286,7 @@ public class MapObjectDrawer {
 				}
 			}
 		} else if (state >= .01f) {
-			drawBuildingConstruction(x, y, color, type, state);
+			drawBuildingConstruction(x, y, color, variant, state);
 		}
 
 		if (building.isSelected()) {
@@ -1294,20 +1294,20 @@ public class MapObjectDrawer {
 		}
 	}
 
-	private void drawBuildingConstruction(int x, int y, float color, EBuildingType type, float state) {
-		boolean hasTwoConstructionPhases = type.getBuildImages().length > 0;
+	private void drawBuildingConstruction(int x, int y, float color, BuildingVariant variant, float state) {
+		boolean hasTwoConstructionPhases = variant.getBuildImages().length > 0;
 
 		boolean isInBuildPhase = hasTwoConstructionPhases && state < .5f;
 
 		if (!isInBuildPhase && hasTwoConstructionPhases) {
 			// draw the base build image
-			for (ImageLink link : type.getBuildImages()) {
+			for (ImageLink link : variant.getBuildImages()) {
 				Image image = imageProvider.getImage(link);
 				draw(image, x, y, 0, color);
 			}
 		}
 
-		ImageLink[] constructionImages = isInBuildPhase ? type.getBuildImages() : type.getImages();
+		ImageLink[] constructionImages = isInBuildPhase ? variant.getBuildImages() : variant.getImages();
 
 		float maskState = hasTwoConstructionPhases ? (state * 2) % 1 : state;
 		for (ImageLink link : constructionImages) {

@@ -29,7 +29,7 @@ public class BuildingCounts implements IBuildingCounts {
 
 	public BuildingCounts(byte playerId, short partitionId) {
 		stream(Building.getAllBuildings()).filter(building -> building.getPlayer().getPlayerId() == playerId).forEach(building -> {
-			int buildingTypeIdx = building.getBuildingType().ordinal;
+			int buildingTypeIdx = building.getBuildingVariant().ordinal;
 			boolean finishedConstruction = building.isConstructionFinished();
 
 			if (finishedConstruction) {

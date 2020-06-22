@@ -140,42 +140,6 @@ public enum EBuildingType {
 	}
 
 	/**
-	 * Gets the images needed to display this building. They are rendered in the order provided.
-	 * 
-	 * @return The images
-	 */
-	public final ImageLink[] getImages() {
-		return buildingVariants.get(REPLACE_ME).getImages();
-	}
-
-	/**
-	 * Gets the images needed to display this building while it si build. They are rendered in the order provided.
-	 * 
-	 * @return The images
-	 */
-	public final ImageLink[] getBuildImages() {
-		return buildingVariants.get(REPLACE_ME).getBuildImages();
-	}
-
-	/**
-	 * Gets the gui image that is displayed in the building selection dialog.
-	 * 
-	 * @return The image. It may be <code>null</code>
-	 */
-	public final ImageLink getGuiImage() {
-		return buildingVariants.get(REPLACE_ME).getGuiImage();
-	}
-
-	/**
-	 * Gets the working radius of the building. If it is 0, the building does not support a working radius.
-	 *
-	 * @return The radius.
-	 */
-	public final short getWorkRadius() {
-		return buildingVariants.get(REPLACE_ME).getWorkRadius();
-	}
-
-	/**
 	 * Gets the ground types this building can be placed on.
 	 * 
 	 * @return The ground types.

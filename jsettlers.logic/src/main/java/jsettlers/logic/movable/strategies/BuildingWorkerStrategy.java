@@ -481,7 +481,7 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 	}
 
 	private boolean tryTakingResource() {
-		if(building.getBuildingType() == EBuildingType.FISHER) {
+		if(building.getBuildingVariant().isVariantOf(EBuildingType.FISHER)) {
 			EDirection fishDirection = movable.getDirection();
 			return super.getGrid().tryTakingResource(fishDirection.getNextHexPoint(movable.getPosition()), EResourceType.FISH);
 		} else if(building.getBuildingVariant().isMine()) {
@@ -618,7 +618,7 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 	@Override
 	public EBuildingType getBuildingType() {
 		if (building != null) {
-			return building.getBuildingType();
+			return building.getBuildingVariant().getType();
 		} else {
 			return null;
 		}

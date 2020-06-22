@@ -154,7 +154,7 @@ public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements 
 			// test failed if buildings of type by player exist
 			if(stream(Building.getAllBuildings())
 					.filter(building -> building.getPlayer().playerId == playerId)
-					.filter(building -> building.getBuildingType() == buildingType)
+					.filter(building -> building.getBuildingVariant().isVariantOf(buildingType))
 					.findAny().isPresent()) return false;
 		}
 

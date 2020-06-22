@@ -21,7 +21,6 @@ import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
-import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.EShipType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.player.IPlayerable;
@@ -44,7 +43,7 @@ public interface IBuilding extends IMapObject, IPlayerable, ISelectable, ILocata
 	 *
 	 * @return The building type.
 	 */
-	EBuildingType getBuildingType();
+	BuildingVariant getBuildingVariant();
 
 	/**
 	 *

@@ -379,10 +379,6 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 	}
 
 	@Override
-	public final EBuildingType getBuildingType() {
-		return type;
-	}
-
 	public BuildingVariant getBuildingVariant() {
 		return type.getVariant(player.getCivilisation());
 	}

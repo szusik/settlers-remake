@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuildingMaterial;
 import jsettlers.common.buildings.IBuildingOccupier;
@@ -28,6 +28,7 @@ import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.material.EPriority;
 import jsettlers.common.movable.ESoldierClass;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
@@ -97,8 +98,8 @@ public class BuildingContainer implements ObjectContainer, IBuilding, LandscapeC
 	}
 
 	@Override
-	public EBuildingType getBuildingType() {
-		return buildingObject.getType();
+	public BuildingVariant getBuildingVariant() {
+		return buildingObject.getType().getVariant(ECivilisation.REPLACE_ME);
 	}
 
 	@Override

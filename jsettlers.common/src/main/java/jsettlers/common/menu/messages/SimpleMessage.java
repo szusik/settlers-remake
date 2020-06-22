@@ -16,7 +16,6 @@ package jsettlers.common.menu.messages;
 
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.material.EMaterialType;
-import jsettlers.common.movable.IMovable;
 import jsettlers.common.position.ShortPoint2D;
 
 /**
@@ -132,7 +131,7 @@ public class SimpleMessage implements IMessage {
 	 * @return THe messageLabel object
 	 */
 	public static IMessage cannotFindWork(IBuilding building) {
-		return new SimpleMessage(EMessageType.NOTHING_FOUND_IN_SEARCH_AREA, "cannot_find_work_" + building.getBuildingType(), (byte) -1, building.getPosition());
+		return new SimpleMessage(EMessageType.NOTHING_FOUND_IN_SEARCH_AREA, "cannot_find_work_" + building.getBuildingVariant().getType(), (byte) -1, building.getPosition());
 	}
 
 	/**

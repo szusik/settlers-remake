@@ -1734,7 +1734,7 @@ public final class MainGrid implements Serializable {
 			IBuilding building = (IBuilding) objectsGrid.getMapObjectAt(pos.x, pos.y, EMapObjectType.BUILDING);
 			mapObjectsManager.removeMapObjectType(pos.x, pos.y, EMapObjectType.BUILDING);
 
-			FreeMapArea area = new FreeMapArea(pos, building.getBuildingType().getProtectedTiles());
+			FreeMapArea area = new FreeMapArea(pos, building.getBuildingVariant().getProtectedTiles());
 			objectsGrid.setBuildingArea(area, null);
 
 			area.stream().filterBounds(width, height).forEach((x, y) -> {
