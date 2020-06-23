@@ -1,4 +1,4 @@
-<?xml version="1.1" encoding="UTF-8"?><!DOCTYPE building SYSTEM "building.dtd">
+<?xml version="1.1" encoding="UTF-8"?><!DOCTYPE building SYSTEM "../building.dtd">
 <building worker="MELTER" workradius="0">
 
   	<ground groundtype="GRASS" />

@@ -1,4 +1,4 @@
-<!DOCTYPE building SYSTEM "building.dtd">
+<!DOCTYPE building SYSTEM "../building.dtd">
 <building worker="FISHERMAN" workradius="30">
 	<ground groundtype="GRASS"/>
 	<ground groundtype="EARTH"/>

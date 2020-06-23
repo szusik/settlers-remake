@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE building SYSTEM "building.dtd" >
+<!DOCTYPE building SYSTEM "../building.dtd" >
 <building worker="">
     <ground groundtype="GRASS"/>
     <ground groundtype="EARTH"/>
