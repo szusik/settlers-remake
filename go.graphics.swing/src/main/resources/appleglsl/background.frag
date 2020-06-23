@@ -1,6 +1,4 @@
-#version 330
-
-precision mediump float;
+#version 120
 
 in float frag_color;
 in vec2 frag_texcoord;

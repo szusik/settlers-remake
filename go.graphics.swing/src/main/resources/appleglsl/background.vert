@@ -1,6 +1,4 @@
-#version 330 core
-
-precision mediump float;
+#version 120
 
 in vec3 vertex; //attribute
 in vec2 texcoord; //attribute

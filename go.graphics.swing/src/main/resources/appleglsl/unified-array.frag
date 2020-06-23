@@ -1,8 +1,6 @@
-#version 330 core
+#version 120
 
 #extension GL_NV_fragdepth : enable
-
-precision mediump float;
 
 in vec2 frag_texcoord;
 flat in int frag_mode;
