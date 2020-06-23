@@ -119,7 +119,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 			});
 
 			String buildingFileName = buildingName.toLowerCase(Locale.ENGLISH) + ".xml";
-			InputStream stream = EBuildingType.class.getResourceAsStream(buildingFileName);
+			InputStream stream = EBuildingType.class.getResourceAsStream("/jsettlers/common/buildings/" + buildingFileName);
 			xr.parse(new InputSource(stream));
 		} catch (Exception e) {
 			System.err.println("Error loading building file for " + buildingName + ":" + e.getMessage());
