@@ -14,7 +14,7 @@ out vec4 fragColor;
 
 void main() {
 	float fragDepth = gl_FragCoord.z;
-	vec4 fragColor = vec4(color[0], color[1], color[2], color[3]);
+	fragColor = vec4(color[0], color[1], color[2], color[3]);
 
 	bool textured = mode!=0;
 
@@ -49,8 +49,6 @@ void main() {
 	if(fragColor.a < 0.5) discard;
 
 	fragColor.rgb *= color[4];
-
-	fragColor = fragColor;
 
 	#ifdef GL_NV_fragdepth
 	gl_FragDepth = fragDepth;
