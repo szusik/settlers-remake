@@ -14,9 +14,9 @@
  *******************************************************************************/
 package go.graphics.swing.contextcreator;
 
-import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
@@ -37,10 +37,11 @@ public class JOGLContextCreator extends ContextCreator<GLJPanel> implements GLEv
 
 	@Override
 	public void initSpecific() {
-		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+		GLCapabilities caps = new GLCapabilities(GLProfile.getMaxProgrammable(true));
 		caps.setStencilBits(1);
 
 		canvas = new GLJPanel(caps);
+		if(debug) canvas.setContextCreationFlags(GLContext.CTX_OPTION_DEBUG);
 		canvas.addGLEventListener(this);
 
 		new GOSwingEventConverter(canvas, parent);
@@ -49,7 +50,6 @@ public class JOGLContextCreator extends ContextCreator<GLJPanel> implements GLEv
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		drawable.getGL().setSwapInterval(0);
-		if(debug) drawable.getGL().glEnable(GL4.GL_DEBUG_OUTPUT); // Better than nothing
 		parent.wrapNewGLContext();
 	}
 
