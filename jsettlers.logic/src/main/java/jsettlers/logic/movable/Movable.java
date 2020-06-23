@@ -1051,7 +1051,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 		this.movableType = newMovableType;
 		setVisible(true); // ensure the movable is visible
 		setStrategy(MovableStrategy.getStrategy(this, newMovableType));
-		FogOfWar.queueResizeCircle(this, oldType);
+		if(fowPosition != null) FogOfWar.queueResizeCircle(this, oldType);
 	}
 
 	@Override
