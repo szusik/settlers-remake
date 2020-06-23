@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 in vec2 vertex; //attribute
 in vec2 texcoord; //attribute

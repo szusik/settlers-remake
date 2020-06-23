@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 #extension GL_NV_fragdepth : enable
 

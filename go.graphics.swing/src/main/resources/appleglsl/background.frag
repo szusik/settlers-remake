@@ -1,11 +1,13 @@
-#version 120
+#version 330
 
 in float frag_color;
 in vec2 frag_texcoord;
 
+out vec4 fragColor;
+
 uniform sampler2D texHandle;
 
 void main() {
-	gl_FragColor = texture2D(texHandle, frag_texcoord);
-	gl_FragColor.rgb *= frag_color;
+	fragColor = texture(texHandle, frag_texcoord);
+	fragColor.rgb *= frag_color;
 }

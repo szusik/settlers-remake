@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 in vec3 position; //attribute
 in vec2 scale; //attribute
