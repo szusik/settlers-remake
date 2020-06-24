@@ -312,7 +312,11 @@ public final class MainGrid implements Serializable {
 			placeStack(pos, ((StackMapDataObject) object).getType(), ((StackMapDataObject) object).getCount());
 		} else if (object instanceof BuildingMapDataObject) {
 			BuildingMapDataObject buildingObject = (BuildingMapDataObject) object;
-			Building building = constructBuildingAt(pos, buildingObject.getType(), partitionsGrid.getPlayer(buildingObject.getPlayerId()), true);
+
+			Player player = partitionsGrid.getPlayer(buildingObject.getPlayerId());
+			if(player == null || buildingObject.getType().getVariant(player.getCivilisation()) == null) return;
+
+			Building building = constructBuildingAt(pos, buildingObject.getType(), player, true);
 
 			if (building instanceof IOccupyableBuilding) {
 				IOccupyableBuilding occupyableBuilding = (IOccupyableBuilding) building;
