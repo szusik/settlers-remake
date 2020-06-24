@@ -115,8 +115,8 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 
 		private final List<BuildingDistributionSettingPanel> buildingDistributionSettings;
 
-		MaterialDistributionPanel(EMaterialType materialType, IPositionSupplier positionSupplier) {
-			EBuildingType[] buildingsForMaterial = MaterialsOfBuildings.getBuildingTypesRequestingMaterial(materialType, ECivilisation.REPLACE_ME);
+		MaterialDistributionPanel(EMaterialType materialType, IPositionSupplier positionSupplier, IInGamePlayer player) {
+			EBuildingType[] buildingsForMaterial = MaterialsOfBuildings.getBuildingTypesRequestingMaterial(materialType, player!=null?player.getCivilisation():ECivilisation.ROMAN);
 
 			buildingDistributionSettings = J8Arrays.stream(buildingsForMaterial)
 					.map(buildingType -> new BuildingDistributionSettingPanel(materialType, buildingType, positionSupplier))
@@ -144,7 +144,7 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 		private final MaterialButton materialButton;
 		private final MaterialDistributionPanel configurationPanel;
 
-		private MaterialDistributionTab(EMaterialType materialType, IPositionSupplier positionSupplier) {
+		private MaterialDistributionTab(EMaterialType materialType, IPositionSupplier positionSupplier, IInGamePlayer player) {
 			MaterialDistributionTab thisTab = this;
 			materialButton = new MaterialButton(new ExecutableAction() {
 				@Override
@@ -153,17 +153,17 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 				}
 			}, materialType);
 
-			configurationPanel = new MaterialDistributionPanel(materialType, positionSupplier);
+			configurationPanel = new MaterialDistributionPanel(materialType, positionSupplier, player);
 		}
 	}
 
-	private final UIPanel panel;
+	private UIPanel panel;
 	private final UiLocationDependingContentUpdater<IMaterialDistributionSettings> uiContentUpdater = new UiLocationDependingContentUpdater<>(this::currentDistributionSettingsProvider);
 
 	private MaterialDistributionTab currentTab;
 
 	public DistributionPanel() {
-		panel = buildPanel();
+		panel = null;
 		uiContentUpdater.addListener(this);
 	}
 
@@ -188,12 +188,14 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 	public void setPlayer(IInGamePlayer player) {
 		uiContentUpdater.setPlayer(player);
 		this.player = player;
+
+		panel = buildPanel();
 	}
 
 	private List<MaterialDistributionTab> createTabs(IPositionSupplier positionSupplier) {
 		return J8Arrays.stream(EMaterialType.values())
 				.filter(EMaterialType::isDistributionConfigurable)
-				.map(materialType -> new MaterialDistributionTab(materialType, positionSupplier))
+				.map(materialType -> new MaterialDistributionTab(materialType, positionSupplier, player))
 				.collect(Collectors.toList());
 	}
 
