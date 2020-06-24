@@ -14,6 +14,7 @@
  *******************************************************************************/
 package jsettlers.common.buildings.loader;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -105,8 +106,13 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private short viewdistance = 0;
 	private final String buildingName;
 
-	public BuildingFile(String buildingName) {
+	public BuildingFile(String buildingName) throws FileNotFoundException {
 		this.buildingName = buildingName;
+
+		String buildingFileName = buildingName.toLowerCase(Locale.ENGLISH) + ".xml";
+		InputStream stream = EBuildingType.class.getResourceAsStream("/jsettlers/common/buildings/" + buildingFileName);
+		if(stream == null) throw new FileNotFoundException(buildingFileName);
+
 		try {
 			XMLReader xr = XMLReaderFactory.createXMLReader();
 			xr.setContentHandler(new SaxHandler());
@@ -118,8 +124,6 @@ public class BuildingFile implements BuildingJobDataProvider {
 				}
 			});
 
-			String buildingFileName = buildingName.toLowerCase(Locale.ENGLISH) + ".xml";
-			InputStream stream = EBuildingType.class.getResourceAsStream("/jsettlers/common/buildings/" + buildingFileName);
 			xr.parse(new InputSource(stream));
 		} catch (Exception e) {
 			System.err.println("Error loading building file for " + buildingName + ":" + e.getMessage());

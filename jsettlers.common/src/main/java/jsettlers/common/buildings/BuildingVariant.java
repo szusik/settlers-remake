@@ -1,5 +1,6 @@
 package jsettlers.common.buildings;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -73,7 +74,7 @@ public class BuildingVariant {
 	/**
 	 * Constructs an enum object.
 	 */
-	BuildingVariant(EBuildingType type, ECivilisation civilisation) {
+	BuildingVariant(EBuildingType type, ECivilisation civilisation) throws FileNotFoundException {
 		this.civilisation = civilisation;
 		this.ordinal = type.ordinal;
 		this.type = type;

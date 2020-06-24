@@ -14,6 +14,7 @@
  *******************************************************************************/
 package jsettlers.common.buildings;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -48,7 +49,6 @@ public enum EBuildingType {
 	LUMBERJACK,
 	SAWMILL,
 
-	SULFURMINE,
 	COALMINE,
 	IRONMINE,
 	GOLDMINE,
@@ -89,7 +89,9 @@ public enum EBuildingType {
 	TEMPLE,
 	BIG_TEMPLE,
 
-	MARKET_PLACE;
+	MARKET_PLACE,
+
+	SULFURMINE;
 
 	/**
 	 * A copy of {@link #values()}. Do not modify this array. This is intended for quicker access to this value.
@@ -118,7 +120,10 @@ public enum EBuildingType {
 		for(ECivilisation civilisation : ECivilisation.VALUES) {
 			try {
 				buildingVariants.put(civilisation, new BuildingVariant(this, civilisation));
-			} catch(Throwable t) {}
+			} catch (FileNotFoundException ex) {
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
 		}
 	}
 
