@@ -14,6 +14,8 @@
  *******************************************************************************/
 package jsettlers.common.player;
 
+import jsettlers.common.buildings.EBuildingType;
+
 /**
  * @author codingberlin
  */
@@ -38,5 +40,12 @@ public enum ECivilisation {
 
 	public int getFileIndex() {
 		return fileIndex;
+	}
+
+	public EBuildingType getMannaBuilding() {
+		switch (this) {
+			default:
+				return EBuildingType.WINEGROWER;
+		}
 	}
 }

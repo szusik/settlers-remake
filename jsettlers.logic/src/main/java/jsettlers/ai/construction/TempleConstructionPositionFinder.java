@@ -24,8 +24,8 @@ public class TempleConstructionPositionFinder extends NearRequiredBuildingConstr
 
 	public static final int WINE_PER_TEMPLE = 15;
 
-	public TempleConstructionPositionFinder(Factory factory) {
-		super(factory, EBuildingType.TEMPLE, EBuildingType.WINEGROWER);
+	public TempleConstructionPositionFinder(Factory factory, EBuildingType mannaProducer) {
+		super(factory, EBuildingType.TEMPLE, mannaProducer);
 	}
 
 	@Override
