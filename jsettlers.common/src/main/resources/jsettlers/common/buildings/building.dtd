@@ -43,6 +43,7 @@
 	BASKET|
 	TREE|
 	PLANT|
+	HONEY|
 	EMPTY_BUCKET)
 ">
 <!ENTITY % jobtype "(
