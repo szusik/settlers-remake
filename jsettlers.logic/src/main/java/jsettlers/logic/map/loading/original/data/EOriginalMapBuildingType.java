@@ -52,7 +52,7 @@ public enum EOriginalMapBuildingType {
 	LIVINGHOUSE_SMALL(EBuildingType.SMALL_LIVINGHOUSE),
 	LIVINGHOUSE_MEDIUM(EBuildingType.MEDIUM_LIVINGHOUSE),
 	LIVINGHOUSE_BIG(EBuildingType.BIG_LIVINGHOUSE),
-	Schwefelmine(EBuildingType.SULFURMINE),
+	SULFURMINE(EBuildingType.SULFURMINE),
 	WATERWORKS(EBuildingType.WATERWORKS),
 	Katapultwerk(null),
 	DOCKYARD(EBuildingType.DOCKYARD),
@@ -60,7 +60,7 @@ public enum EOriginalMapBuildingType {
 	Marktplatz(EBuildingType.MARKET_PLACE),
 	HOSPITAL(EBuildingType.HOSPITAL),
 	Reisfarm(null),
-	Edelsteinmine(null),
+	GEMSMINE(EBuildingType.GEMSMINE),
 	Brauerei(null),
 	CHARCOAL_BURNER(EBuildingType.CHARCOAL_BURNER),
 	Pulvermacherei(null),
@@ -79,7 +79,7 @@ public enum EOriginalMapBuildingType {
 	Labortorium(null),
 	kleiner_Tempel(EBuildingType.TEMPLE),
 	grosser_Tempel(EBuildingType.BIG_TEMPLE),
-	SchwefelmineAmazonen(EBuildingType.SULFURMINE);
+	SULFURMINE_AMAZON(EBuildingType.SULFURMINE);
 
 	private static final EOriginalMapBuildingType[] VALUES = EOriginalMapBuildingType.values();
 	private final EBuildingType value;

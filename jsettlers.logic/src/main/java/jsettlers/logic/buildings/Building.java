@@ -755,6 +755,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 			return new Barrack(player, position, buildingsGrid);
 
 		case SULFURMINE:
+		case GEMSMINE:
 		case IRONMINE:
 		case GOLDMINE:
 		case COALMINE:

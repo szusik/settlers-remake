@@ -36,7 +36,8 @@ public enum EBuildingsCategory {
 			EBuildingType.COALMINE,
 			EBuildingType.TOOLSMITH,
 			EBuildingType.CHARCOAL_BURNER,
-			EBuildingType.SULFURMINE),
+			EBuildingType.SULFURMINE,
+			EBuildingType.GEMSMINE),
 	BUILDINGS_CATEGORY_FOOD(
 			EBuildingType.FISHER,
 			EBuildingType.FARM,

@@ -91,7 +91,8 @@ public enum EBuildingType {
 
 	MARKET_PLACE,
 
-	SULFURMINE;
+	SULFURMINE,
+	GEMSMINE;
 
 	/**
 	 * A copy of {@link #values()}. Do not modify this array. This is intended for quicker access to this value.
