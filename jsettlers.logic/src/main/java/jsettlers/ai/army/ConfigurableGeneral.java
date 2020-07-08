@@ -312,6 +312,8 @@ public class ConfigurableGeneral implements ArmyGeneral {
 	private void attack(SoldierPositions soldierPositions, boolean infantryWouldDie, Set<Integer> soldiersWithOrders) {
 		IPlayer weakestEnemy = getWeakestEnemy();
 		ShortPoint2D targetDoor = getTargetEnemyDoorToAttack(weakestEnemy);
+		if(targetDoor == null) return;
+
 		if (infantryWouldDie) {
 			sendTroopsTo(soldierPositions.bowmenPositions, targetDoor, soldiersWithOrders, EMoveToType.DEFAULT);
 		} else {
@@ -367,6 +369,8 @@ public class ConfigurableGeneral implements ArmyGeneral {
 		}
 
 		ShortPoint2D nearestEnemyBuildingPosition = AiStatistics.detectNearestPointFromList(myBaseAveragePoint, enemyMilitaryBuildings);
+		if(nearestEnemyBuildingPosition == null) return null;
+
 		return aiStatistics.getBuildingAt(nearestEnemyBuildingPosition).getDoor();
 	}
 
