@@ -57,7 +57,7 @@ public abstract class SpawnBuilding extends Building {
 		ILogicMovable movableAtDoor = super.grid.getMovable(super.getDoor());
 
 		if (movableAtDoor == null) {
-			movableAtDoor = new Movable(super.grid.getMovableGrid(), getMovableType(), getDoor(), super.getPlayer());
+			movableAtDoor = Movable.createMovable(getMovableType(), getPlayer(), getDoor(), grid.getMovableGrid());
 			produced++;
 
 			if (produced < getProduceLimit()) {

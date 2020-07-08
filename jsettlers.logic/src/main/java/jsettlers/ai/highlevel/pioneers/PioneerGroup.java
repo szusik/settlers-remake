@@ -26,7 +26,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.tasks.ConvertGuiTask;
 import jsettlers.logic.map.grid.movable.MovableGrid;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.network.client.interfaces.ITaskScheduler;
 
@@ -60,7 +60,7 @@ public class PioneerGroup {
 	public void removeDeadPioneers() {
 		Collection<Integer> idsToRemove = new ArrayList<>(pioneerIds.size());
 		for (Integer pioneerId : pioneerIds) {
-			if (Movable.getMovableByID(pioneerId) == null) {
+			if (MovableManager.getMovableByID(pioneerId) == null) {
 				idsToRemove.add(pioneerId);
 			}
 		}
@@ -90,7 +90,7 @@ public class PioneerGroup {
 	}
 
 	public PioneerGroup getPioneersWithNoAction() {
-		List<Integer> pioneersWithNoAction = stream(pioneerIds).filter(pioneerId -> Movable.getMovableByID(pioneerId).getAction() == EMovableAction.NO_ACTION).collect(Collectors.toList());
+		List<Integer> pioneersWithNoAction = stream(pioneerIds).filter(pioneerId -> MovableManager.getMovableByID(pioneerId).getAction() == EMovableAction.NO_ACTION).collect(Collectors.toList());
 		return new PioneerGroup(pioneersWithNoAction);
 	}
 

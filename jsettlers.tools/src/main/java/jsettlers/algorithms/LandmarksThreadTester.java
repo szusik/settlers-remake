@@ -15,7 +15,6 @@
 package jsettlers.algorithms;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import jsettlers.TestToolUtils;
 import jsettlers.algorithms.landmarks.EnclosedBlockedAreaFinderAlgorithm;
@@ -31,7 +30,7 @@ import jsettlers.common.map.partition.IPartitionData;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.menu.IMapInterfaceConnector;
 import jsettlers.common.action.EActionType;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.action.PointAction;
 import jsettlers.common.player.IPlayer;
 import jsettlers.main.swing.lookandfeel.JSettlersLookAndFeelExecption;
@@ -174,7 +173,7 @@ public class LandmarksThreadTester {
 		}
 
 		@Override
-		public IMovable getMovableAt(int x, int y) {
+		public IGraphicsMovable getMovableAt(int x, int y) {
 			return null;
 		}
 

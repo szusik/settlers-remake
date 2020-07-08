@@ -34,7 +34,7 @@ import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.tasks.ConstructBuildingTask;
@@ -231,7 +231,7 @@ class WhatToDoAi implements IWhatToDoAi {
 			OccupyingBuilding militaryBuilding = (OccupyingBuilding) aiStatistics.getBuildingAt(militaryBuildingPosition);
 			if (!militaryBuilding.isOccupied()) {
 				ShortPoint2D door = militaryBuilding.getDoor();
-				IMovable soldier = aiStatistics.getNearestSwordsmanOf(door, playerId);
+				ILogicMovable soldier = aiStatistics.getNearestSwordsmanOf(door, playerId);
 				if (soldier != null && militaryBuilding.getPosition().getOnGridDistTo(soldier.getPosition()) > TOWER_SEARCH_SOLDIERS_RADIUS) {
 					soldiersWithOrders.add(soldier.getID());
 					sendMovableTo(soldier, door, EMoveToType.FORCED);
@@ -242,7 +242,7 @@ class WhatToDoAi implements IWhatToDoAi {
 		return soldiersWithOrders;
 	}
 
-	private void sendMovableTo(IMovable movable, ShortPoint2D target, EMoveToType moveToType) {
+	private void sendMovableTo(ILogicMovable movable, ShortPoint2D target, EMoveToType moveToType) {
 		if (movable != null) {
 			taskScheduler.scheduleTask(new MoveToGuiTask(playerId, target, Collections.singletonList(movable.getID()), moveToType));
 		}
@@ -364,7 +364,7 @@ class WhatToDoAi implements IWhatToDoAi {
 	}
 
 	private void sendSwordsmenToTower(ShortPoint2D position) {
-		IMovable soldier = aiStatistics.getNearestSwordsmanOf(position, playerId);
+		ILogicMovable soldier = aiStatistics.getNearestSwordsmanOf(position, playerId);
 		if (soldier != null) {
 			sendMovableTo(soldier, position, EMoveToType.DEFAULT);
 		}

@@ -17,7 +17,7 @@ package jsettlers.common.map;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.map.partition.IPartitionData;
 import jsettlers.common.mapobject.IMapObject;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 
 /**
@@ -43,9 +43,9 @@ public interface IGraphicsGrid {
 	 *            x coordinate
 	 * @param y
 	 *            y coordinate
-	 * @return {@link IMovable} object at the given position or null if there is none.
+	 * @return {@link IGraphicsMovable} object at the given position or null if there is none.
 	 */
-	IMovable getMovableAt(int x, int y);
+	IGraphicsMovable getMovableAt(int x, int y);
 
 	/**
 	 * Gets the first map object that is placed on the given position. There may be more map objects that can be retained by using the

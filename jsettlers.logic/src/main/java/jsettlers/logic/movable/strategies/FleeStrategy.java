@@ -29,7 +29,7 @@ import jsettlers.logic.movable.MovableStrategy;
  * @author Andreas Eberle
  * 
  */
-public class FleeStrategy extends MovableStrategy {
+public class FleeStrategy extends MovableStrategy<Movable> {
 	private static final long serialVersionUID = -7693464085159449304L;
 
 	private int searchesCounter = 0;
@@ -76,8 +76,6 @@ public class FleeStrategy extends MovableStrategy {
 			}
 
 			searchesCounter++;
-		} else {
-			movable.convertTo(movable.getMovableType());
 		}
 	}
 

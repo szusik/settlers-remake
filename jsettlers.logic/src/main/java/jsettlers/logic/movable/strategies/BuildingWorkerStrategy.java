@@ -39,14 +39,16 @@ import jsettlers.logic.buildings.workers.SlaughterhouseBuilding;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableWorker;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IWorkerRequestBuilding;
 import jsettlers.logic.movable.EGoInDirectionMode;
-import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
+import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
+import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
+import jsettlers.logic.movable.interfaces.IHealerMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 /**
  * @author Andreas Eberle
  */
-public final class BuildingWorkerStrategy extends MovableStrategy implements IManageableWorker {
+public class BuildingWorkerStrategy<T extends BuildingWorkerMovable> extends MovableStrategy<T> implements IManageableWorker {
 	private static final long serialVersionUID = 5949318243804026519L;
 
 	private transient IBuildingJob currentJob = null;
@@ -59,9 +61,9 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 	private int searchFailedCtr = 0;
 
 	private ShortPoint2D markedPosition;
-	private int nextPatient = -1;
+	private IAttackableHumanMovable nextPatient = null;
 
-	public BuildingWorkerStrategy(Movable movable) {
+	public BuildingWorkerStrategy(T movable) {
 		super(movable);
 		reportAsJobless();
 	}
@@ -290,11 +292,11 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 			ShortPoint2D jobPos = getCurrentJobPos();
 
 			ILogicMovable movable = super.getGrid().getMovableAt(jobPos.x, jobPos.y);
-			if(movable != null && movable.needsTreatment()) {
-				nextPatient = movable.getID();
+			if(movable instanceof IAttackableHumanMovable && ((IAttackableHumanMovable)movable).needsTreatment()) {
+				nextPatient = (IAttackableHumanMovable) movable;
 				jobFinished();
 			} else {
-				nextPatient = -1;
+				nextPatient = null;
 				if(movable != null) movable.push(this.movable);
 				jobFailed();
 			}
@@ -303,19 +305,21 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 
 		case CALL_WOUNDED: {
 			// check if patient is still interested
-			if(movable.getPatient() != null) {
+			IAttackableHumanMovable patient = ((IHealerMovable)movable).getPatient();
+			if(patient != null) {
 				int healX = movable.getPosition().x + 2;
 				int healY = movable.getPosition().y + 2;
 
-				if(movable.getPatient().getPath() == null ||
-					!movable.getPatient().getPath().getTargetPosition().equals(healX, healY)) {
+				if(patient.getPath() == null ||
+					!patient.getPath().getTargetPosition().equals(healX, healY)) {
 					// reset patient
-					movable.requestTreatment(null);
+					((IHealerMovable)movable).requestTreatment(null);
 				}
 			}
 
-			if(movable.getPatient() == null) {
-				ILogicMovable bestPatient = null;
+			patient = ((IHealerMovable)movable).getPatient();
+			if(patient == null) {
+				IAttackableHumanMovable bestPatient = null;
 				float patientHealth = Float.MAX_VALUE;
 				MapCircleIterator iter = new MapCircleIterator(new MapCircle(building.getWorkAreaCenter(), building.getBuildingVariant().getWorkRadius()));
 
@@ -325,17 +329,19 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 					ShortPoint2D next = iter.next();
 					if(next.x > 0 && next.x < width && next.y > 0 && next.y < height) {
 						ILogicMovable potentialPatient = getGrid().getMovableAt(next.x, next.y);
-						if (potentialPatient != null && potentialPatient.getPlayer() == movable.getPlayer() && potentialPatient.needsTreatment()) {
+						if (potentialPatient instanceof IAttackableHumanMovable &&
+								potentialPatient.getPlayer() == movable.getPlayer() &&
+								((IAttackableHumanMovable)potentialPatient).needsTreatment()) {
 							float newHealth = potentialPatient.getHealth();
 							if (newHealth < patientHealth) {
-								bestPatient = potentialPatient;
+								bestPatient = (IAttackableHumanMovable) potentialPatient;
 								patientHealth = newHealth;
 							}
 						}
 					}
 				}
 
-				if(bestPatient != null && bestPatient.pingWounded(movable)) {
+				if(bestPatient != null && bestPatient.pingWounded((IHealerMovable) movable)) {
 					jobFinished();
 				} else {
 					jobFailed();
@@ -347,10 +353,9 @@ public final class BuildingWorkerStrategy extends MovableStrategy implements IMa
 		}
 
 		case HEAL:
-			ILogicMovable movable = Movable.getMovableByID(nextPatient);
-			if(movable != null) {
-				movable.heal();
-				this.movable.requestTreatment(null);
+			if(nextPatient != null) {
+				nextPatient.heal();
+				((IHealerMovable)movable).requestTreatment(null);
 				jobFinished();
 			} else {
 				jobFailed();

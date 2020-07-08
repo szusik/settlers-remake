@@ -21,15 +21,15 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.position.MutablePoint2D;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.mutables.MutableDouble;
-import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
+import jsettlers.logic.movable.specialist.GeologistMovable;
 
 /**
  * 
  * @author Andreas Eberle
  * 
  */
-public final class GeologistStrategy extends MovableStrategy {
+public final class GeologistStrategy extends MovableStrategy<GeologistMovable> {
 	private static final long serialVersionUID = 1L;
 
 	private static final float ACTION1_DURATION = 1.4f;
@@ -38,7 +38,7 @@ public final class GeologistStrategy extends MovableStrategy {
 	private EGeologistState state = EGeologistState.JOBLESS;
 	private ShortPoint2D centerPos;
 
-	public GeologistStrategy(Movable movable) {
+	public GeologistStrategy(GeologistMovable movable) {
 		super(movable);
 	}
 

@@ -24,8 +24,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.map.IGraphicsBackgroundListener;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.player.IPlayer;
-import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
 import go.graphics.FramerateComputer;
 import jsettlers.logic.buildings.Building;
@@ -33,6 +31,7 @@ import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.MainGrid;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 
 /**
  * This class holds the fog of war for a given map and team.
@@ -189,7 +188,7 @@ public final class FogOfWar implements Serializable {
 
 		@Override
 		public void init() {
-			Movable.initFow(team);
+			MovableManager.initFow(team);
 			Building.initFow(team);
 		}
 

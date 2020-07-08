@@ -79,7 +79,7 @@ public class DockyardBuilding extends WorkerBuilding implements IBuilding.IShipC
 		ship.workOnShip();
 
 		if (ship.isFinished()) { // replace ShipInConstructionMapObject with Movable
-			Movable shipMovable = new Movable(super.grid.getMovableGrid(), orderedShipType.movableType, getShipPosition(), super.getPlayer());
+			Movable shipMovable = Movable.createMovable(orderedShipType.movableType, getPlayer(), getShipPosition(), grid.getMovableGrid());
 			shipMovable.setDirection(ship.getDirection());
 			removeShipInConstructionMapObject();
 

@@ -14,20 +14,23 @@
  *******************************************************************************/
 package jsettlers.graphics.test;
 
-import java.util.ArrayList;
+import java.util.List;
 
+import java8.util.Lists2;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsCargoShip;
+import jsettlers.common.movable.IGraphicsFerry;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 
-public class TestSettler implements IMovable {
+public class TestSettler implements IGraphicsMovable, IGraphicsFerry, IGraphicsCargoShip {
 
 	private final IPlayer      player;
 	private final EMovableType type;
@@ -121,12 +124,8 @@ public class TestSettler implements IMovable {
 	}
 
 	@Override
-	public final void stopOrStartWorking(boolean stop) {
-	}
-
-	@Override
-	public ArrayList<IMovable> getPassengers() {
-		return null;
+	public List<IGraphicsMovable> getPassengers() {
+		return (type == EMovableType.FERRY)? Lists2.of() : null;
 	}
 
 	@Override
@@ -181,10 +180,5 @@ public class TestSettler implements IMovable {
 	@Override
 	public boolean hasEffect(EEffectType effect) {
 		return false;
-	}
-
-	@Override
-	public boolean isUncoveredBy(byte team) {
-		return true;
 	}
 }

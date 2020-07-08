@@ -61,7 +61,7 @@ import jsettlers.common.movable.EShipType;
 import jsettlers.common.movable.ESoldierType;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.movable.IIDable;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
@@ -479,10 +479,10 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 	}
 
 	private void castSpell(ShortPoint2D at, ESpellType spell) {
-		final ISelectable selected = currentSelection.stream().filter(iSelectable -> iSelectable instanceof IMovable)
-				.sorted((iSelectable1, iSelectable2) -> ((IMovable)iSelectable1).getPosition().getOnGridDistTo(at)-
-						((IMovable)iSelectable2).getPosition().getOnGridDistTo(at)).findFirst().get();
-		scheduleTask(new CastSpellGuiTask(playerId, at, ((IMovable)selected).getID(), spell));
+		final ISelectable selected = currentSelection.stream().filter(iSelectable -> iSelectable instanceof IGraphicsMovable)
+				.sorted((iSelectable1, iSelectable2) -> ((IGraphicsMovable)iSelectable1).getPosition().getOnGridDistTo(at)-
+						((IGraphicsMovable)iSelectable2).getPosition().getOnGridDistTo(at)).findFirst().get();
+		scheduleTask(new CastSpellGuiTask(playerId, at, ((IGraphicsMovable)selected).getID(), spell));
 	}
 
 	private void sendConvertAction(ConvertAction action) {
@@ -490,8 +490,8 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 		switch (action.getTargetType()) {
 			case BEARER:
 				for (final ISelectable curr : currentSelection) {
-					if (curr instanceof IMovable) {
-						final EMovableType currType = ((IMovable) curr).getMovableType();
+					if (curr instanceof IGraphicsMovable) {
+						final EMovableType currType = ((IGraphicsMovable) curr).getMovableType();
 						if (currType == EMovableType.PIONEER) {
 							convertables.add(curr);
 							if (convertables.size() >= action.getAmount()) {
@@ -505,8 +505,8 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 			case GEOLOGIST:
 			case THIEF:
 				for (final ISelectable curr : currentSelection) {
-					if (curr instanceof IMovable) {
-						final EMovableType currType = ((IMovable) curr).getMovableType();
+					if (curr instanceof IGraphicsMovable) {
+						final EMovableType currType = ((IGraphicsMovable) curr).getMovableType();
 						if (currType == EMovableType.BEARER) {
 							convertables.add(curr);
 							if (convertables.size() >= action.getAmount()) {

@@ -14,11 +14,9 @@
  *******************************************************************************/
 package jsettlers.common.movable;
 
-import java.util.List;
 
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.material.EMaterialType;
-import jsettlers.common.player.IPlayerable;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.selectable.ISelectable;
 import jsettlers.common.sound.ISoundable;
@@ -28,7 +26,7 @@ import jsettlers.common.sound.ISoundable;
  *
  * @author Andreas Eberle
  */
-public interface IMovable extends IPlayerable, ISelectable, ILocatable, ISoundable, IIDable {
+public interface IGraphicsMovable extends ISelectable, ILocatable, ISoundable, IIDable {
 	EMovableType getMovableType();
 
 	/**
@@ -84,23 +82,6 @@ public interface IMovable extends IPlayerable, ISelectable, ILocatable, ISoundab
 	boolean isRightstep();
 
 	/**
-	 * Lets this movable stop or start its work.
-	 *
-	 * @param stop
-	 * 		if true this selectable should stop working<br>
-	 * 		if false, it should stop working.
-	 */
-	void stopOrStartWorking(boolean stop);
-
-	List<? extends IMovable> getPassengers();
-
-	int getNumberOfCargoStacks();
-
-	EMaterialType getCargoType(int stack);
-
-	int getCargoCount(int stack);
-
-	/**
 	 * This method returns the building type of a work if the worker is stationed in a building
 	 *
 	 * @return EBuildingType of the building the worker is garrisoned in or null if the worker is not garrisoned.
@@ -108,6 +89,4 @@ public interface IMovable extends IPlayerable, ISelectable, ILocatable, ISoundab
 	EBuildingType getGarrisonedBuildingType();
 
 	boolean hasEffect(EEffectType effect);
-
-	boolean isUncoveredBy(byte team);
 }

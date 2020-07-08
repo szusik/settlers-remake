@@ -24,8 +24,10 @@ import jsettlers.logic.map.grid.partition.manager.materials.interfaces.IMaterial
 import jsettlers.logic.map.grid.partition.manager.materials.interfaces.IMaterialRequest;
 import jsettlers.logic.map.grid.partition.manager.materials.offers.EOfferPriority;
 import jsettlers.logic.map.grid.partition.manager.objects.WorkerCreationRequest;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.MovableStrategy;
+import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
+import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 /**
  * Strategy for bearers.
@@ -33,7 +35,7 @@ import jsettlers.logic.movable.MovableStrategy;
  * @author Andreas Eberle
  *
  */
-public final class BearerMovableStrategy extends MovableStrategy implements IManageableBearer {
+public final class BearerMovableStrategy extends MovableStrategy<BearerMovable> implements IManageableBearer {
 	private static final long serialVersionUID = -734268451796522451L;
 
 	private EBearerState state = EBearerState.JOBLESS;
@@ -46,7 +48,7 @@ public final class BearerMovableStrategy extends MovableStrategy implements IMan
 	private IWorkerRequester      workerRequester;
 	private WorkerCreationRequest workerCreationRequest;
 
-	public BearerMovableStrategy(Movable movable) {
+	public BearerMovableStrategy(BearerMovable movable) {
 		super(movable);
 		reportJobless();
 	}
@@ -130,9 +132,10 @@ public final class BearerMovableStrategy extends MovableStrategy implements IMan
 				reportJobless();
 			} else {
 				this.state = EBearerState.DEAD_OBJECT;
-				movable.convertTo(movableType);
-				super.goToPos(barrack.getSoldierTargetPosition());
 				movable.getPlayer().getEndgameStatistic().incrementAmountOfProducedSoldiers();
+				ILogicMovable convertedMovable = movable.convertTo(movableType);
+
+				convertedMovable.moveTo(barrack.getSoldierTargetPosition(), EMoveToType.DEFAULT);
 			}
 			break;
 

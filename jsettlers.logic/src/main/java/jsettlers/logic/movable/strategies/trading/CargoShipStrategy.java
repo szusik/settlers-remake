@@ -19,21 +19,21 @@ import java8.util.stream.Stream;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.logic.buildings.trading.HarborBuilding;
 import jsettlers.logic.constants.Constants;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.cargo.CargoShipMovable;
 
 /**
  *
  * @author Rudolf Polzer
  *
  */
-public class CargoShipStrategy extends TradingStrategy {
+public class CargoShipStrategy extends TradingStrategy<CargoShipMovable> {
 	private static final int   CARGO_STACKS           = 3;
 	private static final short WAYPOINT_SEARCH_RADIUS = 50;
 
 	private final EMaterialType cargoType[]  = new EMaterialType[CARGO_STACKS];
 	private final int           cargoCount[] = new int[CARGO_STACKS];
 
-	public CargoShipStrategy(Movable movable) {
+	public CargoShipStrategy(CargoShipMovable movable) {
 		super(movable);
 	}
 

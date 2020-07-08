@@ -19,19 +19,20 @@ import java.util.ArrayList;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.Constants;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.FerryMovable;
 import jsettlers.logic.movable.MovableStrategy;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
+import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 import static java8.util.stream.StreamSupport.stream;
 
-public class FerryStrategy extends MovableStrategy {
+public class FerryStrategy extends MovableStrategy<FerryMovable> {
 	private static final int MAX_NUMBER_OF_PASSENGERS = 7;
 
-	private final ArrayList<ILogicMovable> passengers = new ArrayList<>(MAX_NUMBER_OF_PASSENGERS);
+	private final ArrayList<IAttackableHumanMovable> passengers = new ArrayList<>(MAX_NUMBER_OF_PASSENGERS);
 
-	public FerryStrategy(Movable movable) {
+	public FerryStrategy(FerryMovable movable) {
 		super(movable);
 	}
 
@@ -41,7 +42,7 @@ public class FerryStrategy extends MovableStrategy {
 	}
 
 	@Override
-	public boolean addPassenger(ILogicMovable movable) {
+	public boolean addPassenger(IAttackableHumanMovable movable) {
 		if (passengers.size() < MAX_NUMBER_OF_PASSENGERS) {
 			this.passengers.add(movable);
 			return true;
@@ -50,7 +51,7 @@ public class FerryStrategy extends MovableStrategy {
 	}
 
 	@Override
-	public ArrayList<ILogicMovable> getPassengers() {
+	public ArrayList<IAttackableHumanMovable> getPassengers() {
 		return passengers;
 	}
 
@@ -67,7 +68,7 @@ public class FerryStrategy extends MovableStrategy {
 				   .filterBounds(grid.getWidth(), grid.getHeight())
 				   .filter((x, y) -> !grid.isWater(x, y))
 				   .iterate((x, y) -> {
-					   ILogicMovable passenger = passengers.get(passengers.size() - 1);
+					   IAttackableHumanMovable passenger = passengers.get(passengers.size() - 1);
 
 					   if (grid.isValidPosition(passenger, x, y) && grid.isFreePosition(x,y)) {
 						   passenger.leaveFerryAt(new ShortPoint2D(x, y));

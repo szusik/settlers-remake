@@ -20,7 +20,6 @@ import java8.util.Optional;
 import go.graphics.GLDrawContext;
 import go.graphics.text.EFontSize;
 import jsettlers.common.buildings.BuildingVariant;
-import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.images.EImageLinkType;
 import jsettlers.common.images.ImageLink;
@@ -30,7 +29,7 @@ import jsettlers.common.material.EPriority;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.movable.ESoldierType;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.selectable.ISelectionSet;
 import jsettlers.common.action.Action;
 import jsettlers.graphics.action.AskSetTradingWaypointAction;
@@ -560,7 +559,7 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 		}
 	}
 
-	private static ImageLink getIconFor(IMovable movable) {
+	private static ImageLink getIconFor(IGraphicsMovable movable) {
 		return ImageLinkMap.get(movable.getPlayer().getCivilisation(), ECommonLinkType.SETTLER_GUI, movable.getMovableType());
 	}
 

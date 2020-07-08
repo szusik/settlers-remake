@@ -36,7 +36,7 @@ import jsettlers.common.mapobject.IAttackableTowerMapObject;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.movable.ESoldierType;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.collections.map.ArrayListMap;
@@ -588,7 +588,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 		}
 
 		@Override
-		public IMovable getMovable() {
+		public IGraphicsMovable getMovable() {
 			return currDefender == null ? null : currDefender.getSoldier().getMovable();
 		}
 
@@ -605,10 +605,6 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 		@Override
 		public boolean isTower() {
 			return true;
-		}
-
-		@Override
-		public void uncoveredBy(byte teamId) {
 		}
 	}
 }

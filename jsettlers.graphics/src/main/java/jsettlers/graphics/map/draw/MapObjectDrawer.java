@@ -43,7 +43,10 @@ import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsCargoShip;
+import jsettlers.common.movable.IGraphicsFerry;
+import jsettlers.common.movable.IGraphicsMovable;
+import jsettlers.common.movable.IGraphicsThief;
 import jsettlers.common.movable.IShipInConstruction;
 import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.player.IPlayer;
@@ -269,17 +272,21 @@ public class MapObjectDrawer {
 		drawWithConstructionMask(x, y, state, image, shade);
 	}
 
-	private void drawShip(IMovable ship, int x, int y) {
+	private void drawShip(IGraphicsMovable ship, int x, int y) {
 		forceSetup();
 
 		byte fogOfWarVisibleStatus = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
 		if (fogOfWarVisibleStatus == 0) {
 			return;
 		}
+
 		float height = context.getMap().getHeightAt(x, y);
 		EDirection direction = ship.getDirection();
 		EMovableType shipType = ship.getMovableType();
 		float shade = getColor(fogOfWarVisibleStatus);
+
+		IGraphicsCargoShip cargoShip = (shipType == EMovableType.CARGO_SHIP) ? (IGraphicsCargoShip)ship : null;
+		IGraphicsFerry ferryShip = (shipType == EMovableType.FERRY) ? (IGraphicsFerry) ship : null;
 
 		GLDrawContext glDrawContext = context.getGl();
 		MapCoordinateConverter mapCoordinateConverter = context.getConverter();
@@ -298,7 +305,7 @@ public class MapObjectDrawer {
 		// draw ship body
 		drawShipLink(ship, EMaterialType.IRON, glDrawContext, viewX, viewY, y, color, shade);
 		// prepare freight drawing
-		List<? extends IMovable> passengerList = ship.getPassengers();
+		List<? extends IGraphicsMovable> passengerList = ferryShip!=null?ferryShip.getPassengers(): null;
 
 		float baseViewX = mapCoordinateConverter.getViewX(x, y, height);
 		float baseViewY = mapCoordinateConverter.getViewY(x, y, height);
@@ -322,7 +329,7 @@ public class MapObjectDrawer {
 					+ PASSENGER_POSITION_TO_RIGHT[i] * yShiftRight, i));
 			}
 		} else {
-			numberOfFreight = ship.getNumberOfCargoStacks();
+			numberOfFreight = cargoShip.getNumberOfCargoStacks();
 			if (numberOfFreight > maxNumberOfStacks) {
 				numberOfFreight = maxNumberOfStacks;
 			}
@@ -345,7 +352,7 @@ public class MapObjectDrawer {
 				float yShift = freightY.get(i).getFloat();
 				if (yShift >= 0) {
 					float xShift = PASSENGER_POSITION_TO_FRONT[j] * xShiftForward + PASSENGER_POSITION_TO_RIGHT[j] * xShiftRight;
-					IMovable passenger = passengerList.get(j);
+					IGraphicsMovable passenger = passengerList.get(j);
 					Image image = this.imageMap.getImageForSettler(passenger.getPlayer().getCivilisation(), passenger.getMovableType(), EMovableAction.NO_ACTION,
 						EMaterialType.NO_MATERIAL, getPassengerDirection(direction, shipPosition, i), 0
 					);
@@ -359,8 +366,8 @@ public class MapObjectDrawer {
 				float yShift = freightY.get(i).getFloat();
 				if (yShift >= 0) {
 					float xShift = CARGO_POSITION_TO_FRONT[j] * xShiftForward + CARGO_POSITION_TO_RIGHT[j] * xShiftRight;
-					EMaterialType material = ship.getCargoType(j);
-					int count = ship.getCargoCount(j);
+					EMaterialType material = cargoShip.getCargoType(j);
+					int count = cargoShip.getCargoCount(j);
 					if (material != null && count > 0) {
 						Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, material.getStackIndex());
 						Image image = seq.getImageSafe(count - 1, () -> Labels.getName(material, false));
@@ -378,22 +385,22 @@ public class MapObjectDrawer {
 				float yShift = freightY.get(i).getFloat();
 				if (yShift < 0) {
 					float xShift = PASSENGER_POSITION_TO_FRONT[j] * xShiftForward + PASSENGER_POSITION_TO_RIGHT[j] * xShiftRight;
-					IMovable passenger = passengerList.get(j);
+					IGraphicsMovable passenger = passengerList.get(j);
 					Image image = this.imageMap.getImageForSettler(passenger.getPlayer().getCivilisation(), passenger.getMovableType(), EMovableAction.NO_ACTION,
 						EMaterialType.NO_MATERIAL, getPassengerDirection(direction, shipPosition, i), 0
 					);
 					image.drawAt(glDrawContext, viewX + xShift, viewY + yShift + PASSENGER_DECK_HEIGHT, getZ(0, y), color, shade);
 				}
 			}
-		} else {
+		} else if(shipType == EMovableType.CARGO_SHIP) {
 			// draw stacks in front of the sail
 			for (int i = 0; i < numberOfFreight; i++) {
 				int j = freightY.get(i).getInt();
 				float yShift = freightY.get(i).getFloat();
 				if (yShift < 0) {
 					float xShift = CARGO_POSITION_TO_FRONT[j] * xShiftForward + CARGO_POSITION_TO_RIGHT[j] * xShiftRight;
-					EMaterialType material = ship.getCargoType(j);
-					int count = ship.getCargoCount(j);
+					EMaterialType material = cargoShip.getCargoType(j);
+					int count = cargoShip.getCargoCount(j);
 					if (material != null && count > 0) {
 						Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, material.getStackIndex());
 						Image image = seq.getImageSafe(count - 1, () -> Labels.getName(material, false));
@@ -416,7 +423,7 @@ public class MapObjectDrawer {
 		return shipDirection.getNeighbor(((x + seatIndex + slowerAnimationStep) / 8 + (y + seatIndex + slowerAnimationStep) / 11 + seatIndex) % 3 - 1);
 	}
 
-	private void drawShipLink(IMovable ship, EMaterialType fakeMat, GLDrawContext gl, float viewX, float viewY, float y, Color color, float shade) {
+	private void drawShipLink(IGraphicsMovable ship, EMaterialType fakeMat, GLDrawContext gl, float viewX, float viewY, float y, Color color, float shade) {
 		Image image = imageMap.getImageForSettler(ship.getPlayer().getCivilisation(), ship.getMovableType(), ship.getAction(), fakeMat, ship.getDirection(), 0);
 		image.drawAt(gl, viewX, viewY, getZ(0, y), color, shade);
 	}
@@ -649,7 +656,7 @@ public class MapObjectDrawer {
 	}
 
 	private void drawAttackableTower(int x, int y, IMapObject object) {
-		IMovable movable = ((IAttackableTowerMapObject) object).getMovable();
+		IGraphicsMovable movable = ((IAttackableTowerMapObject) object).getMovable();
 		if (movable != null) {
 			drawMovableAt(movable, x, y);
 			playMovableSound(movable);
@@ -681,7 +688,7 @@ public class MapObjectDrawer {
 	 * @param movable
 	 * 		The movable.
 	 */
-	public void draw(IMovable movable) {
+	public void draw(IGraphicsMovable movable) {
 		forceSetup();
 
 		final ShortPoint2D pos = movable.getPosition();
@@ -694,7 +701,7 @@ public class MapObjectDrawer {
 		playMovableSound(movable);
 	}
 
-	private void playMovableSound(IMovable movable) {
+	private void playMovableSound(IGraphicsMovable movable) {
 		if (movable.isSoundPlayed()) {
 			return;
 		}
@@ -832,7 +839,7 @@ public class MapObjectDrawer {
 		}
 	}
 
-	private void drawMovableAt(IMovable movable, int x, int y) {
+	private void drawMovableAt(IGraphicsMovable movable, int x, int y) {
 		byte fogStatus = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
 		if (fogStatus <= CommonConstants.FOG_OF_WAR_EXPLORED) {
 			return; // break
@@ -841,7 +848,7 @@ public class MapObjectDrawer {
 		if(!CommonConstants.CONTROL_ALL && localPlayer != null &&
 				movable.getMovableType() == EMovableType.THIEF &&
 				movable.getPlayer().getTeamId() != localPlayer.getTeamId() &&
-				!movable.isUncoveredBy(localPlayer.getTeamId())) {
+				!((IGraphicsThief)movable).isUncoveredBy(localPlayer.getTeamId())) {
 			isUndercover = true;
 		}
 
@@ -927,7 +934,7 @@ public class MapObjectDrawer {
 		return x;
 	}
 
-	private void drawSettlerMark(float viewX, float viewY, IMovable movable) {
+	private void drawSettlerMark(float viewX, float viewY, IGraphicsMovable movable) {
 		if(movable.isSelected()) {
 			Image image = ImageProvider.getInstance().getSettlerSequence(4, 7).getImageSafe(0, () -> "settler-selection-indicator");
 			image.drawAt(context.getGl(), viewX, viewY + 20, MOVABLE_SELECTION_MARKER_Z, Color.BLACK, 1);
@@ -1340,7 +1347,7 @@ public class MapObjectDrawer {
 			for (IBuildingOccupier occupier : building.getOccupiers()) {
 				OccupierPlace place = occupier.getPlace();
 
-				IMovable movable = occupier.getMovable();
+				IGraphicsMovable movable = occupier.getMovable();
 				Color color = MapDrawContext.getPlayerColor(movable.getPlayer().getPlayerId());
 
 				Image image;

@@ -18,7 +18,7 @@ import java8.util.Optional;
 import java8.util.stream.Stream;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.logic.buildings.trading.MarketBuilding;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.cargo.DonkeyMovable;
 import jsettlers.logic.movable.strategies.trading.ITradeBuilding.MaterialTypeWithCount;
 
 /**
@@ -26,13 +26,13 @@ import jsettlers.logic.movable.strategies.trading.ITradeBuilding.MaterialTypeWit
  * @author Andreas Eberle
  *
  */
-public class DonkeyStrategy extends TradingStrategy {
+public class DonkeyStrategy extends TradingStrategy<DonkeyMovable> {
 	private static final short WAYPOINT_SEARCH_RADIUS = 20;
 
 	private EMaterialType materialType1;
 	private EMaterialType materialType2;
 
-	public DonkeyStrategy(Movable movable) {
+	public DonkeyStrategy(DonkeyMovable movable) {
 		super(movable);
 	}
 

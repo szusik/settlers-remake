@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Queue;
 
 import java8.util.Lists;
+import java8.util.Objects;
 import java8.util.function.Function;
+import java8.util.stream.Stream;
 import jsettlers.algorithms.terraform.LandscapeEditor;
 import jsettlers.common.action.EMoveToType;
 import static jsettlers.common.landscape.ELandscapeType.*;
@@ -20,19 +22,22 @@ import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESpellType;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.coordinates.CoordinateStream;
 import jsettlers.common.utils.mutables.MutableInt;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
+import jsettlers.logic.movable.interfaces.IBowmanMovable;
+import jsettlers.logic.movable.military.MageMovable;
 import jsettlers.logic.movable.MovableStrategy;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 
-public class MageStrategy extends MovableStrategy {
-	public MageStrategy(Movable movable) {
+public class MageStrategy extends MovableStrategy<MageMovable> {
+	public MageStrategy(MageMovable movable) {
 		super(movable);
 	}
 
@@ -224,10 +229,11 @@ public class MageStrategy extends MovableStrategy {
 					animation = 121;
 				case CURSE_BOWMAN:
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
-							.filter(lm -> lm!=null&&lm.isAlive()&&lm.getMovableType().isBowman())
+							.filter(lm -> lm!=null&&lm.isAlive()&&lm instanceof IBowmanMovable)
+							.map(lm -> (IBowmanMovable)lm)
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.CURSE_BOWMAN_MAX_BOWMAN)
-							.forEach(movable -> movable.convertTo(EMovableType.PIONEER));
+							.forEach(IBowmanMovable::convertToPioneer);
 					break;
 				case GIFTS:
 					spellRegion(ESpellType.GIFTS_RADIUS).filter((x, y) -> !getGrid().isBlockedOrProtected(x, y))
@@ -261,7 +267,9 @@ public class MageStrategy extends MovableStrategy {
 					break;
 				case DEFECT:
 					sort(spellRegion()).map((x, y) -> getGrid().getMovableAt(x, y))
-							.filter(lm -> lm!=null&&lm.isAlive()&&lm.isAttackable())
+							.filter(lm -> lm instanceof IAttackableHumanMovable)
+							.map(lm -> (IAttackableHumanMovable)lm)
+							.filter(ILogicMovable::isAlive)
 							.filter(lm -> teamId(lm) != teamId(movable))
 							.limit(ESpellType.DEFECT_MAX_ENEMIES)
 							.forEach(lm -> {

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jsettlers.algorithms.fogofwar.FogOfWar;
@@ -84,7 +85,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 	private static final EPriority[] SUPPORTED_PRIORITIES_FOR_CONSTRUCTION = new EPriority[] { EPriority.LOW, EPriority.HIGH, EPriority.STOPPED };
 	private static final EPriority[] SUPPORTED_PRIORITIES_FOR_NON_WORKERS = new EPriority[0];
 
-	private static final ConcurrentLinkedQueue<Building> allBuildings = new ConcurrentLinkedQueue<>();
+	private static final Queue<Building> allBuildings = new ConcurrentLinkedQueue<>();
 	private static byte fowTeam = -1;
 	private boolean occupied;
 	private transient boolean fow = false;
@@ -623,7 +624,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 		return stacks;
 	}
 
-	public static ConcurrentLinkedQueue<Building> getAllBuildings() {
+	public static Queue<Building> getAllBuildings() {
 		return allBuildings;
 	}
 

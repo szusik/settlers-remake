@@ -23,7 +23,7 @@ import jsettlers.common.map.IGraphicsBackgroundListener;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionData;
 import jsettlers.common.mapobject.IMapObject;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 
@@ -59,7 +59,7 @@ public class BuildingtestMap implements IGraphicsGrid {
 	}
 
 	@Override
-	public IMovable getMovableAt(int x, int y) {
+	public IGraphicsMovable getMovableAt(int x, int y) {
 		return null;
 	}
 

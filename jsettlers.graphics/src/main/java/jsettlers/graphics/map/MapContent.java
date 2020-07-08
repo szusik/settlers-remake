@@ -67,7 +67,7 @@ import jsettlers.common.menu.UIState;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.action.MoveToAction;
 import jsettlers.common.menu.messages.IMessage;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.FloatRectangle;
 import jsettlers.common.position.ShortPoint2D;
@@ -163,7 +163,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 
 	private final IGraphicsGrid map;
 	private final IMapObject[] objectsGrid;
-	private final IMovable[] movableGrid;
+	private final IGraphicsMovable[] movableGrid;
 	private final BitSet borderGrid;
 	private final byte[][] heightGrid;
 	private final short width, height;
@@ -562,7 +562,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			}
 		}
 
-		IMovable movable = movableGrid != null ? movableGrid[tileIndex] : map.getMovableAt(x, y);
+		IGraphicsMovable movable = movableGrid != null ? movableGrid[tileIndex] : map.getMovableAt(x, y);
 		if(movable != null) {
 			this.objectDrawer.draw(movable);
 		}

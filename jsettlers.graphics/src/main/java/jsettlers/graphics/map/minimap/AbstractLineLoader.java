@@ -20,7 +20,7 @@ import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IMapObject;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 import jsettlers.graphics.map.MapDrawContext;
 import jsettlers.graphics.map.minimap.MinimapMode.OccupiedAreaMode;
@@ -212,7 +212,7 @@ public abstract class AbstractLineLoader implements Runnable {
 					&& (displayOccupied != OccupiedAreaMode.NONE || displayBuildings || displaySettlers != SettlersMode.NONE); x++) {
 				boolean visible = map.getVisibleStatus(x, y) > CommonConstants.FOG_OF_WAR_EXPLORED;
 				if (visible && displaySettlers != SettlersMode.NONE) {
-					IMovable settler = map.getMovableAt(x, y);
+					IGraphicsMovable settler = map.getMovableAt(x, y);
 					if (settler != null && (displaySettlers == SettlersMode.ALL || settler.getMovableType().isPlayerControllable())) {
 						settlerColor = MapDrawContext.getPlayerColor(settler.getPlayer().getPlayerId()).toShortColor(1);
 						// don't search any more.

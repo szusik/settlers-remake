@@ -23,17 +23,17 @@ import java8.util.stream.Stream;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.MatchConstants;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.cargo.CargoMovable;
 import jsettlers.logic.movable.MovableStrategy;
 
-public abstract class TradingStrategy extends MovableStrategy {
+public abstract class TradingStrategy<T extends CargoMovable> extends MovableStrategy<T> {
 
 	private ETraderState state = ETraderState.JOBLESS;
 
 	private ITradeBuilding         tradeBuilding;
 	private Iterator<ShortPoint2D> waypoints;
 
-	TradingStrategy(Movable movable) {
+	TradingStrategy(T movable) {
 		super(movable);
 	}
 

@@ -28,9 +28,23 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.movable.cargo.DonkeyMovable;
+import jsettlers.logic.movable.civilian.BearerMovable;
+import jsettlers.logic.movable.civilian.BricklayerMovable;
+import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
+import jsettlers.logic.movable.cargo.CargoMovable;
+import jsettlers.logic.movable.cargo.CargoShipMovable;
+import jsettlers.logic.movable.civilian.DiggerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
+import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
+import jsettlers.logic.movable.military.BowmanMovable;
+import jsettlers.logic.movable.military.InfantryMovable;
+import jsettlers.logic.movable.military.MageMovable;
+import jsettlers.logic.movable.specialist.GeologistMovable;
+import jsettlers.logic.movable.specialist.PioneerMovable;
+import jsettlers.logic.movable.specialist.ThiefMovable;
 import jsettlers.logic.movable.strategies.BearerMovableStrategy;
 import jsettlers.logic.movable.strategies.BricklayerStrategy;
 import jsettlers.logic.movable.strategies.BuildingWorkerStrategy;
@@ -50,19 +64,19 @@ import jsettlers.logic.movable.strategies.trading.DonkeyStrategy;
  *
  * @author Andreas Eberle
  */
-public abstract class MovableStrategy implements Serializable {
+public abstract class MovableStrategy<T extends Movable> implements Serializable {
 	private static final long serialVersionUID = 3135655342562634378L;
 
-	protected final Movable movable;
+	protected final T movable;
 
-	protected MovableStrategy(Movable movable) {
+	protected MovableStrategy(T movable) {
 		this.movable = movable;
 	}
 
-	public static MovableStrategy getStrategy(Movable movable, EMovableType movableType) {
+	public static MovableStrategy<?> getStrategy(Movable movable, EMovableType movableType) {
 		switch (movableType) {
 			case BEARER:
-				return new BearerMovableStrategy(movable);
+				return new BearerMovableStrategy((BearerMovable) movable);
 
 			case SWORDSMAN_L1:
 			case SWORDSMAN_L2:
@@ -70,11 +84,11 @@ public abstract class MovableStrategy implements Serializable {
 			case PIKEMAN_L1:
 			case PIKEMAN_L2:
 			case PIKEMAN_L3:
-				return new InfantryStrategy(movable, movableType);
+				return new InfantryStrategy((InfantryMovable) movable, movableType);
 			case BOWMAN_L1:
 			case BOWMAN_L2:
 			case BOWMAN_L3:
-				return new BowmanStrategy(movable, movableType);
+				return new BowmanStrategy((BowmanMovable) movable, movableType);
 
 			case BAKER:
 			case CHARCOAL_BURNER:
@@ -95,30 +109,28 @@ public abstract class MovableStrategy implements Serializable {
 			case WINEGROWER:
 			case HEALER:
 			case DOCKWORKER:
-				return new BuildingWorkerStrategy(movable);
+				return new BuildingWorkerStrategy<>((BuildingWorkerMovable) movable);
 
 			case DIGGER:
-				return new DiggerStrategy(movable);
+				return new DiggerStrategy((DiggerMovable) movable);
 
 			case BRICKLAYER:
-				return new BricklayerStrategy(movable);
+				return new BricklayerStrategy((BricklayerMovable) movable);
 
 			case PIONEER:
-				return new PioneerStrategy(movable);
+				return new PioneerStrategy((PioneerMovable) movable);
 			case GEOLOGIST:
-				return new GeologistStrategy(movable);
+				return new GeologistStrategy((GeologistMovable) movable);
 			case THIEF:
-				return new ThiefStrategy(movable);
+				return new ThiefStrategy((ThiefMovable) movable);
 			case MAGE:
-				return new MageStrategy(movable);
+				return new MageStrategy((MageMovable) movable);
 			case DONKEY:
-				return new DonkeyStrategy(movable);
-
+				return new DonkeyStrategy((DonkeyMovable) movable);
 			case FERRY:
-				return new FerryStrategy(movable);
-
+				return new FerryStrategy((FerryMovable) movable);
 			case CARGO_SHIP:
-				return new CargoShipStrategy(movable);
+				return new CargoShipStrategy((CargoShipMovable) movable);
 
 			default:
 				assert false : "requested movableType: " + movableType + " but have no strategy for this type!";
@@ -385,26 +397,26 @@ public abstract class MovableStrategy implements Serializable {
 		return null;
 	}
 
-	protected boolean addPassenger(ILogicMovable movable) {
+	protected boolean addPassenger(IAttackableHumanMovable movable) {
 		return false;
 	}
 
-	protected List<? extends ILogicMovable> getPassengers() {
+	protected List<? extends IAttackableHumanMovable> getPassengers() {
 		return Collections.emptyList();
 	}
 
 	protected void unloadFerry() {
 	}
 
-	protected EMaterialType getCargoType(int stack) {
+	public EMaterialType getCargoType(int stack) {
 		return null;
 	}
 
-	protected int getCargoCount(int stack) {
+	public int getCargoCount(int stack) {
 		return 0;
 	}
 
-	protected int getNumberOfCargoStacks() {
+	public int getNumberOfCargoStacks() {
 		return 0;
 	}
 }

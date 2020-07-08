@@ -33,7 +33,7 @@ import jsettlers.common.map.IGraphicsBackgroundListener;
 import jsettlers.common.map.shapes.IMapArea;
 import jsettlers.common.map.shapes.Parallelogram;
 import jsettlers.common.movable.EDirection;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.map.loading.data.IMapData;
@@ -365,10 +365,10 @@ public class MapData implements IMapData {
 		return objects[x][y];
 	}
 
-	public IMovable getMovableContainer(int x, int y) {
+	public IGraphicsMovable getMovableContainer(int x, int y) {
 		ObjectContainer container = objects[x][y];
-		if (container instanceof IMovable) {
-			return (IMovable) container;
+		if (container instanceof IGraphicsMovable) {
+			return (IGraphicsMovable) container;
 		} else {
 			return null;
 		}

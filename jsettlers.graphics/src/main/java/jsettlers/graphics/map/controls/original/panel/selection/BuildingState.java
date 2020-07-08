@@ -29,7 +29,7 @@ import jsettlers.common.map.partition.IStockSettings;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
 import jsettlers.common.movable.ESoldierClass;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 
 /**
  * This class saves the state parts of the building that is displayed by the gui, to detect changes.
@@ -117,10 +117,10 @@ public class BuildingState {
 	 *
 	 */
 	public static class OccupierState {
-		private final IMovable movable;
+		private final IGraphicsMovable movable;
 		private final boolean comming;
 
-		private OccupierState(IMovable movable) {
+		private OccupierState(IGraphicsMovable movable) {
 			this.movable = movable;
 			comming = false;
 		}
@@ -147,7 +147,7 @@ public class BuildingState {
 		/**
 		 * @return The movable that is in this stack or <code>null</code> for none.
 		 */
-		public IMovable getMovable() {
+		public IGraphicsMovable getMovable() {
 			return movable;
 		}
 	}

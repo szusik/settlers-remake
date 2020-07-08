@@ -18,6 +18,7 @@ import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.ESearchType;
+import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.player.Player;
 
@@ -57,7 +58,7 @@ public abstract class AbstractMovableGrid extends AbstractStrategyGrid {
 	 */
 	public abstract void enterPosition(ShortPoint2D position, ILogicMovable movable, boolean informFullArea);
 
-	public abstract void notifyAttackers(ShortPoint2D position, ILogicMovable movable, boolean informFullArea);
+	public abstract void notifyAttackers(ShortPoint2D position, IAttackableMovable movable, boolean informFullArea);
 
 	public abstract Path calculatePathTo(IPathCalculatable pathCalculatable, ShortPoint2D targetPos);
 

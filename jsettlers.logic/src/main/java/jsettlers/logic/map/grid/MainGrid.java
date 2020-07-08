@@ -64,7 +64,7 @@ import jsettlers.common.menu.UIState;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.EWinState;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.MutablePoint2D;
@@ -120,6 +120,8 @@ import jsettlers.logic.map.loading.newmap.MapFileHeader.MapType;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
+import jsettlers.logic.movable.interfaces.IAttackableMovable;
+import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.objects.arrow.ArrowObject;
 import jsettlers.logic.objects.stack.StackMapObject;
@@ -320,12 +322,12 @@ public final class MainGrid implements Serializable {
 
 			if (building instanceof IOccupyableBuilding) {
 				IOccupyableBuilding occupyableBuilding = (IOccupyableBuilding) building;
-				ILogicMovable soldier = createNewMovableAt(building.getDoor(), EMovableType.SWORDSMAN_L1, building.getPlayer());
+				ILogicMovable soldier = Movable.createMovable(EMovableType.SWORDSMAN_L1, building.getPlayer(), building.getDoor(), movablePathfinderGrid);
 				occupyableBuilding.requestSoldier(soldier);
 			}
 		} else if (object instanceof MovableObject) {
 			MovableObject movableObject = (MovableObject) object;
-			createNewMovableAt(pos, movableObject.getType(), partitionsGrid.getPlayer(movableObject.getPlayerId()));
+			Movable.createMovable(movableObject.getType(), partitionsGrid.getPlayer(movableObject.getPlayerId()), pos, movablePathfinderGrid);
 		}
 	}
 
@@ -442,10 +444,6 @@ public final class MainGrid implements Serializable {
 
 	public final boolean isInBounds(int x, int y) {
 		return x >= 0 && x < width && y >= 0 && y < height;
-	}
-
-	final ILogicMovable createNewMovableAt(ShortPoint2D pos, EMovableType type, Player player) {
-		return new Movable(movablePathfinderGrid, type, pos, player);
 	}
 
 	/**
@@ -627,7 +625,7 @@ public final class MainGrid implements Serializable {
 					return isInBounds(x, y) && !hasSamePlayer(x, y, pathCalculable) && mapObjectsManager.hasStealableMaterial(x, y);
 
 				case ENEMY: {
-					IMovable movable = movableGrid.getMovableAt(x, y);
+					ILogicMovable movable = movableGrid.getMovableAt(x, y);
 					return movable != null && movable.getPlayer().getTeamId() != pathCalculable.getPlayer().getTeamId();
 				}
 
@@ -794,12 +792,12 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final IMovable getMovableAt(int x, int y) {
+		public final IGraphicsMovable getMovableAt(int x, int y) {
 			return movableGrid.getMovableAt(x, y);
 		}
 
 		@Override
-		public IMovable[] getMovableArray() {
+		public IGraphicsMovable[] getMovableArray() {
 			return movableGrid.getMovableArray();
 		}
 
@@ -990,8 +988,8 @@ public final class MainGrid implements Serializable {
 			short y = arrow.getTargetY();
 
 			ILogicMovable movable = movableGrid.getMovableAt(x, y);
-			if (movable != null) {
-				movable.receiveHit(arrow.getHitStrength(), arrow.getSourcePos(), arrow.getShooterPlayerId());
+			if (movable instanceof IAttackableMovable) {
+				((IAttackableMovable)movable).receiveHit(arrow.getHitStrength(), arrow.getSourcePos(), arrow.getShooterPlayerId());
 				mapObjectsManager.removeMapObject(x, y, arrow);
 			}
 		}
@@ -999,7 +997,7 @@ public final class MainGrid implements Serializable {
 		@Override
 		public void spawnDonkey(ShortPoint2D position, Player player) {
 			Player realPlayer = partitionsGrid.getPlayer(player.getPlayerId());
-			ILogicMovable donkey = new Movable(movablePathfinderGrid, EMovableType.DONKEY, position, realPlayer);
+			ILogicMovable donkey = Movable.createMovable(EMovableType.DONKEY, realPlayer, position, movablePathfinderGrid);
 			donkey.leavePosition();
 		}
 
@@ -1414,10 +1412,13 @@ public final class MainGrid implements Serializable {
 		@Override
 		public void enterPosition(ShortPoint2D position, ILogicMovable movable, boolean informFullArea) {
 			movableGrid.movableEntered(position, movable);
-			notifyAttackers(position, movable, informFullArea);
+
+			if(movable instanceof IAttackableMovable) {
+				notifyAttackers(position, (IAttackableMovable)movable, informFullArea);
+			}
 		}
 
-		public void notifyAttackers(ShortPoint2D position, ILogicMovable movable, boolean informFullArea) {
+		public void notifyAttackers(ShortPoint2D position, IAttackableMovable movable, boolean informFullArea) {
 			if (movable.isAttackable()) {
 				movableGrid.informMovables(movable, position.x, position.y, informFullArea);
 				objectsGrid.informObjectsAboutAttackable(position, movable, informFullArea, !movable.getMovableType().isBowman());
@@ -1511,9 +1512,13 @@ public final class MainGrid implements Serializable {
 
 		private IAttackable getEnemyInSearchArea(IPlayer searchingPlayer, HexGridArea area, boolean isBowman, boolean includeTowers) {
 			return area.stream().filterBounds(width, height).iterateForResult((x, y) -> {
-				IAttackable currAttackable = movableGrid.getMovableAt(x, y);
-				if (includeTowers && !isBowman && currAttackable == null) {
+				ILogicMovable currMovable = movableGrid.getMovableAt(x, y);
+
+				IAttackable currAttackable = null;
+				if (includeTowers && !isBowman && currMovable == null) {
 					currAttackable = (IAttackable) objectsGrid.getMapObjectAt(x, y, EMapObjectType.ATTACKABLE_TOWER);
+				} else if(currMovable instanceof IAttackableMovable) {
+					currAttackable = (IAttackableMovable) currMovable;
 				}
 
 				if (currAttackable != null && MovableGrid.isEnemy(searchingPlayer, currAttackable)) {
@@ -2014,19 +2019,23 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public FerryEntrance ferryAtPosition(ShortPoint2D position, byte playerId) {
-			Optional<ILogicMovable> ferryOptional = HexGridArea.stream(position.x, position.y, 0, Constants.MAX_FERRY_ENTRANCE_SEARCH_DISTANCE)
+			Optional<IFerryMovable> ferryOptional = HexGridArea.stream(position.x, position.y, 0, Constants.MAX_FERRY_ENTRANCE_SEARCH_DISTANCE)
 															   .filterBounds(width, height)
 															   .filter((x, y) -> landscapeGrid.getLandscapeTypeAt(x, y).isWater())
 															   .iterateForResult((x, y) -> {
 																   ILogicMovable movable = movableGrid.getMovableAt(x, y);
-																   return Optional.ofNullable(movable).filter(m -> m.getMovableType() == EMovableType.FERRY);
+
+																   if(movable instanceof IFerryMovable) {
+																   		return Optional.of((IFerryMovable)movable);
+																   }
+																   return Optional.empty();
 															   });
 
 			if (!ferryOptional.isPresent()) {
 				return null;
 			}
 
-			ILogicMovable ferry = ferryOptional.get();
+			IFerryMovable ferry = ferryOptional.get();
 			ShortPoint2D ferryPosition = ferry.getPosition();
 			Optional<ShortPoint2D> entranceOptional = HexGridArea.stream(ferryPosition.x, ferryPosition.y, 0, Constants.MAX_FERRY_ENTRANCE_SEARCH_DISTANCE)
 																 .filterBounds(width, height)

@@ -23,7 +23,9 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsCargoShip;
+import jsettlers.common.movable.IGraphicsFerry;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
@@ -31,7 +33,7 @@ import jsettlers.common.selectable.ESelectionType;
 import jsettlers.logic.map.loading.data.objects.MapDataObject;
 import jsettlers.logic.map.loading.data.objects.MovableObject;
 
-public class MovableObjectContainer implements ObjectContainer, IMovable {
+public class MovableObjectContainer implements ObjectContainer, IGraphicsMovable, IGraphicsCargoShip, IGraphicsFerry {
 
 	private final MovableObject movableObject;
 	private final ShortPoint2D position;
@@ -68,11 +70,7 @@ public class MovableObjectContainer implements ObjectContainer, IMovable {
 	}
 
 	@Override
-	public void stopOrStartWorking(boolean stop) {
-	}
-
-	@Override
-	public List<IMovable> getPassengers() {
+	public List<IGraphicsMovable> getPassengers() {
 		return Collections.emptyList();
 	}
 
@@ -168,10 +166,5 @@ public class MovableObjectContainer implements ObjectContainer, IMovable {
 	@Override
 	public boolean hasEffect(EEffectType effect) {
 		return false;
-	}
-
-	@Override
-	public boolean isUncoveredBy(byte team) {
-		return true;
 	}
 }

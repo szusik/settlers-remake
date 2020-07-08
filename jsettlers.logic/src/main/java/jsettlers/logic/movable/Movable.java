@@ -14,18 +14,7 @@
  *******************************************************************************/
 package jsettlers.logic.movable;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import jsettlers.algorithms.fogofwar.FoWTask;
-import jsettlers.algorithms.fogofwar.FogOfWar;
 import jsettlers.algorithms.path.Path;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.buildings.EBuildingType;
@@ -33,26 +22,37 @@ import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
-import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.movable.civilian.BearerMovable;
+import jsettlers.logic.movable.civilian.BricklayerMovable;
+import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
+import jsettlers.logic.movable.civilian.DiggerMovable;
+import jsettlers.logic.movable.civilian.HealerMovable;
+import jsettlers.logic.movable.cargo.CargoShipMovable;
+import jsettlers.logic.movable.cargo.DonkeyMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
-import jsettlers.logic.movable.interfaces.IAttackable;
+import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
+import jsettlers.logic.movable.interfaces.IAttackableMovable;
+import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
+import jsettlers.logic.movable.military.BowmanMovable;
+import jsettlers.logic.movable.military.InfantryMovable;
+import jsettlers.logic.movable.military.MageMovable;
+import jsettlers.logic.movable.specialist.GeologistMovable;
+import jsettlers.logic.movable.specialist.PioneerMovable;
+import jsettlers.logic.movable.specialist.ThiefMovable;
 import jsettlers.logic.movable.strategies.FleeStrategy;
-import jsettlers.logic.movable.strategies.military.MageStrategy;
 import jsettlers.logic.movable.strategies.military.SoldierStrategy;
 import jsettlers.logic.player.Player;
-import jsettlers.logic.timer.RescheduleTimer;
 
 import java.util.Objects;
 /**
@@ -60,24 +60,19 @@ import java.util.Objects;
  *
  * @author Andreas Eberle
  */
-public final class Movable implements ILogicMovable, FoWTask {
+public abstract class Movable implements ILogicMovable, FoWTask {
 	private static final long serialVersionUID = -705947810059935866L;
 
 	private static final int SHIP_PUSH_DISTANCE = 10;
 
-	private static final HashMap<Integer, ILogicMovable>      movablesByID = new HashMap<>();
-	private static final ConcurrentLinkedQueue<ILogicMovable> allMovables  = new ConcurrentLinkedQueue<>();
-	private static       int                                  nextID       = Integer.MIN_VALUE;
-	private static byte fowTeam = -1;
-
 	protected final AbstractMovableGrid grid;
-	private final   int                 id;
-	private final   Player              player;
+	private final     int                 id;
+	protected final   Player              player;
 
 	private EMovableState state = EMovableState.DOING_NOTHING;
 
-	private EMovableType    movableType;
-	private MovableStrategy strategy;
+	private final EMovableType    movableType;
+	protected MovableStrategy<?> strategy;
 
 	private EMaterialType  materialType  = EMaterialType.NO_MATERIAL;
 	private EMovableAction movableAction = EMovableAction.NO_ACTION;
@@ -88,16 +83,16 @@ public final class Movable implements ILogicMovable, FoWTask {
 	private short animationDuration;
 
 	public ShortPoint2D fowPosition = null;
-	private ShortPoint2D position;
+	protected ShortPoint2D position;
 
-	private ShortPoint2D requestedTargetPosition = null;
+	protected ShortPoint2D requestedTargetPosition = null;
 	/**
 	 * Move to type of current / last path action
 	 */
 	private EMoveToType requestedMoveToType = EMoveToType.DEFAULT;
-	private Path path;
+	protected Path path;
 
-	private float         health;
+	protected float         health;
 	private boolean       visible           = true;
 	private boolean       enableNothingToDo = true;
 	private ILogicMovable pushedFrom;
@@ -111,99 +106,26 @@ public final class Movable implements ILogicMovable, FoWTask {
 	private transient boolean soundPlayed = false;
 
 	// the following data only for ship passengers
-	private ILogicMovable ferryToEnter = null;
+	protected IFerryMovable ferryToEnter = null;
 
-	private ILogicMovable patient = null;
-	private ShortPoint2D targetingHealSpot = null;
-	private BitSet uncoveredBy = new BitSet();
-
-	public Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player) {
+	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
 		this.grid = grid;
 		this.position = position;
 		this.player = player;
 		this.strategy = MovableStrategy.getStrategy(this, movableType);
 		this.movableType = movableType;
-		this.health = movableType.getHealth();
 
-		this.direction = EDirection.VALUES[MatchConstants.random().nextInt(EDirection.NUMBER_OF_DIRECTIONS)];
-
-		RescheduleTimer.add(this, Constants.MOVABLE_INTERRUPT_PERIOD);
-
-		this.id = nextID++;
-		movablesByID.put(this.id, this);
-		allMovables.offer(this);
-
-		if((fowTeam != -1 && MatchConstants.ENABLE_ALL_PLAYER_FOG_OF_WAR) || fowTeam == player.getTeamId()) {
-			FogOfWar.instance.refThread.nextTasks.offer(this);
-		}
-
+		this.id = MovableManager.add(this, replace);
 		grid.enterPosition(position, this, true);
-	}
 
-	public static void initFow(byte fow) {
-		fowTeam = fow;
-		for(ILogicMovable lm : allMovables) {
-			if(lm instanceof Movable) {
-				Movable mv = (Movable) lm;
-				if(MatchConstants.ENABLE_ALL_PLAYER_FOG_OF_WAR || lm.getPlayer().getTeamId() == fowTeam) {
-					FogOfWar.instance.refThread.nextTasks.offer(mv);
-				}
-			}
+		if(replace != null) {
+			this.health = replace.getHealth()/replace.getMovableType().getHealth()*movableType.getHealth();
+			this.direction = replace.getDirection();
+			this.materialType = replace.materialType;
+		} else {
+			this.health = movableType.getHealth();
+			this.direction = EDirection.VALUES[MatchConstants.random().nextInt(EDirection.NUMBER_OF_DIRECTIONS)];
 		}
-	}
-
-	@Override
-	public boolean pingWounded(ILogicMovable healer) {
-		if(!healer.requestTreatment(this)) return false;
-
-		targetingHealSpot = new ShortPoint2D(healer.getPosition().x+2, healer.getPosition().y+2);
-		moveTo(targetingHealSpot, EMoveToType.FORCED);
-		return true;
-	}
-
-	@Override
-	public boolean requestTreatment(ILogicMovable movable) {
-		if(movableType != EMovableType.HEALER) throw new AssertionError("Only healers can treat patients!");
-
-		ShortPoint2D healSpot = new ShortPoint2D(position.x+2, position.y+2);
-		if(patient != null &&
-			patient.getPath() != null &&
-			patient.getPath().getTargetPosition().equals(healSpot)) return false;
-
-		patient = movable;
-		return true;
-	}
-
-	@Override
-	public boolean needsTreatment() {
-		if(!EMovableType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES.contains(movableType)) return false;
-		if(health == movableType.getHealth()) return false;
-		if(path != null && path.getTargetPosition().equals(targetingHealSpot)) return false;
-		return true;
-	}
-
-	public ILogicMovable getPatient() {
-		return patient;
-	}
-
-	@Override
-	public void heal() {
-		health = movableType.getHealth();
-	}
-
-	@SuppressWarnings("unchecked")
-	public static void readStaticState(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-		nextID = ois.readInt();
-		allMovables.clear();
-		fowTeam = -1;
-		allMovables.addAll((Collection<? extends ILogicMovable>) ois.readObject());
-		movablesByID.putAll((Map<? extends Integer, ? extends ILogicMovable>) ois.readObject());
-	}
-
-	public static void writeStaticState(ObjectOutputStream oos) throws IOException {
-		oos.writeInt(nextID);
-		oos.writeObject(allMovables);
-		oos.writeObject(movablesByID);
 	}
 
 	/**
@@ -213,14 +135,10 @@ public final class Movable implements ILogicMovable, FoWTask {
 	 * 		Desired position the movable should move to
 	 */
 	@Override
-	public final void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
+	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
 		if (movableType.isPlayerControllable() && strategy.canBeControlledByPlayer() && !alreadyWalkingToPosition(targetPosition)) {
 			this.requestedTargetPosition = targetPosition;
 			this.requestedMoveToType = Objects.requireNonNull(moveToType);
-		}
-
-		if(strategy instanceof MageStrategy) {
-			((MageStrategy) strategy).castSpellAt(null, null);
 		}
 	}
 
@@ -426,7 +344,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 	private void enterFerry() {
 		int distanceToFerry = this.getPosition().getOnGridDistTo(ferryToEnter.getPosition());
 		if (distanceToFerry <= Constants.MAX_FERRY_ENTRANCE_DISTANCE) {
-			if (ferryToEnter.addPassenger(this)) {
+			if (ferryToEnter.addPassenger((IAttackableHumanMovable)this)) {
 				grid.leavePosition(this.getPosition(), this);
 				setState(EMovableState.ON_FERRY);
 			}
@@ -456,14 +374,6 @@ public final class Movable implements ILogicMovable, FoWTask {
 	@Override
 	public ShortPoint2D getPosition() {
 		return this.position;
-	}
-
-	@Override
-	public void leaveFerryAt(ShortPoint2D position) {
-		this.position = position;
-		setState(EMovableState.DOING_NOTHING);
-		requestedTargetPosition = null;
-		grid.enterPosition(position, this, true);
 	}
 
 	@Override
@@ -871,31 +781,8 @@ public final class Movable implements ILogicMovable, FoWTask {
 	 *
 	 * @param newState
 	 */
-	private void setState(EMovableState newState) {
+	protected void setState(EMovableState newState) {
 		this.state = newState;
-	}
-
-	/**
-	 * Used for networking to identify movables over the network.
-	 *
-	 * @param id
-	 * 		id to be looked for
-	 * @return returns the movable with the given ID<br>
-	 * or null if the id can not be found
-	 */
-	public static ILogicMovable getMovableByID(int id) {
-		return movablesByID.get(id);
-	}
-
-	public static ConcurrentLinkedQueue<ILogicMovable> getAllMovables() {
-		return allMovables;
-	}
-
-	public static void resetState() {
-		allMovables.clear();
-		movablesByID.clear();
-		nextID = Integer.MIN_VALUE;
-		fowTeam = -1;
 	}
 
 	/**
@@ -903,23 +790,33 @@ public final class Movable implements ILogicMovable, FoWTask {
 	 */
 	@Override
 	public final void kill() {
-		if (state == EMovableState.DEAD) {
-			return; // this movable already died.
-		}
+		if(state == EMovableState.DEAD) return;
 
-		grid.leavePosition(this.position, this);
-		this.health = -200;
-		this.strategy.strategyKilledEvent(path != null ? path.getTargetPosition() : null);
+		decoupleMovable();
 
 		if (state != EMovableState.ON_FERRY) { // position of the movable on a ferry is the position it loaded into the ferry => not correct => don't show ghost
 			grid.addSelfDeletingMapObject(position, EMapObjectType.GHOST, Constants.GHOST_PLAY_DURATION, player);
 		}
 
+		killMovable();
+	}
+
+	protected void decoupleMovable() {
+		if (state == EMovableState.DEAD) {
+			return; // this movable already died.
+		}
+
+		grid.leavePosition(this.position, this);
+		this.strategy.strategyKilledEvent(path != null ? path.getTargetPosition() : null);
+
+		MovableManager.movablesByID.remove(this.getID());
+		MovableManager.allMovables.remove(this);
+	}
+
+	protected void killMovable() {
+		this.health = -200;
 		this.state = EMovableState.DEAD;
 		this.selected = false;
-
-		movablesByID.remove(this.getID());
-		allMovables.remove(this);
 		position = null;
 	}
 
@@ -1031,57 +928,20 @@ public final class Movable implements ILogicMovable, FoWTask {
 		return id;
 	}
 
-	/**
-	 * Converts this movable to a movable of the given {@link EMovableType}.
-	 *
-	 * @param newMovableType
-	 * Type the movable should be converted to.
-	 */
-	public final void convertTo(EMovableType newMovableType) {
-		if (newMovableType == EMovableType.BEARER && !player.equals(grid.getPlayerAt(position))) {
-			return; // can't convert to bearer if the ground does not belong to the player
-		}
-		if (!(movableType == EMovableType.BEARER || (movableType == EMovableType.PIONEER && newMovableType == EMovableType.BEARER) || movableType == newMovableType || (movableType.isBowman() && newMovableType == EMovableType.PIONEER))) {
-			System.err.println("Tried invalid conversion from " + movableType + " to " + newMovableType);
-			return; // can't convert between this types
-		}
-
-		this.health = (this.health * newMovableType.getHealth()) / this.movableType.getHealth();
-		EMovableType oldType = this.movableType;
-		this.movableType = newMovableType;
-		setVisible(true); // ensure the movable is visible
-		setStrategy(MovableStrategy.getStrategy(this, newMovableType));
-		if(fowPosition != null) FogOfWar.queueResizeCircle(this, oldType);
-	}
-
-	@Override
-	public void defectTo(Player player) {
-		// kill without ghost
-		this.state = EMovableState.DEAD;
-		this.selected = false;
-
-		grid.leavePosition(this.position, this);
-		movablesByID.remove(this.getID());
-		allMovables.remove(this);
-
-		Movable newMov = new Movable(grid, movableType, position, player);
-		newMov.effectEnd = effectEnd.clone();
-		newMov.health = health;
-
-		position = null;
-	}
-
-	private void setStrategy(MovableStrategy newStrategy) {
+	private void setStrategy(MovableStrategy<?> newStrategy) {
 		this.strategy.strategyKilledEvent(path != null ? path.getTargetPosition() : null);
 		this.strategy = newStrategy;
 		this.movableAction = EMovableAction.NO_ACTION;
 		setState(EMovableState.DOING_NOTHING);
-		grid.notifyAttackers(position, this, true);
+
+		if(this instanceof IAttackableMovable) {
+			grid.notifyAttackers(position, (IAttackableMovable)this, true);
+		}
 	}
 
 	public final IBuildingOccupyableMovable setOccupyableBuilding(IOccupyableBuilding building) {
 		if (canOccupyBuilding()) {
-			return ((SoldierStrategy) strategy).setOccupyableBuilding(building);
+			return ((SoldierStrategy<?>) strategy).setOccupyableBuilding(building);
 		} else {
 			return null;
 		}
@@ -1091,53 +951,17 @@ public final class Movable implements ILogicMovable, FoWTask {
 		return movableType.getSelectionType() == ESelectionType.SOLDIERS;
 	}
 
-	@Override
-	public final boolean isAttackable() {
-		return strategy != null && strategy.isAttackable();
-	}
-
-	public void moveToFerry(ILogicMovable ferry, ShortPoint2D entrancePosition) {
-		this.ferryToEnter = ferry;
-		moveTo(entrancePosition, EMoveToType.FORCED);
-	}
-
-	/**
-	 * This method may only be called if this movable shall be informed about a movable that's in it's search radius.
-	 *
-	 * @param other
-	 * 		The other movable.
-	 */
-	@Override
-	public final void informAboutAttackable(IAttackable other) {
-		strategy.informAboutAttackable(other);
-	}
-
-	@Override
-	public final void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
-		if (strategy.receiveHit()) {
-			if(hasEffect(EEffectType.SHIELDED)) hitStrength *= EEffectType.SHIELDED_DAMAGE_FACTOR;
-
-			this.health -= hitStrength;
-			if (health <= 0) {
-				this.kill();
-			}
-		}
-
-		player.showMessage(SimpleMessage.attacked(attackingPlayer, attackerPos));
-	}
-
-	@Override
-	public boolean isTower() {
-		return false;
-	}
-
 	private void checkPlayerOfCurrentPosition() {
 		checkPlayerOfPosition(grid.getPlayerAt(position));
 	}
 
 	public void checkPlayerOfPosition(Player playerOfPosition) {
-		if (playerOfPosition != player && movableType.needsPlayersGround() && strategy.getClass() != FleeStrategy.class) {
+
+		boolean shouldBeFleeing = (playerOfPosition != player && movableType.needsPlayersGround());
+		if(shouldBeFleeing && strategy.getClass() != FleeStrategy.class) {
 			setStrategy(new FleeStrategy(this));
+		} else if(!shouldBeFleeing && strategy.getClass() == FleeStrategy.class) {
+			setStrategy(MovableStrategy.getStrategy(this, movableType));
 		}
 	}
 
@@ -1147,7 +971,7 @@ public final class Movable implements ILogicMovable, FoWTask {
 			+ " direction: " + direction + " material: " + materialType;
 	}
 
-	private enum EMovableState {
+	protected enum EMovableState {
 		PLAYING_ACTION,
 		PATHING,
 		DOING_NOTHING,
@@ -1174,45 +998,6 @@ public final class Movable implements ILogicMovable, FoWTask {
 		this.direction = direction;
 	}
 
-	@Override
-	public boolean addPassenger(ILogicMovable movable) {
-		return strategy.addPassenger(movable);
-	}
-
-	public List<? extends ILogicMovable> getPassengers() {
-		return strategy.getPassengers();
-	}
-
-	public void unloadFerry() {
-		if (this.getMovableType() != EMovableType.FERRY) {
-			return;
-		}
-		strategy.unloadFerry();
-	}
-
-	@Override
-	public EMaterialType getCargoType(int stack) {
-		return strategy.getCargoType(stack);
-	}
-
-	@Override
-	public int getCargoCount(int stack) {
-		return strategy.getCargoCount(stack);
-	}
-
-	@Override
-	public int getNumberOfCargoStacks() {
-		return strategy.getNumberOfCargoStacks();
-	}
-
-	@Override
-	public void moveToCast(ShortPoint2D at, ESpellType spell) {
-		if(strategy instanceof MageStrategy) {
-			moveTo(at, EMoveToType.DEFAULT);
-			((MageStrategy)strategy).castSpellAt(spell, at);
-		}
-	}
-
 	public void addEffect(EEffectType effect) {
 		effectEnd[effect.ordinal()] = effect.getTime()*1000 + MatchConstants.clock().getTime();
 	}
@@ -1222,13 +1007,80 @@ public final class Movable implements ILogicMovable, FoWTask {
 		return effectEnd[effect.ordinal()] >= MatchConstants.clock().getTime();
 	}
 
-	@Override
-	public boolean isUncoveredBy(byte team) {
-		return uncoveredBy.get(team);
+
+	public static Movable createMovable(EMovableType movableType, Player player, ShortPoint2D position, AbstractMovableGrid grid) {
+		return createMovable(movableType, player, position, grid, null);
 	}
 
-	@Override
-	public void uncoveredBy(byte teamId) {
-		uncoveredBy.set(teamId);
+	protected static Movable createMovable(EMovableType movableType, Player player, ShortPoint2D position, AbstractMovableGrid grid, Movable movable) {
+		if(movable != null) movable.decoupleMovable();
+
+		switch (movableType) {
+			case SWORDSMAN_L1:
+			case SWORDSMAN_L2:
+			case SWORDSMAN_L3:
+			case PIKEMAN_L1:
+			case PIKEMAN_L2:
+			case PIKEMAN_L3:
+				return new InfantryMovable(grid, movableType, position, player, movable);
+
+			case BOWMAN_L1:
+			case BOWMAN_L2:
+			case BOWMAN_L3:
+				return new BowmanMovable(grid, movableType, position, player, movable);
+
+			case MAGE:
+				return new MageMovable(grid, position, player, movable);
+
+
+			case BEARER:
+				return new BearerMovable(grid, position, player, movable);
+			case DIGGER:
+				return new DiggerMovable(grid, position, player, movable);
+			case BRICKLAYER:
+				return new BricklayerMovable(grid, position, player, movable);
+
+
+			case THIEF:
+				return new ThiefMovable(grid, position, player, movable);
+			case PIONEER:
+				return new PioneerMovable(grid, position, player, movable);
+			case GEOLOGIST:
+				return new GeologistMovable(grid, position, player, movable);
+
+			case CARGO_SHIP:
+				return new CargoShipMovable(grid, position, player, movable);
+			case FERRY:
+				return new FerryMovable(grid, position, player, movable);
+
+			case DONKEY:
+				return new DonkeyMovable(grid, movableType, position, player, movable);
+
+			case BAKER:
+			case CHARCOAL_BURNER:
+			case FARMER:
+			case FISHERMAN:
+			case FORESTER:
+			case MELTER:
+			case MILLER:
+			case MINER:
+			case PIG_FARMER:
+			case DONKEY_FARMER:
+			case LUMBERJACK:
+			case SAWMILLER:
+			case SLAUGHTERER:
+			case SMITH:
+			case STONECUTTER:
+			case WATERWORKER:
+			case WINEGROWER:
+			case DOCKWORKER:
+				return new BuildingWorkerMovable(grid, movableType, position, player, movable);
+
+			case HEALER:
+				return new HealerMovable(grid, position, player, movable);
+
+			default:
+				throw new AssertionError("movable type " + movableType + " is not mapped to a movable class!");
+		}
 	}
 }

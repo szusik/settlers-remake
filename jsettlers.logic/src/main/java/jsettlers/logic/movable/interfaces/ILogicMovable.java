@@ -22,15 +22,16 @@ import jsettlers.common.movable.EEffectType;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESpellType;
+import jsettlers.common.movable.IGraphicsMovable;
+import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.IGuiMovable;
 import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
-import jsettlers.logic.movable.Movable;
 import jsettlers.logic.player.Player;
 import jsettlers.logic.timer.IScheduledTimerable;
 
-public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, IDebugable, Serializable, IGuiMovable, IAttackableMovable {
+public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, IDebugable, Serializable, IGuiMovable, ILocatable, IGraphicsMovable {
 	boolean push(ILogicMovable pushingMovable);
 
 	Path getPath();
@@ -49,36 +50,22 @@ public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, I
 
 	void checkPlayerOfPosition(Player playerOfPosition);
 
-	void convertTo(EMovableType newMovableType);
-
 	Player getPlayer();
 
 	IBuildingOccupyableMovable setOccupyableBuilding(IOccupyableBuilding building);
 
 	void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType);
-
-	void unloadFerry();
-
-	boolean addPassenger(ILogicMovable movable);
-
-	void moveToFerry(ILogicMovable ferry, ShortPoint2D entrancePosition);
-
-	void leaveFerryAt(ShortPoint2D position);
-
-	void moveToCast(ShortPoint2D at, ESpellType spell);
-
 	void addEffect(EEffectType effect);
 
-	void defectTo(Player player);
 	void setPosition(ShortPoint2D to);
 
-	boolean pingWounded(ILogicMovable healer);
 
-	boolean requestTreatment(ILogicMovable movable);
-
-	boolean needsTreatment();
-
-	ILogicMovable getPatient();
-
-	void heal();
+	/**
+	 * Lets this movable stop or start its work.
+	 *
+	 * @param stop
+	 * 		if true this selectable should stop working<br>
+	 * 		if false, it should stop working.
+	 */
+	void stopOrStartWorking(boolean stop);
 }

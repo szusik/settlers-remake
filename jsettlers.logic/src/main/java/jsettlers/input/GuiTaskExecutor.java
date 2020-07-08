@@ -58,7 +58,13 @@ import jsettlers.logic.buildings.trading.TradingBuilding;
 import jsettlers.logic.buildings.workers.DockyardBuilding;
 import jsettlers.logic.map.grid.partition.manager.settings.MaterialProductionSettings;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
+import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
+import jsettlers.logic.movable.interfaces.IBearerMovable;
+import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
+import jsettlers.logic.movable.interfaces.IMageMovable;
+import jsettlers.logic.movable.interfaces.IPioneerMovable;
 import jsettlers.network.client.task.packets.TaskPacket;
 import jsettlers.network.synchronic.timer.ITaskExecutor;
 
@@ -285,9 +291,22 @@ class GuiTaskExecutor implements ITaskExecutor {
 
 	private void convertMovables(ConvertGuiTask guiTask) {
 		for (Integer currID : guiTask.getSelection()) {
-			ILogicMovable movable = Movable.getMovableByID(currID);
-			if (movable != null) {
-				movable.convertTo(guiTask.getTargetType());
+			ILogicMovable movable = MovableManager.getMovableByID(currID);
+			switch(guiTask.getTargetType()) {
+				case GEOLOGIST:
+				case PIONEER:
+				case THIEF:
+					if(movable instanceof IBearerMovable) {
+						((IBearerMovable)movable).convertTo(guiTask.getTargetType());
+					}
+					break;
+				case BEARER:
+					if(movable instanceof IPioneerMovable) {
+						((IPioneerMovable)movable).convertToBearer();
+					}
+					break;
+				default:
+					System.err.println("Illegal conversion from " + movable.getMovableType() + " to " + guiTask.getTargetType());
 			}
 		}
 		guiInterface.renewSelection();
@@ -295,7 +314,7 @@ class GuiTaskExecutor implements ITaskExecutor {
 
 	private void stopOrStartWorking(List<Integer> selectedMovables, boolean stop) {
 		for (Integer currID : selectedMovables) {
-			ILogicMovable movable = Movable.getMovableByID(currID);
+			ILogicMovable movable = MovableManager.getMovableByID(currID);
 			if (movable != null) {
 				movable.stopOrStartWorking(stop);
 			}
@@ -304,7 +323,7 @@ class GuiTaskExecutor implements ITaskExecutor {
 
 	private void killSelectedMovables(List<Integer> selectedMovables) {
 		for (Integer currID : selectedMovables) {
-			ILogicMovable curr = Movable.getMovableByID(currID);
+			ILogicMovable curr = MovableManager.getMovableByID(currID);
 			if (curr != null) {
 				curr.kill();
 			}
@@ -322,7 +341,7 @@ class GuiTaskExecutor implements ITaskExecutor {
 	 *            How to move there.
 	 */
 	private void moveSelectedTo(ShortPoint2D targetPosition, List<Integer> movableIds, EMoveToType moveToType) {
-		List<ILogicMovable> movables = stream(movableIds).map(Movable::getMovableByID).filter(Objects::nonNull).collect(Collectors.toList());
+		List<ILogicMovable> movables = stream(movableIds).map(MovableManager::getMovableByID).filter(Objects::nonNull).collect(Collectors.toList());
 
 		if (movables.isEmpty()) {
 			return;
@@ -336,18 +355,19 @@ class GuiTaskExecutor implements ITaskExecutor {
 		}
 
 		if (ferryEntrance != null) { // enter a ferry
-			stream(movables).forEach(movable -> movable.moveToFerry(ferryEntrance.ferry, ferryEntrance.entrance));
+			stream(movables).filter(movable -> movable instanceof IAttackableHumanMovable)
+					.forEach(movable -> ((IAttackableHumanMovable)movable).moveToFerry(ferryEntrance.ferry, ferryEntrance.entrance));
 		} else {
 			sendManyMovables(targetPosition, movables, moveToType);
 		}
 	}
 
 	private void castSpell(CastSpellGuiTask castSpellGuiTask) {
-		ILogicMovable priest = Movable.getMovableByID(castSpellGuiTask.getSelection().get(0));
+		ILogicMovable priest = MovableManager.getMovableByID(castSpellGuiTask.getSelection().get(0));
 
-		if(priest == null) return;
+		if(!(priest instanceof IMageMovable)) return;
 
-		priest.moveToCast(castSpellGuiTask.getAt(), castSpellGuiTask.getSpell());
+		((IMageMovable)priest).moveToCast(castSpellGuiTask.getAt(), castSpellGuiTask.getSpell());
 	}
 
 	private void sendManyMovables(ShortPoint2D targetPosition, List<ILogicMovable> movables, EMoveToType moveToType) {
@@ -404,14 +424,15 @@ class GuiTaskExecutor implements ITaskExecutor {
 	}
 
 	private void unloadFerry(MovableGuiTask task) {
-		forMovables(task, ILogicMovable::unloadFerry);
+		forFerries(task, IFerryMovable::unloadFerry);
 	}
 
-	private void forMovables(MovableGuiTask task, Consumer<ILogicMovable> movableConsumer) {
+	private void forFerries(MovableGuiTask task, Consumer<IFerryMovable> movableConsumer) {
 		stream(task.getSelection())
-			.map(Movable::getMovableByID)
+			.map(MovableManager::getMovableByID)
 			.filter(ILogicMovable::isAlive)
 			.filter(movable -> movable.getMovableType() == EMovableType.FERRY)
+			.map(movable -> (IFerryMovable)movable)
 			.forEach(movableConsumer);
 	}
 

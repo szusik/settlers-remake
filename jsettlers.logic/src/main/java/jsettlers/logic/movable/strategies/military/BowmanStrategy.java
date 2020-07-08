@@ -20,8 +20,10 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.Constants;
+import jsettlers.logic.movable.AttackableMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.IAttackable;
+import jsettlers.logic.movable.military.BowmanMovable;
 
 /**
  * Strategy of a bowman.
@@ -29,11 +31,11 @@ import jsettlers.logic.movable.interfaces.IAttackable;
  * @author Andreas Eberle
  * 
  */
-public final class BowmanStrategy extends SoldierStrategy {
+public final class BowmanStrategy extends SoldierStrategy<BowmanMovable> {
 	private static final long serialVersionUID = 7062243467280721040L;
 	private static final float BOWMAN_ATTACK_DURATION = 1.2f;
 
-	public BowmanStrategy(Movable movable, EMovableType movableType) {
+	public BowmanStrategy(BowmanMovable movable, EMovableType movableType) {
 		super(movable, movableType);
 	}
 

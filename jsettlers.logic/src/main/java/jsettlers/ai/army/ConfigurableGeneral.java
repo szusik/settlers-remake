@@ -39,7 +39,7 @@ import jsettlers.input.tasks.UpgradeSoldiersGuiTask;
 import jsettlers.logic.buildings.military.occupying.OccupyingBuilding;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.movable.MovableGrid;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.player.Player;
 import jsettlers.network.client.interfaces.ITaskScheduler;
@@ -239,7 +239,7 @@ public class ConfigurableGeneral implements ArmyGeneral {
 		while(woundedIter.hasNext()) {
 			Map.Entry<Integer, ShortPoint2D> wounded = woundedIter.next();
 
-			ILogicMovable mov = Movable.getMovableByID(wounded.getKey());
+			ILogicMovable mov = MovableManager.getMovableByID(wounded.getKey());
 			// remove healed soldiers from woundedSoldiers
 			if(mov == null || mov.getHealth() == mov.getMovableType().getHealth()) {
 				woundedIter.remove();
@@ -265,7 +265,7 @@ public class ConfigurableGeneral implements ArmyGeneral {
 			}
 		}
 
-		for(ILogicMovable mov : Movable.getAllMovables()) {
+		for(ILogicMovable mov : MovableManager.getAllMovables()) {
 			if(mov.getPlayer() != player) continue;
 
 			EMovableType type = mov.getMovableType();

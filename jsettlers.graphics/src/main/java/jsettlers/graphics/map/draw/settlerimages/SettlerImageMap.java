@@ -22,7 +22,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.graphics.image.Image;
 import jsettlers.graphics.image.NullImage;
@@ -303,7 +303,7 @@ public final class SettlerImageMap {
 	 * @return The image or an null-image.
 	 * @see SettlerImageMap#getImageForSettler(ECivilisation, EMovableType, EMovableAction, EMaterialType, EDirection, float)
 	 */
-	public Image getImageForSettler(IMovable movable, float progress, ECivilisation stealthCiv) {
+	public Image getImageForSettler(IGraphicsMovable movable, float progress, ECivilisation stealthCiv) {
 		if (movable.getAction() == EMovableAction.WALKING) {
 			progress = progress / 2;
 			if (movable.isRightstep()) {

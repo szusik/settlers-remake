@@ -25,13 +25,15 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
 import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.movable.AttackableHumanMovable;
 import jsettlers.logic.movable.EGoInDirectionMode;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.MovableStrategy;
 import jsettlers.logic.movable.interfaces.IAttackable;
-import jsettlers.logic.movable.interfaces.ILogicMovable;
+import jsettlers.logic.movable.interfaces.IAttackableMovable;
+import jsettlers.logic.movable.specialist.ThiefMovable;
 
-public abstract class SoldierStrategy extends MovableStrategy implements IBuildingOccupyableMovable {
+public abstract class SoldierStrategy<T extends AttackableHumanMovable> extends MovableStrategy<T> implements IBuildingOccupyableMovable {
 	private static final long serialVersionUID = 5246120883607071865L;
 
 	/**
@@ -65,7 +67,7 @@ public abstract class SoldierStrategy extends MovableStrategy implements IBuildi
 
 	private boolean defending;
 
-	public SoldierStrategy(Movable movable, EMovableType movableType) {
+	public SoldierStrategy(T movable, EMovableType movableType) {
 		super(movable);
 		this.movableType = movableType;
 	}
@@ -102,7 +104,7 @@ public abstract class SoldierStrategy extends MovableStrategy implements IBuildi
 			final short minSearchDistance = getMinSearchDistance();
 			IAttackable oldEnemy = enemy;
 			enemy = super.getGrid().getEnemyInSearchArea(getAttackPosition(), movable, minSearchDistance, getMaxSearchDistance(isInTower), !defending);
-			if(enemy != null) enemy.uncoveredBy(movable.getPlayer().getTeamId());
+			if(enemy instanceof IThiefMovable) ((ThiefMovable)enemy).uncoveredBy(movable.getPlayer().getTeamId());
 
 			// check if we have a new enemy. If so, go in unsafe mode again.
 			if (oldEnemy != null && oldEnemy != enemy) {
@@ -256,7 +258,7 @@ public abstract class SoldierStrategy extends MovableStrategy implements IBuildi
 	}
 
 	@Override
-	public Movable getMovable() {
+	public IAttackableMovable getMovable() {
 		return movable;
 	}
 

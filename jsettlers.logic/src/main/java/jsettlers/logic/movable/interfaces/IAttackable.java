@@ -68,6 +68,4 @@ public interface IAttackable extends ILocatable, IInformable {
 	 * @return true if this {@link IAttackable} represents a tower or the defender of a tower.
 	 */
 	boolean isTower();
-
-	void uncoveredBy(byte teamId);
 }

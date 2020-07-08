@@ -22,16 +22,16 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableDigger;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IDiggerRequester;
-import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
+import jsettlers.logic.movable.civilian.DiggerMovable;
 
-public final class DiggerStrategy extends MovableStrategy implements IManageableDigger {
+public final class DiggerStrategy extends MovableStrategy<DiggerMovable> implements IManageableDigger {
 	private static final long serialVersionUID = 1581926355853324624L;
 
 	private IDiggerRequester requester;
 	private EDiggerState state = EDiggerState.JOBLESS;
 
-	public DiggerStrategy(Movable movable) {
+	public DiggerStrategy(DiggerMovable movable) {
 		super(movable);
 
 		reportJobless();

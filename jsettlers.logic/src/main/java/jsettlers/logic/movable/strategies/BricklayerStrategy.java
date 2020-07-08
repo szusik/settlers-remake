@@ -20,10 +20,10 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBricklayer;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IConstructableBuilding;
-import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
+import jsettlers.logic.movable.civilian.BricklayerMovable;
 
-public class BricklayerStrategy extends MovableStrategy implements IManageableBricklayer {
+public class BricklayerStrategy extends MovableStrategy<BricklayerMovable> implements IManageableBricklayer {
 	private static final long serialVersionUID = 7032795807942301297L;
 	private static final float BRICKLAYER_ACTION_DURATION = 1f;
 
@@ -32,7 +32,7 @@ public class BricklayerStrategy extends MovableStrategy implements IManageableBr
 	private ShortPoint2D bricklayerTargetPos;
 	private EDirection lookDirection;
 
-	public BricklayerStrategy(Movable movable) {
+	public BricklayerStrategy(BricklayerMovable movable) {
 		super(movable);
 		jobFinished();
 	}

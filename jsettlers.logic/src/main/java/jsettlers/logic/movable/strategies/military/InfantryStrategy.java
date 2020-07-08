@@ -19,8 +19,10 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.logic.constants.Constants;
+import jsettlers.logic.movable.AttackableMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.IAttackable;
+import jsettlers.logic.movable.military.InfantryMovable;
 
 /**
  * Strategy for swordsman and pikeman {@link Movable}s.
@@ -28,11 +30,11 @@ import jsettlers.logic.movable.interfaces.IAttackable;
  * @author Andreas Eberle
  * 
  */
-public final class InfantryStrategy extends SoldierStrategy {
+public final class InfantryStrategy extends SoldierStrategy<InfantryMovable> {
 	private static final long serialVersionUID = -2367165698305111060L;
 	private static final float INFANTRY_ATTACK_DURATION = 1;
 
-	public InfantryStrategy(Movable movable, EMovableType movableType) {
+	public InfantryStrategy(InfantryMovable movable, EMovableType movableType) {
 		super(movable, movableType);
 	}
 

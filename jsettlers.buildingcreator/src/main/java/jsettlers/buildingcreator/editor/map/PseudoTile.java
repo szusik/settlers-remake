@@ -17,7 +17,7 @@ package jsettlers.buildingcreator.editor.map;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.mapobject.IMapObject;
-import jsettlers.common.movable.IMovable;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.position.ShortPoint2D;
 
 public class PseudoTile {
@@ -54,7 +54,7 @@ public class PseudoTile {
 		return null;
 	}
 
-	public IMovable getMovable() {
+	public IGraphicsMovable getMovable() {
 		return null;
 	}
 

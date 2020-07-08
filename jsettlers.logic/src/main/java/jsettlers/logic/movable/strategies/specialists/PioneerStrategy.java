@@ -23,13 +23,14 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.EGoInDirectionMode;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
+import jsettlers.logic.movable.specialist.PioneerMovable;
 
 /**
  * 
  * @author Andreas Eberle
  * 
  */
-public final class PioneerStrategy extends MovableStrategy {
+public final class PioneerStrategy extends MovableStrategy<PioneerMovable> {
 	private static final long serialVersionUID = 1L;
 
 	private static final float ACTION1_DURATION = 1.2f;
@@ -37,7 +38,7 @@ public final class PioneerStrategy extends MovableStrategy {
 	private EPioneerState state = EPioneerState.JOBLESS;
 	private ShortPoint2D centerPos;
 
-	public PioneerStrategy(Movable movable) {
+	public PioneerStrategy(PioneerMovable movable) {
 		super(movable);
 	}
 

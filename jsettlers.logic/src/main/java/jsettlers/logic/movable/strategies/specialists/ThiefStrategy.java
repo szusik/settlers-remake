@@ -19,16 +19,15 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.constants.Constants;
-import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableStrategy;
+import jsettlers.logic.movable.specialist.ThiefMovable;
 
 /**
  * 
  * @author Andreas Eberle
  * 
  */
-public final class ThiefStrategy extends MovableStrategy {
+public final class ThiefStrategy extends MovableStrategy<ThiefMovable> {
 	private static final long serialVersionUID = -1359250497501671076L;
 
 	private static final float ACTION1_DURATION = 1f;
@@ -38,7 +37,7 @@ public final class ThiefStrategy extends MovableStrategy {
 	private ShortPoint2D returnPos = null;
 	private EMaterialType stolenMaterial = EMaterialType.NO_MATERIAL;
 
-	public ThiefStrategy(Movable movable) {
+	public ThiefStrategy(ThiefMovable movable) {
 		super(movable);
 	}
 
