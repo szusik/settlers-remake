@@ -28,7 +28,7 @@ import java.awt.Graphics;
 import go.graphics.swing.ContextContainer;
 import go.graphics.swing.event.swingInterpreter.GOSwingEventConverter;
 
-public abstract class JAWTContextCreator extends ContextCreator {
+public abstract class JAWTContextCreator extends ContextCreator<Canvas> {
 
 	protected JAWT jawt = JAWT.create();
 	protected JAWTDrawingSurface surface;
@@ -94,14 +94,14 @@ public abstract class JAWTContextCreator extends ContextCreator {
 					}
 					makeCurrent(true);
 
-					synchronized (wnd_lock) {
-						if (change_res) {
-							width = new_width;
-							height = new_height;
+					int newWidth = surfaceinfo.bounds().width();
+					int newHeight = surfaceinfo.bounds().height();
 
-							parent.resizeContext(width, height);
-							change_res = false;
-						}
+					if(newWidth != width || newHeight != height) {
+						width = newWidth;
+						height = newHeight;
+
+						parent.resizeContext(width, height);
 					}
 
 					try {

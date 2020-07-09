@@ -15,14 +15,10 @@
 package go.graphics.swing.contextcreator;
 
 import java.awt.Component;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-
-import javax.swing.SwingUtilities;
 
 import go.graphics.swing.ContextContainer;
 
-public abstract class ContextCreator<T extends Component> implements ComponentListener{
+public abstract class ContextCreator<T extends Component> {
 
 	public ContextCreator(ContextContainer ac, boolean debug) {
 		parent = ac;
@@ -30,9 +26,6 @@ public abstract class ContextCreator<T extends Component> implements ComponentLi
 	}
 
 	protected int width = 1, height = 1;
-	protected int new_width = 1, new_height = 1;
-	protected boolean change_res = true;
-	protected final Object wnd_lock = new Object();
 	protected boolean first_draw = true;
 	protected int fpsLimit = 0;
 	protected T canvas;
@@ -61,38 +54,9 @@ public abstract class ContextCreator<T extends Component> implements ComponentLi
 		initSpecific();
 
 		parent.addCanvas(canvas);
-
-		canvas.addComponentListener(this);
 	}
-
-	@Override
-	public void componentResized(ComponentEvent componentEvent) {
-		if(!SwingUtilities.windowForComponent(canvas).isFocused()) return;
-
-		synchronized (wnd_lock) {
-			new_width = canvas.getWidth();
-			new_height = canvas.getHeight();
-			change_res = true;
-
-			if(new_width == 0) new_width = 1;
-			if(new_height == 0) new_height = 1;
-		}
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent componentEvent) {}
-
-	@Override
-	public void componentMoved(ComponentEvent componentEvent) {}
-
-	@Override
-	public void componentShown(ComponentEvent componentEvent) {}
 
 	public void updateFPSLimit(int fpsLimit) {
 		this.fpsLimit = fpsLimit;
-	}
-
-	public float getScale() {
-		return 1;
 	}
 }

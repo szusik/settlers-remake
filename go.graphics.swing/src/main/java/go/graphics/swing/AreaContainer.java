@@ -21,6 +21,7 @@ import go.graphics.DrawmodeListener;
 import go.graphics.RedrawListener;
 import go.graphics.area.Area;
 import go.graphics.event.GOEvent;
+import go.graphics.swing.contextcreator.AsyncContextCreator;
 import go.graphics.swing.contextcreator.EBackendType;
 import go.graphics.swing.contextcreator.ContextException;
 
@@ -81,6 +82,8 @@ public class AreaContainer extends ContextContainer implements RedrawListener {
 	}
 
 	public void notifyResize() {
-		cc.componentResized(null);
+		if(cc instanceof AsyncContextCreator) {
+			((AsyncContextCreator)cc).componentResized(null);
+		}
 	}
 }

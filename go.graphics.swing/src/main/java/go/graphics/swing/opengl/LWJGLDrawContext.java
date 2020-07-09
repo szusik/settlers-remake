@@ -18,7 +18,6 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java8.util.function.Supplier;
 
 import go.graphics.AbstractColor;
 import go.graphics.BackgroundDrawHandle;
@@ -37,10 +36,7 @@ import static org.lwjgl.opengl.GL20C.*;
 
 public class LWJGLDrawContext extends GLDrawContext {
 
-	private Supplier<Float> nativeScale;
-
-	public LWJGLDrawContext(GLCapabilities glcaps, Supplier<Float> nativeScale, boolean debug, float guiScale) {
-		this.nativeScale = nativeScale;
+	public LWJGLDrawContext(GLCapabilities glcaps, boolean debug, float guiScale) {
 		this.glcaps = glcaps;
 		shaders = new ArrayList<>();
 
@@ -179,9 +175,7 @@ public class LWJGLDrawContext extends GLDrawContext {
 	}
 
 	public void resize(int width, int height) {
-		float scale = nativeScale.get();
-
-		glViewport(0, 0, (int)(width*scale), (int)(height*scale));
+		glViewport(0, 0, width, height);
 		mat.setOrtho(0, width, 0, height, -1, 1);
 		mat.get(matBfr);
 

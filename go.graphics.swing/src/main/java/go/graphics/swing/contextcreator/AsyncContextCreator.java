@@ -17,6 +17,8 @@ package go.graphics.swing.contextcreator;
 import org.lwjgl.BufferUtils;
 
 import java.awt.Graphics;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
 
@@ -28,12 +30,17 @@ import go.graphics.FramerateComputer;
 import go.graphics.swing.ContextContainer;
 import go.graphics.swing.event.swingInterpreter.GOSwingEventConverter;
 
-public abstract class AsyncContextCreator extends ContextCreator implements Runnable,DrawmodeListener {
+public abstract class AsyncContextCreator extends ContextCreator<JPanel> implements Runnable, DrawmodeListener, ComponentListener {
 
 	protected boolean offscreen = true;
 	protected boolean async_resized = false;
 	protected boolean clear_offscreen = true;
 	private boolean continue_run = true;
+
+
+	protected final Object wnd_lock = new Object();
+	protected int new_width = 1, new_height = 1;
+	protected boolean change_res = true;
 
 	private BufferedImage bi = null;
 	private IntBuffer pixels;
@@ -155,4 +162,34 @@ public abstract class AsyncContextCreator extends ContextCreator implements Runn
 		offscreen = !offscreen;
 		clear_offscreen = true;
 	}
+
+	@Override
+	public void init() {
+		super.init();
+
+		canvas.addComponentListener(this);
+	}
+
+	@Override
+	public void componentResized(ComponentEvent componentEvent) {
+		if(!SwingUtilities.windowForComponent(canvas).isFocused()) return;
+
+		synchronized (wnd_lock) {
+			new_width = canvas.getWidth();
+			new_height = canvas.getHeight();
+			change_res = true;
+
+			if(new_width == 0) new_width = 1;
+			if(new_height == 0) new_height = 1;
+		}
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent componentEvent) {}
+
+	@Override
+	public void componentMoved(ComponentEvent componentEvent) {}
+
+	@Override
+	public void componentShown(ComponentEvent componentEvent) {}
 }
