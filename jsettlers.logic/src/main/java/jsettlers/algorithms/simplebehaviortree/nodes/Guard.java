@@ -1,28 +1,26 @@
 package jsettlers.algorithms.simplebehaviortree.nodes;
 
+import jsettlers.algorithms.simplebehaviortree.Decorator;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 
-public class Guard<T> extends Node<T> {
+public class Guard<T> extends Decorator<T> {
 	private static final long serialVersionUID = -4675927057210755053L;
 
 	protected final IBooleanConditionFunction<T> condition;
-	protected final Node<T>                      child;
 	protected final boolean                      value;
 
 	public Guard(IBooleanConditionFunction<T> condition, Node<T> child) {
 		super(child);
 		this.condition = condition;
-		this.child = child;
 		value = true;
 	}
 
 	public Guard(IBooleanConditionFunction<T> condition, boolean shouldBe, Node<T> child) {
 		super(child);
 		this.condition = condition;
-		this.child = child;
 		value = shouldBe;
 	}
 

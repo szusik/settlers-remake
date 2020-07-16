@@ -1,15 +1,16 @@
 package jsettlers.algorithms.simplebehaviortree.nodes;
 
 import jsettlers.algorithms.simplebehaviortree.IIntegerSupplier;
-import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
+import jsettlers.algorithms.simplebehaviortree.Task;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 import jsettlers.logic.constants.MatchConstants;
 
-public final class Sleep<T> extends Node<T> {
+public final class Sleep<T> extends Task<T> {
 	private static final long serialVersionUID = 8774557186392581042L;
-	int endTime;
-	final IIntegerSupplier<T> delaySupplier;
+
+	private int endTime;
+	private final IIntegerSupplier<T> delaySupplier;
 
 	public Sleep(IIntegerSupplier<T> delaySupplier) {
 		super();

@@ -1,12 +1,20 @@
 package jsettlers.algorithms.simplebehaviortree;
 
-public class Decorator<T> extends Node<T> {
-	private static final long serialVersionUID = 2453864576230160564L;
+public abstract class Decorator<T> extends Node<T> {
 
-	public final Node<T> child;
+	protected final Node<T> child;
 
-	public Decorator(Node<T> child) {
-		super(child);
+	protected Decorator(Node<T> child) {
 		this.child = child;
+	}
+
+	@Override
+	int initiate(int maxId) {
+		maxId = super.initiate(maxId);
+
+		if(child != null) {
+			maxId = child.initiate(maxId);
+		}
+		return maxId;
 	}
 }

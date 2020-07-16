@@ -14,11 +14,11 @@
  */
 
 package jsettlers.algorithms.simplebehaviortree.nodes;
-import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
+import jsettlers.algorithms.simplebehaviortree.Task;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 
-public final class AlwaysSucceed<T> extends Node<T> {
+public final class AlwaysSucceed<T> extends Task<T> {
 	private static final long serialVersionUID = -216524395248690797L;
 
 	@Override

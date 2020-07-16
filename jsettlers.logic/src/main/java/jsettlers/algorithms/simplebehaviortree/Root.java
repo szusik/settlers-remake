@@ -1,6 +1,6 @@
 package jsettlers.algorithms.simplebehaviortree;
 
-public class Root<T> extends Node<T> {
+public class Root<T> extends Decorator<T> {
 	private static final long serialVersionUID = 4857616270171506110L;
 
 	protected final Node<T> child;

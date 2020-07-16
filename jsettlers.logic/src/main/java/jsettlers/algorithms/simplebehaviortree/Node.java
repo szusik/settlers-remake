@@ -1,9 +1,6 @@
 package jsettlers.algorithms.simplebehaviortree;
 
 import java.io.Serializable;
-import java.util.List;
-
-import java8.util.Lists2;
 
 public abstract class Node<T> implements Serializable {
 	private static final long serialVersionUID = -4544227752720944971L;
@@ -12,13 +9,6 @@ public abstract class Node<T> implements Serializable {
 	private boolean isOpen = false;
 
 	public int getId() { return id; }
-
-	protected final List<Node<T>> children;
-
-	@SafeVarargs
-	protected Node(Node<T>... children) {
-		this.children = Lists2.of(children);
-	}
 
 	public NodeStatus execute(Tick<T> tick) {
 		if (!isOpen) {
@@ -72,12 +62,8 @@ public abstract class Node<T> implements Serializable {
 
 	protected void onExit(Tick<T> tick) { }
 
-	protected int initiate(int maxId) {
-		maxId++;
-		this.id = maxId;
-		for (Node<T> child : children) {
-			maxId = child.initiate(maxId);
-		}
-		return maxId;
+	int initiate(int maxId) {
+		return this.id = ++maxId;
 	}
+
 }

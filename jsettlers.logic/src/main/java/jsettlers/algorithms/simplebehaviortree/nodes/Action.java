@@ -2,11 +2,11 @@ package jsettlers.algorithms.simplebehaviortree.nodes;
 
 import jsettlers.algorithms.simplebehaviortree.INodeStatusActionConsumer;
 import jsettlers.algorithms.simplebehaviortree.INodeStatusActionFunction;
-import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
+import jsettlers.algorithms.simplebehaviortree.Task;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 
-public class Action<T> extends Node<T> {
+public class Action<T> extends Task<T> {
 	private static final long serialVersionUID = -4535362950446826714L;
 
 	private final INodeStatusActionFunction<T> action;
