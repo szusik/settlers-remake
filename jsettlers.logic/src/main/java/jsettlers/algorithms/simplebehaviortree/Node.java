@@ -1,10 +1,11 @@
 package jsettlers.algorithms.simplebehaviortree;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
-public class Node<T> implements Serializable {
+import java8.util.Lists2;
+
+public abstract class Node<T> implements Serializable {
 	private static final long serialVersionUID = -4544227752720944971L;
 
 	private int     id;
@@ -12,12 +13,11 @@ public class Node<T> implements Serializable {
 
 	public int getId() { return id; }
 
-	protected final ArrayList<Node<T>> children;
+	protected final List<Node<T>> children;
 
 	@SafeVarargs
-	public Node(Node<T>... children) {
-		this.children = new ArrayList<>(children.length);
-		this.children.addAll(Arrays.asList(children));
+	protected Node(Node<T>... children) {
+		this.children = Lists2.of(children);
 	}
 
 	public NodeStatus execute(Tick<T> tick) {
@@ -27,7 +27,7 @@ public class Node<T> implements Serializable {
 		enter(tick);
 		NodeStatus status = this.tick(tick);
 		exit(tick);
-		if (!status.equals(NodeStatus.RUNNING)) {
+		if (status != NodeStatus.RUNNING) {
 			close(tick);
 		}
 		return status;

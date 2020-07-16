@@ -1,15 +1,12 @@
 package jsettlers.algorithms.simplebehaviortree.nodes;
 
-import org.apache.commons.lang3.StringUtils;
-
 import jsettlers.common.CommonConstants;
-import jsettlers.logic.movable.Context;
 import jsettlers.algorithms.simplebehaviortree.Decorator;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 
-public class Debug extends Decorator<Context> {
+public class Debug<T> extends Decorator<T> {
 	private static final long serialVersionUID = 9019598003328102086L;
 
 	private final String message;
@@ -19,23 +16,21 @@ public class Debug extends Decorator<Context> {
 		this.message = message;
 	}
 
-	public Debug(String message, Node<Context> child) {
+	public Debug(String message, Node<T> child) {
 		super(child);
 		this.message = message;
 	}
 
 	@Override
-	public NodeStatus onTick(Tick<Context> tick) {
-		if (CommonConstants.DEBUG_BEHAVIOR_TREES && tick.target.entity.isInDebugMode()) {
+	public NodeStatus onTick(Tick<T> tick) {
+		if (CommonConstants.DEBUG_BEHAVIOR_TREES) {
 			System.out.println(indent(tick, message));
 		}
 
 		if (child != null) {
-			tick.target.debugLevel++;
 			NodeStatus result = child.execute(tick);
-			tick.target.debugLevel--;
 
-			if (CommonConstants.DEBUG_BEHAVIOR_TREES && tick.target.entity.isInDebugMode()) {
+			if (CommonConstants.DEBUG_BEHAVIOR_TREES) {
 				System.out.println(indent(tick, message + ": " + result));
 			}
 
@@ -45,7 +40,7 @@ public class Debug extends Decorator<Context> {
 		return NodeStatus.SUCCESS;
 	}
 
-	private String indent(Tick<Context> tick, String message) {
-		return StringUtils.repeat('\t', tick.target.debugLevel) + message;
+	private String indent(Tick<T> tick, String message) {
+		return message;
 	}
 }

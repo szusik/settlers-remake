@@ -41,13 +41,17 @@ public class Tick<T> implements Serializable {
 	}
 
 	public void visitNode(Node<T> node) {
-		if (!blockOpenNodes) { openNodes.push(node); }
+		if (!blockOpenNodes) {
+			openNodes.push(node);
+		}
 	}
 
 	public void tickNode(Node<T> node) {
 	}
 
 	public void leaveNode(Node<T> node) {
-		if (!blockOpenNodes) { openNodes.pop(); }
+		if (!blockOpenNodes) {
+			openNodes.pop();
+		}
 	}
 }

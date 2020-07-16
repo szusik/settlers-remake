@@ -42,6 +42,8 @@ public abstract class CommonConstants {
 	 */
 	public static final int MAX_PLAYERS = 32;
 
+	public static final boolean DEBUG_BEHAVIOR_TREES = false;
+
 	/**
 	 * If true, all players of a map will always be positioned on startup.
 	 */

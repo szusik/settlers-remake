@@ -39,7 +39,7 @@ public class Repeat<T> extends Decorator<T> {
 	@Override
 	protected NodeStatus onTick(Tick<T> tick) {
 		while (true) {
-			if (policy.equals(Policy.PREEMPTIVE) || !childRunning) {
+			if (policy == Policy.PREEMPTIVE || !childRunning) {
 				NodeStatus cond = condition.execute(tick);
 				switch (cond) {
 					case RUNNING:

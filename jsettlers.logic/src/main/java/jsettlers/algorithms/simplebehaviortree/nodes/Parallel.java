@@ -1,5 +1,7 @@
 package jsettlers.algorithms.simplebehaviortree.nodes;
 
+import java.util.Arrays;
+
 import jsettlers.algorithms.simplebehaviortree.Composite;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
@@ -43,19 +45,19 @@ public class Parallel<T> extends Composite<T> {
 	protected NodeStatus onTick(Tick<T> tick) {
 		boolean anyRunning = false;
 		for (int index = 0; index < children.size(); index++) {
-			if (!childStatus[index].equals(NodeStatus.RUNNING)) {
+			if (childStatus[index] != NodeStatus.RUNNING) {
 				continue;
 			}
 			NodeStatus status = children.get(index).execute(tick);
 			childStatus[index] = status;
-			if (status.equals(NodeStatus.SUCCESS)) {
+			if(status == NodeStatus.SUCCESS) {
 				successCount++;
-			} else if (status.equals(NodeStatus.RUNNING)) {
+			} else if(status == NodeStatus.RUNNING) {
 				anyRunning = true;
 			}
 		}
 
-		boolean successCondition = successPolicy == Policy.ONE && successCount >= 1 || successPolicy == Policy.ALL && successCount == children.size();
+		boolean successCondition = (successPolicy == Policy.ONE && successCount >= 1) || (successPolicy == Policy.ALL && successCount == children.size());
 
 		if (anyRunning && preemptive && !successCondition) {
 			return NodeStatus.RUNNING;
@@ -72,9 +74,7 @@ public class Parallel<T> extends Composite<T> {
 
 	@Override
 	protected void onOpen(Tick<T> tick) {
-		for (int i = 0; i < childStatus.length; i++) {
-			childStatus[i] = NodeStatus.RUNNING;
-		}
+		Arrays.fill(childStatus, NodeStatus.RUNNING);
 		successCount = 0;
 	}
 }
