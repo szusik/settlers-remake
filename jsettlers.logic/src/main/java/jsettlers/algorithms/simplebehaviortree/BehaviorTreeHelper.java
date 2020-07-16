@@ -1,6 +1,6 @@
 package jsettlers.algorithms.simplebehaviortree;
 
-import jsettlers.logic.constants.MatchConstants;
+import jsettlers.algorithms.simplebehaviortree.nodes.Sleep;
 import jsettlers.algorithms.simplebehaviortree.nodes.Action;
 import jsettlers.algorithms.simplebehaviortree.nodes.AlwaysFail;
 import jsettlers.algorithms.simplebehaviortree.nodes.AlwaysSucceed;
@@ -11,7 +11,6 @@ import jsettlers.algorithms.simplebehaviortree.nodes.Inverter;
 import jsettlers.algorithms.simplebehaviortree.nodes.MemSelector;
 import jsettlers.algorithms.simplebehaviortree.nodes.MemSequence;
 import jsettlers.algorithms.simplebehaviortree.nodes.Parallel;
-import jsettlers.algorithms.simplebehaviortree.nodes.Property;
 import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.algorithms.simplebehaviortree.nodes.Selector;
 import jsettlers.algorithms.simplebehaviortree.nodes.Sequence;
@@ -140,30 +139,6 @@ public final class BehaviorTreeHelper {
 
 	public static <T> Sleep<T> sleep(int delay) {
 		return new Sleep<>(c->delay);
-	}
-
-	public static class Sleep<T> extends Node<T> {
-		private static final long serialVersionUID = 8774557186392581042L;
-		int endTime;
-		final IIntegerSupplier<T> delaySupplier;
-
-		public Sleep(IIntegerSupplier<T> delaySupplier) {
-			super();
-			this.delaySupplier = delaySupplier;
-		}
-
-		@Override
-		public NodeStatus onTick(Tick<T> tick) {
-			int remaining = endTime - MatchConstants.clock().getTime();
-			if (remaining <= 0) { return NodeStatus.SUCCESS; }
-			tick.target.entity.setInvocationDelay(remaining);
-			return NodeStatus.RUNNING;
-		}
-
-		@Override
-		public void onOpen(Tick<T> tick) {
-			endTime = MatchConstants.clock().getTime() + delaySupplier.apply(tick.target);
-		}
 	}
 
 	public static <T> Debug<T> debug(String msg, Node<T> child) {
