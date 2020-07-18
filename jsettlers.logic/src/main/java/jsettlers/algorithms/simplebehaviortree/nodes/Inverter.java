@@ -21,7 +21,7 @@ public class Inverter<T> extends Decorator<T> {
 			case FAILURE:
 				return NodeStatus.SUCCESS;
 			case RUNNING:
-				return result;
+				return NodeStatus.RUNNING;
 			default:
 				throw new IllegalStateException("Unknown NodeStatus: " + result);
 		}

@@ -8,12 +8,10 @@ import jsettlers.algorithms.simplebehaviortree.nodes.Condition;
 import jsettlers.algorithms.simplebehaviortree.nodes.Debug;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
 import jsettlers.algorithms.simplebehaviortree.nodes.Inverter;
-import jsettlers.algorithms.simplebehaviortree.nodes.MemSelector;
-import jsettlers.algorithms.simplebehaviortree.nodes.MemSequence;
-import jsettlers.algorithms.simplebehaviortree.nodes.Parallel;
-import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.algorithms.simplebehaviortree.nodes.Selector;
 import jsettlers.algorithms.simplebehaviortree.nodes.Sequence;
+import jsettlers.algorithms.simplebehaviortree.nodes.Parallel;
+import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.algorithms.simplebehaviortree.nodes.Wait;
 
 public final class BehaviorTreeHelper {
@@ -73,35 +71,15 @@ public final class BehaviorTreeHelper {
 	}
 
 	@SafeVarargs
-	public static <T> MemSelector<T> memSelector(Node<T>... children) {
-		return new MemSelector<>(children);
-	}
-
-	@SafeVarargs
-	public static <T> Node<T> memSelector(String debugMessage, Node<T>... children) {
-		return debug(debugMessage, memSelector(children));
-	}
-
-	@SafeVarargs
-	public static <T> MemSequence<T> memSequence(Node<T>... children) {
-		return new MemSequence<>(children);
-	}
-
-	@SafeVarargs
-	public static <T> Node<T> memSequence(String debugMessage, Node<T>... children) {
-		return debug(debugMessage, memSequence(children));
-	}
-
-	@SafeVarargs
 	public static <T> Parallel<T> parallel(Parallel.Policy successPolicy, boolean preemptive, Node<T>... children) {
 		return new Parallel<>(successPolicy, preemptive, children);
 	}
 
-	public static <T> Repeat<T> repeat(Repeat.Policy policy, Node<T> condition, Node<T> child) {
+	public static <T> Repeat<T> repeat(Repeat.Policy policy, IBooleanConditionFunction<T> condition, Node<T> child) {
 		return new Repeat<>(policy, condition, child);
 	}
 
-	public static <T> Repeat<T> repeat(Node<T> condition, Node<T> child) {
+	public static <T> Repeat<T> repeat(IBooleanConditionFunction<T> condition, Node<T> child) {
 		return new Repeat<>(condition, child);
 	}
 
@@ -130,7 +108,7 @@ public final class BehaviorTreeHelper {
 	}
 
 	public static <T> Node<T> alwaysSucceed(Node<T> child) {
-		return new Selector<>(child, new AlwaysSucceed<>());
+		return new Selector<>((Node<T>[])new Node[] {child, new AlwaysSucceed<>()});
 	}
 
 	public static <T> Sleep<T> sleep(IIntegerSupplier<T> delaySupplier) {

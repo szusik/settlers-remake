@@ -38,7 +38,7 @@ public abstract class Node<T> implements Serializable {
 		return onTick(tick);
 	}
 
-	public void close(Tick<T> tick) {
+	public final void close(Tick<T> tick) {
 		if (isOpen) {
 			tick.leaveNode(this);
 			isOpen = false;

@@ -33,8 +33,7 @@ public class Parallel<T> extends Composite<T> {
 	private final boolean      preemptive;
 	private       int          successCount;
 
-	@SafeVarargs
-	public Parallel(Policy successPolicy, boolean preemptive, Node<T>... children) {
+	public Parallel(Policy successPolicy, boolean preemptive, Node<T>[] children) {
 		super(children);
 		childStatus = new NodeStatus[this.children.size()];
 		this.successPolicy = successPolicy;
@@ -59,9 +58,7 @@ public class Parallel<T> extends Composite<T> {
 
 		boolean successCondition = (successPolicy == Policy.ONE && successCount >= 1) || (successPolicy == Policy.ALL && successCount == children.size());
 
-		if (anyRunning && preemptive && !successCondition) {
-			return NodeStatus.RUNNING;
-		} else if (anyRunning && !preemptive) {
+		if (anyRunning && (!preemptive || !successCondition)) {
 			return NodeStatus.RUNNING;
 		}
 

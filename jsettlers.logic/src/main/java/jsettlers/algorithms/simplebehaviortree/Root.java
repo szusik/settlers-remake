@@ -3,7 +3,6 @@ package jsettlers.algorithms.simplebehaviortree;
 public class Root<T> extends Decorator<T> {
 	private static final long serialVersionUID = 4857616270171506110L;
 
-	protected final Node<T> child;
 	private         int     maxID = -1;
 
 	public int getChildrenCount() {
@@ -12,7 +11,6 @@ public class Root<T> extends Decorator<T> {
 
 	public Root(Node<T> child) {
 		super(child);
-		this.child = child;
 	}
 
 	@Override

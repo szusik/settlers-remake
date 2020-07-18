@@ -28,6 +28,7 @@ public class Property<T, PropertyType> extends Decorator<T> {
 
 	@Override
 	protected void onClose(Tick<T> tick) {
+		super.onClose(tick);
 		setter.accept(tick.target, oldValue);
 	}
 

@@ -9,8 +9,7 @@ public abstract class Composite<T> extends Node<T> {
 
 	protected final List<Node<T>> children;
 
-	@SafeVarargs
-	protected Composite(Node<T>... children) {
+	protected Composite(Node<T>[] children) {
 		this.children = Lists2.of(children);
 	}
 

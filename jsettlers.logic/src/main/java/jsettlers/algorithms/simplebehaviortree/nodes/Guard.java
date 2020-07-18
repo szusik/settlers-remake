@@ -27,7 +27,11 @@ public class Guard<T> extends Decorator<T> {
 	@Override
 	protected NodeStatus onTick(Tick<T> tick) {
 		boolean result = condition.test(tick.target);
-		if (result == value) { return child.execute(tick); } else { return NodeStatus.FAILURE; }
+		if (result == value) {
+			return child.execute(tick);
+		} else {
+			return NodeStatus.FAILURE;
+		}
 	}
 
 	public boolean checkGuardCondition(Tick<T> tick) {

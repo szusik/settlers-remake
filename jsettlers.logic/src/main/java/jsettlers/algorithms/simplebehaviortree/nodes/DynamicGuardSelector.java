@@ -24,10 +24,7 @@ import static java8.util.stream.StreamSupport.stream;
 
 public class DynamicGuardSelector<T> extends Composite<T> {
 
-	private Guard<T> runningChild = null;
-
-	@SafeVarargs
-	public DynamicGuardSelector(Guard<T>... childrenGuards) {
+	public DynamicGuardSelector(Guard<T>[] childrenGuards) {
 		super(childrenGuards);
 	}
 
@@ -41,7 +38,6 @@ public class DynamicGuardSelector<T> extends Composite<T> {
 
 		Guard<T> childToRun = childToRunOptional.get();
 
-		runningChild = childToRun;
 		return childToRun.execute(tick);
 	}
 }

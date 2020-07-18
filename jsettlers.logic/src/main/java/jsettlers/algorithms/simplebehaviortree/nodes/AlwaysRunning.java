@@ -15,10 +15,10 @@
 
 package jsettlers.algorithms.simplebehaviortree.nodes;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
-import jsettlers.algorithms.simplebehaviortree.Task;
+import jsettlers.algorithms.simplebehaviortree.Leaf;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 
-public final class AlwaysRunning<T> extends Task<T> {
+public final class AlwaysRunning<T> extends Leaf<T> {
 	private static final long serialVersionUID = -216524395248690797L;
 
 	@Override
