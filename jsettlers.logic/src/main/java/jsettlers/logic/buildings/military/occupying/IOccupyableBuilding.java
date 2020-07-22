@@ -16,9 +16,9 @@ package jsettlers.logic.buildings.military.occupying;
 
 import jsettlers.common.buildings.OccupierPlace;
 import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
-import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.movable.interfaces.ISoldierMovable;
 import jsettlers.logic.player.Player;
 
 /**
@@ -72,5 +72,5 @@ public interface IOccupyableBuilding extends ILocatable{
 	 * Request this soldier to enter the tower
 	 * @param soldier
 	 */
-	void requestSoldier(ILogicMovable soldier);
+	void requestSoldier(ISoldierMovable soldier);
 }

@@ -939,18 +939,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 	}
 
-	public final IBuildingOccupyableMovable setOccupyableBuilding(IOccupyableBuilding building) {
-		if (canOccupyBuilding()) {
-			return ((SoldierStrategy<?>) strategy).setOccupyableBuilding(building);
-		} else {
-			return null;
-		}
-	}
-
-	public final boolean canOccupyBuilding() {
-		return movableType.getSelectionType() == ESelectionType.SOLDIERS;
-	}
-
 	private void checkPlayerOfCurrentPosition() {
 		checkPlayerOfPosition(grid.getPlayerAt(position));
 	}

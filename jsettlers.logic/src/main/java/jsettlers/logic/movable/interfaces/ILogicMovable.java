@@ -46,13 +46,9 @@ public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, I
 
 	void leavePosition();
 
-	boolean canOccupyBuilding();
-
 	void checkPlayerOfPosition(Player playerOfPosition);
 
 	Player getPlayer();
-
-	IBuildingOccupyableMovable setOccupyableBuilding(IOccupyableBuilding building);
 
 	void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType);
 	void addEffect(EEffectType effect);

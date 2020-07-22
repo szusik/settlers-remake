@@ -50,6 +50,7 @@ import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.IAttackableMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
+import jsettlers.logic.movable.interfaces.ISoldierMovable;
 import jsettlers.logic.objects.StandardMapObject;
 import jsettlers.logic.player.Player;
 
@@ -135,7 +136,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 		}
 
 		initSoldierRequests();
-		IBuildingOccupyableMovable newOccupier = attacker.setOccupyableBuilding(this);
+		IBuildingOccupyableMovable newOccupier = ((ISoldierMovable)attacker).setOccupyableBuilding(this);
 		comingSoldiers.put(newOccupier, searchedSoldiers.removeOne(newOccupier.getMovableType().getSoldierType()));
 
 		doorHealth = 0.1f;
@@ -207,8 +208,8 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 			Path path = super.grid.getDijkstra().find(dijkstraRequest);
 			if (path != null) {
 				ILogicMovable soldier = super.grid.getMovable(path.getTargetPosition());
-				if (soldier != null) {
-					IBuildingOccupyableMovable occupier = soldier.setOccupyableBuilding(this);
+				if (soldier instanceof ISoldierMovable) {
+					IBuildingOccupyableMovable occupier = ((ISoldierMovable)soldier).setOccupyableBuilding(this);
 					if (occupier != null) {
 						SoldierRequest soldierRequest = searchedSoldiers.removeOne(occupier.getMovableType().getSoldierType());
 						comingSoldiers.put(occupier, soldierRequest);
@@ -421,11 +422,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 	}
 
 	@Override
-	public void requestSoldier(ILogicMovable soldier) {
-		if (!soldier.getMovableType().isSoldier()) {
-			return;
-		}
-
+	public void requestSoldier(ISoldierMovable soldier) {
 		ESoldierClass soldierClass = soldier.getMovableType().getSoldierClass();
 		OccupierPlace emptyPlace = getEmptyPlaceForSoldierClass(soldierClass);
 

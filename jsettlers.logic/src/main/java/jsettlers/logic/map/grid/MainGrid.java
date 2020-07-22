@@ -123,6 +123,7 @@ import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.IAttackableMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
+import jsettlers.logic.movable.interfaces.ISoldierMovable;
 import jsettlers.logic.objects.arrow.ArrowObject;
 import jsettlers.logic.objects.stack.StackMapObject;
 import jsettlers.logic.player.Player;
@@ -320,9 +321,9 @@ public final class MainGrid implements Serializable {
 
 			Building building = constructBuildingAt(pos, buildingObject.getType(), player, true);
 
-			if (building instanceof IOccupyableBuilding) {
+			if(building instanceof IOccupyableBuilding) {
 				IOccupyableBuilding occupyableBuilding = (IOccupyableBuilding) building;
-				ILogicMovable soldier = Movable.createMovable(EMovableType.SWORDSMAN_L1, building.getPlayer(), building.getDoor(), movablePathfinderGrid);
+				ISoldierMovable soldier = (ISoldierMovable) Movable.createMovable(EMovableType.SWORDSMAN_L1, building.getPlayer(), building.getDoor(), movablePathfinderGrid);
 				occupyableBuilding.requestSoldier(soldier);
 			}
 		} else if (object instanceof MovableObject) {
@@ -664,7 +665,7 @@ public final class MainGrid implements Serializable {
 			if (movable == null) {
 				return false;
 			} else {
-				if (movable.getPlayer() == player && movable.canOccupyBuilding()) {
+				if(movable.getPlayer() == player && movable.getMovableType().isSoldier()) {
 					EMovableType movableType = movable.getMovableType();
 
 					switch (searchType) {
