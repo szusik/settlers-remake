@@ -3,6 +3,7 @@ package jsettlers.algorithms.simplebehaviortree;
 import jsettlers.algorithms.simplebehaviortree.nodes.Sleep;
 import jsettlers.algorithms.simplebehaviortree.nodes.Action;
 import jsettlers.algorithms.simplebehaviortree.nodes.AlwaysFail;
+import jsettlers.algorithms.simplebehaviortree.nodes.AlwaysRunning;
 import jsettlers.algorithms.simplebehaviortree.nodes.AlwaysSucceed;
 import jsettlers.algorithms.simplebehaviortree.nodes.Condition;
 import jsettlers.algorithms.simplebehaviortree.nodes.Debug;
@@ -44,6 +45,10 @@ public final class BehaviorTreeHelper {
 
 	public static <T> AlwaysFail<T> alwaysFail() {
 		return new AlwaysFail<>();
+	}
+
+	public static <T> AlwaysRunning<T> alwaysRunning() {
+		return new AlwaysRunning<>();
 	}
 
 	public static <T> AlwaysSucceed<T> alwaysSucceed() {

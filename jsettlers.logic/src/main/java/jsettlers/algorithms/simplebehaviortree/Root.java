@@ -11,15 +11,11 @@ public class Root<T> extends Decorator<T> {
 
 	public Root(Node<T> child) {
 		super(child);
+		maxID = initiate(-1);
 	}
 
 	@Override
 	protected NodeStatus onTick(Tick<T> tick) {
 		return child.execute(tick);
-	}
-
-	public Root<T> init() {
-		maxID = initiate(-1);
-		return this;
 	}
 }

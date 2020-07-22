@@ -5,21 +5,18 @@ import java.io.Serializable;
 public abstract class Node<T> implements Serializable {
 	private static final long serialVersionUID = -4544227752720944971L;
 
-	private int     id;
-	private boolean isOpen = false;
+	private int     id = -1;
 
 	public int getId() { return id; }
 
 	public NodeStatus execute(Tick<T> tick) {
-		assert isOpen == tick.isOpen(this);
-
-		if (!tick.isOpen(this)) {
+		if(!tick.isOpen(this)) {
 			open(tick);
 		}
 		enter(tick);
 		NodeStatus status = this.tick(tick);
 		exit(tick);
-		if (status != NodeStatus.RUNNING) {
+		if(status != NodeStatus.RUNNING) {
 			close(tick);
 		}
 		return status;
@@ -31,7 +28,6 @@ public abstract class Node<T> implements Serializable {
 	}
 
 	private void open(Tick<T> tick) {
-		isOpen = true;
 		onOpen(tick);
 	}
 
@@ -41,11 +37,8 @@ public abstract class Node<T> implements Serializable {
 	}
 
 	public final void close(Tick<T> tick) {
-		assert isOpen == tick.isOpen(this);
-
-		if (tick.isOpen(this)) {
+		if(tick.isOpen(this)) {
 			tick.leaveNode(this);
-			isOpen = false;
 			onClose(tick);
 		}
 	}
@@ -65,6 +58,8 @@ public abstract class Node<T> implements Serializable {
 	protected void onExit(Tick<T> tick) { }
 
 	int initiate(int maxId) {
+		assert id == -1;
+
 		return this.id = ++maxId;
 	}
 
