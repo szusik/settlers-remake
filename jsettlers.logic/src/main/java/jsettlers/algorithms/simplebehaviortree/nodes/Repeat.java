@@ -25,7 +25,6 @@ public class Repeat<T> extends Decorator<T> {
 
 	private final IBooleanConditionFunction<T> condition;
 	private final Policy  policy;
-	private       boolean childRunning;
 
 	public Repeat(IBooleanConditionFunction<T> condition, Node<T> child) {
 		this(Policy.NONPREEMPTIVE, condition, child);
@@ -40,27 +39,19 @@ public class Repeat<T> extends Decorator<T> {
 	@Override
 	protected NodeStatus onTick(Tick<T> tick) {
 		while(true) {
-			if((policy == Policy.PREEMPTIVE || !childRunning) && !condition.test(tick.target)) {
+			if((policy == Policy.PREEMPTIVE || !tick.isOpen(child)) && !condition.test(tick.target)) {
 				return NodeStatus.SUCCESS;
 			}
 
 			NodeStatus status = child.execute(tick);
 			switch (status) {
 				case SUCCESS:
-					childRunning = false;
 					break;
 				case RUNNING:
-					childRunning = true;
 					return NodeStatus.RUNNING;
 				case FAILURE:
-					childRunning = false;
 					return NodeStatus.FAILURE;
 			}
 		}
-	}
-
-	@Override
-	protected void onOpen(Tick<T> tick) {
-		childRunning = false;
 	}
 }

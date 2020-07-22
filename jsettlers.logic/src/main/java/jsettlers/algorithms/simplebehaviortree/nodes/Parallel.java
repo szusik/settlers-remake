@@ -29,26 +29,27 @@ public class Parallel<T> extends Composite<T> {
 	}
 
 	private final Policy       successPolicy;
-	private final NodeStatus[] childStatus;
 	private final boolean      preemptive;
-	private       int          successCount;
 
 	public Parallel(Policy successPolicy, boolean preemptive, Node<T>[] children) {
 		super(children);
-		childStatus = new NodeStatus[this.children.size()];
 		this.successPolicy = successPolicy;
 		this.preemptive = preemptive;
 	}
 
 	@Override
 	protected NodeStatus onTick(Tick<T> tick) {
+		NodeStatus[] childStatus = tick.getProperty(getId());
+		int successCount = 0;
+
 		boolean anyRunning = false;
-		for (int index = 0; index < children.size(); index++) {
-			if (childStatus[index] != NodeStatus.RUNNING) {
-				continue;
+		for (int index = 0; index < childStatus.length; index++) {
+			NodeStatus status = childStatus[index];
+
+			if(status == NodeStatus.RUNNING) {
+				childStatus[index] = status = children.get(index).execute(tick);
 			}
-			NodeStatus status = children.get(index).execute(tick);
-			childStatus[index] = status;
+
 			if(status == NodeStatus.SUCCESS) {
 				successCount++;
 			} else if(status == NodeStatus.RUNNING) {
@@ -62,6 +63,8 @@ public class Parallel<T> extends Composite<T> {
 			return NodeStatus.RUNNING;
 		}
 
+		tick.setProperty(getId(), null);
+
 		if (successCondition) {
 			return NodeStatus.SUCCESS;
 		} else {
@@ -71,7 +74,20 @@ public class Parallel<T> extends Composite<T> {
 
 	@Override
 	protected void onOpen(Tick<T> tick) {
+		NodeStatus[] childStatus = new NodeStatus[children.size()];
 		Arrays.fill(childStatus, NodeStatus.RUNNING);
-		successCount = 0;
+		tick.setProperty(getId(), childStatus);
+	}
+
+	@Override
+	protected void onClose(Tick<T> tick) {
+		NodeStatus[] childStatus = tick.getProperty(getId());
+		if(childStatus == null) return;
+
+		for(int i = 0; i < childStatus.length; i++) {
+			if(childStatus[i] == NodeStatus.RUNNING) {
+				children.get(i).close(tick);
+			}
+		}
 	}
 }

@@ -11,7 +11,9 @@ public abstract class Node<T> implements Serializable {
 	public int getId() { return id; }
 
 	public NodeStatus execute(Tick<T> tick) {
-		if (!isOpen) {
+		assert isOpen == tick.isOpen(this);
+
+		if (!tick.isOpen(this)) {
 			open(tick);
 		}
 		enter(tick);
@@ -39,7 +41,9 @@ public abstract class Node<T> implements Serializable {
 	}
 
 	public final void close(Tick<T> tick) {
-		if (isOpen) {
+		assert isOpen == tick.isOpen(this);
+
+		if (tick.isOpen(this)) {
 			tick.leaveNode(this);
 			isOpen = false;
 			onClose(tick);
@@ -54,9 +58,7 @@ public abstract class Node<T> implements Serializable {
 
 	protected void onOpen(Tick<T> tick) { }
 
-	protected NodeStatus onTick(Tick<T> tick) {
-		return NodeStatus.SUCCESS;
-	}
+	protected abstract NodeStatus onTick(Tick<T> tick);
 
 	protected void onClose(Tick<T> tick) { }
 

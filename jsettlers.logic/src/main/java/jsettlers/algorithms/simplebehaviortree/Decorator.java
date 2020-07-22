@@ -17,4 +17,9 @@ public abstract class Decorator<T> extends Node<T> {
 		}
 		return maxId;
 	}
+
+	@Override
+	protected void onClose(Tick<T> tick) {
+		child.close(tick);
+	}
 }

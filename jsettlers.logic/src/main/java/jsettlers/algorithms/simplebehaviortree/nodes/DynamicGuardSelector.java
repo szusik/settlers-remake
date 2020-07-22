@@ -40,4 +40,9 @@ public class DynamicGuardSelector<T> extends Composite<T> {
 
 		return childToRun.execute(tick);
 	}
+
+	@Override
+	protected void onClose(Tick<T> tick) {
+		stream(children).forEach(guard -> guard.close(tick));
+	}
 }

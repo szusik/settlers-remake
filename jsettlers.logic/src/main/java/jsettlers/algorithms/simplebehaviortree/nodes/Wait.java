@@ -24,6 +24,7 @@ public class Wait<T> extends Decorator<T> {
 				return NodeStatus.SUCCESS;
 			default:
 			case FAILURE:
+				// emit running
 			case RUNNING:
 				return NodeStatus.RUNNING;
 		}

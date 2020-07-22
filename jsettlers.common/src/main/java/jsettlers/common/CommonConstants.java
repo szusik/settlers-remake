@@ -42,6 +42,9 @@ public abstract class CommonConstants {
 	 */
 	public static final int MAX_PLAYERS = 32;
 
+	/**
+	 * Enables debug messages and strict tree checking
+	 */
 	public static final boolean DEBUG_BEHAVIOR_TREES = false;
 
 	/**

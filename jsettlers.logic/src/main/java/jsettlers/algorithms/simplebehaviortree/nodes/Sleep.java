@@ -9,7 +9,6 @@ import jsettlers.logic.constants.MatchConstants;
 public final class Sleep<T> extends Leaf<T> {
 	private static final long serialVersionUID = 8774557186392581042L;
 
-	private int endTime;
 	private final IIntegerSupplier<T> delaySupplier;
 
 	public Sleep(IIntegerSupplier<T> delaySupplier) {
@@ -19,17 +18,19 @@ public final class Sleep<T> extends Leaf<T> {
 
 	@Override
 	public NodeStatus onTick(Tick<T> tick) {
-		int remaining = endTime - MatchConstants.clock().getTime();
+		int endTime = tick.getProperty(getId());
+		int remaining = (endTime - MatchConstants.clock().getTime());
 		if (remaining <= 0) {
 			return NodeStatus.SUCCESS;
 		} else {
-			tick.target.entity.setInvocationDelay(remaining);
+			// emit running
+			//tick.target.entity.setInvocationDelay(remaining);
 			return NodeStatus.RUNNING;
 		}
 	}
 
 	@Override
 	public void onOpen(Tick<T> tick) {
-		endTime = MatchConstants.clock().getTime() + delaySupplier.apply(tick.target);
+		tick.setProperty(getId(), MatchConstants.clock().getTime() + delaySupplier.apply(tick.target));
 	}
 }

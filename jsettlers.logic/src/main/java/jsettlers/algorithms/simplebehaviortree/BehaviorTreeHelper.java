@@ -103,7 +103,7 @@ public final class BehaviorTreeHelper {
 		return debug(debugMessage, sequence(children));
 	}
 
-	public static <T> Wait<T> wait(Node<T> condition) {
+	public static <T> Wait<T> waitFor(Node<T> condition) {
 		return new Wait<>(condition);
 	}
 
