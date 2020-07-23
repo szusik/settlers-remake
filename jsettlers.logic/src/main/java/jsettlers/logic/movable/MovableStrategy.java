@@ -15,9 +15,7 @@
 package jsettlers.logic.movable;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 import jsettlers.algorithms.path.Path;
 import jsettlers.common.action.EMoveToType;
@@ -41,7 +39,6 @@ import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.military.BowmanMovable;
 import jsettlers.logic.movable.military.InfantryMovable;
 import jsettlers.logic.movable.military.MageMovable;
-import jsettlers.logic.movable.other.FerryMovable;
 import jsettlers.logic.movable.specialist.GeologistMovable;
 import jsettlers.logic.movable.specialist.PioneerMovable;
 import jsettlers.logic.movable.specialist.ThiefMovable;
@@ -49,8 +46,8 @@ import jsettlers.logic.movable.strategies.BearerMovableStrategy;
 import jsettlers.logic.movable.strategies.BricklayerStrategy;
 import jsettlers.logic.movable.strategies.BuildingWorkerStrategy;
 import jsettlers.logic.movable.strategies.DiggerStrategy;
+import jsettlers.logic.movable.strategies.DummyStrategy;
 import jsettlers.logic.movable.strategies.military.BowmanStrategy;
-import jsettlers.logic.movable.strategies.military.FerryStrategy;
 import jsettlers.logic.movable.strategies.military.InfantryStrategy;
 import jsettlers.logic.movable.strategies.military.MageStrategy;
 import jsettlers.logic.movable.strategies.specialists.ThiefStrategy;
@@ -128,7 +125,7 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 			case DONKEY:
 				return new DonkeyStrategy((DonkeyMovable) movable);
 			case FERRY:
-				return new FerryStrategy((FerryMovable) movable);
+				return new DummyStrategy(movable);
 			case CARGO_SHIP:
 				return new CargoShipStrategy((CargoShipMovable) movable);
 
@@ -395,17 +392,6 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 
 	public EBuildingType getBuildingType() {
 		return null;
-	}
-
-	public boolean addPassenger(IAttackableHumanMovable movable) {
-		return false;
-	}
-
-	public List<? extends IAttackableHumanMovable> getPassengers() {
-		return Collections.emptyList();
-	}
-
-	public void unloadFerry() {
 	}
 
 	public EMaterialType getCargoType(int stack) {
