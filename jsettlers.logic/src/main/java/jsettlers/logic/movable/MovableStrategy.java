@@ -393,16 +393,4 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 	public EBuildingType getBuildingType() {
 		return null;
 	}
-
-	public EMaterialType getCargoType(int stack) {
-		return null;
-	}
-
-	public int getCargoCount(int stack) {
-		return 0;
-	}
-
-	public int getNumberOfCargoStacks() {
-		return 0;
-	}
 }

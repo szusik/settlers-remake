@@ -29,44 +29,43 @@ import jsettlers.logic.movable.strategies.trading.ITradeBuilding.MaterialTypeWit
 public class DonkeyStrategy extends TradingStrategy<DonkeyMovable> {
 	private static final short WAYPOINT_SEARCH_RADIUS = 20;
 
-	private EMaterialType materialType1;
-	private EMaterialType materialType2;
-
 	public DonkeyStrategy(DonkeyMovable movable) {
 		super(movable);
 	}
 
 	protected boolean loadUp(ITradeBuilding tradeBuilding) {
-		Optional<EMaterialType> materialType1 = tradeBuilding.tryToTakeMaterial(1).map(MaterialTypeWithCount::getMaterialType);
-		Optional<EMaterialType> materialType2 = tradeBuilding.tryToTakeMaterial(1).map(MaterialTypeWithCount::getMaterialType);
+		boolean loaded = false;
+		for(int i = 0; i < DonkeyMovable.CARGO_COUNT; i++) {
+			Optional<MaterialTypeWithCount> cargo = tradeBuilding.tryToTakeMaterial(1);
 
-		if (!materialType1.isPresent() && !materialType2.isPresent()) {
-			reset();
-			return false;
+			if (!cargo.isPresent()) break;
 
-		} else {
-			super.setMaterial(EMaterialType.BASKET);
-
-			this.materialType1 = materialType1.orElse(null);
-			this.materialType2 = materialType2.orElse(null);
-
-			return true;
+			movable.setCargo(i, cargo.get().getMaterialType());
+			loaded = true;
 		}
+
+		if(loaded) {
+			setMaterial(EMaterialType.BASKET);
+		}
+
+		return loaded;
 	}
 
 
 	protected void dropMaterialIfPossible() {
-		if (movable.getMaterial() != EMaterialType.NO_MATERIAL) {
-			if (materialType1 != null) {
-				super.getGrid().dropMaterial(movable.getPosition(), materialType1, true, true);
-				materialType1 = null;
-			}
-			if (materialType2 != null) {
-				super.getGrid().dropMaterial(movable.getPosition(), materialType2, true, true);
-				materialType2 = null;
-			}
-			super.setMaterial(EMaterialType.NO_MATERIAL);
+		if(movable.getMaterial() == EMaterialType.NO_MATERIAL) return;
+
+		for(int i = 0; i < DonkeyMovable.CARGO_COUNT; i++) {
+			EMaterialType cargo = movable.getCargo(i);
+
+			// all cargo is loadedd from zero to n, if this slot is empty all the following must be
+			if(cargo == null) break;
+
+			getGrid().dropMaterial(movable.getPosition(), cargo, true, true);
+			movable.setCargo(i, null);
 		}
+
+		setMaterial(EMaterialType.NO_MATERIAL);
 	}
 
 	protected Stream<MarketBuilding> getTradersWithWork() {
@@ -82,7 +81,7 @@ public class DonkeyStrategy extends TradingStrategy<DonkeyMovable> {
 	public boolean receiveHit() {
 		if (getState() == ETraderState.GOING_TO_TARGET) {
 			reset();
-			super.abortPath();
+			abortPath();
 		}
 		return false;
 	}

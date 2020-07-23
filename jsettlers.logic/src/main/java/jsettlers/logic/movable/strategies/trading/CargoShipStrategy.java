@@ -14,9 +14,9 @@
  *******************************************************************************/
 package jsettlers.logic.movable.strategies.trading;
 
-import java8.util.J8Arrays;
 import java8.util.stream.Stream;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.utils.mutables.MutableBoolean;
 import jsettlers.logic.buildings.trading.HarborBuilding;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.cargo.CargoShipMovable;
@@ -27,11 +27,7 @@ import jsettlers.logic.movable.cargo.CargoShipMovable;
  *
  */
 public class CargoShipStrategy extends TradingStrategy<CargoShipMovable> {
-	private static final int   CARGO_STACKS           = 3;
 	private static final short WAYPOINT_SEARCH_RADIUS = 50;
-
-	private final EMaterialType cargoType[]  = new EMaterialType[CARGO_STACKS];
-	private final int           cargoCount[] = new int[CARGO_STACKS];
 
 	public CargoShipStrategy(CargoShipMovable movable) {
 		super(movable);
@@ -39,78 +35,40 @@ public class CargoShipStrategy extends TradingStrategy<CargoShipMovable> {
 
 	@Override
 	protected boolean loadUp(ITradeBuilding tradeBuilding) {
-		for (int stackIndex = 0; stackIndex < CARGO_STACKS; stackIndex++) {
-			if (getCargoCount(stackIndex) > 0) {
+		MutableBoolean loaded = new MutableBoolean(false);
+
+		for (int stackIndex = 0; stackIndex < CargoShipMovable.CARGO_STACKS; stackIndex++) {
+			if (movable.getCargoCount(stackIndex) > 0) {
 				continue;
 			}
 
 			final int finalStackIndex = stackIndex;
 
 			tradeBuilding.tryToTakeMaterial(Constants.STACK_SIZE).ifPresent(materialTypeWithCount -> {
-				setCargoType(materialTypeWithCount.materialType, finalStackIndex);
-				setCargoCount(materialTypeWithCount.count, finalStackIndex);
+				movable.setCargoType(materialTypeWithCount.materialType, finalStackIndex);
+				movable.setCargoCount(materialTypeWithCount.count, finalStackIndex);
+
+				loaded.value = true;
 			});
 		}
 
-		return J8Arrays.stream(cargoCount).sum() > 0;
+		return loaded.value;
 	}
 
 	protected void dropMaterialIfPossible() {
-		int cargoCount;
-		EMaterialType material;
-		for (int stack = 0; stack < CARGO_STACKS; stack++) {
-			cargoCount = getCargoCount(stack);
-			material = movable.getCargoType(stack);
+		for (int stack = 0; stack < CargoShipMovable.CARGO_STACKS; stack++) {
+			int cargoCount = movable.getCargoCount(stack);
+			EMaterialType material = movable.getCargoType(stack);
 			while (cargoCount > 0) {
 				super.getGrid().dropMaterial(movable.getPosition(), material, true, true);
 				cargoCount--;
 			}
-			setCargoCount(0, stack);
+			movable.setCargoCount(0, stack);
 		}
 	}
 
 	protected Stream<? extends ITradeBuilding> getTradersWithWork() {
 		return HarborBuilding.getAllHarbors(movable.getPlayer());
-	}
-
-	private void setCargoCount(int count, int stack) {
-		if (checkStackNumber(stack)) {
-			this.cargoCount[stack] = count;
-			if (this.cargoCount[stack] < 0) {
-				this.cargoCount[stack] = 0;
-			} else if (this.cargoCount[stack] > 8) {
-				this.cargoCount[stack] = 8;
-			}
-		}
-	}
-
-	private void setCargoType(EMaterialType cargo, int stack) {
-		this.cargoType[stack] = cargo;
-	}
-
-	private boolean checkStackNumber(int stack) {
-		return stack >= 0 && stack < CARGO_STACKS;
-	}
-
-	@Override
-	public EMaterialType getCargoType(int stack) {
-		if (checkStackNumber(stack)) {
-			return this.cargoType[stack];
-		} else {
-			return null;
-		}
-	}
-
-	public int getCargoCount(int stack) {
-		if (checkStackNumber(stack) && this.cargoType[stack] != null) {
-			return this.cargoCount[stack];
-		} else {
-			return 0;
-		}
-	}
-
-	public int getNumberOfCargoStacks() {
-		return CARGO_STACKS;
 	}
 
 	@Override
