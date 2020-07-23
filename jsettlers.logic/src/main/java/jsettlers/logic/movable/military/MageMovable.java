@@ -4,7 +4,7 @@ import jsettlers.common.action.EMoveToType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.movable.AttackableHumanMovable;
+import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IMageMovable;

@@ -5,7 +5,7 @@ import java.util.BitSet;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IGraphicsThief;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.movable.AttackableHumanMovable;
+import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;

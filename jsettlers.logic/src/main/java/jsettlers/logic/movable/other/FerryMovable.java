@@ -1,10 +1,11 @@
-package jsettlers.logic.movable;
+package jsettlers.logic.movable.other;
 
 import java.util.List;
 
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IGraphicsFerry;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;

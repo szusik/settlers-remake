@@ -25,7 +25,7 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
 import jsettlers.logic.constants.MatchConstants;
-import jsettlers.logic.movable.AttackableHumanMovable;
+import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.EGoInDirectionMode;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.MovableStrategy;

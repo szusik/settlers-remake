@@ -74,12 +74,12 @@ public class DonkeyStrategy extends TradingStrategy<DonkeyMovable> {
 	}
 
 	@Override
-	protected boolean isAttackable() {
+	public boolean isAttackable() {
 		return getState() == ETraderState.GOING_TO_TARGET;
 	}
 
 	@Override
-	protected boolean receiveHit() {
+	public boolean receiveHit() {
 		if (getState() == ETraderState.GOING_TO_TARGET) {
 			reset();
 			super.abortPath();

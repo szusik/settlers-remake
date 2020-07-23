@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.Constants;
-import jsettlers.logic.movable.FerryMovable;
+import jsettlers.logic.movable.other.FerryMovable;
 import jsettlers.logic.movable.MovableStrategy;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
@@ -56,7 +56,7 @@ public class FerryStrategy extends MovableStrategy<FerryMovable> {
 	}
 
 	@Override
-	protected void unloadFerry() {
+	public void unloadFerry() {
 		if (passengers.isEmpty()) {
 			return;
 		}

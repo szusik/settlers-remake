@@ -19,7 +19,6 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.logic.constants.Constants;
-import jsettlers.logic.movable.AttackableMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.military.InfantryMovable;

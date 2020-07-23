@@ -32,7 +32,6 @@ import jsettlers.logic.movable.cargo.DonkeyMovable;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
-import jsettlers.logic.movable.cargo.CargoMovable;
 import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -42,6 +41,7 @@ import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.military.BowmanMovable;
 import jsettlers.logic.movable.military.InfantryMovable;
 import jsettlers.logic.movable.military.MageMovable;
+import jsettlers.logic.movable.other.FerryMovable;
 import jsettlers.logic.movable.specialist.GeologistMovable;
 import jsettlers.logic.movable.specialist.PioneerMovable;
 import jsettlers.logic.movable.specialist.ThiefMovable;
@@ -272,14 +272,14 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 	 * @param other
 	 * 		The other movable.
 	 */
-	protected void informAboutAttackable(IAttackable other) {
+	public void informAboutAttackable(IAttackable other) {
 	}
 
 	protected boolean canBeControlledByPlayer() {
 		return false;
 	}
 
-	protected boolean isAttackable() {
+	public boolean isAttackable() {
 		return movable.getMovableType().attackable;
 	}
 
@@ -386,7 +386,7 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 	/**
 	 * @return If true, the hit is received, if false, the hit is ignored.
 	 */
-	protected boolean receiveHit() {
+	public boolean receiveHit() {
 		return true;
 	}
 
@@ -397,15 +397,15 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 		return null;
 	}
 
-	protected boolean addPassenger(IAttackableHumanMovable movable) {
+	public boolean addPassenger(IAttackableHumanMovable movable) {
 		return false;
 	}
 
-	protected List<? extends IAttackableHumanMovable> getPassengers() {
+	public List<? extends IAttackableHumanMovable> getPassengers() {
 		return Collections.emptyList();
 	}
 
-	protected void unloadFerry() {
+	public void unloadFerry() {
 	}
 
 	public EMaterialType getCargoType(int stack) {

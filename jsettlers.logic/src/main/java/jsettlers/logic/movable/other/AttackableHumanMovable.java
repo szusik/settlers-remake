@@ -1,8 +1,9 @@
-package jsettlers.logic.movable;
+package jsettlers.logic.movable.other;
 
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
@@ -18,7 +19,7 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 	@Override
 	public void leaveFerryAt(ShortPoint2D position) {
 		this.position = position;
-		setState(EMovableState.DOING_NOTHING);
+		setState(Movable.EMovableState.DOING_NOTHING);
 		requestedTargetPosition = null;
 		grid.enterPosition(position, this, true);
 	}
@@ -54,7 +55,7 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 
 	@Override
 	public void defectTo(Player player) {
-		createMovable(getMovableType(), player, position, grid, this);
+		Movable.createMovable(getMovableType(), player, position, grid, this);
 		killMovable();
 	}
 }
