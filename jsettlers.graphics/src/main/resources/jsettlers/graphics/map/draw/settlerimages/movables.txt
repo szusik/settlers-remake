@@ -5,12 +5,12 @@
 # See
 
 !SETTLER_ACTION type action mat file seq {
-$type, $action, $mat, SOUTH_WEST = $file, $seq,  0, 12
-$type, $action, $mat, WEST       = $file, $seq, 12, 12
-$type, $action, $mat, NORTH_WEST = $file, $seq, 24, 12
-$type, $action, $mat, NORTH_EAST = $file, $seq, 36, 12
-$type, $action, $mat, EAST       = $file, $seq, 48, 12
-$type, $action, $mat, SOUTH_EAST = $file, $seq, 60, 12
+$type, $action, $mat, SOUTH_WEST = $file, $seq,  1, 11
+$type, $action, $mat, WEST       = $file, $seq, 13, 11
+$type, $action, $mat, NORTH_WEST = $file, $seq, 25, 11
+$type, $action, $mat, NORTH_EAST = $file, $seq, 37, 11
+$type, $action, $mat, EAST       = $file, $seq, 49, 11
+$type, $action, $mat, SOUTH_EAST = $file, $seq, 61, 11
 }
 
 !SETTLER_MATERIAL type mat file seq {
@@ -299,12 +299,12 @@ WATERWORKER, RAISE_UP, NO_MATERIAL, *  = c1, 160, 3, -4
 ###
 # WINEGROWER movables start
 ###
-WINEGROWER, WALKING, NO_MATERIAL, SOUTH_WEST = 11, 90,  0, 13
-WINEGROWER, WALKING, NO_MATERIAL, WEST       = 11, 90, 13, 13
-WINEGROWER, WALKING, NO_MATERIAL, NORTH_WEST = 11, 90, 26, 13
-WINEGROWER, WALKING, NO_MATERIAL, NORTH_EAST = 11, 90, 39, 13
-WINEGROWER, WALKING, NO_MATERIAL, EAST       = 11, 90, 52, 13
-WINEGROWER, WALKING, NO_MATERIAL, SOUTH_EAST = 11, 90, 65, 13
+WINEGROWER, WALKING, NO_MATERIAL, SOUTH_WEST = 11, 90,  1, 12
+WINEGROWER, WALKING, NO_MATERIAL, WEST       = 11, 90, 14, 12
+WINEGROWER, WALKING, NO_MATERIAL, NORTH_WEST = 11, 90, 27, 12
+WINEGROWER, WALKING, NO_MATERIAL, NORTH_EAST = 11, 90, 40, 12
+WINEGROWER, WALKING, NO_MATERIAL, EAST       = 11, 90, 53, 12
+WINEGROWER, WALKING, NO_MATERIAL, SOUTH_EAST = 11, 90, 66, 12
 WINEGROWER, NO_ACTION, NO_MATERIAL, SOUTH_WEST = 11, 90,  0, 1
 WINEGROWER, NO_ACTION, NO_MATERIAL, WEST       = 11, 90, 13, 1
 WINEGROWER, NO_ACTION, NO_MATERIAL, NORTH_WEST = 11, 90, 26, 1
