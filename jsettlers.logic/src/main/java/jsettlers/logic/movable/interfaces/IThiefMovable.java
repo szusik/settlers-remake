@@ -1,8 +1,8 @@
 package jsettlers.logic.movable.interfaces;
 
-import jsettlers.logic.movable.interfaces.ILogicMovable;
+import jsettlers.common.movable.IGraphicsThief;
 
-public interface IThiefMovable extends ILogicMovable {
+public interface IThiefMovable extends IAttackableHumanMovable, IGraphicsThief {
 
 	void uncoveredBy(byte teamId);
 }

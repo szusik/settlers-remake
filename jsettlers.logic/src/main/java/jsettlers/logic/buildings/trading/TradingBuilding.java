@@ -36,7 +36,7 @@ import jsettlers.logic.buildings.stack.IRequestStack;
 import jsettlers.logic.buildings.stack.multi.MultiMaterialRequestSettings;
 import jsettlers.logic.buildings.stack.multi.MultiRequestStack;
 import jsettlers.logic.buildings.stack.multi.MultiRequestStackSharedData;
-import jsettlers.logic.movable.strategies.trading.ITradeBuilding;
+import jsettlers.logic.buildings.ITradeBuilding;
 import jsettlers.logic.player.Player;
 
 import static java8.util.stream.StreamSupport.stream;

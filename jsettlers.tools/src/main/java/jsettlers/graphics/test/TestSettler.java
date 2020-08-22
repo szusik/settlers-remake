@@ -23,14 +23,16 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.IGraphicsBuildingWorker;
 import jsettlers.common.movable.IGraphicsCargoShip;
 import jsettlers.common.movable.IGraphicsFerry;
 import jsettlers.common.movable.IGraphicsMovable;
+import jsettlers.common.movable.IGraphicsThief;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 
-public class TestSettler implements IGraphicsMovable, IGraphicsFerry, IGraphicsCargoShip {
+public class TestSettler implements IGraphicsMovable, IGraphicsFerry, IGraphicsCargoShip, IGraphicsThief, IGraphicsBuildingWorker {
 
 	private final IPlayer      player;
 	private final EMovableType type;
@@ -180,5 +182,10 @@ public class TestSettler implements IGraphicsMovable, IGraphicsFerry, IGraphicsC
 	@Override
 	public boolean hasEffect(EEffectType effect) {
 		return false;
+	}
+
+	@Override
+	public boolean isUncoveredBy(byte teamId) {
+		return true;
 	}
 }

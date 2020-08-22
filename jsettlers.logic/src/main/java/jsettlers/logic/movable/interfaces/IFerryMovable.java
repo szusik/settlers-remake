@@ -1,6 +1,8 @@
 package jsettlers.logic.movable.interfaces;
 
-public interface IFerryMovable extends ILogicMovable {
+import jsettlers.common.movable.IGraphicsFerry;
+
+public interface IFerryMovable extends IAttackableMovable, IGraphicsFerry {
 
 	void unloadFerry();
 

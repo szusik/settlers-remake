@@ -27,6 +27,7 @@ import jsettlers.common.sound.ISoundable;
  * @author Andreas Eberle
  */
 public interface IGraphicsMovable extends ISelectable, ILocatable, ISoundable, IIDable {
+
 	EMovableType getMovableType();
 
 	/**
@@ -80,13 +81,6 @@ public interface IGraphicsMovable extends ISelectable, ILocatable, ISoundable, I
 	 * @return True if the current step is a right step, false if it is a left step.
 	 */
 	boolean isRightstep();
-
-	/**
-	 * This method returns the building type of a work if the worker is stationed in a building
-	 *
-	 * @return EBuildingType of the building the worker is garrisoned in or null if the worker is not garrisoned.
-	 */
-	EBuildingType getGarrisonedBuildingType();
 
 	boolean hasEffect(EEffectType effect);
 }

@@ -17,6 +17,7 @@ package jsettlers.logic.movable.strategies.trading;
 import java8.util.stream.Stream;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.utils.mutables.MutableBoolean;
+import jsettlers.logic.buildings.ITradeBuilding;
 import jsettlers.logic.buildings.trading.HarborBuilding;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.cargo.CargoShipMovable;

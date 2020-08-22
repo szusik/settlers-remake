@@ -3,7 +3,6 @@ package jsettlers.logic.movable.specialist;
 import java.util.BitSet;
 
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.IGraphicsThief;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
@@ -11,7 +10,7 @@ import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
-public class ThiefMovable extends AttackableHumanMovable implements IGraphicsThief, IThiefMovable {
+public class ThiefMovable extends AttackableHumanMovable implements IThiefMovable {
 
 	private BitSet uncoveredBy = new BitSet();
 

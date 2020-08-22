@@ -852,11 +852,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	@Override
-	public EBuildingType getGarrisonedBuildingType() {
-		return this.strategy.getBuildingType();
-	}
-
-	@Override
 	public final ESelectionType getSelectionType() {
 		return movableType.selectionType;
 	}

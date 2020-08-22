@@ -17,7 +17,7 @@ import jsettlers.logic.player.Player;
 
 import static java8.util.stream.StreamSupport.stream;
 
-public class FerryMovable extends AttackableMovable implements IGraphicsFerry, IFerryMovable {
+public class FerryMovable extends AttackableMovable implements IFerryMovable {
 
 	private static final int MAX_NUMBER_OF_PASSENGERS = 7;
 

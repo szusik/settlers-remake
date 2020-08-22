@@ -17,9 +17,10 @@ package jsettlers.logic.movable.strategies.trading;
 import java8.util.Optional;
 import java8.util.stream.Stream;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.logic.buildings.ITradeBuilding;
 import jsettlers.logic.buildings.trading.MarketBuilding;
 import jsettlers.logic.movable.cargo.DonkeyMovable;
-import jsettlers.logic.movable.strategies.trading.ITradeBuilding.MaterialTypeWithCount;
+import jsettlers.logic.buildings.ITradeBuilding.MaterialTypeWithCount;
 
 /**
  *

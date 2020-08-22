@@ -43,6 +43,7 @@ import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
+import jsettlers.common.movable.IGraphicsBuildingWorker;
 import jsettlers.common.movable.IGraphicsCargoShip;
 import jsettlers.common.movable.IGraphicsFerry;
 import jsettlers.common.movable.IGraphicsMovable;
@@ -897,7 +898,7 @@ public class MapObjectDrawer {
 			int metalY = y - 5;
 			viewX = context.getConverter().getViewX(metalX, metalY, height);
 			viewY = context.getConverter().getViewY(metalX, metalY, height);
-			int metal = (movable.getGarrisonedBuildingType() == EBuildingType.IRONMELT) ? 37 : 36;
+			int metal = (((IGraphicsBuildingWorker)movable).getGarrisonedBuildingType() == EBuildingType.IRONMELT) ? 37 : 36;
 			ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, 13, metal, number > 24 ? 24 : number);
 			image = imageProvider.getImage(link);
 			image.drawAt(context.getGl(), viewX, viewY, getZ(0, metalY), color, shade);

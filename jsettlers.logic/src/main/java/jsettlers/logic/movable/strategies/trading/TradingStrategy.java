@@ -22,6 +22,7 @@ import java8.util.stream.Collectors;
 import java8.util.stream.Stream;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.buildings.ITradeBuilding;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.cargo.CargoMovable;
 import jsettlers.logic.movable.MovableStrategy;
