@@ -33,7 +33,7 @@ public class OriginalMultiPlayerWinLoseHandler extends WinLoseHandler {
 		// Update defeated status
 		defeatDeadPlayers();
 
-		// end game if only one team is left
+		// end game if only one team/nobody is left
 		Byte[] teamsWithAlivePlayer = playerStream()
 				.filter(player -> player.getWinState() != EWinState.LOST)
 				.map(Player::getTeamId)
@@ -42,10 +42,13 @@ public class OriginalMultiPlayerWinLoseHandler extends WinLoseHandler {
 
 		if(teamsWithAlivePlayer.length > 1) return;
 
-		byte winnerTeam = teamsWithAlivePlayer[0];
+		// set the winning team (if present) as winner
+		if(teamsWithAlivePlayer.length == 1) {
+			byte winnerTeam = teamsWithAlivePlayer[0];
 
-		playerStream().filter(player -> player.getTeamId() == winnerTeam)
-				.forEach(player -> player.setWinState(EWinState.WON));
+			playerStream().filter(player -> player.getTeamId() == winnerTeam)
+					.forEach(player -> player.setWinState(EWinState.WON));
+		}
 
 		// game has ended. everybody can know see the whole map
 		mainGrid.disableFogOfWar();
