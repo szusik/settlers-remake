@@ -38,11 +38,6 @@ public final class BowmanStrategy extends SoldierStrategy<BowmanMovable> {
 	}
 
 	@Override
-	public final ESoldierClass getSoldierClass() {
-		return ESoldierClass.BOWMAN;
-	}
-
-	@Override
 	protected boolean isEnemyAttackable(IAttackable enemy, boolean isInTower) {
 		if (!enemy.isAlive()){
 			return false;
@@ -66,7 +61,7 @@ public final class BowmanStrategy extends SoldierStrategy<BowmanMovable> {
 
 		if(!movable.hasEffect(EEffectType.NO_ARROWS)) {
 			super.getGrid().addArrowObject(enemy.getPosition(), movable.getPosition(), movable.getPlayer().playerId,
-					getMovableType().getStrength() * getCombatStrength());
+					movable.getMovableType().getStrength() * getCombatStrength());
 		}
 	}
 

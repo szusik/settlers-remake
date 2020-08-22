@@ -20,14 +20,10 @@ import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.action.EMoveToType;
-import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.ESpellType;
 import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.IGuiMovable;
-import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
-import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
 import jsettlers.logic.player.Player;
 import jsettlers.logic.timer.IScheduledTimerable;
 

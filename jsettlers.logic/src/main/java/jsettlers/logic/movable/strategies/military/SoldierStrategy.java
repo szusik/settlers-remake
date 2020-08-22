@@ -22,10 +22,9 @@ import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
 import jsettlers.logic.constants.MatchConstants;
-import jsettlers.logic.movable.other.AttackableHumanMovable;
+import jsettlers.logic.movable.military.SoldierMovable;
 import jsettlers.logic.movable.EGoInDirectionMode;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.MovableStrategy;
@@ -33,7 +32,7 @@ import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.IAttackableMovable;
 import jsettlers.logic.movable.specialist.ThiefMovable;
 
-public abstract class SoldierStrategy<T extends AttackableHumanMovable> extends MovableStrategy<T> implements IBuildingOccupyableMovable {
+public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableStrategy<T> {
 	private static final long serialVersionUID = 5246120883607071865L;
 
 	/**
@@ -128,7 +127,7 @@ public abstract class SoldierStrategy<T extends AttackableHumanMovable> extends 
 					}
 				}
 				if (defending) {
-					building.towerDefended(this);
+					building.towerDefended(movable);
 					defending = false;
 				}
 				changeStateTo(ESoldierState.AGGRESSIVE);
@@ -158,7 +157,7 @@ public abstract class SoldierStrategy<T extends AttackableHumanMovable> extends 
 
 		case GOING_TO_TOWER:
 			if (!building.isDestroyed() && building.getPlayer() == movable.getPlayer()) {
-				OccupierPlace place = building.addSoldier(this);
+				OccupierPlace place = building.addSoldier(movable);
 				super.setVisible(false);
 				super.setPosition(place.getPosition().calculatePoint(building.getPosition()));
 				super.enableNothingToDoAction(false);
@@ -181,7 +180,7 @@ public abstract class SoldierStrategy<T extends AttackableHumanMovable> extends 
 
 	private void notifyTowerThatRequestFailed() {
 		if (building.getPlayer() == movable.getPlayer()) { // only notify, if the tower still belongs to this player
-			building.requestFailed(this);
+			building.requestFailed(movable);
 			building = null;
 			state = ESoldierState.AGGRESSIVE;
 		}
@@ -196,7 +195,7 @@ public abstract class SoldierStrategy<T extends AttackableHumanMovable> extends 
 	}
 
 	private boolean isBowman() {
-		return getSoldierClass() == ESoldierClass.BOWMAN;
+		return movable.getMovableType().isBowman();
 	}
 
 	private void goToEnemy(IAttackable enemy) {
@@ -240,30 +239,19 @@ public abstract class SoldierStrategy<T extends AttackableHumanMovable> extends 
 
 	protected abstract boolean isEnemyAttackable(IAttackable enemy, boolean isInTower);
 
-	public IBuildingOccupyableMovable setOccupyableBuilding(IOccupyableBuilding building) {
+	public boolean setOccupyableBuilding(IOccupyableBuilding building) {
 		if (state != ESoldierState.GOING_TO_TOWER && state != ESoldierState.INIT_GOTO_TOWER) {
 			this.building = building;
 			changeStateTo(ESoldierState.INIT_GOTO_TOWER);
 			super.abortPath();
 			this.oldPathTarget = null; // this prevents that the soldiers go to this position after he leaves the tower.
-			return this;
-		} else {
-			return null;
+			return true;
 		}
+
+		return false;
 	}
 
-	@Override
-	public EMovableType getMovableType() {
-		return movableType;
-	}
-
-	@Override
-	public IAttackableMovable getMovable() {
-		return movable;
-	}
-
-	@Override
-	public void leaveOccupyableBuilding(ShortPoint2D newPosition) {
+	public void leaveTower(ShortPoint2D newPosition) {
 		if (isInTower) {
 			super.setPosition(newPosition);
 			super.enableNothingToDoAction(true);
@@ -283,19 +271,13 @@ public abstract class SoldierStrategy<T extends AttackableHumanMovable> extends 
 	}
 
 	@Override
-	public void setSelected(boolean selected) {
-		movable.setSelected(selected);
-	}
-
-	@Override
 	public void informAboutAttackable(IAttackable other) {
-		if (state == ESoldierState.AGGRESSIVE && (!isInTower || getSoldierClass() == ESoldierClass.BOWMAN)) {
+		if (state == ESoldierState.AGGRESSIVE && (!isInTower || isBowman())) {
 			changeStateTo(ESoldierState.SEARCH_FOR_ENEMIES); // this searches for the enemy on the next timer click
 		}
 	}
 
-	@Override
-	public void setDefendingAt(ShortPoint2D pos) {
+	public void defendTowerAt(ShortPoint2D pos) {
 		super.setPosition(pos);
 		changeStateTo(ESoldierState.SEARCH_FOR_ENEMIES);
 		defending = true;
@@ -390,7 +372,7 @@ public abstract class SoldierStrategy<T extends AttackableHumanMovable> extends 
 	protected void strategyKilledEvent(ShortPoint2D pathTarget) {
 		if (building != null) {
 			if (isInTower) {
-				building.removeSoldier(this);
+				building.removeSoldier(movable);
 			} else {
 				notifyTowerThatRequestFailed();
 			}

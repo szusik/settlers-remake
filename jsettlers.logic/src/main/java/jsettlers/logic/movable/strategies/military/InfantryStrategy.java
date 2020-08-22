@@ -38,15 +38,10 @@ public final class InfantryStrategy extends SoldierStrategy<InfantryMovable> {
 	}
 
 	@Override
-	public final ESoldierClass getSoldierClass() {
-		return ESoldierClass.INFANTRY;
-	}
-
-	@Override
 	protected boolean isEnemyAttackable(IAttackable enemy, boolean isInTower) {
 		if(!enemy.isAlive()) return false;
 		int maxDistance = movable.getPosition().getOnGridDistTo(enemy.getPosition());
-		return (maxDistance == 1 || (!enemy.isTower() && super.getMovableType().isPikeman() && maxDistance <= 2));
+		return (maxDistance == 1 || (!enemy.isTower() && movable.getMovableType().isPikeman() && maxDistance <= 2));
 	}
 
 	@Override
@@ -58,7 +53,7 @@ public final class InfantryStrategy extends SoldierStrategy<InfantryMovable> {
 
 	@Override
 	protected void hitEnemy(IAttackable enemy) {
-		enemy.receiveHit(super.getMovableType().getStrength() * getCombatStrength(), movable.getPosition(), movable.getPlayer().playerId);
+		enemy.receiveHit(movable.getMovableType().getStrength() * getCombatStrength(), movable.getPosition(), movable.getPlayer().playerId);
 		// decrease the enemy's health
 	}
 

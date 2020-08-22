@@ -2,7 +2,6 @@ package jsettlers.logic.movable.military;
 
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
@@ -19,7 +18,17 @@ public class SoldierMovable extends AttackableHumanMovable implements ISoldierMo
 
 
 	@Override
-	public final IBuildingOccupyableMovable setOccupyableBuilding(IOccupyableBuilding building) {
+	public final boolean moveToTower(IOccupyableBuilding building) {
 		return ((SoldierStrategy<?>) strategy).setOccupyableBuilding(building);
+	}
+
+	@Override
+	public void leaveTower(ShortPoint2D newPosition) {
+		((SoldierStrategy<?>) strategy).leaveTower(newPosition);
+	}
+
+	@Override
+	public void defendTowerAt(ShortPoint2D pos) {
+		((SoldierStrategy<?>) strategy).defendTowerAt(pos);
 	}
 }

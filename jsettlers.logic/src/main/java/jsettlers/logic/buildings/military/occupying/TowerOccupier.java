@@ -17,8 +17,7 @@ package jsettlers.logic.buildings.military.occupying;
 
 import jsettlers.common.buildings.IBuildingOccupier;
 import jsettlers.common.buildings.OccupierPlace;
-import jsettlers.common.movable.IGraphicsMovable;
-import jsettlers.logic.buildings.military.IBuildingOccupyableMovable;
+import jsettlers.logic.movable.interfaces.ISoldierMovable;
 
 import java.io.Serializable;
 
@@ -27,9 +26,9 @@ import java.io.Serializable;
  */
 final class TowerOccupier implements IBuildingOccupier, Serializable {
 	final OccupierPlace place;
-	final IBuildingOccupyableMovable soldier;
+	final ISoldierMovable soldier;
 
-	TowerOccupier(OccupierPlace place, IBuildingOccupyableMovable soldier) {
+	TowerOccupier(OccupierPlace place, ISoldierMovable soldier) {
 		this.place = place;
 		this.soldier = soldier;
 	}
@@ -40,11 +39,7 @@ final class TowerOccupier implements IBuildingOccupier, Serializable {
 	}
 
 	@Override
-	public IGraphicsMovable getMovable() {
-		return soldier.getMovable();
-	}
-
-	public IBuildingOccupyableMovable getSoldier() {
+	public ISoldierMovable getMovable() {
 		return soldier;
 	}
 }
