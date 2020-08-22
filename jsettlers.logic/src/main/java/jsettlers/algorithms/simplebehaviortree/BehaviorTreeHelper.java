@@ -1,5 +1,9 @@
 package jsettlers.algorithms.simplebehaviortree;
 
+import jsettlers.algorithms.simplebehaviortree.nodes.DynamicGuardSelector;
+import jsettlers.algorithms.simplebehaviortree.nodes.IGetPropertyProducer;
+import jsettlers.algorithms.simplebehaviortree.nodes.ISetPropertyConsumer;
+import jsettlers.algorithms.simplebehaviortree.nodes.Property;
 import jsettlers.algorithms.simplebehaviortree.nodes.Sleep;
 import jsettlers.algorithms.simplebehaviortree.nodes.Action;
 import jsettlers.algorithms.simplebehaviortree.nodes.AlwaysFail;
@@ -99,6 +103,16 @@ public final class BehaviorTreeHelper {
 	}
 
 	@SafeVarargs
+	public static <T> Node<T> guardSelector(Guard<T>... children) {
+		return new DynamicGuardSelector<>(children);
+	}
+
+	@SafeVarargs
+	public static <T> Node<T> guardSelector(String debugMessage, Guard<T>... children) {
+		return debug(debugMessage, guardSelector(children));
+	}
+
+	@SafeVarargs
 	public static <T> Sequence<T> sequence(Node<T>... children) {
 		return new Sequence<>(children);
 	}
@@ -130,5 +144,9 @@ public final class BehaviorTreeHelper {
 
 	public static <T> Debug<T> debug(String msg) {
 		return new Debug<>(msg);
+	}
+
+	public static <T, I> Property<T, I> property(ISetPropertyConsumer<T, I> setter, IGetPropertyProducer<T, I> getter, I value, Node<T> child) {
+		return new Property<>(setter, getter, value, child);
 	}
 }

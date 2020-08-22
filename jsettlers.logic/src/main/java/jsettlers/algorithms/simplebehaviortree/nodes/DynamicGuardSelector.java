@@ -17,6 +17,7 @@ package jsettlers.algorithms.simplebehaviortree.nodes;
 
 import java8.util.Optional;
 import jsettlers.algorithms.simplebehaviortree.Composite;
+import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 
@@ -24,25 +25,34 @@ import static java8.util.stream.StreamSupport.stream;
 
 public class DynamicGuardSelector<T> extends Composite<T> {
 
+	private Guard<T> runningChild = null;
+
 	public DynamicGuardSelector(Guard<T>[] childrenGuards) {
 		super(childrenGuards);
 	}
 
 	@Override
 	protected NodeStatus onTick(Tick<T> tick) {
-		Optional<Guard<T>> childToRunOptional = stream(children).map(node -> (Guard<T>) node).filter(guard -> guard.checkGuardCondition(tick)).findFirst();
+		for(Node<T> child : children) {
+			Guard<T> guard = (Guard<T>)child;
 
-		if (!childToRunOptional.isPresent()) {
-			return NodeStatus.FAILURE;
+			if(guard.checkGuardCondition(tick)) {
+				if(runningChild != null && runningChild != guard) runningChild.close(tick);
+
+				runningChild = guard;
+				NodeStatus returnStatus = guard.execute(tick);
+
+				if(returnStatus != NodeStatus.RUNNING) runningChild = null;
+
+				return returnStatus;
+			}
 		}
 
-		Guard<T> childToRun = childToRunOptional.get();
-
-		return childToRun.execute(tick);
+		return NodeStatus.FAILURE;
 	}
 
 	@Override
 	protected void onClose(Tick<T> tick) {
-		stream(children).forEach(guard -> guard.close(tick));
+		if(runningChild != null) runningChild.close(tick);
 	}
 }
