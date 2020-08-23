@@ -113,9 +113,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		this.strategy = MovableStrategy.getStrategy(this, movableType);
 		this.movableType = movableType;
 
-		this.id = MovableManager.add(this, replace);
-		grid.enterPosition(position, this, true);
-
 		if(replace != null) {
 			this.health = replace.getHealth()/replace.getMovableType().getHealth()*movableType.getHealth();
 			this.direction = replace.getDirection();
@@ -124,6 +121,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			this.health = movableType.getHealth();
 			this.direction = EDirection.VALUES[MatchConstants.random().nextInt(EDirection.NUMBER_OF_DIRECTIONS)];
 		}
+
+		this.id = MovableManager.add(this, replace);
+		grid.enterPosition(position, this, true);
 	}
 
 	/**
