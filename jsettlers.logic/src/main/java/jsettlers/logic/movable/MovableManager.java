@@ -81,8 +81,8 @@ public final class MovableManager {
 			id = nextID++;
 		}
 
-		MovableManager.movablesByID.put(id, movable);
-		MovableManager.allMovables.offer(movable);
+		movablesByID.put(id, movable);
+		allMovables.offer(movable);
 
 
 		if((fowTeam != -1 && MatchConstants.ENABLE_ALL_PLAYER_FOG_OF_WAR) || fowTeam == movable.player.getTeamId()) {
@@ -92,5 +92,14 @@ public final class MovableManager {
 		RescheduleTimer.add(movable, Constants.MOVABLE_INTERRUPT_PERIOD);
 
 		return id;
+	}
+
+	static void remove(Movable movable) {
+		movablesByID.remove(movable.getID());
+		allMovables.remove(movable);
+
+		if((fowTeam != -1 && MatchConstants.ENABLE_ALL_PLAYER_FOG_OF_WAR) || fowTeam == movable.player.getTeamId()) {
+			FogOfWar.instance.refThread.nextTasks.remove(movable);
+		}
 	}
 }

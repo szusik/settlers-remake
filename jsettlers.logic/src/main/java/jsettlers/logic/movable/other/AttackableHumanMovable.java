@@ -58,4 +58,11 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 		Movable.createMovable(getMovableType(), player, position, grid, this);
 		killMovable();
 	}
+
+	@Override
+	public ShortPoint2D getFoWPosition() {
+		if(isOnFerry()) return null;
+
+		return position;
+	}
 }

@@ -84,13 +84,6 @@ public final class FogOfWar implements Serializable {
 		instance.refThread.nextTasks.add(foWTask);
 	}
 
-	public static void queueResizeCircle(Movable mov, EMovableType oldType) {
-		VDChangeFoWTask foWTask = new VDChangeFoWTask();
-		foWTask.mov = mov;
-		foWTask.from = oldType;
-		instance.refThread.nextTasks.add(foWTask);
-	}
-
 	public static FogOfWar instance;
 
 	public void setBackgroundListener(IGraphicsBackgroundListener backgroundListener) {
@@ -121,11 +114,6 @@ public final class FogOfWar implements Serializable {
 		ShortPoint2D at;
 		short from;
 		short to;
-	}
-
-	public static class VDChangeFoWTask implements FoWTask {
-		Movable mov;
-		EMovableType from;
 	}
 
 	public static class ShowHideFoWTask implements FoWTask {
@@ -216,26 +204,18 @@ public final class FogOfWar implements Serializable {
 				ShowHideFoWTask shFOW = (ShowHideFoWTask) task;
 				circleDrawer.draw(new ShowHideMapIterator(), shFOW.addRef?CIRCLE_ADD|CIRCLE_DIM : CIRCLE_REMOVE|CIRCLE_DIM);
 				return true;
-			} else if(task instanceof VDChangeFoWTask) {
-				VDChangeFoWTask vdcFOW = (VDChangeFoWTask)task;
+			} else if(task instanceof MovableFoWTask) {
+				MovableFoWTask mFOW = (MovableFoWTask) task;
+				ShortPoint2D currentPos = mFOW.getFoWPosition();
+				ShortPoint2D oldPos = mFOW.getOldFoWPosition();
 
-				EMovableType toType = vdcFOW.mov.getMovableType();
-				circleDrawer.drawCircleToBuffer(vdcFOW.mov.fowPosition, vdcFOW.from.getViewDistance(), CIRCLE_REMOVE|CIRCLE_DIM);
-				circleDrawer.drawCircleToBuffer(vdcFOW.mov.fowPosition, toType.getViewDistance(), CIRCLE_ADD|CIRCLE_DIM);
-				return true;
-			} else if(task instanceof Movable) {
-				Movable mv = (Movable) task;
-				ShortPoint2D currentPos = mv.getPosition();
-				boolean alive = mv.isAlive();
-				if(mv.isOnFerry() || !alive) currentPos = null;
-
-				int vd = mv.getMovableType().getViewDistance();
-				if(!Objects.equals(mv.fowPosition, currentPos)) {
+				int vd = mFOW.getViewDistance();
+				if(!Objects.equals(oldPos, currentPos)) {
 					if(currentPos != null) circleDrawer.drawCircleToBuffer(currentPos, vd, CIRCLE_ADD|CIRCLE_DIM);
-					if(mv.fowPosition != null) circleDrawer.drawCircleToBuffer(mv.fowPosition, vd, CIRCLE_REMOVE|CIRCLE_DIM);
-					mv.fowPosition = currentPos;
+					if(oldPos != null) circleDrawer.drawCircleToBuffer(oldPos, vd, CIRCLE_REMOVE|CIRCLE_DIM);
+					mFOW.setOldFoWPosition(currentPos);
 				}
-				return !alive; // remove if Movable is deleted
+				return false;
 			} else {
 				System.err.println("unknown FoWTask: " + task);
 				return false;

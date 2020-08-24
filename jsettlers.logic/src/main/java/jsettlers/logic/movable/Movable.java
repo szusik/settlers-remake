@@ -17,7 +17,6 @@ package jsettlers.logic.movable;
 import jsettlers.algorithms.fogofwar.FoWTask;
 import jsettlers.algorithms.path.Path;
 import jsettlers.common.action.EMoveToType;
-import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.EMaterialType;
@@ -80,7 +79,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	private int   animationStartTime;
 	private short animationDuration;
 
-	public ShortPoint2D fowPosition = null;
+	public ShortPoint2D oldFowPosition = null;
 	protected ShortPoint2D position;
 
 	protected ShortPoint2D requestedTargetPosition = null;
@@ -372,6 +371,26 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	@Override
 	public ShortPoint2D getPosition() {
 		return this.position;
+	}
+
+	@Override
+	public int getViewDistance() {
+		return movableType.getViewDistance();
+	}
+
+	@Override
+	public ShortPoint2D getFoWPosition() {
+		return position;
+	}
+
+	@Override
+	public ShortPoint2D getOldFoWPosition() {
+		return oldFowPosition;
+	}
+
+	@Override
+	public void setOldFoWPosition(ShortPoint2D position) {
+		oldFowPosition = position;
 	}
 
 	@Override
@@ -807,8 +826,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		grid.leavePosition(this.position, this);
 		this.strategy.strategyKilledEvent(path != null ? path.getTargetPosition() : null);
 
-		MovableManager.movablesByID.remove(this.getID());
-		MovableManager.allMovables.remove(this);
+		MovableManager.remove(this);
 	}
 
 	protected void killMovable() {
