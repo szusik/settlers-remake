@@ -416,11 +416,6 @@ public class MageStrategy extends MovableStrategy<MageMovable> {
 	}
 
 	@Override
-	protected boolean canBeControlledByPlayer() {
-		return true;
-	}
-
-	@Override
 	protected void stopOrStartWorking(boolean stop) {
 		if(stop) {
 			movable.moveTo(movable.getPosition(), EMoveToType.FORCED);

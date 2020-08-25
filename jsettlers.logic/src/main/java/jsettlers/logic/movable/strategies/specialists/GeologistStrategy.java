@@ -137,11 +137,6 @@ public final class GeologistStrategy extends MovableStrategy<GeologistMovable> {
 	}
 
 	@Override
-	protected boolean canBeControlledByPlayer() {
-		return true;
-	}
-
-	@Override
 	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
 		this.state = moveToType.isWorkOnDestination()? EGeologistState.GOING_TO_POS : EGeologistState.JOBLESS;
 		centerPos = null;

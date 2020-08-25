@@ -168,6 +168,7 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 
 				isInTower = true;
 			} else {
+				setPlayerControlled(true);
 				changeStateTo(ESoldierState.AGGRESSIVE); // do a check of the surrounding to find possible enemies.
 				building = null;
 			}
@@ -179,6 +180,7 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 		if (building.getPlayer() == movable.getPlayer()) { // only notify, if the tower still belongs to this player
 			building.requestFailed(movable);
 			building = null;
+			setPlayerControlled(true);
 			state = ESoldierState.AGGRESSIVE;
 		}
 	}
@@ -239,6 +241,7 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 	public boolean setOccupyableBuilding(IOccupyableBuilding building) {
 		if (state != ESoldierState.GOING_TO_TOWER && state != ESoldierState.INIT_GOTO_TOWER) {
 			this.building = building;
+			setPlayerControlled(false);
 			changeStateTo(ESoldierState.INIT_GOTO_TOWER);
 			super.abortPath();
 			this.oldPathTarget = null; // this prevents that the soldiers go to this position after he leaves the tower.
@@ -265,6 +268,7 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 			building = null;
 			changeStateTo(ESoldierState.SEARCH_FOR_ENEMIES);
 		}
+		setPlayerControlled(true);
 	}
 
 	@Override
@@ -275,7 +279,7 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 	}
 
 	public void defendTowerAt(ShortPoint2D pos) {
-		super.setPosition(pos);
+		setPosition(pos);
 		changeStateTo(ESoldierState.SEARCH_FOR_ENEMIES);
 		defending = true;
 	}
@@ -309,11 +313,6 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 			inSaveGotoMode = false;
 		}
 		changeStateTo(moveToType.isAttackOnTheWay() ? ESoldierState.SEARCH_FOR_ENEMIES : ESoldierState.FORCED_MOVE);
-	}
-
-	@Override
-	protected boolean canBeControlledByPlayer() {
-		return state != ESoldierState.INIT_GOTO_TOWER && state != ESoldierState.GOING_TO_TOWER && !isInTower;
 	}
 
 	@Override

@@ -108,11 +108,6 @@ public final class ThiefStrategy extends MovableStrategy<ThiefMovable> {
 	}
 
 	@Override
-	protected boolean canBeControlledByPlayer() {
-		return true;
-	}
-
-	@Override
 	protected void stopOrStartWorking(boolean stop) {
 		if(stop) {
 			state = EThiefState.JOBLESS;

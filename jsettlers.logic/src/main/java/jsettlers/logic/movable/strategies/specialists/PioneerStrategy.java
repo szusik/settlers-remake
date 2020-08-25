@@ -125,11 +125,6 @@ public final class PioneerStrategy extends MovableStrategy<PioneerMovable> {
 	}
 
 	@Override
-	protected boolean canBeControlledByPlayer() {
-		return true;
-	}
-
-	@Override
 	protected void stopOrStartWorking(boolean stop) {
 		if (stop) {
 			state = EPioneerState.JOBLESS;

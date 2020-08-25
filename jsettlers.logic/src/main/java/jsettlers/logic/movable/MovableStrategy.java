@@ -272,8 +272,8 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 	public void informAboutAttackable(IAttackable other) {
 	}
 
-	protected boolean canBeControlledByPlayer() {
-		return false;
+	public void setPlayerControlled(boolean playerControlled) {
+		movable.playerControlled = playerControlled;
 	}
 
 	public boolean isAttackable() {

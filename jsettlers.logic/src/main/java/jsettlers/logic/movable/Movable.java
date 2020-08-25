@@ -68,7 +68,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	private EMovableState state = EMovableState.DOING_NOTHING;
 
 	private final EMovableType    movableType;
-	protected MovableStrategy<?> strategy;
+	protected final MovableStrategy<?> strategy;
 
 	private EMaterialType  materialType  = EMaterialType.NO_MATERIAL;
 	private EMovableAction movableAction = EMovableAction.NO_ACTION;
@@ -104,6 +104,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	// the following data only for ship passengers
 	protected IFerryMovable ferryToEnter = null;
 
+	boolean playerControlled;
+
 	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
 		this.grid = grid;
 		this.position = position;
@@ -120,6 +122,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			this.direction = EDirection.VALUES[MatchConstants.random().nextInt(EDirection.NUMBER_OF_DIRECTIONS)];
 		}
 
+		playerControlled = movableType.playerControllable;
+
 		this.id = MovableManager.requestId(this, replace);
 	}
 
@@ -131,7 +135,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 */
 	@Override
 	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
-		if (movableType.isPlayerControllable() && strategy.canBeControlledByPlayer() && !alreadyWalkingToPosition(targetPosition)) {
+		if (playerControlled && !alreadyWalkingToPosition(targetPosition)) {
 			this.requestedTargetPosition = targetPosition;
 			this.requestedMoveToType = Objects.requireNonNull(moveToType);
 		}
@@ -159,6 +163,38 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				}
 			}
 		}
+	}
+
+	private void action() {
+		strategy.action();
+	}
+
+	private void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
+		strategy.moveToPathSet(oldPosition, oldTargetPos, targetPos, moveToType);
+	}
+
+	private void tookMaterial() {
+		strategy.tookMaterial();
+	}
+
+	private boolean droppingMaterial() {
+		return strategy.droppingMaterial();
+	}
+
+	private boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
+		return strategy.checkPathStepPreconditions(pathTarget, step, moveToType);
+	}
+
+	private void pathAborted(ShortPoint2D pathTarget) {
+		strategy.pathAborted(pathTarget);
+	}
+
+	private Path findWayAroundObstacle(ShortPoint2D position, Path path) {
+		return strategy.findWayAroundObstacle(position, path);
+	}
+
+	private void strategyKilledEvent(ShortPoint2D pathTarget) {
+		strategy.strategyKilledEvent(pathTarget);
 	}
 
 	@Override
@@ -200,7 +236,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 
 		if (requestedTargetPosition != null) {
-			if (strategy.canBeControlledByPlayer()) {
+			if (playerControlled) {
 				switch (state) {
 					case PATHING:
 						// if we're currently pathing, stop former pathing and calculate a new path
@@ -215,7 +251,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 						requestedTargetPosition = null;
 
 						if (foundPath) {
-							this.strategy.moveToPathSet(oldPos, oldTargetPos, path.getTargetPosition(), requestedMoveToType);
+							moveToPathSet(oldPos, oldTargetPos, path.getTargetPosition(), requestedMoveToType);
 							return animationDuration; // we already follow the path and initiated the walking
 						} else {
 							break;
@@ -244,11 +280,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				grid.takeMaterial(position, takeDropMaterial);
 				setMaterial(takeDropMaterial);
 				playAnimation(EMovableAction.RAISE_UP, Constants.MOVABLE_BEND_DURATION);
-				strategy.tookMaterial();
+				tookMaterial();
 				break;
 			case DROP:
 				if (takeDropMaterial != null && takeDropMaterial.isDroppable()) {
-					boolean offerMaterial = strategy.droppingMaterial();
+					boolean offerMaterial = droppingMaterial();
 					grid.dropMaterial(position, takeDropMaterial, offerMaterial, false);
 				}
 				setMaterial(EMaterialType.NO_MATERIAL);
@@ -260,9 +296,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 
 		if (state == EMovableState.DOING_NOTHING) { // if movable is currently doing nothing
-			if (strategy != null) {
-				strategy.action(); // let the strategy work
-			}
+			action();
 			if (state == EMovableState.DOING_NOTHING) { // if movable is still doing nothing after strategy, consider doingNothingAction()
 				if (this.isShip()) {
 					pushShips();
@@ -279,7 +313,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	private void pathingAction() {
-		if (path == null || !path.hasNextStep() || ferryToEnter == null && !strategy.checkPathStepPreconditions(path.getTargetPosition(), path.getStep(), requestedMoveToType)) {
+		if (path == null || !path.hasNextStep() || ferryToEnter == null && !checkPathStepPreconditions(path.getTargetPosition(), path.getStep(), requestedMoveToType)) {
 			// if path is finished, or canceled by strategy return from here
 			setState(EMovableState.DOING_NOTHING);
 			movableAction = EMovableAction.NO_ACTION;
@@ -303,7 +337,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				if (newPath == null) { // no path found
 					setState(EMovableState.DOING_NOTHING);
 
-					strategy.pathAborted(path.getTargetPosition()); // inform strategy
+					pathAborted(path.getTargetPosition()); // inform strategy
 					path = null;
 				} else {
 					this.path = newPath; // continue with new path
@@ -317,7 +351,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			movableAction = EMovableAction.NO_ACTION;
 			boolean pushedSuccessfully = blockingMovable.push(this);
 			if (!pushedSuccessfully) {
-				path = strategy.findWayAroundObstacle(position, path);
+				path = findWayAroundObstacle(position, path);
 				animationDuration = Constants.MOVABLE_INTERRUPT_PERIOD; // recheck shortly
 			} else if (movableAction == EMovableAction.NO_ACTION) {
 				animationDuration = Constants.MOVABLE_INTERRUPT_PERIOD; // recheck shortly
@@ -473,7 +507,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 						return false; // the other movable just pushed to get space, we can't do anything for it here.
 
 					} else if (pushingMovable.getMovableType().isPlayerControllable()
-						|| strategy.isValidPosition(pushingMovable.getPosition())) { // exchange positions
+						|| grid.isValidPosition(this, position.x, position.y)) { // exchange positions
 						EDirection directionToPushing = EDirection.getApproxDirection(this.position, pushingMovable.getPosition());
 						pushingMovable.goSinglePathStep(); // if no free direction found, exchange the positions of the movables
 						goInDirection(directionToPushing, EGoInDirectionMode.GO_IF_ALLOWED_WAIT_TILL_FREE);
@@ -814,7 +848,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 
 		grid.leavePosition(this.position, this);
-		this.strategy.strategyKilledEvent(path != null ? path.getTargetPosition() : null);
+		strategyKilledEvent(path != null ? path.getTargetPosition() : null);
 
 		MovableManager.remove(this);
 	}
