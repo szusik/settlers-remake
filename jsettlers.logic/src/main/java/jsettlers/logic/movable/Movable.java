@@ -120,8 +120,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			this.direction = EDirection.VALUES[MatchConstants.random().nextInt(EDirection.NUMBER_OF_DIRECTIONS)];
 		}
 
-		this.id = MovableManager.add(this, replace);
-		grid.enterPosition(position, this, true);
+		this.id = MovableManager.requestId(this, replace);
 	}
 
 	/**
@@ -930,17 +929,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return id;
 	}
 
-	private void setStrategy(MovableStrategy<?> newStrategy) {
-		this.strategy.strategyKilledEvent(path != null ? path.getTargetPosition() : null);
-		this.strategy = newStrategy;
-		this.movableAction = EMovableAction.NO_ACTION;
-		setState(EMovableState.DOING_NOTHING);
-
-		if(this instanceof IAttackableMovable) {
-			grid.notifyAttackers(position, (IAttackableMovable)this, true);
-		}
-	}
-
 	@Override
 	public String toString() {
 		return "Movable: " + id + " position: " + position + " player: " + player.playerId + " movableType: " + movableType
@@ -988,7 +976,15 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return createMovable(movableType, player, position, grid, null);
 	}
 
-	protected static Movable createMovable(EMovableType movableType, Player player, ShortPoint2D position, AbstractMovableGrid grid, Movable movable) {
+	protected static Movable createMovable(EMovableType movableType, Player player, ShortPoint2D position, AbstractMovableGrid grid, Movable replaceMovable) {
+		Movable movable = chooseMovableClass(movableType, player, position, grid, replaceMovable);
+
+		MovableManager.add(movable);
+		grid.enterPosition(position, movable, true);
+		return movable;
+	}
+
+	private static Movable chooseMovableClass(EMovableType movableType, Player player, ShortPoint2D position, AbstractMovableGrid grid, Movable movable) {
 		if(movable != null) movable.decoupleMovable();
 
 		switch (movableType) {

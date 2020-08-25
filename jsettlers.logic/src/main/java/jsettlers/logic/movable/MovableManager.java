@@ -72,7 +72,7 @@ public final class MovableManager {
 		fowTeam = -1;
 	}
 
-	static int add(Movable movable, Movable replace) {
+	static int requestId(Movable movable, Movable replace) {
 		int id;
 
 		if(replace != null) {
@@ -80,8 +80,12 @@ public final class MovableManager {
 		} else {
 			id = nextID++;
 		}
+		return id;
+	}
 
-		movablesByID.put(id, movable);
+	static void add(Movable movable) {
+
+		movablesByID.put(movable.getID(), movable);
 		allMovables.offer(movable);
 
 
@@ -90,8 +94,6 @@ public final class MovableManager {
 		}
 
 		RescheduleTimer.add(movable, Constants.MOVABLE_INTERRUPT_PERIOD);
-
-		return id;
 	}
 
 	static void remove(Movable movable) {
