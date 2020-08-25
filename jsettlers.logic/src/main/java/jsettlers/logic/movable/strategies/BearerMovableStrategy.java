@@ -35,7 +35,7 @@ import jsettlers.logic.movable.interfaces.ILogicMovable;
  * @author Andreas Eberle
  *
  */
-public final class BearerMovableStrategy extends MovableStrategy<BearerMovable> implements IManageableBearer {
+public final class BearerMovableStrategy extends CivilianStrategy<BearerMovable> implements IManageableBearer {
 	private static final long serialVersionUID = -734268451796522451L;
 
 	private EBearerState state = EBearerState.JOBLESS;
@@ -50,15 +50,20 @@ public final class BearerMovableStrategy extends MovableStrategy<BearerMovable> 
 
 	public BearerMovableStrategy(BearerMovable movable) {
 		super(movable);
+	}
+
+	@Override
+	public void strategyStarted() {
 		reportJobless();
 	}
 
 	public final void reportJobless() {
+		state = EBearerState.JOBLESS;
 		super.getGrid().addJobless(this);
 	}
 
 	@Override
-	protected void action() {
+	protected void peacetimeAction() {
 		switch (state) {
 		case JOBLESS:
 			break;
@@ -110,7 +115,6 @@ public final class BearerMovableStrategy extends MovableStrategy<BearerMovable> 
 		case DROPPING:
 			request = null;
 			materialType = null;
-			state = EBearerState.JOBLESS;
 			reportJobless();
 			break;
 
@@ -128,7 +132,6 @@ public final class BearerMovableStrategy extends MovableStrategy<BearerMovable> 
 			EMovableType movableType = barrack.popWeaponForBearer();
 			if (movableType == null) { // weapon got missing, make this bearer jobless again
 				this.barrack = null;
-				this.state = EBearerState.JOBLESS;
 				reportJobless();
 			} else {
 				this.state = EBearerState.DEAD_OBJECT;
@@ -219,9 +222,9 @@ public final class BearerMovableStrategy extends MovableStrategy<BearerMovable> 
 		materialType = null;
 		workerCreationRequest = null;
 		workerRequester = null;
-		state = EBearerState.JOBLESS;
 
 		if (reportAsJobless) {
+			state = EBearerState.JOBLESS;
 			reportJobless();
 		}
 	}
@@ -231,7 +234,7 @@ public final class BearerMovableStrategy extends MovableStrategy<BearerMovable> 
 	}
 
 	@Override
-	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
+	protected boolean peacetimeCheckPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
 		if (request != null && !request.isActive()) {
 			return false;
 		}
@@ -303,7 +306,7 @@ public final class BearerMovableStrategy extends MovableStrategy<BearerMovable> 
 	}
 
 	@Override
-	protected void strategyKilledEvent(ShortPoint2D pathTarget) {
+	protected void strategyStopped() {
 		if (state == EBearerState.JOBLESS) {
 			super.getGrid().removeJobless(this);
 		} else {
@@ -313,7 +316,7 @@ public final class BearerMovableStrategy extends MovableStrategy<BearerMovable> 
 	}
 
 	@Override
-	protected void pathAborted(ShortPoint2D pathTarget) {
+	protected void peacetimePathAborted(ShortPoint2D pathTarget) {
 		if (state != EBearerState.JOBLESS) {
 			handleJobFailed(true);
 		}

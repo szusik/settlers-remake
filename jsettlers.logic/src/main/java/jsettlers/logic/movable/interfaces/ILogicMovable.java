@@ -43,8 +43,6 @@ public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, I
 
 	void leavePosition();
 
-	void checkPlayerOfPosition(Player playerOfPosition);
-
 	Player getPlayer();
 
 	void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType);

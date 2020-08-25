@@ -33,8 +33,8 @@ public final class InfantryStrategy extends SoldierStrategy<InfantryMovable> {
 	private static final long serialVersionUID = -2367165698305111060L;
 	private static final float INFANTRY_ATTACK_DURATION = 1;
 
-	public InfantryStrategy(InfantryMovable movable, EMovableType movableType) {
-		super(movable, movableType);
+	public InfantryStrategy(InfantryMovable movable) {
+		super(movable);
 	}
 
 	@Override

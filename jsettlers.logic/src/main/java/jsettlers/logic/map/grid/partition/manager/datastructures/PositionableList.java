@@ -40,7 +40,10 @@ public class PositionableList<T extends ILocatable> implements Serializable {
 	}
 
 	public void insert(T object) {
-		data.add(object);
+		if(!data.contains(object)) {
+			// TODO fix double inserts from the root
+			data.add(object);
+		}
 	}
 
 	public T removeObjectAt(ShortPoint2D position) {

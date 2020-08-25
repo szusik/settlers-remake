@@ -48,14 +48,13 @@ import jsettlers.logic.movable.interfaces.ILogicMovable;
 /**
  * @author Andreas Eberle
  */
-public class BuildingWorkerStrategy<T extends BuildingWorkerMovable> extends MovableStrategy<T> implements IManageableWorker {
+public class BuildingWorkerStrategy<T extends BuildingWorkerMovable> extends CivilianStrategy<T> implements IManageableWorker {
 	private static final long serialVersionUID = 5949318243804026519L;
 
 	private transient IBuildingJob currentJob = null;
 	protected IWorkerRequestBuilding building;
 
 	private boolean done;
-	private boolean killed;
 
 	private EMaterialType poppedMaterial;
 	private int searchFailedCtr = 0;
@@ -65,6 +64,10 @@ public class BuildingWorkerStrategy<T extends BuildingWorkerMovable> extends Mov
 
 	public BuildingWorkerStrategy(T movable) {
 		super(movable);
+	}
+
+	@Override
+	protected void strategyStarted() {
 		reportAsJobless();
 	}
 
@@ -88,7 +91,7 @@ public class BuildingWorkerStrategy<T extends BuildingWorkerMovable> extends Mov
 	}
 
 	@Override
-	protected void action() {
+	protected void peacetimeAction() {
 		if (isJobless()) {
 			return;
 		}
@@ -584,8 +587,7 @@ public class BuildingWorkerStrategy<T extends BuildingWorkerMovable> extends Mov
 	}
 
 	@Override
-	protected void strategyKilledEvent(ShortPoint2D pathTarget) { // used in overriding methods
-		killed = true;
+	protected void strategyStopped() { // used in overriding methods
 		dropCurrentMaterial();
 
 		if (isJobless()) {
@@ -603,7 +605,7 @@ public class BuildingWorkerStrategy<T extends BuildingWorkerMovable> extends Mov
 	}
 
 	@Override
-	protected void pathAborted(ShortPoint2D pathTarget) {
+	protected void peacetimePathAborted(ShortPoint2D pathTarget) {
 		if (currentJob != null) {
 			jobFailed();
 		}
@@ -611,13 +613,13 @@ public class BuildingWorkerStrategy<T extends BuildingWorkerMovable> extends Mov
 	}
 
 	@Override
-	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
+	protected boolean peacetimeCheckPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
 		return isJobless() || building != null;
 	}
 
 	@Override
 	public boolean isAlive() {
-		return !killed;
+		return movable.isAlive();
 	}
 
 	@Override

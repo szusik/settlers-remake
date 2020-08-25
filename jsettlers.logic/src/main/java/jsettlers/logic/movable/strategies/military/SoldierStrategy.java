@@ -29,7 +29,6 @@ import jsettlers.logic.movable.EGoInDirectionMode;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.MovableStrategy;
 import jsettlers.logic.movable.interfaces.IAttackable;
-import jsettlers.logic.movable.interfaces.IAttackableMovable;
 import jsettlers.logic.movable.specialist.ThiefMovable;
 
 public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableStrategy<T> {
@@ -51,7 +50,6 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 		FORCED_MOVE,
 	}
 
-	private final EMovableType movableType;
 
 	private ESoldierState state = ESoldierState.SEARCH_FOR_ENEMIES;
 	private IOccupyableBuilding building;
@@ -66,9 +64,8 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 
 	private boolean defending;
 
-	public SoldierStrategy(T movable, EMovableType movableType) {
+	public SoldierStrategy(T movable) {
 		super(movable);
-		this.movableType = movableType;
 	}
 
 	@Override

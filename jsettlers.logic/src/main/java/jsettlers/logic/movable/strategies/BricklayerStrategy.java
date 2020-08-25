@@ -23,7 +23,7 @@ import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IConstr
 import jsettlers.logic.movable.MovableStrategy;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 
-public class BricklayerStrategy extends MovableStrategy<BricklayerMovable> implements IManageableBricklayer {
+public class BricklayerStrategy extends CivilianStrategy<BricklayerMovable> implements IManageableBricklayer {
 	private static final long serialVersionUID = 7032795807942301297L;
 	private static final float BRICKLAYER_ACTION_DURATION = 1f;
 
@@ -34,6 +34,10 @@ public class BricklayerStrategy extends MovableStrategy<BricklayerMovable> imple
 
 	public BricklayerStrategy(BricklayerMovable movable) {
 		super(movable);
+	}
+
+	@Override
+	protected void strategyStarted() {
 		jobFinished();
 	}
 
@@ -63,7 +67,7 @@ public class BricklayerStrategy extends MovableStrategy<BricklayerMovable> imple
 	}
 
 	@Override
-	protected void action() {
+	protected void peacetimeAction() {
 		switch (state) {
 		case JOBLESS:
 			break;
@@ -97,7 +101,7 @@ public class BricklayerStrategy extends MovableStrategy<BricklayerMovable> imple
 	}
 
 	@Override
-	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
+	protected boolean peacetimeCheckPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
 		if (constructionSite == null || constructionSite.isBricklayerRequestActive()) {
 			return true;
 		} else {
@@ -107,7 +111,7 @@ public class BricklayerStrategy extends MovableStrategy<BricklayerMovable> imple
 	}
 
 	@Override
-	protected void strategyKilledEvent(ShortPoint2D pathTarget) {
+	protected void strategyStopped() {
 		if (state == EBricklayerState.JOBLESS) {
 			super.getGrid().removeJobless(this);
 		} else {
@@ -118,7 +122,7 @@ public class BricklayerStrategy extends MovableStrategy<BricklayerMovable> imple
 	}
 
 	@Override
-	protected void pathAborted(ShortPoint2D pathTarget) {
+	protected void peacetimePathAborted(ShortPoint2D pathTarget) {
 		if (constructionSite != null) {
 			abortJob();
 			jobFinished(); // this job is done for us

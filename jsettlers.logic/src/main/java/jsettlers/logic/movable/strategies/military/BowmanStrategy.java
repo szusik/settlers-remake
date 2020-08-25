@@ -33,8 +33,8 @@ public final class BowmanStrategy extends SoldierStrategy<BowmanMovable> {
 	private static final long serialVersionUID = 7062243467280721040L;
 	private static final float BOWMAN_ATTACK_DURATION = 1.2f;
 
-	public BowmanStrategy(BowmanMovable movable, EMovableType movableType) {
-		super(movable, movableType);
+	public BowmanStrategy(BowmanMovable movable) {
+		super(movable);
 	}
 
 	@Override

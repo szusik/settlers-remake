@@ -121,6 +121,7 @@ import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.IAttackableMovable;
+import jsettlers.logic.movable.interfaces.ICivilianMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.interfaces.ISoldierMovable;
@@ -494,8 +495,8 @@ public final class MainGrid implements Serializable {
 		EnclosedBlockedAreaFinderAlgorithm.checkLandmark(enclosedBlockedAreaFinderGrid, x, y);
 
 		ILogicMovable movable = movableGrid.getMovableAt(x, y);
-		if (movable != null) {
-			movable.checkPlayerOfPosition(partitionsGrid.getPlayerAt(x, y));
+		if (movable instanceof ICivilianMovable) {
+			((ICivilianMovable)movable).checkPlayerOfPosition();
 		}
 	}
 

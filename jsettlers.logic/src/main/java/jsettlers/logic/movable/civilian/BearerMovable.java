@@ -8,7 +8,7 @@ import jsettlers.logic.movable.interfaces.IBearerMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.player.Player;
 
-public class BearerMovable extends Movable implements IBearerMovable {
+public class BearerMovable extends CivilianMovable implements IBearerMovable {
 
 	public BearerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, EMovableType.BEARER, position, player, movable);

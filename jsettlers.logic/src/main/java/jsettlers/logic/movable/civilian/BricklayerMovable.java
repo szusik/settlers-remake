@@ -6,7 +6,7 @@ import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
-public class BricklayerMovable extends Movable {
+public class BricklayerMovable extends CivilianMovable {
 
 	public BricklayerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, EMovableType.BRICKLAYER, position, player, movable);

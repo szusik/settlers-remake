@@ -81,11 +81,11 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 			case PIKEMAN_L1:
 			case PIKEMAN_L2:
 			case PIKEMAN_L3:
-				return new InfantryStrategy((InfantryMovable) movable, movableType);
+				return new InfantryStrategy((InfantryMovable) movable);
 			case BOWMAN_L1:
 			case BOWMAN_L2:
 			case BOWMAN_L3:
-				return new BowmanStrategy((BowmanMovable) movable, movableType);
+				return new BowmanStrategy((BowmanMovable) movable);
 
 			case BAKER:
 			case CHARCOAL_BURNER:

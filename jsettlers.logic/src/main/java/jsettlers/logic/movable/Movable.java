@@ -48,7 +48,6 @@ import jsettlers.logic.movable.other.FerryMovable;
 import jsettlers.logic.movable.specialist.GeologistMovable;
 import jsettlers.logic.movable.specialist.PioneerMovable;
 import jsettlers.logic.movable.specialist.ThiefMovable;
-import jsettlers.logic.movable.strategies.FleeStrategy;
 import jsettlers.logic.player.Player;
 
 import java.util.Objects;
@@ -198,14 +197,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				setState(EMovableState.DOING_NOTHING); // the action is finished, as the time passed
 				movableAction = EMovableAction.NO_ACTION;
 
-			case PATHING:
-			case DOING_NOTHING:
-				if (visible) {
-					checkPlayerOfCurrentPosition();
-				}
-				break;
-
-			default:
 				break;
 		}
 
@@ -947,20 +938,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 		if(this instanceof IAttackableMovable) {
 			grid.notifyAttackers(position, (IAttackableMovable)this, true);
-		}
-	}
-
-	private void checkPlayerOfCurrentPosition() {
-		checkPlayerOfPosition(grid.getPlayerAt(position));
-	}
-
-	public void checkPlayerOfPosition(Player playerOfPosition) {
-
-		boolean shouldBeFleeing = (playerOfPosition != player && movableType.needsPlayersGround());
-		if(shouldBeFleeing && strategy.getClass() != FleeStrategy.class) {
-			setStrategy(new FleeStrategy(this));
-		} else if(!shouldBeFleeing && strategy.getClass() == FleeStrategy.class) {
-			setStrategy(MovableStrategy.getStrategy(this, movableType));
 		}
 	}
 

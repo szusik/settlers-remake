@@ -25,7 +25,7 @@ import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IDigger
 import jsettlers.logic.movable.MovableStrategy;
 import jsettlers.logic.movable.civilian.DiggerMovable;
 
-public final class DiggerStrategy extends MovableStrategy<DiggerMovable> implements IManageableDigger {
+public final class DiggerStrategy extends CivilianStrategy<DiggerMovable> implements IManageableDigger {
 	private static final long serialVersionUID = 1581926355853324624L;
 
 	private IDiggerRequester requester;
@@ -33,7 +33,10 @@ public final class DiggerStrategy extends MovableStrategy<DiggerMovable> impleme
 
 	public DiggerStrategy(DiggerMovable movable) {
 		super(movable);
+	}
 
+	@Override
+	protected void strategyStarted() {
 		reportJobless();
 	}
 
@@ -49,7 +52,7 @@ public final class DiggerStrategy extends MovableStrategy<DiggerMovable> impleme
 	}
 
 	@Override
-	protected void action() {
+	protected void peacetimeAction() {
 		switch (state) {
 		case JOBLESS:
 			break;
@@ -146,7 +149,7 @@ public final class DiggerStrategy extends MovableStrategy<DiggerMovable> impleme
 	}
 
 	@Override
-	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
+	protected boolean peacetimeCheckPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
 		if (requester == null || requester.isDiggerRequestActive()) {
 			return true;
 		} else {
@@ -162,11 +165,7 @@ public final class DiggerStrategy extends MovableStrategy<DiggerMovable> impleme
 	}
 
 	@Override
-	protected void strategyKilledEvent(ShortPoint2D pathTarget) {
-		if (pathTarget != null) {
-			super.getGrid().setMarked(pathTarget, false);
-		}
-
+	protected void strategyStopped() {
 		switch (state) {
 		case JOBLESS:
 			super.getGrid().removeJobless(this);
@@ -186,7 +185,7 @@ public final class DiggerStrategy extends MovableStrategy<DiggerMovable> impleme
 	}
 
 	@Override
-	protected void pathAborted(ShortPoint2D pathTarget) {
+	protected void peacetimePathAborted(ShortPoint2D pathTarget) {
 		if (requester != null) {
 			super.getGrid().setMarked(pathTarget, false);
 			abortJob();
