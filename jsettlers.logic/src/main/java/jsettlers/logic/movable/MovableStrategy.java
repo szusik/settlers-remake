@@ -34,14 +34,10 @@ import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
-import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.military.BowmanMovable;
 import jsettlers.logic.movable.military.InfantryMovable;
 import jsettlers.logic.movable.military.MageMovable;
-import jsettlers.logic.movable.specialist.GeologistMovable;
-import jsettlers.logic.movable.specialist.PioneerMovable;
-import jsettlers.logic.movable.specialist.ThiefMovable;
 import jsettlers.logic.movable.strategies.BearerMovableStrategy;
 import jsettlers.logic.movable.strategies.BricklayerStrategy;
 import jsettlers.logic.movable.strategies.BuildingWorkerStrategy;
@@ -50,9 +46,6 @@ import jsettlers.logic.movable.strategies.DummyStrategy;
 import jsettlers.logic.movable.strategies.military.BowmanStrategy;
 import jsettlers.logic.movable.strategies.military.InfantryStrategy;
 import jsettlers.logic.movable.strategies.military.MageStrategy;
-import jsettlers.logic.movable.strategies.specialists.ThiefStrategy;
-import jsettlers.logic.movable.strategies.specialists.GeologistStrategy;
-import jsettlers.logic.movable.strategies.specialists.PioneerStrategy;
 import jsettlers.logic.movable.strategies.trading.CargoShipStrategy;
 import jsettlers.logic.movable.strategies.trading.DonkeyStrategy;
 
@@ -115,11 +108,9 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 				return new BricklayerStrategy((BricklayerMovable) movable);
 
 			case PIONEER:
-				return new PioneerStrategy((PioneerMovable) movable);
 			case GEOLOGIST:
-				return new GeologistStrategy((GeologistMovable) movable);
 			case THIEF:
-				return new ThiefStrategy((ThiefMovable) movable);
+				return new DummyStrategy(movable);
 			case MAGE:
 				return new MageStrategy((MageMovable) movable);
 			case DONKEY:

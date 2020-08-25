@@ -38,7 +38,6 @@ import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.cargo.DonkeyMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
-import jsettlers.logic.movable.interfaces.IAttackableMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.military.BowmanMovable;
@@ -165,35 +164,35 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 	}
 
-	private void action() {
+	protected void action() {
 		strategy.action();
 	}
 
-	private void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
+	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
 		strategy.moveToPathSet(oldPosition, oldTargetPos, targetPos, moveToType);
 	}
 
-	private void tookMaterial() {
+	protected void tookMaterial() {
 		strategy.tookMaterial();
 	}
 
-	private boolean droppingMaterial() {
+	protected boolean droppingMaterial() {
 		return strategy.droppingMaterial();
 	}
 
-	private boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
+	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
 		return strategy.checkPathStepPreconditions(pathTarget, step, moveToType);
 	}
 
-	private void pathAborted(ShortPoint2D pathTarget) {
+	protected void pathAborted(ShortPoint2D pathTarget) {
 		strategy.pathAborted(pathTarget);
 	}
 
-	private Path findWayAroundObstacle(ShortPoint2D position, Path path) {
+	protected Path findWayAroundObstacle(ShortPoint2D position, Path path) {
 		return strategy.findWayAroundObstacle(position, path);
 	}
 
-	private void strategyKilledEvent(ShortPoint2D pathTarget) {
+	protected void strategyKilledEvent(ShortPoint2D pathTarget) {
 		strategy.strategyKilledEvent(pathTarget);
 	}
 
@@ -608,7 +607,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * The material type to be set
 	 * @return {@link EMaterialType} that has been set before.
 	 */
-	final EMaterialType setMaterial(EMaterialType materialType) {
+	public final EMaterialType setMaterial(EMaterialType materialType) {
 		assert materialType != null : "MaterialType may not be null";
 		EMaterialType former = this.materialType;
 		this.materialType = materialType;
@@ -623,7 +622,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * @param duration
 	 * 		duration the animation should last (in seconds). // TODO change to milliseconds
 	 */
-	final void playAction(EMovableAction movableAction, float duration) {
+	public final void playAction(EMovableAction movableAction, float duration) {
 		assert state == EMovableState.DOING_NOTHING : "can't do playAction() if state isn't DOING_NOTHING. curr state: " + state;
 
 		playAnimation(movableAction, (short) (duration * 1000));
@@ -654,7 +653,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 	}
 
-	final void drop(EMaterialType materialToDrop) {
+	public final void drop(EMaterialType materialToDrop) {
 		this.takeDropMaterial = materialToDrop;
 
 		playAnimation(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION);
@@ -692,7 +691,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * @return true if it was possible to calculate a path to the given position<br>
 	 * false if it wasn't possible to get a path.
 	 */
-	final boolean goToPos(ShortPoint2D targetPos) {
+	public final boolean goToPos(ShortPoint2D targetPos) {
 		assert state == EMovableState.DOING_NOTHING : "can't do goToPos() if state isn't DOING_NOTHING. curr state: " + state;
 
 		Path path = grid.calculatePathTo(this, targetPos);
@@ -717,7 +716,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * @return true if the step can and will immediately be executed. <br>
 	 * false if the target position is generally blocked or a movable occupies that position.
 	 */
-	final boolean goInDirection(EDirection direction, EGoInDirectionMode mode) {
+	public final boolean goInDirection(EDirection direction, EGoInDirectionMode mode) {
 		if(hasEffect(EEffectType.FROZEN)) return false;
 
 		ShortPoint2D targetPosition = direction.getNextHexPoint(position);
@@ -780,7 +779,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * @param searchType
 	 * @return true if a path has been found.
 	 */
-	final boolean preSearchPath(boolean dijkstra, short centerX, short centerY, short radius, ESearchType searchType) {
+	public final boolean preSearchPath(boolean dijkstra, short centerX, short centerY, short radius, ESearchType searchType) {
 		assert state == EMovableState.DOING_NOTHING : "this method can only be invoked in state DOING_NOTHING";
 
 		if (dijkstra) {
@@ -792,7 +791,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return path != null;
 	}
 
-	final ShortPoint2D followPresearchedPath() {
+	public final ShortPoint2D followPresearchedPath() {
 		assert this.path != null : "path mustn't be null to be able to followPresearchedPath()!";
 		followPath(this.path);
 		return path.getTargetPosition();
@@ -802,11 +801,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		this.enableNothingToDo = enable;
 	}
 
-	void abortPath() {
+	public void abortPath() {
 		path = null;
 	}
 
-	boolean isOnOwnGround() {
+	public boolean isOnOwnGround() {
 		return grid.getPlayerAt(position) == player;
 	}
 
@@ -889,7 +888,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	@Override
-	public final void stopOrStartWorking(boolean stop) {
+	public void stopOrStartWorking(boolean stop) {
 		strategy.stopOrStartWorking(stop);
 	}
 
