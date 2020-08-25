@@ -39,6 +39,8 @@ import jsettlers.graphics.map.controls.original.panel.content.buildings.EBuildin
 import jsettlers.main.android.R;
 import jsettlers.main.android.core.resources.OriginalImageProvider;
 
+import static java8.util.J8Arrays.*;
+
 /**
  * Created by Tom Pratt on 24/11/2016.
  */
@@ -122,6 +124,12 @@ public class BuildingsCategoryFragment extends Fragment {
 		}
 
 		void setBuildingViewStates(BuildingViewState[] buildingViewStates) {
+			// remove buildings that we can't build
+			buildingViewStates = stream(buildingViewStates)
+					.filter(viewState -> viewState.getBuildingType()
+							.getVariant(civilisation)!=null)
+					.toArray(BuildingViewState[]::new);
+
 			DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new BuildingsDiffCallback(this.buildingViewStates, buildingViewStates));
 			diffResult.dispatchUpdatesTo(this);
 

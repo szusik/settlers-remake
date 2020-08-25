@@ -131,7 +131,13 @@ public class HTTPConnection implements IClientConnection, Runnable {
 	}
 
 	private void findMap(String arg, Consumer<String> arg1) throws IOException {
-		openResource("/find/" + arg, "GET", 0L);
+		try {
+			openResource("/find/" + arg, "GET", 0L);
+		} catch (Throwable ex) {
+			ex.printStackTrace();
+			arg1.accept(null);
+			return;
+		}
 
 		if(lastConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 			arg1.accept(null);

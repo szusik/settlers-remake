@@ -13,6 +13,9 @@ public class CastSpellGuiTask extends MovableGuiTask {
 	private ESpellType spell;
 	private ShortPoint2D at;
 
+	public CastSpellGuiTask() {
+	}
+
 	public CastSpellGuiTask(byte playerId, ShortPoint2D at, int position, ESpellType spell) {
 		super(EGuiAction.CAST_SPELL, playerId, Arrays.asList(position));
 

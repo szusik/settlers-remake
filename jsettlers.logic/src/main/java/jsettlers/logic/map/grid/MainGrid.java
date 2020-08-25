@@ -1109,7 +1109,7 @@ public final class MainGrid implements Serializable {
 				int currX = curr.calculateX(x);
 				int currY = curr.calculateY(y);
 
-				if (!canUsePositionForConstruction(currX, currY, building.getRequiredGroundTypeAt(currX, currY), partitionId)) {
+				if (!canUsePositionForConstruction(currX, currY, building.getRequiredGroundTypeAt(curr.getDx(), curr.getDy()), partitionId)) {
 					return false;
 				}
 			}
