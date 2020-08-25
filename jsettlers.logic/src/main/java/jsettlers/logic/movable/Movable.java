@@ -49,6 +49,7 @@ import jsettlers.logic.movable.specialist.PioneerMovable;
 import jsettlers.logic.movable.specialist.ThiefMovable;
 import jsettlers.logic.player.Player;
 
+import java.util.LinkedList;
 import java.util.Objects;
 /**
  * Central Movable class of JSettlers.
@@ -189,7 +190,70 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected Path findWayAroundObstacle(ShortPoint2D position, Path path) {
-		return strategy.findWayAroundObstacle(position, path);
+		if (!path.hasOverNextStep()) { // if path has no position left
+			return path;
+		}
+
+		EDirection direction = EDirection.getApproxDirection(position, path.getOverNextPos());
+
+		EDirection rightDir = direction.getNeighbor(-1);
+		EDirection leftDir = direction.getNeighbor(1);
+
+		ShortPoint2D straightPos = direction.getNextHexPoint(position);
+		ShortPoint2D twoStraightPos = direction.getNextHexPoint(position, 2);
+
+		ShortPoint2D rightPos = rightDir.getNextHexPoint(position);
+		ShortPoint2D rightStraightPos = direction.getNextHexPoint(rightPos);
+		ShortPoint2D straightRightPos = rightDir.getNextHexPoint(straightPos);
+
+		ShortPoint2D leftPos = leftDir.getNextHexPoint(position);
+		ShortPoint2D leftStraightPos = direction.getNextHexPoint(leftPos);
+		ShortPoint2D straightLeftPos = leftDir.getNextHexPoint(straightPos);
+
+		ShortPoint2D overNextPos = path.getOverNextPos();
+
+		LinkedList<ShortPoint2D[]> possiblePaths = new LinkedList<>();
+
+		if (twoStraightPos.equals(overNextPos)) {
+			if (grid.isValidPosition(this, rightPos.x, rightPos.y) && grid.isValidPosition(this, rightStraightPos.x, rightStraightPos.y)) {
+				possiblePaths.add(new ShortPoint2D[]{
+						rightPos,
+						rightStraightPos});
+			} else if (grid.isValidPosition(this, leftPos.x, leftPos.y) && grid.isValidPosition(this, leftStraightPos.x, leftStraightPos.y)) {
+				possiblePaths.add(new ShortPoint2D[]{
+						leftPos,
+						leftStraightPos});
+			} else {
+				// TODO @Andreas Eberle maybe calculate a new path
+			}
+		}
+
+		if (rightStraightPos.equals(overNextPos) && grid.isValidPosition(this, rightPos.x, rightPos.y)) {
+			possiblePaths.add(new ShortPoint2D[]{rightPos});
+		}
+		if (leftStraightPos.equals(overNextPos) && grid.isValidPosition(this, leftPos.x, leftPos.y)) {
+			possiblePaths.add(new ShortPoint2D[]{leftPos});
+		}
+
+		if ((straightRightPos.equals(overNextPos) || straightLeftPos.equals(overNextPos))
+				&& grid.isValidPosition(this, straightPos.x, straightPos.y) && grid.hasNoMovableAt(straightPos.x, straightPos.y)) {
+			possiblePaths.add(new ShortPoint2D[]{straightPos});
+
+		} else {
+			// TODO @Andreas Eberle maybe calculate a new path
+		}
+
+		// try to find a way without a movable or with a pushable movable.
+		for (ShortPoint2D[] pathPrefix : possiblePaths) { // check if any of the paths is free of movables
+			ShortPoint2D firstPosition = pathPrefix[0];
+			ILogicMovable movable = grid.getMovableAt(firstPosition.x, firstPosition.y);
+			if (movable == null || movable.isProbablyPushable(this)) {
+				path.goToNextStep();
+				return new Path(path, pathPrefix);
+			}
+		}
+
+		return path;
 	}
 
 	protected void strategyKilledEvent(ShortPoint2D pathTarget) {

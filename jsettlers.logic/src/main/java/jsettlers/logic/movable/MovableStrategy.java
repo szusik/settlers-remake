@@ -15,9 +15,7 @@
 package jsettlers.logic.movable;
 
 import java.io.Serializable;
-import java.util.LinkedList;
 
-import jsettlers.algorithms.path.Path;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.material.EMaterialType;
@@ -34,7 +32,6 @@ import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
-import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.military.BowmanMovable;
 import jsettlers.logic.movable.military.InfantryMovable;
 import jsettlers.logic.movable.military.MageMovable;
@@ -269,75 +266,6 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 
 	public boolean isAttackable() {
 		return movable.getMovableType().attackable;
-	}
-
-	protected Path findWayAroundObstacle(ShortPoint2D position, Path path) {
-		if (!path.hasOverNextStep()) { // if path has no position left
-			return path;
-		}
-
-		EDirection direction = EDirection.getApproxDirection(position, path.getOverNextPos());
-
-		AbstractMovableGrid grid = movable.grid;
-
-		EDirection rightDir = direction.getNeighbor(-1);
-		EDirection leftDir = direction.getNeighbor(1);
-
-		ShortPoint2D straightPos = direction.getNextHexPoint(position);
-		ShortPoint2D twoStraightPos = direction.getNextHexPoint(position, 2);
-
-		ShortPoint2D rightPos = rightDir.getNextHexPoint(position);
-		ShortPoint2D rightStraightPos = direction.getNextHexPoint(rightPos);
-		ShortPoint2D straightRightPos = rightDir.getNextHexPoint(straightPos);
-
-		ShortPoint2D leftPos = leftDir.getNextHexPoint(position);
-		ShortPoint2D leftStraightPos = direction.getNextHexPoint(leftPos);
-		ShortPoint2D straightLeftPos = leftDir.getNextHexPoint(straightPos);
-
-		ShortPoint2D overNextPos = path.getOverNextPos();
-
-		LinkedList<ShortPoint2D[]> possiblePaths = new LinkedList<>();
-
-		if (twoStraightPos.equals(overNextPos)) {
-			if (isValidPosition(rightPos) && isValidPosition(rightStraightPos)) {
-				possiblePaths.add(new ShortPoint2D[]{
-					rightPos,
-					rightStraightPos});
-			} else if (isValidPosition(leftPos) && isValidPosition(leftStraightPos)) {
-				possiblePaths.add(new ShortPoint2D[]{
-					leftPos,
-					leftStraightPos});
-			} else {
-				// TODO @Andreas Eberle maybe calculate a new path
-			}
-		}
-
-		if (rightStraightPos.equals(overNextPos) && isValidPosition(rightPos)) {
-			possiblePaths.add(new ShortPoint2D[]{rightPos});
-		}
-		if (leftStraightPos.equals(overNextPos) && isValidPosition(leftPos)) {
-			possiblePaths.add(new ShortPoint2D[]{leftPos});
-		}
-
-		if ((straightRightPos.equals(overNextPos) || straightLeftPos.equals(overNextPos))
-			&& isValidPosition(straightPos) && grid.hasNoMovableAt(straightPos.x, straightPos.y)) {
-			possiblePaths.add(new ShortPoint2D[]{straightPos});
-
-		} else {
-			// TODO @Andreas Eberle maybe calculate a new path
-		}
-
-		// try to find a way without a movable or with a pushable movable.
-		for (ShortPoint2D[] pathPrefix : possiblePaths) { // check if any of the paths is free of movables
-			ShortPoint2D firstPosition = pathPrefix[0];
-			ILogicMovable movable = grid.getMovableAt(firstPosition.x, firstPosition.y);
-			if (movable == null || movable.isProbablyPushable(this.movable)) {
-				path.goToNextStep();
-				return new Path(path, pathPrefix);
-			}
-		}
-
-		return path;
 	}
 
 	protected void stopOrStartWorking(boolean stop) {

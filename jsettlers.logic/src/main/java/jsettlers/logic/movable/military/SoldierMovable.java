@@ -1,5 +1,6 @@
 package jsettlers.logic.movable.military;
 
+import jsettlers.algorithms.path.Path;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
@@ -30,5 +31,13 @@ public class SoldierMovable extends AttackableHumanMovable implements ISoldierMo
 	@Override
 	public void defendTowerAt(ShortPoint2D pos) {
 		((SoldierStrategy<?>) strategy).defendTowerAt(pos);
+	}
+
+	@Override
+	protected Path findWayAroundObstacle(ShortPoint2D position, Path path) {
+		Path newPath = ((SoldierStrategy<?>) strategy).findWayAroundObstacle(position, path);
+
+		if(newPath == null) newPath = super.findWayAroundObstacle(position, path);
+		return newPath;
 	}
 }

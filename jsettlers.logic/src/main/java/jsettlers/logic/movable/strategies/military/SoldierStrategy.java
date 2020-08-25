@@ -315,8 +315,7 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 		changeStateTo(moveToType.isAttackOnTheWay() ? ESoldierState.SEARCH_FOR_ENEMIES : ESoldierState.FORCED_MOVE);
 	}
 
-	@Override
-	protected Path findWayAroundObstacle(ShortPoint2D position, Path path) {
+	public Path findWayAroundObstacle(ShortPoint2D position, Path path) {
 		if (state == ESoldierState.SEARCH_FOR_ENEMIES || state == ESoldierState.FORCED_MOVE) {
 			EDirection direction = EDirection.getDirection(position, path.getNextPos());
 
@@ -345,7 +344,7 @@ public abstract class SoldierStrategy<T extends SoldierMovable> extends MovableS
 				}
 			}
 		} else {
-			return super.findWayAroundObstacle(position, path);
+			return null;
 		}
 	}
 
