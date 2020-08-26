@@ -97,6 +97,11 @@ public class SimpleMessage implements IMessage {
 		return false;
 	}
 
+	public static IMessage donkeyAttacked(byte otherplayer, ShortPoint2D pos) {
+		return new SimpleMessage(EMessageType.ATTACKED, "attacked_donkey", otherplayer, pos);
+	}
+
+
 	/**
 	 * Creates a new attacked-messageLabel.
 	 *

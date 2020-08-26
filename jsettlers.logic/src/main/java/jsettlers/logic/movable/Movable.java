@@ -256,10 +256,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return path;
 	}
 
-	protected void strategyKilledEvent(ShortPoint2D pathTarget) {
-		strategy.strategyKilledEvent(pathTarget);
-	}
-
 	@Override
 	public int timerEvent() {
 		if (state == EMovableState.DEAD) {
@@ -903,6 +899,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 
 		killMovable();
+	}
+
+	protected void strategyKilledEvent(ShortPoint2D pathTarget) {
+		strategy.strategyKilledEvent(pathTarget);
 	}
 
 	protected void decoupleMovable() {

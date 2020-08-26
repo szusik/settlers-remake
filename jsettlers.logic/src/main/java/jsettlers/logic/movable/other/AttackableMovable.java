@@ -12,13 +12,16 @@ import jsettlers.logic.player.Player;
 
 public class AttackableMovable extends Movable implements IAttackableMovable {
 
+	protected boolean attackable;
+
 	public AttackableMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, movableType, position, player, movable);
+
+		attackable = movableType.attackable;
 	}
 
-
 	@Override
-	public final void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
+	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
 		if (strategy.receiveHit()) {
 			if(hasEffect(EEffectType.SHIELDED)) hitStrength *= EEffectType.SHIELDED_DAMAGE_FACTOR;
 
@@ -33,7 +36,7 @@ public class AttackableMovable extends Movable implements IAttackableMovable {
 
 	@Override
 	public final boolean isAttackable() {
-		return strategy != null && strategy.isAttackable();
+		return attackable;
 	}
 
 	@Override

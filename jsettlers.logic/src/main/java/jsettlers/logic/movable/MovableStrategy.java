@@ -43,8 +43,6 @@ import jsettlers.logic.movable.strategies.DummyStrategy;
 import jsettlers.logic.movable.strategies.military.BowmanStrategy;
 import jsettlers.logic.movable.strategies.military.InfantryStrategy;
 import jsettlers.logic.movable.strategies.military.MageStrategy;
-import jsettlers.logic.movable.strategies.trading.CargoShipStrategy;
-import jsettlers.logic.movable.strategies.trading.DonkeyStrategy;
 
 /**
  * Abstract super class of all movable strategies.
@@ -107,15 +105,13 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 			case PIONEER:
 			case GEOLOGIST:
 			case THIEF:
+				// MAGE
+			case DONKEY:
+			case FERRY:
+			case CARGO_SHIP:
 				return new DummyStrategy(movable);
 			case MAGE:
 				return new MageStrategy((MageMovable) movable);
-			case DONKEY:
-				return new DonkeyStrategy((DonkeyMovable) movable);
-			case FERRY:
-				return new DummyStrategy(movable);
-			case CARGO_SHIP:
-				return new CargoShipStrategy((CargoShipMovable) movable);
 
 			default:
 				assert false : "requested movableType: " + movableType + " but have no strategy for this type!";
@@ -262,10 +258,6 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 
 	public void setPlayerControlled(boolean playerControlled) {
 		movable.playerControlled = playerControlled;
-	}
-
-	public boolean isAttackable() {
-		return movable.getMovableType().attackable;
 	}
 
 	protected void stopOrStartWorking(boolean stop) {
