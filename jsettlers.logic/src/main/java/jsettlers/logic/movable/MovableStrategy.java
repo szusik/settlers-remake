@@ -29,14 +29,11 @@ import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
-import jsettlers.logic.movable.interfaces.IAttackable;
-import jsettlers.logic.movable.military.MageMovable;
 import jsettlers.logic.movable.strategies.BearerMovableStrategy;
 import jsettlers.logic.movable.strategies.BricklayerStrategy;
 import jsettlers.logic.movable.strategies.BuildingWorkerStrategy;
 import jsettlers.logic.movable.strategies.DiggerStrategy;
 import jsettlers.logic.movable.strategies.DummyStrategy;
-import jsettlers.logic.movable.strategies.military.MageStrategy;
 
 /**
  * Abstract super class of all movable strategies.
@@ -98,13 +95,11 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 			case PIONEER:
 			case GEOLOGIST:
 			case THIEF:
-				// MAGE
+			case MAGE:
 			case DONKEY:
 			case FERRY:
 			case CARGO_SHIP:
 				return new DummyStrategy(movable);
-			case MAGE:
-				return new MageStrategy((MageMovable) movable);
 
 			default:
 				assert false : "requested movableType: " + movableType + " but have no strategy for this type!";
