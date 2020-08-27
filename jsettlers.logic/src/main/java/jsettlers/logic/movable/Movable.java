@@ -68,7 +68,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	private EMovableState state = EMovableState.DOING_NOTHING;
 
 	private final EMovableType    movableType;
-	protected final MovableStrategy<?> strategy;
 
 	private EMaterialType  materialType  = EMaterialType.NO_MATERIAL;
 	private EMovableAction movableAction = EMovableAction.NO_ACTION;
@@ -110,7 +109,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		this.grid = grid;
 		this.position = position;
 		this.player = player;
-		this.strategy = MovableStrategy.getStrategy(this, movableType);
 		this.movableType = movableType;
 
 		if(replace != null) {
@@ -166,27 +164,23 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected void action() {
-		strategy.action();
 	}
 
 	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
-		strategy.moveToPathSet(oldPosition, oldTargetPos, targetPos, moveToType);
 	}
 
 	protected void tookMaterial() {
-		strategy.tookMaterial();
 	}
 
 	protected boolean droppingMaterial() {
-		return strategy.droppingMaterial();
+		return true;
 	}
 
 	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
-		return strategy.checkPathStepPreconditions(pathTarget, step, moveToType);
+		return true;
 	}
 
 	protected void pathAborted(ShortPoint2D pathTarget) {
-		strategy.pathAborted(pathTarget);
 	}
 
 	protected Path findWayAroundObstacle(ShortPoint2D position, Path path) {
@@ -901,17 +895,12 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		killMovable();
 	}
 
-	protected void strategyKilledEvent(ShortPoint2D pathTarget) {
-		strategy.strategyKilledEvent(pathTarget);
-	}
-
 	protected void decoupleMovable() {
 		if (state == EMovableState.DEAD) {
 			return; // this movable already died.
 		}
 
 		grid.leavePosition(this.position, this);
-		strategyKilledEvent(path != null ? path.getTargetPosition() : null);
 
 		MovableManager.remove(this);
 	}
@@ -953,7 +942,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	@Override
 	public void stopOrStartWorking(boolean stop) {
-		strategy.stopOrStartWorking(stop);
 	}
 
 	@Override

@@ -11,7 +11,6 @@ import jsettlers.logic.movable.EGoInDirectionMode;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.ICivilianMovable;
-import jsettlers.logic.movable.strategies.CivilianStrategy;
 import jsettlers.logic.player.Player;
 
 public class CivilianMovable extends Movable implements ICivilianMovable {
@@ -57,11 +56,13 @@ public class CivilianMovable extends Movable implements ICivilianMovable {
 	}
 
 	@Override
-	protected final void strategyKilledEvent(ShortPoint2D pathTarget) {
-		if(!peacetimeActive) return;
+	protected void decoupleMovable() {
+		super.decoupleMovable();
 
-		if(pathTarget != null) peacetimePathAborted(pathTarget);
-		strategyStopped();
+		if(peacetimeActive) {
+			if(path != null) peacetimePathAborted(path.getTargetPosition());
+			strategyStopped();
+		}
 	}
 
 	@Override
@@ -86,23 +87,19 @@ public class CivilianMovable extends Movable implements ICivilianMovable {
 
 
 	protected void peacetimeAction() {
-		((CivilianStrategy<?>)strategy).peacetimeAction();
 	}
 
 	protected void strategyStarted() {
-		((CivilianStrategy<?>)strategy).strategyStarted();
 	}
 
 	protected void strategyStopped() {
-		((CivilianStrategy<?>)strategy).strategyStopped();
 	}
 
 	protected void peacetimePathAborted(ShortPoint2D pathTarget) {
-		((CivilianStrategy<?>)strategy).peacetimePathAborted(pathTarget);
 	}
 
 	protected boolean peacetimeCheckPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
-		return ((CivilianStrategy<?>)strategy).peacetimeCheckPathStepPreconditions(pathTarget, step, moveToType);
+		return true;
 	}
 
 	private void findEvacuationPath() {

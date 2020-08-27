@@ -339,7 +339,9 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	}
 
 	@Override
-	protected void strategyKilledEvent(ShortPoint2D pathTarget) {
+	protected void decoupleMovable() {
+		super.decoupleMovable();
+
 		if (building != null) {
 			if (isInTower) {
 				building.removeSoldier(this);

@@ -27,7 +27,6 @@ import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBearer;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBricklayer;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableDigger;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableWorker;
-import jsettlers.logic.movable.MovableStrategy;
 import jsettlers.logic.player.Player;
 
 /**
