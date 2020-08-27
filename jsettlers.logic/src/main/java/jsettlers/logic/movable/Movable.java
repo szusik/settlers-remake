@@ -724,7 +724,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * @param sleepTime
 	 * 		time to sleep in milliseconds
 	 */
-	final void sleep(short sleepTime) {
+	public final void sleep(short sleepTime) {
 		assert state == EMovableState.DOING_NOTHING : "can't do sleep() if state isn't DOING_NOTHING. curr state: " + state;
 
 		playAnimation(EMovableAction.NO_ACTION, sleepTime);

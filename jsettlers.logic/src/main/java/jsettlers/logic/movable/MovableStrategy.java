@@ -24,11 +24,7 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
-import jsettlers.logic.movable.civilian.DiggerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
-import jsettlers.logic.movable.strategies.BuildingWorkerStrategy;
-import jsettlers.logic.movable.strategies.DiggerStrategy;
 import jsettlers.logic.movable.strategies.DummyStrategy;
 
 /**
@@ -57,7 +53,6 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 			case BOWMAN_L1:
 			case BOWMAN_L2:
 			case BOWMAN_L3:
-				return new DummyStrategy(movable);
 
 			case BAKER:
 			case CHARCOAL_BURNER:
@@ -78,11 +73,8 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 			case WINEGROWER:
 			case HEALER:
 			case DOCKWORKER:
-				return new BuildingWorkerStrategy<>((BuildingWorkerMovable) movable);
 
 			case DIGGER:
-				return new DiggerStrategy((DiggerMovable) movable);
-
 			case BRICKLAYER:
 			case PIONEER:
 			case GEOLOGIST:
