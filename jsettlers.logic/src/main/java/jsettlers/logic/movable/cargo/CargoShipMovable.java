@@ -44,7 +44,7 @@ public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip
 		return CARGO_STACKS;
 	}
 
-	public void setCargoCount(int count, int stack) {
+	private void setCargoCount(int count, int stack) {
 		if (checkStackNumber(stack)) {
 			this.cargoCount[stack] = count;
 			if (this.cargoCount[stack] < 0) {
@@ -55,7 +55,7 @@ public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip
 		}
 	}
 
-	public void setCargoType(EMaterialType cargo, int stack) {
+	private void setCargoType(EMaterialType cargo, int stack) {
 		this.cargoType[stack] = cargo;
 	}
 

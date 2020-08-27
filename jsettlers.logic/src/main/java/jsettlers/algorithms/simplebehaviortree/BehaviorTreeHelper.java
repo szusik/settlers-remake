@@ -3,6 +3,7 @@ package jsettlers.algorithms.simplebehaviortree;
 import jsettlers.algorithms.simplebehaviortree.nodes.DynamicGuardSelector;
 import jsettlers.algorithms.simplebehaviortree.nodes.IGetPropertyProducer;
 import jsettlers.algorithms.simplebehaviortree.nodes.ISetPropertyConsumer;
+import jsettlers.algorithms.simplebehaviortree.nodes.IgnoreFailure;
 import jsettlers.algorithms.simplebehaviortree.nodes.Property;
 import jsettlers.algorithms.simplebehaviortree.nodes.Sleep;
 import jsettlers.algorithms.simplebehaviortree.nodes.Action;
@@ -77,6 +78,10 @@ public final class BehaviorTreeHelper {
 
 	public static <T> Inverter<T> inverter(Node<T> child) {
 		return new Inverter<>(child);
+	}
+
+	public static <T> IgnoreFailure<T> ignoreFailure(Node<T> child) {
+		return new IgnoreFailure<>(child);
 	}
 
 	@SafeVarargs
