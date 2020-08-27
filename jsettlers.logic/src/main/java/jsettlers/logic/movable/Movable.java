@@ -701,7 +701,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * The material type to take
 	 * @return true if the animation will be executed.
 	 */
-	final boolean take(EMaterialType materialToTake, boolean takeFromMap) {
+	public final boolean take(EMaterialType materialToTake, boolean takeFromMap) {
 		if (!takeFromMap || grid.canTakeMaterial(position, materialToTake)) {
 			this.takeDropMaterial = materialToTake;
 

@@ -24,12 +24,10 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
-import jsettlers.logic.movable.strategies.BearerMovableStrategy;
 import jsettlers.logic.movable.strategies.BricklayerStrategy;
 import jsettlers.logic.movable.strategies.BuildingWorkerStrategy;
 import jsettlers.logic.movable.strategies.DiggerStrategy;
@@ -52,8 +50,6 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 	public static MovableStrategy<?> getStrategy(Movable movable, EMovableType movableType) {
 		switch (movableType) {
 			case BEARER:
-				return new BearerMovableStrategy((BearerMovable) movable);
-
 			case SWORDSMAN_L1:
 			case SWORDSMAN_L2:
 			case SWORDSMAN_L3:
