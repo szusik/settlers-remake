@@ -24,24 +24,18 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.movable.cargo.DonkeyMovable;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
-import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
-import jsettlers.logic.movable.military.BowmanMovable;
-import jsettlers.logic.movable.military.InfantryMovable;
 import jsettlers.logic.movable.military.MageMovable;
 import jsettlers.logic.movable.strategies.BearerMovableStrategy;
 import jsettlers.logic.movable.strategies.BricklayerStrategy;
 import jsettlers.logic.movable.strategies.BuildingWorkerStrategy;
 import jsettlers.logic.movable.strategies.DiggerStrategy;
 import jsettlers.logic.movable.strategies.DummyStrategy;
-import jsettlers.logic.movable.strategies.military.BowmanStrategy;
-import jsettlers.logic.movable.strategies.military.InfantryStrategy;
 import jsettlers.logic.movable.strategies.military.MageStrategy;
 
 /**
@@ -69,11 +63,10 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 			case PIKEMAN_L1:
 			case PIKEMAN_L2:
 			case PIKEMAN_L3:
-				return new InfantryStrategy((InfantryMovable) movable);
 			case BOWMAN_L1:
 			case BOWMAN_L2:
 			case BOWMAN_L3:
-				return new BowmanStrategy((BowmanMovable) movable);
+				return new DummyStrategy(movable);
 
 			case BAKER:
 			case CHARCOAL_BURNER:
@@ -247,15 +240,6 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
 	}
 
-	/**
-	 * This method may only be called if this movable shall be informed about a movable that's in it's search radius.
-	 *
-	 * @param other
-	 * 		The other movable.
-	 */
-	public void informAboutAttackable(IAttackable other) {
-	}
-
 	public void setPlayerControlled(boolean playerControlled) {
 		movable.playerControlled = playerControlled;
 	}
@@ -289,13 +273,6 @@ public abstract class MovableStrategy<T extends Movable> implements Serializable
 
 	protected boolean isOnOwnGround() {
 		return movable.isOnOwnGround();
-	}
-
-	/**
-	 * @return If true, the hit is received, if false, the hit is ignored.
-	 */
-	public boolean receiveHit() {
-		return true;
 	}
 
 	protected void tookMaterial() {

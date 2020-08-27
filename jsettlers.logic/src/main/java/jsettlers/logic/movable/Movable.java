@@ -104,7 +104,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	// the following data only for ship passengers
 	protected IFerryMovable ferryToEnter = null;
 
-	boolean playerControlled;
+	protected boolean playerControlled;
 
 	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
 		this.grid = grid;
@@ -737,7 +737,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * @param direction
 	 * The direction to look.
 	 */
-	final void lookInDirection(EDirection direction) {
+	public final void lookInDirection(EDirection direction) {
 		if(hasEffect(EEffectType.FROZEN)) return;
 
 		this.direction = direction;
@@ -818,7 +818,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		this.position = position;
 	}
 
-	final void setVisible(boolean visible) {
+	public final void setVisible(boolean visible) {
 		if (this.visible == visible) { // nothing to change
 		} else if (this.visible) { // is visible and gets invisible
 			grid.leavePosition(position, this);
@@ -857,7 +857,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return path.getTargetPosition();
 	}
 
-	final void enableNothingToDoAction(boolean enable) {
+	public final void enableNothingToDoAction(boolean enable) {
 		this.enableNothingToDo = enable;
 	}
 

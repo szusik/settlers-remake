@@ -22,13 +22,11 @@ public class AttackableMovable extends Movable implements IAttackableMovable {
 
 	@Override
 	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
-		if (strategy.receiveHit()) {
-			if(hasEffect(EEffectType.SHIELDED)) hitStrength *= EEffectType.SHIELDED_DAMAGE_FACTOR;
+		if(hasEffect(EEffectType.SHIELDED)) hitStrength *= EEffectType.SHIELDED_DAMAGE_FACTOR;
 
-			this.health -= hitStrength;
-			if (health <= 0) {
-				this.kill();
-			}
+		this.health -= hitStrength;
+		if (health <= 0) {
+			this.kill();
 		}
 
 		player.showMessage(SimpleMessage.attacked(attackingPlayer, attackerPos));
@@ -52,8 +50,7 @@ public class AttackableMovable extends Movable implements IAttackableMovable {
 	 * 		The other movable.
 	 */
 	@Override
-	public final void informAboutAttackable(IAttackable other) {
-		strategy.informAboutAttackable(other);
+	public void informAboutAttackable(IAttackable other) {
 	}
 
 }

@@ -60,9 +60,9 @@ public final class Constants {
 	 * The radius within a a tower informs enemies
 	 */
 	public static final short TOWER_ATTACKABLE_SEARCH_RADIUS = 40;
-	public static final int   BOWMAN_ATTACK_RADIUS           = 15;
-	public static final int   BOWMAN_IN_TOWER_ATTACK_RADIUS  = 25;
-	public static final int   BOWMAN_MIN_ATTACK_DISTANCE     = 7;
+	public static final short   BOWMAN_ATTACK_RADIUS           = 15;
+	public static final short   BOWMAN_IN_TOWER_ATTACK_RADIUS  = 25;
+	public static final short   BOWMAN_MIN_ATTACK_DISTANCE     = 7;
 
 	public static final byte BRICKLAYER_ACTIONS_PER_MATERIAL = 12;
 
