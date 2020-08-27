@@ -1062,16 +1062,18 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected static Movable createMovable(EMovableType movableType, Player player, ShortPoint2D position, AbstractMovableGrid grid, Movable replaceMovable) {
+		if(replaceMovable != null) replaceMovable.decoupleMovable();
+
 		Movable movable = chooseMovableClass(movableType, player, position, grid, replaceMovable);
 
 		MovableManager.add(movable);
 		grid.enterPosition(position, movable, true);
+
+		if(replaceMovable != null) replaceMovable.killMovable();
 		return movable;
 	}
 
 	private static Movable chooseMovableClass(EMovableType movableType, Player player, ShortPoint2D position, AbstractMovableGrid grid, Movable movable) {
-		if(movable != null) movable.decoupleMovable();
-
 		switch (movableType) {
 			case SWORDSMAN_L1:
 			case SWORDSMAN_L2:

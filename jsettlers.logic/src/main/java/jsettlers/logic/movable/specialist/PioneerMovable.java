@@ -30,7 +30,6 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 		if(!player.equals(grid.getPlayerAt(position))) return false;
 
 		createMovable(EMovableType.BEARER, player, position, grid, this);
-		killMovable();
 
 		return true;
 	}

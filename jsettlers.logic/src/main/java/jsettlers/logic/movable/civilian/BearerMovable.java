@@ -34,9 +34,7 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 
 	@Override
 	public ILogicMovable convertTo(EMovableType newMovableType) {
-		Movable newMovable = createMovable(newMovableType, player, position, grid, this);
-		killMovable();
-		return newMovable;
+		return createMovable(newMovableType, player, position, grid, this);
 	}
 
 	@Override

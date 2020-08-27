@@ -56,7 +56,6 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 	@Override
 	public void defectTo(Player player) {
 		Movable.createMovable(getMovableType(), player, position, grid, this);
-		killMovable();
 	}
 
 	@Override

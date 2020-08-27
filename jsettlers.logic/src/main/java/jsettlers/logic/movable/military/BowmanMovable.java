@@ -21,7 +21,6 @@ public class BowmanMovable extends SoldierMovable implements IBowmanMovable {
 	@Override
 	public void convertToPioneer() {
 		createMovable(EMovableType.PIONEER, player, position, grid, this);
-		killMovable();
 	}
 
 	@Override
