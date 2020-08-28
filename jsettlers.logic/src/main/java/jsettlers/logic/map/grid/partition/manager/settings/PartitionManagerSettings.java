@@ -123,6 +123,7 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 		this.maxBricklayerRatio = maxBricklayerRatio;
 	}
 
+	@Override
 	public float getMaxBricklayerRatio() {
 		return maxBricklayerRatio;
 	}
@@ -132,6 +133,7 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 		this.maxDiggerRatio = maxDiggerRatio;
 	}
 
+	@Override
 	public float getMaxDiggerRatio() {
 		return maxDiggerRatio;
 	}
@@ -141,6 +143,7 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 		this.minBearerRatio = minBearerRatio;
 	}
 
+	@Override
 	public float getMinBearerRatio() {
 		return minBearerRatio;
 	}

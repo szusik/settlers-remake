@@ -54,7 +54,8 @@ public enum EGuiAction {
 
 	CHANGE_TOWER_SOLDIERS,
 	SET_ACCEPTED_STOCK_MATERIAL,
-	CAST_SPELL;
+	CAST_SPELL,
+	SET_MOVEABLE_RATIO;
 
 	public static final EGuiAction[] VALUES = values();
 }
