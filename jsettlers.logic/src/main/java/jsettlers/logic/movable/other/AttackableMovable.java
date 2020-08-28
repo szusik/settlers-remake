@@ -1,5 +1,6 @@
 package jsettlers.logic.movable.other;
 
+import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
@@ -15,7 +16,11 @@ public class AttackableMovable extends Movable implements IAttackableMovable {
 	protected boolean attackable;
 
 	public AttackableMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, movableType, position, player, movable);
+		this(grid, movableType, position, player, movable, null);
+	}
+
+	public AttackableMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable, Root<? extends AttackableMovable> behaviour) {
+		super(grid, movableType, position, player, movable, behaviour);
 
 		attackable = movableType.attackable;
 	}

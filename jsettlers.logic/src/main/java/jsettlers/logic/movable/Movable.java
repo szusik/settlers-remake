@@ -16,6 +16,12 @@ package jsettlers.logic.movable;
 
 import jsettlers.algorithms.fogofwar.FoWTask;
 import jsettlers.algorithms.path.Path;
+import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
+import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
+import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
+import jsettlers.algorithms.simplebehaviortree.Node;
+import jsettlers.algorithms.simplebehaviortree.Root;
+import jsettlers.algorithms.simplebehaviortree.Tick;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.mapobject.EMapObjectType;
@@ -29,6 +35,7 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.movable.cargo.CargoMovable;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
@@ -51,6 +58,11 @@ import jsettlers.logic.player.Player;
 
 import java.util.LinkedList;
 import java.util.Objects;
+
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.condition;
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.sequence;
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.waitFor;
+
 /**
  * Central Movable class of JSettlers.
  *
@@ -105,11 +117,20 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected boolean playerControlled;
 
+	private Tick<? extends Movable> tick;
+
+	@Deprecated
 	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
+		this(grid, movableType, position, player, replace, null);
+	}
+
+	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends Movable> behaviour) {
 		this.grid = grid;
 		this.position = position;
 		this.player = player;
 		this.movableType = movableType;
+
+		this.tick = behaviour != null? new Tick<>(this, (Root<Movable>)behaviour) : null;
 
 		if(replace != null) {
 			this.health = replace.getHealth()/replace.getMovableType().getHealth()*movableType.getHealth();
@@ -164,6 +185,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected void action() {
+		if(tick != null) tick.tick();
 	}
 
 	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
@@ -177,11 +199,34 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
+		if(pathStep != null && !pathStep.test(this)) {
+			aborted = true;
+			return false;
+		}
+
 		return true;
 	}
 
+	protected boolean aborted;
+	protected IBooleanConditionFunction<Movable> pathStep;
+
 	protected void pathAborted(ShortPoint2D pathTarget) {
+		aborted = true;
 	}
+
+
+	protected static <T extends Movable> Node<T> goToPos(IShortPoint2DSupplier<T> target, IBooleanConditionFunction<T> pathStep) {
+		return sequence(
+				BehaviorTreeHelper.action(mov -> {
+					mov.aborted = false;
+					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
+					mov.goToPos(target.apply(mov));
+				}),
+				waitFor(condition(mov -> mov.path == null)),
+				condition(mov -> !mov.aborted)
+		);
+	}
+
 
 	protected Path findWayAroundObstacle(ShortPoint2D position, Path path) {
 		if (!path.hasOverNextStep()) { // if path has no position left

@@ -10,7 +10,6 @@ import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.algorithms.simplebehaviortree.Tick;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableType;
@@ -28,12 +27,9 @@ public abstract class CargoMovable extends AttackableMovable {
 
 	protected ITradeBuilding tradeBuilding = null;
 	protected Iterator<ShortPoint2D> waypoints;
-	private Tick<CargoMovable> tick;
 
 	public CargoMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, movableType, position, player, movable);
-
-		tick = new Tick<>(this, tree);
+		super(grid, movableType, position, player, movable, tree);
 	}
 
 	private static Root<CargoMovable> tree = new Root<>(createCargoBehaviour());
@@ -47,11 +43,11 @@ public abstract class CargoMovable extends AttackableMovable {
 						BehaviorTreeHelper.action(mov -> {
 							mov.waypoints = mov.tradeBuilding.getWaypointsIterator();
 							mov.lostCargo = false;
+							mov.pathStep = (mov2) -> !((CargoMovable)mov2).lostCargo;
 						}),
 						ignoreFailure(repeat(mov -> mov.waypoints.hasNext(),
 							sequence(
 								condition(mov -> {
-									mov.pathStep = (mov2) -> !mov2.lostCargo;
 									ShortPoint2D nextPosition = mov.waypoints.next();
 									if (mov.preSearchPath(true, nextPosition.x, nextPosition.y, mov.getWaypointSearchRadius(), ESearchType.VALID_FREE_POSITION)) {
 										mov.followPresearchedPath();
@@ -60,12 +56,13 @@ public abstract class CargoMovable extends AttackableMovable {
 									return false;
 								}),
 								waitFor(condition(mov -> mov.path == null)),
-								condition(mov -> {
-									mov.pathStep = null;
-									return !mov.aborted;
-								})
+								condition(mov -> !mov.aborted)
 							)
 						)),
+						BehaviorTreeHelper.action(mov -> {
+							mov.pathStep = null;
+							mov.waypoints = null;
+						}),
 						BehaviorTreeHelper.action(CargoMovable::dropMaterialIfPossible)
 					)
 				),
@@ -74,20 +71,6 @@ public abstract class CargoMovable extends AttackableMovable {
 					condition(CargoMovable::findNewTrader),
 					BehaviorTreeHelper.sleep(1000)
 				)
-		);
-	}
-
-	private static Node<CargoMovable> goToPos(IShortPoint2DSupplier<CargoMovable> target, IBooleanConditionFunction<CargoMovable> pathStep) {
-		return sequence(
-				BehaviorTreeHelper.action(mov -> {
-					mov.aborted = false;
-					mov.goToPos(target.apply(mov));
-				}),
-				waitFor(condition(mov -> mov.path == null)),
-				condition(mov -> {
-					mov.pathStep = null;
-					return !mov.aborted;
-				})
 		);
 	}
 
@@ -114,31 +97,7 @@ public abstract class CargoMovable extends AttackableMovable {
 		dropMaterialIfPossible();
 	}
 
-	private boolean aborted;
-
-	@Override
-	protected void pathAborted(ShortPoint2D pathTarget) {
-		aborted = true;
-	}
-
-	private IBooleanConditionFunction<CargoMovable> pathStep;
-
-	@Override
-	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
-		if(pathStep != null && !pathStep.test(this)) {
-			aborted = true;
-			return false;
-		}
-
-		return true;
-	}
-
 	protected boolean lostCargo = false;
-
-	@Override
-	protected void action() {
-		tick.tick();
-	}
 
 	/**
 	 *
