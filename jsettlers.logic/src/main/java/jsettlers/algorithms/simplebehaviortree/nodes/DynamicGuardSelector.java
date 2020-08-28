@@ -20,9 +20,9 @@ import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 
-public class DynamicGuardSelector<T> extends Composite<T> {
+import static jsettlers.algorithms.simplebehaviortree.NodeStatus.*;
 
-	private Guard<T> runningChild = null;
+public class DynamicGuardSelector<T> extends Composite<T> {
 
 	public DynamicGuardSelector(Guard<T>[] childrenGuards) {
 		super(childrenGuards);
@@ -34,15 +34,17 @@ public class DynamicGuardSelector<T> extends Composite<T> {
 			Guard<T> guard = (Guard<T>)child;
 
 			if(guard.checkGuardCondition(tick)) {
+				Node<T> runningChild = tick.getProperty(getId());
 				if(runningChild != null && runningChild != guard) runningChild.close(tick);
 
 				NodeStatus returnStatus = guard.execute(tick);
 
 				switch (returnStatus) {
 					case RUNNING:
-						runningChild = guard;
+						tick.setProperty(getId(), guard);
+						return RUNNING;
 					case SUCCESS:
-						return returnStatus;
+						return SUCCESS;
 						// continue with next node
 					case FAILURE:
 						break;
@@ -54,7 +56,13 @@ public class DynamicGuardSelector<T> extends Composite<T> {
 	}
 
 	@Override
+	protected void onOpen(Tick<T> tick) {
+		tick.setProperty(getId(), null);
+	}
+
+	@Override
 	protected void onClose(Tick<T> tick) {
+		Node<T> runningChild = tick.getProperty(getId());
 		if(runningChild != null) runningChild.close(tick);
 	}
 }

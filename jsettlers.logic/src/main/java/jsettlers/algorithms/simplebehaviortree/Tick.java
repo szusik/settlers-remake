@@ -23,6 +23,10 @@ public class Tick<T> implements Serializable {
 		return root.execute(this);
 	}
 
+	public void close() {
+		root.close(this);
+	}
+
 	public boolean isOpen(Node<T> node) {
 		return openNodes.contains(node);
 	}

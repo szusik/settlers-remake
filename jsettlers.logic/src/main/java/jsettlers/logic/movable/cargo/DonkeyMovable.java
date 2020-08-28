@@ -20,26 +20,19 @@ public class DonkeyMovable extends CargoMovable {
 	private final EMaterialType[] cargo = new EMaterialType[CARGO_COUNT];
 
 	public DonkeyMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, movableType, position, player, movable, WAYPOINT_SEARCH_RADIUS, MarketBuilding::getAllMarkets);
+		super(grid, movableType, position, player, movable);
 	}
 
-	public void setCargo(int index, EMaterialType material) {
+	private void setCargo(int index, EMaterialType material) {
 		cargo[index] = material;
 	}
 
-	public EMaterialType getCargo(int index) {
+	private EMaterialType getCargo(int index) {
 		return cargo[index];
 	}
 
-	@Override
-	protected void action() {
-		super.action();
 
-		attackable = getState() == CargoMovable.ETraderState.GOING_TO_TARGET;
-	}
-
-
-	protected boolean loadUp(ITradeBuilding tradeBuilding) {
+	protected boolean loadUp() {
 		boolean loaded = false;
 		for(int i = 0; i < DonkeyMovable.CARGO_COUNT; i++) {
 			Optional<ITradeBuilding.MaterialTypeWithCount> cargo = tradeBuilding.tryToTakeMaterial(1);
@@ -52,6 +45,7 @@ public class DonkeyMovable extends CargoMovable {
 
 		if(loaded) {
 			setMaterial(EMaterialType.BASKET);
+			attackable = true;
 		}
 
 		return loaded;
@@ -72,15 +66,23 @@ public class DonkeyMovable extends CargoMovable {
 		}
 
 		setMaterial(EMaterialType.NO_MATERIAL);
+		attackable = false;
 	}
 
 	@Override
 	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
-		if(getState() == CargoMovable.ETraderState.GOING_TO_TARGET) {
-			reset();
-			abortPath();
-		}
+		lostCargo = true;
 
 		player.showMessage(SimpleMessage.donkeyAttacked(attackingPlayer, attackerPos));
+	}
+
+	@Override
+	protected Stream<? extends ITradeBuilding> getAllTradeBuildings() {
+		return MarketBuilding.getAllMarkets(player);
+	}
+
+	@Override
+	protected short getWaypointSearchRadius() {
+		return WAYPOINT_SEARCH_RADIUS;
 	}
 }

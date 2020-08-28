@@ -22,7 +22,7 @@ public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip
 	private final int[]				cargoCount	= new int[CARGO_STACKS];
 
 	public CargoShipMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.CARGO_SHIP, position, player, movable, WAYPOINT_SEARCH_RADIUS, HarborBuilding::getAllHarbors);
+		super(grid, EMovableType.CARGO_SHIP, position, player, movable);
 	}
 
 	private boolean checkStackNumber(int stack) {
@@ -61,7 +61,7 @@ public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip
 
 
 	@Override
-	protected boolean loadUp(ITradeBuilding tradeBuilding) {
+	protected boolean loadUp() {
 		MutableBoolean loaded = new MutableBoolean(false);
 
 		for (int stackIndex = 0; stackIndex < CargoShipMovable.CARGO_STACKS; stackIndex++) {
@@ -92,5 +92,15 @@ public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip
 			}
 			setCargoCount(0, stack);
 		}
+	}
+
+	@Override
+	protected Stream<? extends ITradeBuilding> getAllTradeBuildings() {
+		return HarborBuilding.getAllHarbors(player);
+	}
+
+	@Override
+	public short getWaypointSearchRadius() {
+		return WAYPOINT_SEARCH_RADIUS;
 	}
 }
