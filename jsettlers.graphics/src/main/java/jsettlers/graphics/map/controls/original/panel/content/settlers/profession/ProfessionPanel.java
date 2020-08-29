@@ -12,6 +12,7 @@ import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionSettings;
 import jsettlers.common.map.partition.IProfessionSettings;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.graphics.action.ActionFireable;
 import jsettlers.graphics.localization.Labels;
@@ -69,9 +70,13 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 			this.panel.setup(professionSettings);
 		}
 	}
+	
+	public void setPlayer(IInGamePlayer player) {
+		uiContentUpdater.setPlayer(player);
+	}
 
 	private static IPartitionSettings currentDistributionSettingsProvider(IGraphicsGrid grid, ShortPoint2D position) {
-		return grid.getPlayerIdAt(position.x, position.y) >= 0 ? grid.getPartitionData(position.x, position.y).getPartitionSettings() : null;
+		return grid.getPlayerAt(position.x, position.y).getPlayerId() >= 0 ? grid.getPartitionData(position.x, position.y).getPartitionSettings() : null;
 	}
 
 	public enum EProfessionType {
@@ -150,7 +155,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 			@Override
 			public void update() {
 				super.update();
-				this.label.setText(MessageFormat.format("{0} {1} {2} ({3})", (this.type.min ? '>' : '<'), formatPercentage(ratio), this.type.label, formatPercentage(currentRatio)));
+				this.label.setText(MessageFormat.format("{0} {1} {2} ({3})", (this.type.min ? '>' : '<'), formatPercentage(ratio), Labels.getString(this.type.label), formatPercentage(currentRatio)));
 			}
 
 			private String formatPercentage(float value) {

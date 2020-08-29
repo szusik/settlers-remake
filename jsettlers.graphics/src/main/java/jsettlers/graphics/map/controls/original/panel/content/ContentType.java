@@ -74,6 +74,7 @@ public final class ContentType {
 		GOODS_SPREAD.setPlayer(player);
 
 		SETTLER_STATISTIC.setPlayer(player);
+		PROFESSION.setPlayer(player);
 		WARRIORS.setPlayer(player);
 	}
 }
