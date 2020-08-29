@@ -80,6 +80,8 @@ public class LayoutLoader {
 				break;
 			case "mappedImage":
 				panelStack.getLast().addArgument(new LinkMapArgument(attributes));
+			case "enum":
+				panelStack.getLast().addArgument(new UncheckedEnumArgument(attributes, "constant", attributes.getValue("enumName")));
 				break;
 
 			}
