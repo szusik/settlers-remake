@@ -32,7 +32,7 @@ public abstract class CargoMovable extends AttackableMovable {
 		super(grid, movableType, position, player, movable, tree);
 	}
 
-	private static Root<CargoMovable> tree = new Root<>(createCargoBehaviour());
+	private static final Root<CargoMovable> tree = new Root<>(createCargoBehaviour());
 
 	private static Node<CargoMovable> createCargoBehaviour() {
 		return sequence(
@@ -59,10 +59,6 @@ public abstract class CargoMovable extends AttackableMovable {
 								condition(mov -> !mov.aborted)
 							)
 						)),
-						BehaviorTreeHelper.action(mov -> {
-							mov.pathStep = null;
-							mov.waypoints = null;
-						}),
 						BehaviorTreeHelper.action(CargoMovable::dropMaterialIfPossible)
 					)
 				),

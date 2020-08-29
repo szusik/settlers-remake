@@ -19,6 +19,7 @@ import jsettlers.algorithms.path.Path;
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
+import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.Tick;
@@ -214,6 +215,20 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		aborted = true;
 	}
 
+
+	/**
+	 *
+	 * @param duration
+	 * 			duration in milliseconds
+	 */
+	protected static <T extends Movable> Node<T> playAction(EMovableAction action, IShortSupplier<T> duration) {
+		return sequence(
+				BehaviorTreeHelper.action(mov -> {
+					mov.playAction(action, duration.apply(mov)/1000.f);
+				}),
+				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
+		);
+	}
 
 	protected static <T extends Movable> Node<T> goToPos(IShortPoint2DSupplier<T> target, IBooleanConditionFunction<T> pathStep) {
 		return sequence(

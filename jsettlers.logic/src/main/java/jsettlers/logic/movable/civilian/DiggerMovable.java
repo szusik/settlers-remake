@@ -1,6 +1,8 @@
 package jsettlers.logic.movable.civilian;
 
-import jsettlers.common.action.EMoveToType;
+import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
+import jsettlers.algorithms.simplebehaviortree.Node;
+import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
@@ -13,59 +15,83 @@ import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
-public class DiggerMovable extends CivilianMovable implements IManageableDigger {
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
-	private IDiggerRequester requester;
-	private EDiggerState state = EDiggerState.JOBLESS;
+public class DiggerMovable extends Movable implements IManageableDigger {
+
+	private IDiggerRequester requester = null;
+	private boolean registered = false;
+	private ShortPoint2D targetPosition;
+
+	private boolean fleeing;
 
 	public DiggerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.DIGGER, position, player, movable);
+		super(grid, EMovableType.DIGGER, position, player, movable, tree);
+	}
+
+	private static final Root<DiggerMovable> tree = new Root<>(createDiggerBehaviour());
+
+	private static Node<DiggerMovable> createDiggerBehaviour() {
+		return guardSelector(
+				guard(mov -> mov.fleeing,
+					sequence(
+						BehaviorTreeHelper.action(DiggerMovable::abortJob),
+						alwaysSucceed() // TODO
+					)
+				),
+				guard(mov -> mov.requester != null && mov.requester.isDiggerRequestActive(),
+					resetAfter(mov -> {
+							mov.targetPosition = null;
+							mov.requester = null;
+						},
+						selector(
+							repeat(DiggerMovable::flattenPositionsRemaining,
+								sequence(
+									condition(DiggerMovable::findDiggablePosition),
+									resetAfter(
+										mov -> mov.grid.setMarked(mov.targetPosition, false),
+										sequence(
+											BehaviorTreeHelper.action(mov -> {mov.grid.setMarked(mov.targetPosition, true);}),
+											goToPos(mov -> mov.targetPosition, mov -> mov.requester != null && mov.requester.isDiggerRequestActive()), // TODO
+											playAction(EMovableAction.ACTION1, mov -> (short)1000),
+											BehaviorTreeHelper.action(DiggerMovable::executeDigg)
+										)
+									)
+								)
+							),
+							BehaviorTreeHelper.action(DiggerMovable::abortJob)
+						)
+					)
+				),
+				guard(mov -> !mov.registered,
+					BehaviorTreeHelper.action(mov -> {
+						mov.requester = null;
+						mov.registered = true;
+						mov.grid.addJobless(mov);
+					})
+				)
+		);
 	}
 
 	@Override
-	public void strategyStarted() {
-		reportJobless();
-	}
+	protected void decoupleMovable() {
+		super.decoupleMovable();
 
-	@Override
-	public boolean setDiggerJob(IDiggerRequester requester) {
-		if (state == EDiggerState.JOBLESS) {
-			this.requester = requester;
-			this.state = EDiggerState.INIT_JOB;
-			return true;
+		if(requester != null) {
+			abortJob();
 		} else {
-			return false;
+			grid.removeJobless(this);
 		}
 	}
 
 	@Override
-	protected void peacetimeAction() {
-		switch (state) {
-			case JOBLESS:
-				break;
-
-			case INIT_JOB:
-				goToDiggablePosition();
-				break;
-
-			case PLAYING_ACTION:
-				executeDigg();
-				if (!requester.isDiggerRequestActive()) {
-					grid.setMarked(position, false);
-					reportJobless();
-					break;
-				}
-			case GOING_TO_POS:
-				if (needsToBeWorkedOn(position)) {
-					super.playAction(EMovableAction.ACTION1, 1f);
-					this.state = EDiggerState.PLAYING_ACTION;
-				} else {
-					goToDiggablePosition();
-				}
-				break;
-
-			case DEAD_OBJECT:
-				break;
+	public boolean setDiggerJob(IDiggerRequester requester) {
+		if (this.requester == null) {
+			this.requester = requester;
+			registered = false;
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -73,33 +99,16 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 		grid.changeHeightTowards(position.x, position.y, requester.getAverageHeight());
 	}
 
-	private void goToDiggablePosition() {
-		grid.setMarked(position, false);
-		ShortPoint2D diggablePos = getDiggablePosition();
-		if (diggablePos != null) {
-			if (super.goToPos(diggablePos)) {
-				state = EDiggerState.GOING_TO_POS;
-				grid.setMarked(diggablePos, true);
-			} else {
-				reportJobless();
-			}
-
-		} else if (allPositionsFlattened()) { // all positions are flattened => building is finished
-			reportJobless();
-
-		} // else { not all positions are finished, so wait if one becomes unmarked or all are finished => do nothing
-	}
-
-	private boolean allPositionsFlattened() {
+	private boolean flattenPositionsRemaining() {
 		for (RelativePoint relativePosition : requester.getBuildingVariant().getProtectedTiles()) {
 			if (needsToBeWorkedOn(relativePosition.calculatePoint(requester.getPosition()))) {
-				return false;
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
-	private ShortPoint2D getDiggablePosition() {
+	private boolean findDiggablePosition() {
 		RelativePoint[] blockedTiles = requester.getBuildingVariant().getProtectedTiles();
 		ShortPoint2D buildingPos = requester.getPosition();
 		int offset = MatchConstants.random().nextInt(blockedTiles.length);
@@ -107,10 +116,11 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 		for (int i = 0; i < blockedTiles.length; i++) {
 			ShortPoint2D pos = blockedTiles[(i + offset) % blockedTiles.length].calculatePoint(buildingPos);
 			if (!grid.isMarked(pos) && needsToBeWorkedOn(pos)) {
-				return pos;
+				targetPosition = pos;
+				return true;
 			}
 		}
-		return null;
+		return false;
 	}
 
 	private boolean needsToBeWorkedOn(ShortPoint2D pos) {
@@ -128,68 +138,8 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 		return grid.getHeightAt(pos) != requester.getAverageHeight();
 	}
 
-	private void reportJobless() {
-		this.state = EDiggerState.JOBLESS;
-		this.requester = null;
-		grid.addJobless(this);
-	}
-
-	@Override
-	protected boolean peacetimeCheckPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
-		if (requester == null || requester.isDiggerRequestActive()) {
-			return true;
-		} else {
-			if (state != EDiggerState.JOBLESS) {
-				reportJobless();
-			}
-
-			if (pathTarget != null) {
-				grid.setMarked(pathTarget, false);
-			}
-			return false;
-		}
-	}
-
-	@Override
-	protected void strategyStopped() {
-		switch (state) {
-			case JOBLESS:
-				grid.removeJobless(this);
-				break;
-			case PLAYING_ACTION:
-				grid.setMarked(position, false);
-				break;
-			default:
-				break;
-		}
-
-		if (requester != null) {
-			abortJob();
-		}
-
-		state = EDiggerState.DEAD_OBJECT;
-	}
-
-	@Override
-	protected void peacetimePathAborted(ShortPoint2D pathTarget) {
-		if (requester != null) {
-			grid.setMarked(pathTarget, false);
-			abortJob();
-			reportJobless();
-		}
-	}
-
 	private void abortJob() {
 		requester.diggerRequestFailed();
-	}
-
-
-	private enum EDiggerState {
-		JOBLESS,
-		INIT_JOB,
-		GOING_TO_POS,
-		PLAYING_ACTION,
-
-		DEAD_OBJECT
+		requester = null;
 	}
 }
