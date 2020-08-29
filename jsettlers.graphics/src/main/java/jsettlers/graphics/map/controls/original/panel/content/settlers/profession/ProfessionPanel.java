@@ -10,6 +10,7 @@ import jsettlers.common.map.partition.IPartitionSettings;
 import jsettlers.common.map.partition.IProfessionSettings;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.IInGamePlayer;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.graphics.action.ActionFireable;
 import jsettlers.graphics.localization.Labels;
@@ -62,7 +63,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 	@Override
 	public void update(IPartitionSettings partitionSettings) {
 		// Use delay to prevent race condition between direct ui update and settings update
-		if (System.currentTimeMillis() - lastChangeTimestamp > 5000) {
+		if (partitionSettings != null && System.currentTimeMillis() - lastChangeTimestamp > 5000) {
 			IProfessionSettings professionSettings = partitionSettings.getProfessionSettings();
 			this.panel.setup(professionSettings);
 		}
@@ -73,7 +74,8 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 	}
 
 	private static IPartitionSettings currentDistributionSettingsProvider(IGraphicsGrid grid, ShortPoint2D position) {
-		return grid.getPlayerAt(position.x, position.y).getPlayerId() >= 0 ? grid.getPartitionData(position.x, position.y).getPartitionSettings() : null;
+		IPlayer player = grid.getPlayerAt(position.x, position.y);
+		return (player != null && player.getPlayerId() >= 0) ? grid.getPartitionData(position.x, position.y).getPartitionSettings() : null;
 	}
 
 	public enum EProfessionType {
