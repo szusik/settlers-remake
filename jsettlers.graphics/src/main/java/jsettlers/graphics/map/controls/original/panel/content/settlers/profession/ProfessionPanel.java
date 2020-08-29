@@ -59,6 +59,12 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 		super.contentShowing(actionFireable);
 		this.uiContentUpdater.start();
 	}
+	
+	@Override
+	public void contentHiding(ActionFireable actionFireable, AbstractContentProvider nextContent) {
+		super.contentHiding(actionFireable, nextContent);
+		this.uiContentUpdater.stop();
+	}
 
 	@Override
 	public void update(IPartitionSettings partitionSettings) {
