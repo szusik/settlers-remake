@@ -4,10 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import go.graphics.text.EFontSize;
-import jsettlers.common.action.Action;
 import jsettlers.common.action.SetMoveableRatioAction;
-import jsettlers.common.images.EImageLinkType;
-import jsettlers.common.images.OriginalImageLink;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionSettings;
 import jsettlers.common.map.partition.IProfessionSettings;
@@ -20,7 +17,7 @@ import jsettlers.graphics.map.controls.original.panel.content.AbstractContentPro
 import jsettlers.graphics.map.controls.original.panel.content.ESecondaryTabType;
 import jsettlers.graphics.map.controls.original.panel.content.updaters.UiContentUpdater;
 import jsettlers.graphics.map.controls.original.panel.content.updaters.UiLocationDependingContentUpdater;
-import jsettlers.graphics.ui.Button;
+import jsettlers.graphics.ui.CountArrows;
 import jsettlers.graphics.ui.Label;
 import jsettlers.graphics.ui.Label.EHorizontalAlignment;
 import jsettlers.graphics.ui.UIElement;
@@ -70,7 +67,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 			this.panel.setup(professionSettings);
 		}
 	}
-	
+
 	public void setPlayer(IInGamePlayer player) {
 		uiContentUpdater.setPlayer(player);
 	}
@@ -148,7 +145,25 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 				this.label = new Label("...", EFontSize.NORMAL, EHorizontalAlignment.LEFT);
 				this.type = type;
 
-				add(new UpDownArrows(type), 10f, 5f);
+				add(Panel.box(new CountArrows(() -> {
+					if (getTotalRatio() <= 1.0f - 0.05f) {
+						setRatio(Math.min(1f, ratio + 0.05f));
+						lastChangeTimestamp = System.currentTimeMillis();
+						SettlerPanel.this.update();
+						return new SetMoveableRatioAction(type.moveableType, position, ratio);
+					} else {
+						return null;
+					}
+				}, () -> {
+					if (getTotalRatio() >= 0.05f) {
+						setRatio(Math.max(0f, ratio - 0.05f));
+						lastChangeTimestamp = System.currentTimeMillis();
+						SettlerPanel.this.update();
+						return new SetMoveableRatioAction(type.moveableType, position, ratio);
+					} else {
+						return null;
+					}
+				}), 12f, 18f), 10f, 5f);
 				add(Panel.box(label, width, 20f), 28f, 5f);
 			}
 
@@ -159,7 +174,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 			}
 
 			private String formatPercentage(float value) {
-				return (int)(value * 100f) + "%";
+				return (int) (value * 100f) + "%";
 			}
 
 			public void setRatio(float ratio) {
@@ -168,39 +183,6 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 
 			public void setCurrentRatio(float currentRatio) {
 				this.currentRatio = currentRatio;
-			}
-
-			public class UpDownArrows extends Panel {
-				public UpDownArrows(EProfessionType type) {
-					super(12f, 18f);
-					setBackground(new OriginalImageLink(EImageLinkType.GUI, 3, 231, 0));
-					addChild(new Button(null) {
-						@Override
-						public Action getAction() {
-							if (getTotalRatio() <= 1.0f - 0.05f) {
-								setRatio(Math.min(1f, ratio + 0.05f));
-								lastChangeTimestamp = System.currentTimeMillis();
-								SettlerPanel.this.update();
-								return new SetMoveableRatioAction(type.moveableType, position, ratio);
-							} else {
-								return null;
-							}
-						}
-					}, 0f, 0.5f, 1f, 1f);
-					addChild(new Button(null) {
-						@Override
-						public Action getAction() {
-							if (getTotalRatio() >= 0.05f) {
-								setRatio(Math.max(0f, ratio - 0.05f));
-								lastChangeTimestamp = System.currentTimeMillis();
-								SettlerPanel.this.update();
-								return new SetMoveableRatioAction(type.moveableType, position, ratio);
-							} else {
-								return null;
-							}
-						}
-					}, 0f, 0f, 1f, 0.5f);
-				}
 			}
 		}
 	}
