@@ -5,6 +5,7 @@ import jsettlers.algorithms.simplebehaviortree.nodes.IGetPropertyProducer;
 import jsettlers.algorithms.simplebehaviortree.nodes.ISetPropertyConsumer;
 import jsettlers.algorithms.simplebehaviortree.nodes.IgnoreFailure;
 import jsettlers.algorithms.simplebehaviortree.nodes.Property;
+import jsettlers.algorithms.simplebehaviortree.nodes.ResetAfter;
 import jsettlers.algorithms.simplebehaviortree.nodes.Sleep;
 import jsettlers.algorithms.simplebehaviortree.nodes.Action;
 import jsettlers.algorithms.simplebehaviortree.nodes.AlwaysFail;
@@ -82,6 +83,10 @@ public final class BehaviorTreeHelper {
 
 	public static <T> IgnoreFailure<T> ignoreFailure(Node<T> child) {
 		return new IgnoreFailure<>(child);
+	}
+
+	public static <T> ResetAfter<T> resetAfter(INodeStatusActionConsumer<T> reset, Node<T> child) {
+		return new ResetAfter<>(reset, child);
 	}
 
 	@SafeVarargs
