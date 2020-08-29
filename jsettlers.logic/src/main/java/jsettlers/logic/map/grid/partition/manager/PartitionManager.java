@@ -54,7 +54,7 @@ import jsettlers.logic.map.grid.partition.manager.objects.SoldierCreationRequest
 import jsettlers.logic.map.grid.partition.manager.objects.WorkerCreationRequest;
 import jsettlers.logic.map.grid.partition.manager.objects.WorkerRequest;
 import jsettlers.logic.map.grid.partition.manager.settings.PartitionManagerSettings;
-import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.timer.IScheduledTimerable;
 import jsettlers.logic.timer.RescheduleTimer;
@@ -340,7 +340,7 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 			diggerCount = 0;
 			bricklayerCount = 0;
 
-			for (ILogicMovable mov : Movable.getAllMovables()) {
+			for (ILogicMovable mov : MovableManager.getAllMovables()) {
 				if (!contains(mov)) continue;
 				workerCount++;
 

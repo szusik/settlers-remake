@@ -62,6 +62,7 @@
 <!ATTLIST mappedImage
     type CDATA #REQUIRED
     movableType CDATA #REQUIRED
+>
 
 <!ELEMENT enum EMPTY>
 <!ATTLIST enum

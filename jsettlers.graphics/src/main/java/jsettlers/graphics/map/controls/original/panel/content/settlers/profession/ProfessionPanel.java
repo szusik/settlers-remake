@@ -31,7 +31,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 	}
 
 	private IPartitionSettings currentDistributionSettingsProvider(IGraphicsGrid grid, ShortPoint2D position) {
-		if (grid.getPlayerIdAt(position.x, position.y) >= 0) {
+		if (grid.getPlayerAt(position.x, position.y) != null) {
 			return grid.getPartitionData(position.x, position.y).getPartitionSettings();
 		}
 
@@ -59,7 +59,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 		private BarFill barFill;
 
 		public RatioPanel(ConfigurableRatioType type) {
-			barFill = new BarFill(type.name() + "-barfill");
+			barFill = new BarFill();
 			addChild(barFill, 0, 0, 1, 1);
 		}
 	}
