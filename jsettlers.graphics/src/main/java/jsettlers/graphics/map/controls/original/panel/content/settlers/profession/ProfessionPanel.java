@@ -105,7 +105,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 			this.diggerPanel = new SettlerPanel(widthInPx, EProfessionType.DIGGER);
 			this.builderPanel = new SettlerPanel(widthInPx, EProfessionType.BUILDER);
 
-			add(Panel.box(new Label(Labels.getString("Settlers"), EFontSize.NORMAL), widthInPx, 20f), 0f, 0f);
+			add(Panel.box(new Label(Labels.getString("settler_profession_title"), EFontSize.NORMAL), widthInPx, 20f), 0f, 0f);
 			add(carrierPanel, 0f, 20f);
 			add(diggerPanel, 0f, 50f);
 			add(builderPanel, 0f, 80f);
@@ -170,7 +170,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 			@Override
 			public void update() {
 				super.update();
-				this.label.setText(MessageFormat.format("{0} {1} {2} ({3})", (this.type.min ? '>' : '<'), formatPercentage(ratio), Labels.getString(this.type.label), formatPercentage(currentRatio)));
+				this.label.setText(MessageFormat.format("{0} {1} {2} ({3})", (this.type.min ? '>' : '<'), formatPercentage(ratio), Labels.getName(this.type.moveableType), formatPercentage(currentRatio)));
 			}
 
 			private String formatPercentage(float value) {
