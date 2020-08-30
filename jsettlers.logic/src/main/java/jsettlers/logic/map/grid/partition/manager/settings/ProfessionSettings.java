@@ -3,6 +3,7 @@ package jsettlers.logic.map.grid.partition.manager.settings;
 import java.io.Serializable;
 
 import jsettlers.common.map.partition.IProfessionSettings;
+import jsettlers.common.movable.EMovableType;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 public class ProfessionSettings implements Serializable, IProfessionSettings {
@@ -104,42 +105,27 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 		return workerCount;
 	}
 	
-	public void setWorkerCount(int workerCount) {
-		this.workerCount = workerCount;
-	}
-	
-	public void increment(ILogicMovable moveable) {
-		incrementWorkerCount();
-		switch (moveable.getMovableType()) {
+	public void increment(EMovableType movableType) {
+		if(!movableType.isPlayerControllable()) workerCount++;
+
+		switch (movableType) {
 			case BEARER:
-				incrementBearerCount();
+				bearerCount++;
 				break;
 			case DIGGER:
-				increamentDiggerCount();
+				diggerCount++;
 				break;
 			case BRICKLAYER:
-				incrementBricklayerCount();
+				bricklayerCount++;
 				break;
 			default:
 				break;
 		}
 	}
 	
-	public void incrementWorkerCount() {
-		this.workerCount++;
-	}
-	
 	@Override
 	public int getBearerCount() {
 		return bearerCount;
-	}
-
-	public void setBearerCount(int bearerCount) {
-		this.bearerCount = bearerCount;
-	}
-
-	public void incrementBearerCount() {
-		this.bearerCount++;
 	}
 
 	public void decrementBearerCount() {
@@ -151,25 +137,9 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 		return diggerCount;
 	}
 
-	public void setDiggerCount(int diggerCount) {
-		this.diggerCount = diggerCount;
-	}
-
-	public void increamentDiggerCount() {
-		this.diggerCount++;
-	}
-
 	@Override
 	public int getBricklayerCount() {
 		return bricklayerCount;
-	}
-
-	public void setBricklayerCount(int bricklayerCount) {
-		this.bricklayerCount = bricklayerCount;
-	}
-
-	public void incrementBricklayerCount() {
-		this.bricklayerCount++;
 	}
 
 	@Override

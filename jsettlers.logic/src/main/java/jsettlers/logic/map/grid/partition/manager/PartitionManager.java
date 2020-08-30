@@ -54,7 +54,6 @@ import jsettlers.logic.map.grid.partition.manager.objects.WorkerRequest;
 import jsettlers.logic.map.grid.partition.manager.settings.MaterialProductionSettings;
 import jsettlers.logic.map.grid.partition.manager.settings.PartitionManagerSettings;
 import jsettlers.logic.map.grid.partition.manager.settings.ProfessionSettings;
-import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.timer.IScheduledTimerable;
 import jsettlers.logic.timer.RescheduleTimer;
@@ -272,7 +271,6 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 		newManager.workerRequests.addAll(this.workerRequests);
 	}
 
-	private transient int lastProfessionSettingsUpdate = 0;
 	@Override
 	public final int timerEvent() {
 		if (stopped) {
@@ -288,12 +286,6 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 
 		handleWorkerCreationRequests();
 		handleSoldierCreationRequest();
-		
-		int time = MatchConstants.clock().getTime();
-		if(time > lastProfessionSettingsUpdate + 1000) {
-			lastProfessionSettingsUpdate = time;
-			updateProfessionSettings();
-		}
 
 		return SCHEDULING_PERIOD;
 	}
@@ -353,23 +345,11 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 		if(manageableBearer != null) {
 			if(manageableBearer.becomeWorker(this, workerCreationRequest, offer)) {
 				professionSettings.decrementBearerCount();
-				if(movableType == EMovableType.DIGGER) professionSettings.increamentDiggerCount();
-				if(movableType == EMovableType.BRICKLAYER) professionSettings.incrementBricklayerCount();
+				if(movableType == EMovableType.DIGGER || movableType == EMovableType.BRICKLAYER) professionSettings.increment(movableType);
 				return true;
 			}
 		} 
 		return false;
-	}
-		
-	private void updateProfessionSettings() {
-		ProfessionSettings professionSettings = settings.getProfessionSettings();
-		professionSettings.resetCount();
-	
-		for (ILogicMovable movable : MovableManager.getAllMovables()) {
-			if (contains(movable)) {
-				professionSettings.increment(movable);
-			}
-		}
 	}
 
 	@Override

@@ -48,9 +48,13 @@ import jsettlers.logic.map.grid.partition.manager.settings.MaterialProductionSet
 import jsettlers.logic.map.grid.partition.PartitionsListingBorderVisitor.BorderPartitionInfo;
 import jsettlers.logic.map.grid.partition.manager.PartitionManager;
 import jsettlers.logic.map.grid.partition.manager.settings.PartitionManagerSettings;
+import jsettlers.logic.movable.MovableManager;
+import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.player.Player;
 import jsettlers.logic.player.PlayerSetting;
 import jsettlers.logic.player.Team;
+import jsettlers.logic.timer.IScheduledTimerable;
+import jsettlers.logic.timer.RescheduleTimer;
 
 import static java8.util.stream.StreamSupport.stream;
 
@@ -60,8 +64,10 @@ import static java8.util.stream.StreamSupport.stream;
  * @author Andreas Eberle
  * 
  */
-public final class PartitionsGrid implements Serializable {
+public final class PartitionsGrid implements Serializable, IScheduledTimerable {
 	private static final long serialVersionUID = 8919380724171427679L;
+
+	private static final int RESCHEDULE_DELAY = 10000;
 
 	private static final int NUMBER_OF_START_PARTITION_OBJECTS = 3000;
 	private static final float PARTITIONS_EXPAND_FACTOR = 1.5f;
@@ -108,6 +114,8 @@ public final class PartitionsGrid implements Serializable {
 
 		// the no player partition (the manager won't be started)
 		this.partitionObjects[NO_PLAYER_PARTITION_ID] = new Partition(this, NO_PLAYER_PARTITION_ID, null, width * height);
+
+		RescheduleTimer.add(this, 1);
 	}
 
 	public void initWithPlayerSettings(PlayerSetting[] playerSettings) {
@@ -721,6 +729,36 @@ public final class PartitionsGrid implements Serializable {
 		}
 
 		return counter;
+	}
+
+	@Override
+	public int timerEvent() {
+		updatePartitionProfessionStats();
+		return RESCHEDULE_DELAY;
+	}
+
+	public void updatePartitionProfessionStats() {
+		for(Partition partition : partitionObjects) {
+			if(partition == null) continue;
+
+			partition.getPartitionSettings().getProfessionSettings().resetCount();
+		}
+
+		for(ILogicMovable movable : MovableManager.getAllMovables()) {
+			if(movable.getMovableType().isPlayerControllable()) continue;
+
+			ShortPoint2D position = movable.getPosition();
+			Partition partition = getPartitionAt(position.x, position.y);
+
+			if(partition.playerId != movable.getPlayer().getPlayerId()) continue;
+
+			partition.getPartitionSettings().getProfessionSettings().increment(movable.getMovableType());
+		}
+	}
+
+	@Override
+	public void kill() {
+		throw new IllegalAccessError("the PartitionsGrid itself can't be killed!");
 	}
 
 	public IPartitionData getPartitionDataForManagerAt(int x, int y) {
