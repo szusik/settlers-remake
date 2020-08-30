@@ -3,6 +3,7 @@ package jsettlers.logic.map.grid.partition.manager.settings;
 import java.io.Serializable;
 
 import jsettlers.common.map.partition.IProfessionSettings;
+import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 public class ProfessionSettings implements Serializable, IProfessionSettings {
 
@@ -105,6 +106,23 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 	
 	public void setWorkerCount(int workerCount) {
 		this.workerCount = workerCount;
+	}
+	
+	public void increment(ILogicMovable moveable) {
+		incrementWorkerCount();
+		switch (moveable.getMovableType()) {
+			case BEARER:
+				incrementBearerCount();
+				break;
+			case DIGGER:
+				increamentDiggerCount();
+				break;
+			case BRICKLAYER:
+				incrementBricklayerCount();
+				break;
+			default:
+				break;
+		}
 	}
 	
 	public void incrementWorkerCount() {

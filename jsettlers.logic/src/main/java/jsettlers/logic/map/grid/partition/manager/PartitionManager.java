@@ -365,22 +365,9 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 		ProfessionSettings professionSettings = settings.getProfessionSettings();
 		professionSettings.resetCount();
 	
-		for (ILogicMovable mov : MovableManager.getAllMovables()) {
-			if (!contains(mov)) continue;
-	
-			professionSettings.incrementWorkerCount();
-			switch (mov.getMovableType()) {
-				case BEARER:
-					professionSettings.incrementBearerCount();
-					break;
-				case DIGGER:
-					professionSettings.increamentDiggerCount();
-					break;
-				case BRICKLAYER:
-					professionSettings.incrementBricklayerCount();
-					break;
-				default:
-					break;
+		for (ILogicMovable movable : MovableManager.getAllMovables()) {
+			if (contains(movable)) {
+				professionSettings.increment(movable);
 			}
 		}
 	}
