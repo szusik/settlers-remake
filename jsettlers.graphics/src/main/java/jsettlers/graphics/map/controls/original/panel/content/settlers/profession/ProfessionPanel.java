@@ -28,13 +28,11 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 
 	private final ContentPanel panel;
 	private final UiLocationDependingContentUpdater<IPartitionSettings> uiContentUpdater;
-	private long lastChangeTimestamp;
 
 	public ProfessionPanel() {
 		this.panel = new ContentPanel();
 		this.uiContentUpdater = new UiLocationDependingContentUpdater<>(ProfessionPanel::currentDistributionSettingsProvider);
 		this.uiContentUpdater.addListener(this);
-		this.lastChangeTimestamp = 0;
 	}
 
 	@Override
@@ -68,10 +66,8 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 
 	@Override
 	public void update(IPartitionSettings partitionSettings) {
-		// Use delay to prevent race condition between direct ui update and settings update
-		if (partitionSettings != null && System.currentTimeMillis() - lastChangeTimestamp > 5000) {
-			IProfessionSettings professionSettings = partitionSettings.getProfessionSettings();
-			this.panel.setup(professionSettings);
+		if (partitionSettings != null) {
+			this.panel.setup(partitionSettings.getProfessionSettings());
 		}
 	}
 
@@ -155,18 +151,14 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 
 				add(Panel.box(new CountArrows(() -> {
 					if (getTotalRatio() <= 1.0f - 0.05f) {
-						setRatio(Math.min(1f, ratio + 0.05f));
-						lastChangeTimestamp = System.currentTimeMillis();
-						SettlerPanel.this.update();
+						this.ratio = Math.min(1f, ratio + 0.05f);
 						return new SetMoveableRatioAction(type.moveableType, position, ratio);
 					} else {
 						return null;
 					}
 				}, () -> {
 					if (getTotalRatio() >= 0.05f) {
-						setRatio(Math.max(0f, ratio - 0.05f));
-						lastChangeTimestamp = System.currentTimeMillis();
-						SettlerPanel.this.update();
+						this.ratio = Math.max(0f, ratio - 0.05f);
 						return new SetMoveableRatioAction(type.moveableType, position, ratio);
 					} else {
 						return null;
