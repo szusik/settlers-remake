@@ -18,6 +18,7 @@ import jsettlers.algorithms.fogofwar.FoWTask;
 import jsettlers.algorithms.path.Path;
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
+import jsettlers.algorithms.simplebehaviortree.IEDirectionSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
@@ -212,6 +213,18 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected void pathAborted(ShortPoint2D pathTarget) {
 		aborted = true;
+	}
+
+	protected static <T extends Movable> Node<T> goInDirectionWaitFree(IEDirectionSupplier<T> direction, IBooleanConditionFunction<T> pathStep) {
+		return sequence(
+				BehaviorTreeHelper.action(mov -> {
+					mov.aborted = false;
+					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
+					mov.goInDirection(direction.apply(mov), EGoInDirectionMode.GO_IF_ALLOWED_WAIT_TILL_FREE);
+				}),
+				waitFor(condition(mov -> mov.path == null)),
+				condition(mov -> !mov.aborted)
+		);
 	}
 
 

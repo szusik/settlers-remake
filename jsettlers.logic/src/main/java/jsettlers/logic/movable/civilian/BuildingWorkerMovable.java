@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import jsettlers.common.action.EMoveToType;
+import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
+import jsettlers.algorithms.simplebehaviortree.Node;
+import jsettlers.algorithms.simplebehaviortree.Root;
+import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.jobs.EBuildingJobType;
 import jsettlers.common.buildings.jobs.IBuildingJob;
@@ -24,7 +27,6 @@ import jsettlers.logic.buildings.workers.MillBuilding;
 import jsettlers.logic.buildings.workers.SlaughterhouseBuilding;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableWorker;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IWorkerRequestBuilding;
-import jsettlers.logic.movable.EGoInDirectionMode;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
@@ -33,12 +35,13 @@ import jsettlers.logic.movable.interfaces.IHealerMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.player.Player;
 
-public class BuildingWorkerMovable extends CivilianMovable implements IBuildingWorkerMovable, IManageableWorker {
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
+
+public class BuildingWorkerMovable extends Movable implements IBuildingWorkerMovable, IManageableWorker {
 
 	private transient IBuildingJob currentJob = null;
 	protected IWorkerRequestBuilding building;
-
-	private boolean done;
+	private boolean registered = false;
 
 	private EMaterialType poppedMaterial;
 	private int searchFailedCtr = 0;
@@ -47,7 +50,276 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	private IAttackableHumanMovable nextPatient = null;
 
 	public BuildingWorkerMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, movableType, position, player, replace);
+		super(grid, movableType, position, player, replace, tree);
+	}
+
+	private static final Root<BuildingWorkerMovable> tree = new Root<>(createBuildingWorkerBehaviour());
+
+	private static Node<BuildingWorkerMovable> createBuildingWorkerBehaviour() {
+		return guardSelector(
+				guard(mov -> false,
+						alwaysSucceed() // TODO
+				),
+				guard(mov -> mov.building != null && mov.building.isDestroyed(),
+					BehaviorTreeHelper.action(BuildingWorkerMovable::buildingDestroyed)
+				),
+				guard(mov -> mov.currentJob != null,
+					selector(
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.GO_TO),
+							nodeToJob(goToPos(BuildingWorkerMovable::getCurrentJobPos, BuildingWorkerMovable::pathStep))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.TRY_TAKING_RESOURCE),
+							nodeToJob(condition(BuildingWorkerMovable::tryTakingResource))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.TRY_TAKING_FOOD),
+							nodeToJob(condition(mov -> mov.building.tryTakingFood(mov.currentJob.getFoodOrder())))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.WAIT),
+							BehaviorTreeHelper.sleep(1000),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.WALK),
+							nodeToJob(goInDirectionWaitFree(mov -> mov.currentJob.getDirection(), BuildingWorkerMovable::pathStep))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SHOW),
+							repeat(Repeat.Policy.PREEMPTIVE,
+									mov -> mov.building.getPriority() == EPriority.STOPPED,
+									alwaysRunning()
+							),
+							BehaviorTreeHelper.action(mov -> {
+								ShortPoint2D pos = mov.getCurrentJobPos();
+								if (mov.currentJob.getDirection() != null) {
+									mov.lookInDirection(mov.currentJob.getDirection());
+								}
+								mov.setPosition(pos);
+								mov.setVisible(true);
+							}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.HIDE),
+							BehaviorTreeHelper.action(mov -> {mov.setVisible(false);}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SET_MATERIAL),
+							BehaviorTreeHelper.action(mov -> {mov.setMaterial(mov.currentJob.getMaterial());}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.TAKE),
+							nodeToJob(condition(mov -> mov.take(mov.currentJob.getMaterial(), mov.currentJob.isTakeMaterialFromMap())))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP),
+							BehaviorTreeHelper.action(mov -> {mov.dropAction(mov.currentJob.getMaterial());}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP_POPPED),
+							BehaviorTreeHelper.action(mov -> {mov.dropAction(mov.poppedMaterial);}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PRE_SEARCH),
+							nodeToJob(condition(mov -> mov.preSearchPathAction(true)))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PRE_SEARCH_IN_AREA),
+							nodeToJob(condition(mov -> mov.preSearchPathAction(false)))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.FOLLOW_SEARCHED),
+							resetAfter(BuildingWorkerMovable::clearMark,
+								nodeToJob(
+									sequence(
+										BehaviorTreeHelper.action(BuildingWorkerMovable::mark),
+										followPresearchedPath(BuildingWorkerMovable::pathStep)
+									)
+								)
+							)
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.LOOK_AT_SEARCHED),
+							nodeToJob(condition(BuildingWorkerMovable::lookAtSearched))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.GO_TO_DOCK),
+							nodeToJob(goToPos(mov -> ((DockyardBuilding)mov.building).getDock().getPosition(), BuildingWorkerMovable::pathStep))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.BUILD_SHIP),
+							BehaviorTreeHelper.action(mov -> {((DockyardBuilding)mov.building).buildShipAction();}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.LOOK_AT),
+							BehaviorTreeHelper.action(mov -> {mov.setDirection(mov.currentJob.getDirection());}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.EXECUTE),
+							nodeToJob(condition(mov -> mov.grid.executeSearchType(mov, mov.position, mov.currentJob.getSearchType())))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PLAY_ACTION1),
+							playAction(EMovableAction.ACTION1, mov -> (short)(mov.currentJob.getTime()*1000)),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PLAY_ACTION2),
+							playAction(EMovableAction.ACTION2, mov -> (short)(mov.currentJob.getTime()*1000)),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PLAY_ACTION3),
+							playAction(EMovableAction.ACTION3, mov -> (short)(mov.currentJob.getTime()*1000)),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.AVAILABLE),
+							nodeToJob(condition(mov -> mov.grid.canTakeMaterial(mov.getCurrentJobPos(), mov.currentJob.getMaterial())))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.NOT_FULL),
+							nodeToJob(condition(mov -> mov.grid.canPushMaterial(mov.getCurrentJobPos())))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SMOKE_ON),
+							BehaviorTreeHelper.action(mov -> {
+								mov.grid.placeSmoke(mov.getCurrentJobPos(), true);
+								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.SMOKE);
+							})
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SMOKE_OFF),
+							BehaviorTreeHelper.action(mov -> {
+								mov.grid.placeSmoke(mov.getCurrentJobPos(), false);
+								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.SMOKE);
+							})
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.START_WORKING),
+							BehaviorTreeHelper.action(mov -> {
+								if (mov.building instanceof SlaughterhouseBuilding) {
+									((SlaughterhouseBuilding) mov.building).requestSound();
+								}
+								if (mov.building instanceof MillBuilding) {
+									((MillBuilding) mov.building).setRotating(true);
+								}
+							}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.STOP_WORKING),
+							BehaviorTreeHelper.action(mov -> {
+								if (mov.building instanceof SlaughterhouseBuilding) {
+									((SlaughterhouseBuilding) mov.building).requestSound();
+								}
+								if (mov.building instanceof MillBuilding) {
+									((MillBuilding) mov.building).setRotating(false);
+								}
+							}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_IS_ADULT),
+							nodeToJob(condition(mov -> mov.grid.isPigAdult(mov.getCurrentJobPos())))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_IS_THERE),
+							nodeToJob(condition(mov -> mov.grid.hasPigAt(mov.getCurrentJobPos())))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_PLACE),
+							BehaviorTreeHelper.action(mov -> {
+								mov.grid.placePigAt(mov.getCurrentJobPos(), true);
+								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.PIG);
+							}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_REMOVE),
+							BehaviorTreeHelper.action(mov -> {
+								mov.grid.placePigAt(mov.getCurrentJobPos(), false);
+								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.PIG);
+							}),
+							jobFinishedNode()
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.POP_TOOL),
+							nodeToJob(condition(BuildingWorkerMovable::popToolRequestAction))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.POP_WEAPON),
+							nodeToJob(
+								condition(mov -> {
+									mov.poppedMaterial = mov.building.getMaterialProduction().getWeaponToProduce();
+									return mov.poppedMaterial != null;
+								})
+							)
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.GROW_DONKEY),
+							nodeToJob(
+								sequence(
+									condition(mov -> mov.grid.feedDonkeyAt(mov.getCurrentJobPos())),
+									BehaviorTreeHelper.action(mov -> {
+										mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.DONKEY);
+									})
+								)
+							)
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.CAN_HEAL),
+							nodeToJob(condition(BuildingWorkerMovable::canHeal))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.CALL_WOUNDED),
+							nodeToJob(condition(BuildingWorkerMovable::callWounded))
+						),
+						sequence(
+							condition(mov -> mov.currentJob.getType() == EBuildingJobType.HEAL),
+							nodeToJob(condition(BuildingWorkerMovable::heal))
+						),
+						// unknown job type
+						BehaviorTreeHelper.action(BuildingWorkerMovable::abortJob)
+					)
+				),
+				guard(mov -> !mov.registered,
+					BehaviorTreeHelper.action(mov -> {
+						mov.dropCurrentMaterial();
+						mov.building = null;
+						mov.registered = true;
+						mov.enableNothingToDoAction(true);
+						mov.grid.addJobless(mov);
+					})
+				)
+		);
+	}
+
+	private static Node<BuildingWorkerMovable> jobFailedNode() {
+		return BehaviorTreeHelper.action(BuildingWorkerMovable::jobFailed);
+	}
+
+	private static Node<BuildingWorkerMovable> jobFinishedNode() {
+		return BehaviorTreeHelper.action(BuildingWorkerMovable::jobFinished);
+	}
+
+	private static Node<BuildingWorkerMovable> nodeToJob(Node<BuildingWorkerMovable> child) {
+		return selector(
+				sequence(
+					child,
+					jobFinishedNode()
+				),
+				jobFailedNode()
+		);
 	}
 
 	@Override
@@ -57,11 +329,6 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		} else {
 			return null;
 		}
-	}
-
-	@Override
-	protected void strategyStarted() {
-		reportAsJobless();
 	}
 
 	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
@@ -84,279 +351,81 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	}
 
 	@Override
-	protected void peacetimeAction() {
-		if (isJobless()) {
-			return;
+	protected void decoupleMovable() {
+		super.decoupleMovable();
+
+		dropCurrentMaterial();
+
+		if(building != null) {
+			building.leaveBuilding(this);
+		} else {
+			grid.removeJobless(this);
+		}
+	}
+
+	private boolean canHeal() {
+		ShortPoint2D jobPos = getCurrentJobPos();
+
+		ILogicMovable movable = grid.getMovableAt(jobPos.x, jobPos.y);
+		if(movable instanceof IAttackableHumanMovable && ((IAttackableHumanMovable)movable).needsTreatment()) {
+			nextPatient = (IAttackableHumanMovable) movable;
+			return true;
+		} else {
+			nextPatient = null;
+			if(movable != null) movable.push(this);
+			return false;
+		}
+	}
+
+	private boolean callWounded() {
+		// check if patient is still interested
+		IAttackableHumanMovable patient = ((IHealerMovable) this).getPatient();
+		if (patient != null) {
+			int healX = position.x + 2;
+			int healY = position.y + 2;
+
+			if (patient.getPath() == null ||
+					!patient.getPath().getTargetPosition().equals(healX, healY)) {
+				// reset patient
+				((IHealerMovable) this).requestTreatment(null);
+			}
 		}
 
-		if (building.isDestroyed()) { // check if building is still ok
-			buildingDestroyed();
-			return;
+		patient = ((IHealerMovable) this).getPatient();
+		if (patient != null) return true;
+
+		IAttackableHumanMovable bestPatient = null;
+		float patientHealth = Float.MAX_VALUE;
+		MapCircleIterator iter = new MapCircleIterator(new MapCircle(building.getWorkAreaCenter(), building.getBuildingVariant().getWorkRadius()));
+
+		int width = grid.getWidth();
+		int height = grid.getHeight();
+		while (iter.hasNext()) {
+			ShortPoint2D next = iter.next();
+			if (next.x > 0 && next.x < width && next.y > 0 && next.y < height) {
+				ILogicMovable potentialPatient = grid.getMovableAt(next.x, next.y);
+				if (potentialPatient instanceof IAttackableHumanMovable &&
+						potentialPatient.getPlayer() == player &&
+						((IAttackableHumanMovable) potentialPatient).needsTreatment()) {
+					float newHealth = potentialPatient.getHealth();
+					if (newHealth < patientHealth) {
+						bestPatient = (IAttackableHumanMovable) potentialPatient;
+						patientHealth = newHealth;
+					}
+				}
+			}
 		}
 
-		switch (currentJob.getType()) {
-			case GO_TO:
-				gotoAction();
-				break;
+		return bestPatient != null && bestPatient.pingWounded((IHealerMovable) this);
+	}
 
-			case TRY_TAKING_RESOURCE:
-				clearMark();
-				if (tryTakingResource()) {
-					jobFinished();
-				} else {
-					jobFailed();
-				}
-				break;
-
-			case TRY_TAKING_FOOD:
-				if (building.tryTakingFood(currentJob.getFoodOrder())) {
-					jobFinished();
-				} else {
-					jobFailed();
-				}
-				break;
-
-			case WAIT: {
-				short waitTime = (short) (currentJob.getTime() * 1000);
-				super.sleep(waitTime);
-				jobFinished();
-				break;
-			}
-
-			case WALK:
-				IBuildingJob job = currentJob;
-				super.goInDirection(currentJob.getDirection(), EGoInDirectionMode.GO_IF_ALLOWED_WAIT_TILL_FREE);
-				if (currentJob == job) { // the path could fail and call abortPath().
-					jobFinished();
-				}
-				break;
-
-			case SHOW: {
-				if (building.getPriority() == EPriority.STOPPED) {
-					break;
-				}
-
-				ShortPoint2D pos = getCurrentJobPos();
-				if (currentJob.getDirection() != null) {
-					super.lookInDirection(currentJob.getDirection());
-				}
-				super.setPosition(pos);
-				super.setVisible(true);
-				jobFinished();
-				break;
-			}
-
-			case HIDE:
-				super.setVisible(false);
-				jobFinished();
-				break;
-
-			case SET_MATERIAL:
-				super.setMaterial(currentJob.getMaterial());
-				jobFinished();
-				break;
-
-			case TAKE:
-				takeAction();
-				break;
-
-			case DROP:
-				dropAction(currentJob.getMaterial());
-				break;
-			case DROP_POPPED:
-				dropAction(poppedMaterial);
-				break;
-
-			case PRE_SEARCH:
-				preSearchPathAction(true);
-				break;
-
-			case PRE_SEARCH_IN_AREA:
-				preSearchPathAction(false);
-				break;
-
-			case FOLLOW_SEARCHED:
-				followPreSearchedAction();
-				break;
-
-			case LOOK_AT_SEARCHED:
-				lookAtSearched();
-				break;
-
-			case GO_TO_DOCK:
-				gotoDockAction();
-				break;
-
-			case BUILD_SHIP:
-				if (building instanceof DockyardBuilding) {
-					((DockyardBuilding) building).buildShipAction();
-				}
-				jobFinished();
-				break;
-
-			case LOOK_AT:
-				super.lookInDirection(currentJob.getDirection());
-				jobFinished();
-				break;
-
-			case EXECUTE:
-				executeAction();
-				break;
-
-			case PLAY_ACTION1:
-				super.playAction(EMovableAction.ACTION1, currentJob.getTime());
-				jobFinished();
-				break;
-			case PLAY_ACTION2:
-				super.playAction(EMovableAction.ACTION2, currentJob.getTime());
-				jobFinished();
-				break;
-			case PLAY_ACTION3:
-				super.playAction(EMovableAction.ACTION3, currentJob.getTime());
-				jobFinished();
-				break;
-
-			case AVAILABLE:
-				if (grid.canTakeMaterial(getCurrentJobPos(), currentJob.getMaterial())) {
-					jobFinished();
-				} else {
-					jobFailed();
-				}
-				break;
-
-			case NOT_FULL:
-				if (grid.canPushMaterial(getCurrentJobPos())) {
-					jobFinished();
-				} else {
-					jobFailed();
-				}
-				break;
-
-			case SMOKE_ON:
-			case SMOKE_OFF: {
-				grid.placeSmoke(getCurrentJobPos(), currentJob.getType() == EBuildingJobType.SMOKE_ON);
-				building.addMapObjectCleanupPosition(getCurrentJobPos(), EMapObjectType.SMOKE);
-				jobFinished();
-				break;
-			}
-
-			case START_WORKING:
-			case STOP_WORKING:
-				if (building instanceof SlaughterhouseBuilding) {
-					((SlaughterhouseBuilding) building).requestSound();
-				}
-				if (building instanceof MillBuilding) {
-					((MillBuilding) building).setRotating(currentJob.getType() == EBuildingJobType.START_WORKING);
-				}
-				jobFinished();
-				break;
-
-			case PIG_IS_ADULT:
-				if (grid.isPigAdult(getCurrentJobPos())) {
-					jobFinished();
-				} else {
-					jobFailed();
-				}
-				break;
-
-			case PIG_IS_THERE:
-				if (grid.hasPigAt(getCurrentJobPos())) {
-					jobFinished();
-				} else {
-					jobFailed();
-				}
-				break;
-
-			case PIG_PLACE:
-			case PIG_REMOVE:
-				placeOrRemovePigAction();
-				break;
-
-			case POP_TOOL:
-				popToolRequestAction();
-				break;
-
-			case POP_WEAPON:
-				popWeaponRequestAction();
-				break;
-
-			case GROW_DONKEY:
-				growDonkeyAction();
-				break;
-
-			case CAN_HEAL: {
-				ShortPoint2D jobPos = getCurrentJobPos();
-
-				ILogicMovable movable = grid.getMovableAt(jobPos.x, jobPos.y);
-				if(movable instanceof IAttackableHumanMovable && ((IAttackableHumanMovable)movable).needsTreatment()) {
-					nextPatient = (IAttackableHumanMovable) movable;
-					jobFinished();
-				} else {
-					nextPatient = null;
-					if(movable != null) movable.push(this);
-					jobFailed();
-				}
-				break;
-			}
-
-			case CALL_WOUNDED: {
-				// check if patient is still interested
-				IAttackableHumanMovable patient = ((IHealerMovable)this).getPatient();
-				if(patient != null) {
-					int healX = position.x + 2;
-					int healY = position.y + 2;
-
-					if(patient.getPath() == null ||
-							!patient.getPath().getTargetPosition().equals(healX, healY)) {
-						// reset patient
-						((IHealerMovable)this).requestTreatment(null);
-					}
-				}
-
-				patient = ((IHealerMovable)this).getPatient();
-				if(patient == null) {
-					IAttackableHumanMovable bestPatient = null;
-					float patientHealth = Float.MAX_VALUE;
-					MapCircleIterator iter = new MapCircleIterator(new MapCircle(building.getWorkAreaCenter(), building.getBuildingVariant().getWorkRadius()));
-
-					int width = grid.getWidth();
-					int height = grid.getHeight();
-					while(iter.hasNext()) {
-						ShortPoint2D next = iter.next();
-						if(next.x > 0 && next.x < width && next.y > 0 && next.y < height) {
-							ILogicMovable potentialPatient = grid.getMovableAt(next.x, next.y);
-							if (potentialPatient instanceof IAttackableHumanMovable &&
-									potentialPatient.getPlayer() == player &&
-									((IAttackableHumanMovable)potentialPatient).needsTreatment()) {
-								float newHealth = potentialPatient.getHealth();
-								if (newHealth < patientHealth) {
-									bestPatient = (IAttackableHumanMovable) potentialPatient;
-									patientHealth = newHealth;
-								}
-							}
-						}
-					}
-
-					if(bestPatient != null && bestPatient.pingWounded((IHealerMovable) this)) {
-						jobFinished();
-					} else {
-						jobFailed();
-					}
-				} else {
-					jobFinished();
-				}
-				break;
-			}
-
-			case HEAL:
-				if(nextPatient != null) {
-					nextPatient.heal();
-					((IHealerMovable)this).requestTreatment(null);
-					jobFinished();
-				} else {
-					jobFailed();
-				}
-				break;
+	private boolean heal() {
+		if(nextPatient != null) {
+			nextPatient.heal();
+			((IHealerMovable)this).requestTreatment(null);
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -364,85 +433,16 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		return currentJob == null;
 	}
 
-	private void gotoDockAction() {
-		DockyardBuilding dockyard = (DockyardBuilding) building;
-		if (!done) {
-			this.done = true;
-			ShortPoint2D dockEndPosition = dockyard.getDock().getEndPosition();
-			if (!super.goToPos(dockEndPosition)) {
-				jobFailed();
-			}
-		} else {
-			jobFinished(); // start next action
-		}
-	}
-
-	private void followPreSearchedAction() {
-		ShortPoint2D pathTargetPos = super.followPresearchedPath();
-		mark(pathTargetPos);
-		jobFinished();
-	}
-
-	private void placeOrRemovePigAction() {
-		ShortPoint2D pos = getCurrentJobPos();
-		grid.placePigAt(pos, currentJob.getType() == EBuildingJobType.PIG_PLACE);
-		building.addMapObjectCleanupPosition(pos, EMapObjectType.PIG);
-		jobFinished();
-	}
-
-	private void growDonkeyAction() {
-		ShortPoint2D pos = getCurrentJobPos();
-		if (grid.feedDonkeyAt(pos)) {
-			building.addMapObjectCleanupPosition(pos, EMapObjectType.DONKEY);
-			jobFinished();
-		} else {
-			jobFailed();
-		}
-	}
-
-	private void popWeaponRequestAction() {
-		poppedMaterial = building.getMaterialProduction().getWeaponToProduce();
-
-		if (poppedMaterial != null) {
-			jobFinished();
-		} else {
-			jobFailed();
-		}
-	}
-
-	private void popToolRequestAction() {
-		ShortPoint2D pos = building.getDoor();
-
+	private boolean popToolRequestAction() {
 		poppedMaterial = building.getMaterialProduction().drawRandomAbsolutelyRequestedTool(); // first priority: Absolutely set tool production requests of user
 		if (poppedMaterial == null) {
-			poppedMaterial = grid.popToolProductionRequest(pos); // second priority: Tools needed by settlers (automated production)
+			poppedMaterial = grid.popToolProductionRequest(building.getDoor()); // second priority: Tools needed by settlers (automated production)
 		}
 		if (poppedMaterial == null) {
 			poppedMaterial = building.getMaterialProduction().drawRandomRelativelyRequestedTool(); // third priority: Relatively set tool production requests of user
 		}
 
-		if (poppedMaterial != null) {
-			jobFinished();
-		} else {
-			jobFailed();
-		}
-	}
-
-	private void executeAction() {
-		clearMark();
-		if (grid.executeSearchType(this, position, currentJob.getSearchType())) {
-			jobFinished();
-		} else {
-			jobFailed();
-		}
-	}
-
-	private void takeAction() {
-		if (super.take(currentJob.getMaterial(), currentJob.isTakeMaterialFromMap())) {
-			jobFinished();
-		} else {
-			jobFailed();
-		}
+		return poppedMaterial != null;
 	}
 
 	private void dropAction(EMaterialType materialType) {
@@ -458,7 +458,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	 * 		if true, dijkstra algorithm is used<br>
 	 * 		if false, in area finder is used.
 	 */
-	private void preSearchPathAction(boolean dijkstra) {
+	private boolean preSearchPathAction(boolean dijkstra) {
 		super.setPosition(getCurrentJobPos());
 
 		ShortPoint2D workAreaCenter = building.getWorkAreaCenter();
@@ -467,17 +467,17 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 				currentJob.getSearchType());
 
 		if (pathFound) {
-			jobFinished();
 			searchFailedCtr = 0;
 			this.building.setCannotWork(false);
+			return true;
 		} else {
-			jobFailed();
 			searchFailedCtr++;
 
 			if (searchFailedCtr > 10) {
 				this.building.setCannotWork(true);
 				player.showMessage(SimpleMessage.cannotFindWork(building));
 			}
+			return false;
 		}
 	}
 
@@ -492,38 +492,25 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		}
 	}
 
-	private void gotoAction() {
-		if (!done) {
-			this.done = true;
-			if (!super.goToPos(getCurrentJobPos())) {
-				jobFailed();
-			}
-		} else {
-			jobFinished(); // start next action
-		}
-	}
-
 	private void jobFinished() {
 		this.currentJob = this.currentJob.getNextSucessJob();
-		done = false;
 	}
 
 	private void jobFailed() {
 		this.currentJob = this.currentJob.getNextFailJob();
-		done = false;
 	}
 
 	private ShortPoint2D getCurrentJobPos() {
 		return currentJob.calculatePoint(building);
 	}
 
-	private void lookAtSearched() {
+	private boolean lookAtSearched() {
 		EDirection direction = grid.getDirectionOfSearched(position, currentJob.getSearchType());
 		if (direction != null) {
-			super.lookInDirection(direction);
-			jobFinished();
+			setDirection(direction);
+			return true;
 		} else {
-			jobFailed();
+			return false;
 		}
 	}
 
@@ -532,18 +519,20 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		this.building = building;
 		this.currentJob = building.getBuildingVariant().getStartJob();
 		super.enableNothingToDoAction(false);
-		this.done = false;
 		building.occupyBuilding(this);
+	}
+
+	private void abortJob() {
+		building.leaveBuilding(this);
+		building = null;
+		currentJob = null;
 	}
 
 	@Override
 	public void buildingDestroyed() {
-		super.setVisible(true);
-		super.abortPath();
+		setVisible(true);
 
-		reportAsJobless();
 		dropCurrentMaterial();
-		clearMark();
 	}
 
 	private void dropCurrentMaterial() {
@@ -554,17 +543,9 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		super.setMaterial(EMaterialType.NO_MATERIAL);
 	}
 
-	private void reportAsJobless() {
-		grid.addJobless(this);
-		super.enableNothingToDoAction(true);
-		this.currentJob = null;
-		this.building = null;
-	}
-
-	private void mark(ShortPoint2D position) {
-		clearMark();
-		markedPosition = position;
-		grid.setMarked(position, true);
+	private void mark() {
+		markedPosition = path.getTargetPosition();
+		grid.setMarked(markedPosition, true);
 	}
 
 	private void clearMark() {
@@ -574,34 +555,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		}
 	}
 
-	@Override
-	protected void strategyStopped() { // used in overriding methods
-		dropCurrentMaterial();
-
-		if (isJobless()) {
-			grid.removeJobless(this);
-		} else {
-			super.enableNothingToDoAction(true);
-			currentJob = null;
-		}
-
-		if (building != null) {
-			building.leaveBuilding(this);
-		}
-
-		clearMark();
-	}
-
-	@Override
-	protected void peacetimePathAborted(ShortPoint2D pathTarget) {
-		if (currentJob != null) {
-			jobFailed();
-		}
-		clearMark();
-	}
-
-	@Override
-	protected boolean peacetimeCheckPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
-		return isJobless() || building != null;
+	private boolean pathStep() {
+		return isJobless() || building != null; // TODO
 	}
 }
