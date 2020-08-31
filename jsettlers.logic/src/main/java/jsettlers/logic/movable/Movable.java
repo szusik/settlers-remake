@@ -36,7 +36,6 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
-import jsettlers.logic.movable.cargo.CargoMovable;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
@@ -215,6 +214,18 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		aborted = true;
 	}
 
+
+	protected static <T extends Movable> Node<T> followPresearchedPath(IBooleanConditionFunction<T> pathStep) {
+		return sequence(
+				BehaviorTreeHelper.action(mov -> {
+					mov.aborted = false;
+					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
+					mov.followPresearchedPath();
+				}),
+				waitFor(condition(mov -> mov.path == null)),
+				condition(mov -> !mov.aborted)
+		);
+	}
 
 	/**
 	 *

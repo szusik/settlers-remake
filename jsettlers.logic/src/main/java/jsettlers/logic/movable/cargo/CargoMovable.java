@@ -43,20 +43,14 @@ public abstract class CargoMovable extends AttackableMovable {
 						BehaviorTreeHelper.action(mov -> {
 							mov.waypoints = mov.tradeBuilding.getWaypointsIterator();
 							mov.lostCargo = false;
-							mov.pathStep = (mov2) -> !((CargoMovable)mov2).lostCargo;
 						}),
 						ignoreFailure(repeat(mov -> mov.waypoints.hasNext(),
 							sequence(
 								condition(mov -> {
 									ShortPoint2D nextPosition = mov.waypoints.next();
-									if (mov.preSearchPath(true, nextPosition.x, nextPosition.y, mov.getWaypointSearchRadius(), ESearchType.VALID_FREE_POSITION)) {
-										mov.followPresearchedPath();
-										return true;
-									}
-									return false;
+									return mov.preSearchPath(true, nextPosition.x, nextPosition.y, mov.getWaypointSearchRadius(), ESearchType.VALID_FREE_POSITION);
 								}),
-								waitFor(condition(mov -> mov.path == null)),
-								condition(mov -> !mov.aborted)
+								followPresearchedPath((mov2) -> !((CargoMovable)mov2).lostCargo)
 							)
 						)),
 						BehaviorTreeHelper.action(CargoMovable::dropMaterialIfPossible)
