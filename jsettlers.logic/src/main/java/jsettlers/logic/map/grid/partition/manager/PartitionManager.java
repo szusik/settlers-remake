@@ -25,10 +25,8 @@ import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.Building;
-import jsettlers.logic.constants.MatchConstants;
-import jsettlers.logic.map.grid.partition.Partition;
-import jsettlers.logic.map.grid.partition.manager.settings.MaterialProductionSettings;
 import jsettlers.logic.buildings.workers.WorkerBuilding;
+import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.partition.data.MaterialCounts;
 import jsettlers.logic.map.grid.partition.manager.datastructures.PositionableList;
 import jsettlers.logic.map.grid.partition.manager.datastructures.PredicatedPositionableList;
@@ -53,8 +51,9 @@ import jsettlers.logic.map.grid.partition.manager.objects.DiggerRequest;
 import jsettlers.logic.map.grid.partition.manager.objects.SoldierCreationRequest;
 import jsettlers.logic.map.grid.partition.manager.objects.WorkerCreationRequest;
 import jsettlers.logic.map.grid.partition.manager.objects.WorkerRequest;
+import jsettlers.logic.map.grid.partition.manager.settings.MaterialProductionSettings;
 import jsettlers.logic.map.grid.partition.manager.settings.PartitionManagerSettings;
-import jsettlers.logic.movable.MovableManager;
+import jsettlers.logic.map.grid.partition.manager.settings.ProfessionSettings;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.timer.IScheduledTimerable;
 import jsettlers.logic.timer.RescheduleTimer;
@@ -323,51 +322,15 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 		}
 	}
 
-	private int workerCount = 0;
-	private int bearerCount = 0;
-	private int diggerCount = 0;
-	private int bricklayerCount = 0;
-	private int lastTime = 0;
-
 	private boolean tryToCreateWorker(WorkerCreationRequest workerCreationRequest) {
 		EMovableType movableType = workerCreationRequest.requestedMovableType();
+		ProfessionSettings professionSettings = settings.getProfessionSettings();
 
-		int time = MatchConstants.clock().getTime();
-		if(time > lastTime + 1000) {
-			lastTime = time;
-			workerCount = 0;
-			bearerCount = 0;
-			diggerCount = 0;
-			bricklayerCount = 0;
-
-			for (ILogicMovable mov : MovableManager.getAllMovables()) {
-				if (!contains(mov)) continue;
-				workerCount++;
-
-				switch (mov.getMovableType()) {
-					case BEARER:
-						bearerCount++;
-						break;
-					case DIGGER:
-						diggerCount++;
-						break;
-					case BRICKLAYER:
-						bricklayerCount++;
-						break;
-				}
-			}
-		} else {
-
-			bearerCount--;
-			if(movableType == EMovableType.DIGGER) diggerCount++;
-			if(movableType == EMovableType.BRICKLAYER) bricklayerCount++;
-		}
-
-		if(bearerCount/(float)workerCount < settings.getMinBearerRatio()) return false;
-		if(movableType == EMovableType.DIGGER && diggerCount/(float)workerCount >= settings.getMaxDiggerRatio()) return false;
-		if(movableType == EMovableType.BRICKLAYER && bricklayerCount/(float)workerCount >= settings.getMaxBricklayerRatio()) return false;
+		if(!professionSettings.isBaererRatioFulfilled()) return false;
+		if(movableType == EMovableType.DIGGER && !professionSettings.isDiggerRatioFulfilled()) return false;
+		if(movableType == EMovableType.BRICKLAYER && !professionSettings.isBricklayerRatioFulfilled()) return false;
+		
 		EMaterialType tool = movableType.getTool();
-
 		MaterialOffer offer = null;
 		if(tool != EMaterialType.NO_MATERIAL) { // try to create a worker with a tool
 			offer = materialOffers.getOfferCloseTo(tool, EOfferPriority.LOWEST, workerCreationRequest.getPosition());
@@ -380,10 +343,13 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 
 		IManageableBearer manageableBearer = joblessBearer.removeObjectNextTo(workerCreationRequest.getPosition());
 		if(manageableBearer != null) {
-			return manageableBearer.becomeWorker(this, workerCreationRequest, offer);
-		} else {
-			return false;
-		}
+			if(manageableBearer.becomeWorker(this, workerCreationRequest, offer)) {
+				professionSettings.decrementBearerCount();
+				if(movableType == EMovableType.DIGGER || movableType == EMovableType.BRICKLAYER) professionSettings.increment(movableType);
+				return true;
+			}
+		} 
+		return false;
 	}
 
 	@Override
