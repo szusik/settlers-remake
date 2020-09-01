@@ -4,7 +4,8 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import go.graphics.text.EFontSize;
-import jsettlers.common.action.SetMoveableRatioAction;
+import jsettlers.common.action.ChangeMovableRatioAction;
+import jsettlers.common.action.EActionType;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionSettings;
 import jsettlers.common.map.partition.IProfessionSettings;
@@ -149,21 +150,10 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 				this.label = new Label("...", EFontSize.NORMAL, EHorizontalAlignment.LEFT);
 				this.type = type;
 
-				add(Panel.box(new CountArrows(() -> {
-					if (getTotalRatio() <= 1.0f - 0.05f) {
-						this.ratio = Math.min(1f, ratio + 0.05f);
-						return new SetMoveableRatioAction(type.moveableType, position, ratio);
-					} else {
-						return null;
-					}
-				}, () -> {
-					if (getTotalRatio() >= 0.05f) {
-						this.ratio = Math.max(0f, ratio - 0.05f);
-						return new SetMoveableRatioAction(type.moveableType, position, ratio);
-					} else {
-						return null;
-					}
-				}), 12f, 18f), 10f, 5f);
+				add(Panel.box(new CountArrows(
+						() -> new ChangeMovableRatioAction(EActionType.INCREASE_MOVABLE_RATIO, type.moveableType, position),
+						() -> new ChangeMovableRatioAction(EActionType.DECREASE_MOVABLE_RATIO, type.moveableType, position)
+				), 12f, 18f), 10f, 5f);
 				add(Panel.box(label, width, 20f), 28f, 5f);
 			}
 

@@ -52,10 +52,13 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 		return getCurrentBricklayerRatio() < maxBricklayerRatio;
 	}
 
-	public void setMinBearerRatio(float minBearerRatio) {
-		if (this.minBearerRatio < 0 || this.minBearerRatio > 1)
-			throw new IllegalArgumentException("minBearerRatio(" + minBearerRatio + ") out of bounds (0-1)");
-		this.minBearerRatio = minBearerRatio;
+	public void changeMinBearerRatio(float delta) {
+		float newMinBearerRatio = minBearerRatio + delta;
+		if(newMinBearerRatio < 0) return;
+
+		if(newMinBearerRatio + maxBricklayerRatio + maxDiggerRatio > 1) return;
+
+		minBearerRatio = newMinBearerRatio;
 	}
 
 	@Override
@@ -68,10 +71,13 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 		return bearerCount / (float) workerCount;
 	}
 	
-	public void setMaxDiggerRatio(float maxDiggerRatio) {
-		if (this.maxDiggerRatio < 0 || this.maxDiggerRatio > 1)
-			throw new IllegalArgumentException("maxDiggerRatio(" + maxBricklayerRatio + ") out of bounds (0-1)");
-		this.maxDiggerRatio = maxDiggerRatio;
+	public void changeMaxDiggerRatio(float delta) {
+		float newMaxDiggerRatio = maxDiggerRatio + delta;
+		if(newMaxDiggerRatio < 0) return;
+
+		if(minBearerRatio + maxBricklayerRatio + newMaxDiggerRatio > 1) return;
+
+		maxDiggerRatio = newMaxDiggerRatio;
 	}
 
 	@Override
@@ -84,10 +90,13 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 		return diggerCount / (float) workerCount;
 	}
 	
-	public void setMaxBricklayerRatio(float maxBricklayerRatio) {
-		if (this.maxBricklayerRatio < 0 || this.maxBricklayerRatio > 1)
-			throw new IllegalArgumentException("maxBricklayerRatio(" + maxBricklayerRatio + ") out of bounds (0-1)");
-		this.maxBricklayerRatio = maxBricklayerRatio;
+	public void changeMaxBricklayerRatio(float delta) {
+		float newMaxBricklayerRatio = maxBricklayerRatio + delta;
+		if(newMaxBricklayerRatio < 0) return;
+
+		if(minBearerRatio + newMaxBricklayerRatio + maxDiggerRatio > 1) return;
+
+		maxBricklayerRatio = newMaxBricklayerRatio;
 	}
 
 	@Override

@@ -2153,15 +2153,18 @@ public final class MainGrid implements Serializable {
 		}
 		
 		@Override
-		public void setMoveableRatio(ShortPoint2D position, EMovableType moveableType, float ratio) {
-			System.out.println(String.format("Set ratio at %s for '%s' to %s", position, moveableType, ratio));
+		public void changeMovableRatio(ShortPoint2D position, EMovableType moveableType, boolean add) {
+			System.out.println(String.format("%s ratio at %s for '%s'", add?"Increase":"Decrease", position, moveableType));
+
+			float delta = add? 0.05f : -0.05f;
+
 			ProfessionSettings professionSettings = partitionsGrid.getPartitionSettings(position).getProfessionSettings();
 			if (moveableType == EMovableType.BEARER) {
-				professionSettings.setMinBearerRatio(ratio);
+				professionSettings.changeMinBearerRatio(delta);
 			} else if (moveableType == EMovableType.DIGGER) {
-				professionSettings.setMaxDiggerRatio(ratio);
+				professionSettings.changeMaxDiggerRatio(delta);
 			} else if (moveableType == EMovableType.BRICKLAYER) {
-				professionSettings.setMaxBricklayerRatio(ratio);
+				professionSettings.changeMaxBricklayerRatio(delta);
 			} else {
 				throw new IllegalArgumentException(String.format("The moveable type '%s' does not support to set the ratio.", moveableType));
 			}

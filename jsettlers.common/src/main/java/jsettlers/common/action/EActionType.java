@@ -373,7 +373,9 @@ public enum EActionType {
 	CHANGE_TRADING_REQUEST,
 	
 	/**
-	 * Set the ratio a {@link EMovableType} should be recruited if possible.
+	 * Increase or decrease the ratio a {@link EMovableType} should be recruited if possible.
 	 */
-	SET_MOVEABLE_RATIO;
+	INCREASE_MOVABLE_RATIO,
+	DECREASE_MOVABLE_RATIO
+	;
 }
