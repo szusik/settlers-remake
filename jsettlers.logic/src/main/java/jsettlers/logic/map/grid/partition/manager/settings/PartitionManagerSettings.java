@@ -50,6 +50,7 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 	private final MaterialDistributionSettings[] settingsOfMaterials;
 	private final MaterialProductionSettings materialProductionSettings;
 	private final StockSettings stockSettings;
+	private final ProfessionSettings professionSettings;
 
 	public PartitionManagerSettings(ECivilisation civilisation) {
 		materialTypeForPriorities = new EMaterialType[EMaterialType.NUMBER_OF_DROPPABLE_MATERIALS];
@@ -70,6 +71,7 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 
 		materialProductionSettings = new MaterialProductionSettings();
 		stockSettings = new StockSettings(INITIAL_STOCK_SETTINGS);
+		professionSettings = new ProfessionSettings();
 	}
 
 	@Override
@@ -112,5 +114,10 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 
 	public void setMaterialDistributionSettings(EMaterialType materialType, EBuildingType buildingType, float ratio) {
 		getDistributionSettings(materialType).setUserConfiguredDistributionValue(buildingType, ratio);
+	}
+
+	@Override
+	public ProfessionSettings getProfessionSettings() {
+		return professionSettings;
 	}
 }

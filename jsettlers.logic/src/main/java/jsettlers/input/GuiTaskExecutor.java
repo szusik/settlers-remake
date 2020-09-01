@@ -44,6 +44,7 @@ import jsettlers.input.tasks.SetDockGuiTask;
 import jsettlers.input.tasks.SetMaterialDistributionSettingsGuiTask;
 import jsettlers.input.tasks.SetMaterialPrioritiesGuiTask;
 import jsettlers.input.tasks.SetMaterialProductionGuiTask;
+import jsettlers.input.tasks.ChangeMovableRatioTask;
 import jsettlers.input.tasks.SetTradingWaypointGuiTask;
 import jsettlers.input.tasks.SimpleBuildingGuiTask;
 import jsettlers.input.tasks.SimpleGuiTask;
@@ -227,6 +228,11 @@ class GuiTaskExecutor implements ITaskExecutor {
 			case UNLOAD_FERRY:
 				unloadFerry((MovableGuiTask) guiTask);
 				break;
+
+			case INCREASE_MOVABLE_RATIO:
+			case DECREASE_MOVABLE_RATIO:
+				ChangeMovableRatioTask task = (ChangeMovableRatioTask) guiTask;
+				grid.changeMovableRatio(task.getPosition(), task.getMoveableType(), task.getGuiAction() == EGuiAction.INCREASE_MOVABLE_RATIO);
 
 			default:
 				break;

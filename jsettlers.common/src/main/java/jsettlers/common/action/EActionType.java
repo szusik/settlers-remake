@@ -14,6 +14,8 @@
  */
 package jsettlers.common.action;
 
+import jsettlers.common.movable.EMovableType;
+
 /**
  * This enum defines the type of the action.
  *
@@ -368,6 +370,12 @@ public enum EActionType {
 	 *
 	 * @see ChangeTradingRequestAction
 	 */
-	CHANGE_TRADING_REQUEST
-
+	CHANGE_TRADING_REQUEST,
+	
+	/**
+	 * Increase or decrease the ratio a {@link EMovableType} should be recruited if possible.
+	 */
+	INCREASE_MOVABLE_RATIO,
+	DECREASE_MOVABLE_RATIO
+	;
 }
