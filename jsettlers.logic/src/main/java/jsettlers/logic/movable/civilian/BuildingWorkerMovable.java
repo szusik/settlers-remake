@@ -114,7 +114,7 @@ public class BuildingWorkerMovable extends Movable implements IBuildingWorkerMov
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.TAKE),
-							nodeToJob(condition(mov -> mov.take(mov.currentJob.getMaterial(), mov.currentJob.isTakeMaterialFromMap())))
+							nodeToJob(takeNode(mov -> mov.currentJob.getMaterial(), mov -> mov.currentJob.isTakeMaterialFromMap()))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP),
@@ -195,14 +195,16 @@ public class BuildingWorkerMovable extends Movable implements IBuildingWorkerMov
 							BehaviorTreeHelper.action(mov -> {
 								mov.grid.placeSmoke(mov.getCurrentJobPos(), true);
 								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.SMOKE);
-							})
+							}),
+							jobFinishedNode()
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SMOKE_OFF),
 							BehaviorTreeHelper.action(mov -> {
 								mov.grid.placeSmoke(mov.getCurrentJobPos(), false);
 								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.SMOKE);
-							})
+							}),
+							jobFinishedNode()
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.START_WORKING),

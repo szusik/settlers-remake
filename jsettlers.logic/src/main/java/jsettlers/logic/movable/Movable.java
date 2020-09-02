@@ -19,6 +19,7 @@ import jsettlers.algorithms.path.Path;
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IEDirectionSupplier;
+import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
@@ -213,6 +214,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected void pathAborted(ShortPoint2D pathTarget) {
 		aborted = true;
+	}
+
+	protected static <T extends Movable> Node<T> takeNode(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> fromMap) {
+		return sequence(
+				condition(mov -> mov.take(materialType.apply(mov), fromMap.test(mov))),
+				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
+		);
 	}
 
 	protected static <T extends Movable> Node<T> goInDirectionWaitFree(IEDirectionSupplier<T> direction, IBooleanConditionFunction<T> pathStep) {

@@ -40,27 +40,22 @@ public class DiggerMovable extends Movable implements IManageableDigger {
 					)
 				),
 				guard(mov -> mov.requester != null && mov.requester.isDiggerRequestActive(),
-					resetAfter(mov -> {
-							mov.targetPosition = null;
-							mov.requester = null;
-						},
-						selector(
-							repeat(DiggerMovable::flattenPositionsRemaining,
-								sequence(
-									condition(DiggerMovable::findDiggablePosition),
-									resetAfter(
-										mov -> mov.grid.setMarked(mov.targetPosition, false),
-										sequence(
-											BehaviorTreeHelper.action(mov -> {mov.grid.setMarked(mov.targetPosition, true);}),
-											goToPos(mov -> mov.targetPosition, mov -> mov.requester != null && mov.requester.isDiggerRequestActive()), // TODO
-											playAction(EMovableAction.ACTION1, mov -> (short)1000),
-											BehaviorTreeHelper.action(DiggerMovable::executeDigg)
-										)
+					selector(
+						repeat(DiggerMovable::flattenPositionsRemaining,
+							sequence(
+								condition(DiggerMovable::findDiggablePosition),
+								resetAfter(
+									mov -> mov.grid.setMarked(mov.targetPosition, false),
+									sequence(
+										BehaviorTreeHelper.action(mov -> {mov.grid.setMarked(mov.targetPosition, true);}),
+										goToPos(mov -> mov.targetPosition, mov -> mov.requester != null && mov.requester.isDiggerRequestActive()), // TODO
+										playAction(EMovableAction.ACTION1, mov -> (short)1000),
+										BehaviorTreeHelper.action(DiggerMovable::executeDigg)
 									)
 								)
-							),
-							BehaviorTreeHelper.action(DiggerMovable::abortJob)
-						)
+							)
+						),
+						BehaviorTreeHelper.action(DiggerMovable::abortJob)
 					)
 				),
 				guard(mov -> !mov.registered,
