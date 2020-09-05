@@ -216,7 +216,16 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		aborted = true;
 	}
 
-	protected static <T extends Movable> Node<T> takeNode(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> fromMap) {
+	protected static <T extends Movable> Node<T> drop(IEMaterialTypeSupplier<T> materialType) {
+		return sequence(
+				BehaviorTreeHelper.action(mov -> {
+					mov.drop(materialType.apply(mov));
+				}),
+				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
+		);
+	}
+
+	protected static <T extends Movable> Node<T> take(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> fromMap) {
 		return sequence(
 				condition(mov -> mov.take(materialType.apply(mov), fromMap.test(mov))),
 				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))

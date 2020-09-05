@@ -114,7 +114,7 @@ public class BuildingWorkerMovable extends Movable implements IBuildingWorkerMov
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.TAKE),
-							nodeToJob(takeNode(mov -> mov.currentJob.getMaterial(), mov -> mov.currentJob.isTakeMaterialFromMap()))
+							nodeToJob(take(mov -> mov.currentJob.getMaterial(), mov -> mov.currentJob.isTakeMaterialFromMap()))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP),
