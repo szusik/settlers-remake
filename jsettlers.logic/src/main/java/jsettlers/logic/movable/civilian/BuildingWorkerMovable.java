@@ -299,6 +299,7 @@ public class BuildingWorkerMovable extends Movable implements IBuildingWorkerMov
 						mov.dropCurrentMaterial();
 						mov.building = null;
 						mov.registered = true;
+						mov.pathStep = null;
 						mov.enableNothingToDoAction(true);
 						mov.grid.addJobless(mov);
 					})
@@ -452,7 +453,6 @@ public class BuildingWorkerMovable extends Movable implements IBuildingWorkerMov
 		if (materialType == EMaterialType.GOLD) {
 			player.getEndgameStatistic().incrementAmountOfProducedGold();
 		}
-		jobFinished();
 	}
 
 	/**

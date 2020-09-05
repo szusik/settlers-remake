@@ -76,7 +76,10 @@ public class BearerMovable extends Movable implements IBearerMovable, IManageabl
 								handleOffer()
 							),
 							BehaviorTreeHelper.action(mov -> {
-								mov.convertTo(mov.workerCreationRequest.requestedMovableType());
+								EMovableType newMovable = mov.workerCreationRequest.requestedMovableType();
+								mov.workerCreationRequest = null;
+								mov.setMaterial(EMaterialType.NO_MATERIAL);
+								mov.convertTo(newMovable);
 							})
 						),
 						BehaviorTreeHelper.action(BearerMovable::abortJob)
@@ -111,6 +114,7 @@ public class BearerMovable extends Movable implements IBearerMovable, IManageabl
 						mov.workerRequester = null;
 						mov.workerCreationRequest = null;
 						mov.registered = true;
+						mov.pathStep = null;
 						mov.enableNothingToDoAction(true);
 						mov.grid.addJobless(mov);
 					})

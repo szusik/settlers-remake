@@ -76,6 +76,7 @@ public class BricklayerMovable extends Movable implements IManageableBricklayer 
 			this.constructionSite = constructionSite;
 			this.targetPosition = bricklayerTargetPos;
 			this.lookDirection = direction;
+			registered = false;
 			return true;
 		} else {
 			return false;
