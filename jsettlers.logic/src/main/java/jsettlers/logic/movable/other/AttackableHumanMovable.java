@@ -1,5 +1,6 @@
 package jsettlers.logic.movable.other;
 
+import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
@@ -12,6 +13,11 @@ import jsettlers.logic.player.Player;
 
 public class AttackableHumanMovable extends AttackableMovable implements IAttackableHumanMovable {
 
+	public AttackableHumanMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable, Root<? extends AttackableHumanMovable> behaviour) {
+		super(grid, movableType, position, player, movable, behaviour);
+	}
+
+	@Deprecated
 	public AttackableHumanMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, movableType, position, player, movable);
 	}
