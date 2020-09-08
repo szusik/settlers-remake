@@ -261,6 +261,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				}),
 				waitFor(condition(mov -> mov.path == null)),
 				condition(mov -> !mov.aborted)
+
 		);
 	}
 
@@ -280,10 +281,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> goToPos(IShortPoint2DSupplier<T> target, IBooleanConditionFunction<T> pathStep) {
 		return sequence(
-				BehaviorTreeHelper.action(mov -> {
+				condition(mov -> {
 					mov.aborted = false;
 					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
 					mov.goToPos(target.apply(mov));
+					return mov.path != null;
 				}),
 				waitFor(condition(mov -> mov.path == null)),
 				condition(mov -> !mov.aborted)
