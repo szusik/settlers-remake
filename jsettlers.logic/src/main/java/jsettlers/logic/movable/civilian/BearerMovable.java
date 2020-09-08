@@ -21,7 +21,7 @@ import jsettlers.logic.player.Player;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
-public class BearerMovable extends Movable implements IBearerMovable, IManageableBearer {
+public class BearerMovable extends CivilianMovable implements IBearerMovable, IManageableBearer {
 
 	private IMaterialOffer   offer;
 	private IMaterialRequest request;
@@ -46,9 +46,7 @@ public class BearerMovable extends Movable implements IBearerMovable, IManageabl
 
 	private static Node<BearerMovable> createBearerBehaviour() {
 		return guardSelector(
-				guard(mov -> false,
-					alwaysSucceed()
-				),
+				fleeIfNecessary(),
 				guard(mov -> mov.barrack != null,
 					selector(
 						sequence(
@@ -133,7 +131,8 @@ public class BearerMovable extends Movable implements IBearerMovable, IManageabl
 		);
 	}
 
-	private void abortJob() {
+	@Override
+	protected void abortJob() {
 		if(offer != null) offer.distributionAborted();
 
 		if(workerCreationRequest != null) {

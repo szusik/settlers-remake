@@ -494,11 +494,6 @@ public final class MainGrid implements Serializable {
 		}
 
 		EnclosedBlockedAreaFinderAlgorithm.checkLandmark(enclosedBlockedAreaFinderGrid, x, y);
-
-		ILogicMovable movable = movableGrid.getMovableAt(x, y);
-		if (movable instanceof ICivilianMovable) {
-			((ICivilianMovable)movable).checkPlayerOfPosition();
-		}
 	}
 
 	final boolean isValidPosition(IPathCalculatable pathCalculatable, int x, int y) {

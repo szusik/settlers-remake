@@ -1,5 +1,8 @@
 package jsettlers.logic.movable.civilian;
 
+import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
+import jsettlers.algorithms.simplebehaviortree.Root;
+import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
@@ -13,141 +16,81 @@ import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.ICivilianMovable;
 import jsettlers.logic.player.Player;
 
-public class CivilianMovable extends Movable implements ICivilianMovable {
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
-	private boolean fleeing;
+public abstract class CivilianMovable extends Movable implements ICivilianMovable {
 
 	private int searchesCounter = 0;
-	private boolean turnNextTime;
+	protected boolean turnNextTime;
 
-	private int lastCheckedPathStep;
+	private ShortPoint2D lastCheckedPosition = null;
 	private byte pathStepCheckedCounter;
 
-	private boolean peacetimeActive;
-
-	protected CivilianMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, movableType, position, player, replace);
-
-		peacetimeActive = true;
-		fleeing = false;
-
-		strategyStarted();
+	protected CivilianMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends CivilianMovable> root) {
+		super(grid, movableType, position, player, replace, root);
 	}
 
-	@Override
-	protected final void action() {
-		checkPlayerOfPosition();
+	protected static <T extends CivilianMovable> Guard<T> fleeIfNecessary() {
+		return guard(CivilianMovable::checkPlayerOfPosition,
+				sequence(
+					BehaviorTreeHelper.action(CivilianMovable::abortJob),
+					repeat(mov -> ((CivilianMovable)mov).searchesCounter <= 120,
+						sequence(
+							BehaviorTreeHelper.action(mov -> {((CivilianMovable)mov).searchesCounter++;}),
+							ignoreFailure(
+								selector(
+									// move to nearest own ground
+									sequence(
+										condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, Constants.MOVABLE_FLEEING_DIJKSTRA_RADIUS, ESearchType.VALID_FREE_POSITION)
+												|| mov.preSearchPath(false, mov.position.x, mov.position.y, Constants.MOVABLE_FLEEING_MAX_RADIUS, ESearchType.VALID_FREE_POSITION)),
 
-		if(fleeing) {
-			if(peacetimeActive) {
-				peacetimeActive = false;
-				strategyStopped();
-			}
-
-			findEvacuationPath();
-		} else {
-			if(!peacetimeActive) {
-				peacetimeActive = true;
-				strategyStarted();
-			}
-
-			peacetimeAction();
-		}
+										BehaviorTreeHelper.action(mov -> {((CivilianMovable)mov).lastCheckedPosition = null;}),
+										followPresearchedPath(CivilianMovable::checkEvacuationPath)
+									),
+									// or move in random directions
+									sequence(
+										BehaviorTreeHelper.action(mov -> {
+											EDirection currentDirection = mov.getDirection();
+											if (mov.turnNextTime || MatchConstants.random().nextFloat() < 0.10) {
+												mov.turnNextTime = false;
+												mov.lookInDirection(currentDirection.getNeighbor(MatchConstants.random().nextInt(-1, 1)));
+											}
+										}),
+										selector(
+											sequence(
+												goInDirectionIfFree(Movable::getDirection),
+												BehaviorTreeHelper.action(mov -> {
+													mov.turnNextTime = MatchConstants.random().nextInt(7) == 0;
+												})
+											),
+											BehaviorTreeHelper.action(mov -> {mov.turnNextTime = true;})
+										)
+									)
+								)
+							)
+						)
+					),
+					BehaviorTreeHelper.action(Movable::kill)
+				)
+		);
 	}
 
-	@Override
-	protected void decoupleMovable() {
-		super.decoupleMovable();
+	protected abstract void abortJob();
 
-		if(peacetimeActive) {
-			if(path != null) peacetimePathAborted(path.getTargetPosition());
-			strategyStopped();
-		}
-	}
-
-	@Override
-	protected final boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
-		checkPlayerOfPosition();
-
-		if(peacetimeActive) {
-			if(fleeing) {
-				return false;
-			}
-
-			return peacetimeCheckPathStepPreconditions(pathTarget, step, moveToType);
-		} else {
-			return checkEvacuationPath(step);
-		}
-	}
-
-	@Override
-	protected final void pathAborted(ShortPoint2D pathTarget) {
-		if(peacetimeActive) peacetimePathAborted(pathTarget);
-	}
-
-
-	protected void peacetimeAction() {
-	}
-
-	protected void strategyStarted() {
-	}
-
-	protected void strategyStopped() {
-	}
-
-	protected void peacetimePathAborted(ShortPoint2D pathTarget) {
-	}
-
-	protected boolean peacetimeCheckPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
-		return true;
-	}
-
-	private void findEvacuationPath() {
-		if(searchesCounter > 120) {
-			kill();
-			return;
-		}
-
-		if (super.preSearchPath(true, position.x, position.y, Constants.MOVABLE_FLEEING_DIJKSTRA_RADIUS, ESearchType.VALID_FREE_POSITION)
-				|| super.preSearchPath(false, position.x, position.y, Constants.MOVABLE_FLEEING_MAX_RADIUS, ESearchType.VALID_FREE_POSITION)) {
-			lastCheckedPathStep = Integer.MIN_VALUE;
-			super.followPresearchedPath();
-		} else {
-			EDirection currentDirection = getDirection();
-			EDirection newDirection;
-			if (turnNextTime || MatchConstants.random().nextFloat() < 0.10) {
-				turnNextTime = false;
-				newDirection = currentDirection.getNeighbor(MatchConstants.random().nextInt(-1, 1));
-			} else {
-				newDirection = currentDirection;
-			}
-
-			if (super.goInDirection(newDirection, EGoInDirectionMode.GO_IF_FREE)) {
-				turnNextTime = MatchConstants.random().nextInt(7) == 0;
-			} else {
-				super.lookInDirection(newDirection);
-				turnNextTime = true;
-			}
-		}
-
-		searchesCounter++;
-	}
-
-	private boolean checkEvacuationPath(int step) {
-		if (lastCheckedPathStep == step) {
+	private boolean checkEvacuationPath() {
+		if (position.equals(lastCheckedPosition)) {
 			pathStepCheckedCounter++;
 			searchesCounter++;
 		} else {
 			pathStepCheckedCounter = 0;
-			lastCheckedPathStep = (short) step;
+			lastCheckedPosition = position;
 		}
 
 		return !grid.isValidPosition(this, position.x, position.y) && pathStepCheckedCounter < 5;
 	}
 
-	@Override
-	public void checkPlayerOfPosition() {
+	protected boolean checkPlayerOfPosition() {
 		// civilians are only allowed on their players ground => abort current task and flee to nearest own ground
-		fleeing = grid.getPlayerAt(position) != player;
+		return grid.getPlayerAt(position) != player;
 	}
 }

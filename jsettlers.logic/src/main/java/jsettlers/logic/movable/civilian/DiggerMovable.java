@@ -17,13 +17,11 @@ import jsettlers.logic.player.Player;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
-public class DiggerMovable extends Movable implements IManageableDigger {
+public class DiggerMovable extends CivilianMovable implements IManageableDigger {
 
 	private IDiggerRequester requester = null;
 	private boolean registered = false;
 	private ShortPoint2D targetPosition;
-
-	private boolean fleeing;
 
 	public DiggerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, EMovableType.DIGGER, position, player, movable, tree);
@@ -33,12 +31,7 @@ public class DiggerMovable extends Movable implements IManageableDigger {
 
 	private static Node<DiggerMovable> createDiggerBehaviour() {
 		return guardSelector(
-				guard(mov -> mov.fleeing,
-					sequence(
-						BehaviorTreeHelper.action(DiggerMovable::abortJob),
-						alwaysSucceed() // TODO
-					)
-				),
+				fleeIfNecessary(),
 				guard(mov -> mov.requester != null && mov.requester.isDiggerRequestActive(),
 					selector(
 						repeat(DiggerMovable::flattenPositionsRemaining,
@@ -133,8 +126,11 @@ public class DiggerMovable extends Movable implements IManageableDigger {
 		return grid.getHeightAt(pos) != requester.getAverageHeight();
 	}
 
-	private void abortJob() {
-		requester.diggerRequestFailed();
-		requester = null;
+	@Override
+	protected void abortJob() {
+		if(requester != null) {
+			requester.diggerRequestFailed();
+			requester = null;
+		}
 	}
 }

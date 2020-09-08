@@ -232,6 +232,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		);
 	}
 
+	protected static <T extends Movable> Node<T> goInDirectionIfFree(IEDirectionSupplier<T> direction) {
+		return sequence(
+				condition(mov -> mov.goInDirection(direction.apply(mov), EGoInDirectionMode.GO_IF_FREE)),
+				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
+		);
+	}
+
 	protected static <T extends Movable> Node<T> goInDirectionWaitFree(IEDirectionSupplier<T> direction, IBooleanConditionFunction<T> pathStep) {
 		return sequence(
 				BehaviorTreeHelper.action(mov -> {

@@ -16,15 +16,13 @@ import jsettlers.logic.player.Player;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
-public class BricklayerMovable extends Movable implements IManageableBricklayer {
+public class BricklayerMovable extends CivilianMovable implements IManageableBricklayer {
 	private static final float BRICKLAYER_ACTION_DURATION = 1f;
 
 	private IConstructableBuilding constructionSite = null;
 	private boolean registered = false;
 	private ShortPoint2D targetPosition;
 	private EDirection lookDirection;
-
-	private boolean fleeing;
 
 	public BricklayerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, EMovableType.BRICKLAYER, position, player, movable, tree);
@@ -34,12 +32,7 @@ public class BricklayerMovable extends Movable implements IManageableBricklayer 
 
 	private static Node<BricklayerMovable> createBricklayerBehaviour() {
 		return guardSelector(
-				guard(mov -> mov.fleeing,
-					sequence(
-						BehaviorTreeHelper.action(BricklayerMovable::abortJob),
-						alwaysSucceed() // TODO
-					)
-				),
+				fleeIfNecessary(),
 				guard(mov -> mov.constructionSite != null && mov.constructionSite.isBricklayerRequestActive(),
 					sequence(
 						selector(
@@ -87,14 +80,13 @@ public class BricklayerMovable extends Movable implements IManageableBricklayer 
 	protected void decoupleMovable() {
 		super.decoupleMovable();
 
-		if(constructionSite != null) {
-			abortJob();
-		} else {
-			grid.removeJobless(this);
-		}
+		abortJob();
+
+		grid.removeJobless(this);
 	}
 
-	private void abortJob() {
-		constructionSite.bricklayerRequestFailed(targetPosition, lookDirection);
+	@Override
+	protected void abortJob() {
+		if(constructionSite != null) constructionSite.bricklayerRequestFailed(targetPosition, lookDirection);
 	}
 }

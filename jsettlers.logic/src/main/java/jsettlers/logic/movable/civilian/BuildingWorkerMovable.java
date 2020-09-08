@@ -37,7 +37,7 @@ import jsettlers.logic.player.Player;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
-public class BuildingWorkerMovable extends Movable implements IBuildingWorkerMovable, IManageableWorker {
+public class BuildingWorkerMovable extends CivilianMovable implements IBuildingWorkerMovable, IManageableWorker {
 
 	private transient IBuildingJob currentJob = null;
 	protected IWorkerRequestBuilding building;
@@ -57,9 +57,7 @@ public class BuildingWorkerMovable extends Movable implements IBuildingWorkerMov
 
 	private static Node<BuildingWorkerMovable> createBuildingWorkerBehaviour() {
 		return guardSelector(
-				guard(mov -> false,
-						alwaysSucceed() // TODO
-				),
+				fleeIfNecessary(),
 				guard(mov -> mov.building != null && mov.building.isDestroyed(),
 					BehaviorTreeHelper.action(BuildingWorkerMovable::buildingDestroyed)
 				),
@@ -524,10 +522,13 @@ public class BuildingWorkerMovable extends Movable implements IBuildingWorkerMov
 		building.occupyBuilding(this);
 	}
 
-	private void abortJob() {
+	@Override
+	protected void abortJob() {
 		building.leaveBuilding(this);
 		building = null;
 		currentJob = null;
+
+		dropCurrentMaterial();
 	}
 
 	@Override
