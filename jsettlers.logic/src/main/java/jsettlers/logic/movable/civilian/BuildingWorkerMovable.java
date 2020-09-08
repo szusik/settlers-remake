@@ -524,9 +524,11 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 
 	@Override
 	protected void abortJob() {
-		building.leaveBuilding(this);
-		building = null;
-		currentJob = null;
+		if(building != null) {
+			building.leaveBuilding(this);
+			building = null;
+			currentJob = null;
+		}
 
 		dropCurrentMaterial();
 	}
