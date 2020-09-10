@@ -9,9 +9,7 @@ import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.position.MutablePoint2D;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.common.utils.mutables.MutableDouble;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
@@ -31,7 +29,6 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 	private ShortPoint2D goToTarget = null;
 
 	private ShortPoint2D centerPosition = null;
-	private ShortPoint2D workTarget = null;
 	private EDirection workDirection = null;
 
 	public PioneerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
@@ -62,7 +59,6 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 					resetAfter(mov -> {
 						mov.currentTarget = null;
 						mov.workDirection = null;
-						mov.workTarget = null;
 					},
 
 						sequence(
@@ -73,17 +69,9 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 							}),
 							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null), // TODO
 							repeat(mov -> true,
-								resetAfter(mov -> {
-									if(mov.workTarget != null) {
-										mov.grid.setMarked(mov.workTarget, false);
-										mov.workTarget = null;
-									}
-								},
-
-									sequence(
-										findWorkablePosition(),
-										ignoreFailure(workOnPosition())
-									)
+								sequence(
+									findWorkablePosition(),
+									ignoreFailure(workOnPosition())
 								)
 							)
 						)
@@ -120,24 +108,13 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 								});
 						return mov.workDirection != null;
 					}),
-					BehaviorTreeHelper.action(mov -> {
-						mov.workTarget = mov.workDirection.getNextHexPoint(mov.position);
-						mov.grid.setMarked(mov.workTarget, true);
-					}),
 					goInDirectionIfAllowedAndFree(mov -> mov.workDirection)
 				),
 				sequence(
 					BehaviorTreeHelper.action(mov -> {
 						mov.centerPosition = null;
 					}),
-					alwaysFail()
-				),
-				sequence(
 					condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, (short) 30, ESearchType.UNENFORCED_FOREIGN_GROUND)),
-					BehaviorTreeHelper.action(mov -> {
-						mov.workTarget = mov.path.getTargetPosition();
-						mov.grid.setMarked(mov.workTarget, true);
-					}),
 					followPresearchedPath(mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
 				)
 		);
@@ -149,18 +126,12 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 
 	protected static Node<PioneerMovable> workOnPosition() {
 		return sequence(
-				condition(mov -> {
-					mov.grid.setMarked(mov.workTarget, false);
-					boolean success = mov.grid.fitsSearchType(mov, mov.workTarget.x, mov.workTarget.y, ESearchType.UNENFORCED_FOREIGN_GROUND);
-					mov.grid.setMarked(mov.workTarget, true);
-
-					return success;
-				}),
+				condition(mov -> mov.grid.fitsSearchType(mov, mov.position.x, mov.position.y, ESearchType.UNENFORCED_FOREIGN_GROUND)),
 
 				playAction(EMovableAction.ACTION1, mov -> (short)(ACTION1_DURATION*1000)),
 
 				BehaviorTreeHelper.action(mov -> {
-					mov.grid.changePlayerAt(mov.workTarget, mov.getPlayer());
+					mov.grid.changePlayerAt(mov.position, mov.getPlayer());
 				})
 		);
 	}
