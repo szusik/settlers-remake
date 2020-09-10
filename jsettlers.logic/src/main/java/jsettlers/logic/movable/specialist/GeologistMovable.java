@@ -28,6 +28,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 	private EMoveToType nextMoveToType;
 	private ShortPoint2D nextTarget = null;
 	private ShortPoint2D currentTarget = null;
+	private ShortPoint2D goToTarget = null;
 
 	public GeologistMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, EMovableType.GEOLOGIST, position, player, movable, behaviour);
@@ -39,9 +40,19 @@ public class GeologistMovable extends AttackableHumanMovable {
 		return guardSelector(
 				guard(mov -> mov.nextTarget != null,
 					BehaviorTreeHelper.action(mov -> {
-						mov.currentTarget = mov.nextTarget;
+						if(mov.nextMoveToType.isWorkOnDestination()) {
+							mov.currentTarget = mov.nextTarget;
+						} else {
+							mov.goToTarget = mov.nextTarget;
+						}
 						mov.nextTarget = null;
 					})
+				),
+				guard(mov -> mov.goToTarget != null,
+					resetAfter(
+						mov -> mov.goToTarget = null,
+						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null) // TODO
+					)
 				),
 				guard(mov -> mov.currentTarget != null,
 					resetAfter(mov -> mov.currentTarget = null,
@@ -144,6 +155,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 
 	@Override
 	public void stopOrStartWorking(boolean stop) {
-		nextTarget = stop? null: position;
+		nextTarget = position;
+		nextMoveToType = stop?EMoveToType.FORCED:EMoveToType.DEFAULT;
 	}
 }

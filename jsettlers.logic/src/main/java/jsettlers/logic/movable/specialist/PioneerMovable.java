@@ -28,6 +28,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 	private EMoveToType nextMoveToType;
 	private ShortPoint2D nextTarget = null;
 	private ShortPoint2D currentTarget = null;
+	private ShortPoint2D goToTarget = null;
 
 	private ShortPoint2D centerPosition = null;
 	private ShortPoint2D workTarget = null;
@@ -43,9 +44,19 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 		return guardSelector(
 				guard(mov -> mov.nextTarget != null,
 					BehaviorTreeHelper.action(mov -> {
-						mov.currentTarget = mov.nextTarget;
+						if(mov.nextMoveToType.isWorkOnDestination()) {
+							mov.currentTarget = mov.nextTarget;
+						} else {
+							mov.goToTarget = mov.nextTarget;
+						}
 						mov.nextTarget = null;
 					})
+				),
+				guard(mov -> mov.goToTarget != null,
+					resetAfter(
+						mov -> mov.goToTarget = null,
+						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null) // TODO
+					)
 				),
 				guard(mov -> mov.currentTarget != null,
 					resetAfter(mov -> {
@@ -173,6 +184,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 
 	@Override
 	public void stopOrStartWorking(boolean stop) {
-		nextTarget = stop? null: position;
+		nextTarget = position;
+		nextMoveToType = stop? EMoveToType.FORCED : EMoveToType.DEFAULT;
 	}
 }

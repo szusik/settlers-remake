@@ -2,17 +2,24 @@ package jsettlers.logic.movable.specialist;
 
 import java.util.BitSet;
 
+import jsettlers.algorithms.path.Path;
+import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
+import jsettlers.algorithms.simplebehaviortree.Node;
+import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
+
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class ThiefMovable extends AttackableHumanMovable implements IThiefMovable {
 
@@ -20,13 +27,83 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 
 	private static final float ACTION1_DURATION = 1f;
 
-	private EThiefState state = EThiefState.JOBLESS;
+	private EMoveToType nextMoveToType;
+	private ShortPoint2D nextTarget = null;
+	private ShortPoint2D currentTarget = null;
+	private ShortPoint2D goToTarget = null;
 
 	private ShortPoint2D returnPos = null;
-	private EMaterialType stolenMaterial = EMaterialType.NO_MATERIAL;
 
 	public ThiefMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.THIEF, position, player, movable);
+		super(grid, EMovableType.THIEF, position, player, movable, behaviour);
+	}
+
+	private static final Root<ThiefMovable> behaviour = new Root<>(createThiefBehaviour());
+
+	public static Node<ThiefMovable> createThiefBehaviour() {
+		return guardSelector(
+				guard(mov -> mov.nextTarget != null,
+					BehaviorTreeHelper.action(mov -> {
+						// steal something
+						if(mov.nextMoveToType.isWorkOnDestination() && mov.getMaterial() == EMaterialType.NO_MATERIAL) {
+							Path dijkstraPath = mov.grid.searchDijkstra(mov, mov.nextTarget.x, mov.nextTarget.y, (short) 30, ESearchType.FOREIGN_MATERIAL);
+							if (dijkstraPath != null) {
+								mov.currentTarget = dijkstraPath.getTargetPosition();
+							} else {
+								mov.currentTarget = null;
+							}
+
+							mov.returnPos = mov.position;
+						} else {
+							// or just go there
+							mov.goToTarget = mov.nextTarget;
+						}
+						mov.nextTarget = null;
+					})
+				),
+				guard(mov -> mov.goToTarget != null,
+						resetAfter(
+								mov -> mov.goToTarget = null,
+								goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null) // TODO
+						)
+				),
+				guard(mov -> (mov.getMaterial() != EMaterialType.NO_MATERIAL && mov.isOnOwnGround()),
+					BehaviorTreeHelper.action(ThiefMovable::dropMaterialIfPossible)
+				),
+				guard(mov -> mov.currentTarget != null,
+					sequence(
+						goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && (mov.getMaterial() == EMaterialType.NO_MATERIAL || !mov.isOnOwnGround()) && mov.nextTarget == null), // TODO
+						selector(
+							condition(mov -> mov.getMaterial() != EMaterialType.NO_MATERIAL),
+							sequence(
+								stealMaterial(),
+								BehaviorTreeHelper.action(mov -> {
+									mov.goToTarget = mov.returnPos;
+								})
+							)
+						)
+					)
+				)
+		);
+	}
+
+	private void dropMaterialIfPossible() {
+		EMaterialType stolenMaterial = setMaterial(EMaterialType.NO_MATERIAL);
+		drop(stolenMaterial);
+	}
+
+	protected static Node<ThiefMovable> stealMaterial() {
+		return sequence(
+				condition(mov -> mov.grid.fitsSearchType(mov, mov.currentTarget.x, mov.currentTarget.y, ESearchType.FOREIGN_MATERIAL)),
+
+				playAction(EMovableAction.ACTION1, mov -> (short)(ACTION1_DURATION*1000)),
+
+				condition(mov -> {
+					EMaterialType stolenMaterial = mov.grid.takeMaterial(mov.currentTarget);
+					mov.setMaterial(stolenMaterial);
+					return stolenMaterial != EMaterialType.NO_MATERIAL;
+				})
+		);
 	}
 
 
@@ -40,98 +117,33 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 		uncoveredBy.set(teamId);
 	}
 
-
 	@Override
-	protected void action() {
-		if(isOnOwnGround() && stolenMaterial != EMaterialType.NO_MATERIAL) {
-			grid.dropMaterial(position, stolenMaterial, true, false);
-			setMaterial(EMaterialType.NO_MATERIAL);
-			stolenMaterial = EMaterialType.NO_MATERIAL;
-		}
+	protected void decoupleMovable() {
+		super.decoupleMovable();
 
-		switch (state) {
-			case JOBLESS:
-				break;
-			case GOING_TO_POS:
-				if(stolenMaterial == EMaterialType.NO_MATERIAL) {
-					if(canWorkOnPos(position)) {
-						playAction(EMovableAction.ACTION1, ACTION1_DURATION);
-						state = EThiefState.PLAYING_ACTION1;
-					} else {
-						if(!findWorkablePosition()) {
-							state = EThiefState.JOBLESS;
-						}
-					}
-				}
-				break;
-			case PLAYING_ACTION1:
-				if(canWorkOnPos(position)) {
-					executeAction(position);
-				}
-
-				goToPos(returnPos);
-				state = EThiefState.JOBLESS;
-				break;
-		}
-	}
-
-
-	private boolean findWorkablePosition() {
-		if (preSearchPath(true, position.x, position.y, (short) 10, ESearchType.FOREIGN_MATERIAL)) {
-			followPresearchedPath();
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private boolean canWorkOnPos(ShortPoint2D pos) {
-		return grid.fitsSearchType(this, pos.x, pos.y, ESearchType.FOREIGN_MATERIAL);
-	}
-
-	private void executeAction(ShortPoint2D pos) {
-		stolenMaterial = grid.takeMaterial(pos);
-		setMaterial(stolenMaterial);
+		dropMaterialIfPossible();
 	}
 
 	@Override
-	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
-		state = moveToType.isWorkOnDestination()? EThiefState.GOING_TO_POS : EThiefState.JOBLESS;
+	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
+		if(playerControlled && (!targetPosition.equals(currentTarget) || nextMoveToType != moveToType)) {
+			nextTarget = targetPosition;
+			nextMoveToType = moveToType;
+		}
+	}
 
-		if(getMaterial() == EMaterialType.NO_MATERIAL) {
-			returnPos = position;
-		} else {
-			returnPos = null;
+	@Override
+	public void moveToFerry(IFerryMovable ferry, ShortPoint2D entrancePosition) {
+		if(playerControlled && (!entrancePosition.equals(currentTarget) || ferryToEnter != ferry)) {
+			ferryToEnter = ferry;
+			nextTarget = entrancePosition;
+			nextMoveToType = EMoveToType.FORCED;
 		}
 	}
 
 	@Override
 	public void stopOrStartWorking(boolean stop) {
-		if(stop) {
-			state = EThiefState.JOBLESS;
-		} else {
-			state = EThiefState.GOING_TO_POS;
-		}
-	}
-
-	@Override
-	protected void pathAborted(ShortPoint2D pathTarget) {
-		state = EThiefState.JOBLESS;
-	}
-
-	@Override
-	protected void decoupleMovable() {
-		super.decoupleMovable();
-
-		if(stolenMaterial != EMaterialType.NO_MATERIAL) {
-			drop(stolenMaterial);
-		}
-	}
-
-	private enum EThiefState {
-		JOBLESS,
-		GOING_TO_POS,
-		PLAYING_ACTION1,
-		RAISING_UP,
+		nextTarget = position;
+		nextMoveToType = stop? EMoveToType.FORCED : EMoveToType.DEFAULT;
 	}
 }
