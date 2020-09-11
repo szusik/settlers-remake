@@ -29,6 +29,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 	private ShortPoint2D nextTarget = null;
 	private ShortPoint2D currentTarget = null;
 	private ShortPoint2D goToTarget = null;
+	private ShortPoint2D centerPos = null;
 
 	public GeologistMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, EMovableType.GEOLOGIST, position, player, movable, behaviour);
@@ -55,10 +56,17 @@ public class GeologistMovable extends AttackableHumanMovable {
 					)
 				),
 				guard(mov -> mov.currentTarget != null,
-					resetAfter(mov -> mov.currentTarget = null,
+					resetAfter(mov -> {
+						mov.currentTarget = null;
+						mov.centerPos = null;
+					},
 
 						sequence(
-							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null), // TODO
+							selector(
+								condition(mov -> mov.position.equals(mov.currentTarget)),
+								goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+							),
+							BehaviorTreeHelper.action(mov -> {mov.centerPos = mov.currentTarget;}),
 							repeat(mov -> true,
 								sequence(
 									findWorkablePosition(),
@@ -88,7 +96,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 							.filterBounds(mov.grid.getWidth(), mov.grid.getHeight())
 							.filter((x, y) -> mov.grid.fitsSearchType(mov, x, y, ESearchType.RESOURCE_SIGNABLE))
 							.forEach((x, y) -> {
-								double distance = ShortPoint2D.getOnGridDist(x - mov.currentTarget.x, y - mov.currentTarget.y);
+								double distance = ShortPoint2D.getOnGridDist(x - mov.centerPos.x, y - mov.centerPos.y);
 								if (distance < bestNeighbourDistance.value) {
 									bestNeighbourDistance.value = distance;
 									bestNeighbourPos.x = x;

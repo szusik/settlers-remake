@@ -72,7 +72,10 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 				),
 				guard(mov -> mov.currentTarget != null,
 					sequence(
-						goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && (mov.getMaterial() == EMaterialType.NO_MATERIAL || !mov.isOnOwnGround()) && mov.nextTarget == null), // TODO
+						selector(
+							condition(mov -> mov.position.equals(mov.currentTarget)),
+							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && (mov.getMaterial() == EMaterialType.NO_MATERIAL || !mov.isOnOwnGround()) && mov.nextTarget == null) // TODO
+						),
 						selector(
 							condition(mov -> mov.getMaterial() != EMaterialType.NO_MATERIAL),
 							sequence(

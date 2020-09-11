@@ -28,7 +28,6 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 	private ShortPoint2D currentTarget = null;
 	private ShortPoint2D goToTarget = null;
 
-	private ShortPoint2D centerPosition = null;
 	private EDirection workDirection = null;
 
 	public PioneerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
@@ -62,12 +61,10 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 					},
 
 						sequence(
-							BehaviorTreeHelper.action(mov -> {
-								if(mov.centerPosition == null) {
-									mov.centerPosition = mov.currentTarget;
-								}
-							}),
-							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null), // TODO
+							selector(
+								condition(mov -> mov.position.equals(mov.currentTarget)),
+								goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+							),
 							repeat(mov -> true,
 								sequence(
 									findWorkablePosition(),
@@ -111,9 +108,6 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 					goInDirectionIfAllowedAndFree(mov -> mov.workDirection)
 				),
 				sequence(
-					BehaviorTreeHelper.action(mov -> {
-						mov.centerPosition = null;
-					}),
 					condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, (short) 30, ESearchType.UNENFORCED_FOREIGN_GROUND)),
 					followPresearchedPath(mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
 				)
