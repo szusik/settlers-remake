@@ -137,7 +137,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		if(replace != null) {
 			this.health = replace.getHealth()/replace.getMovableType().getHealth()*movableType.getHealth();
 			this.direction = replace.getDirection();
-			this.materialType = replace.materialType;
+			if(movableType == replace.movableType) {
+				this.materialType = replace.materialType;
+			}
 		} else {
 			this.health = movableType.getHealth();
 			this.direction = EDirection.VALUES[MatchConstants.random().nextInt(EDirection.NUMBER_OF_DIRECTIONS)];
