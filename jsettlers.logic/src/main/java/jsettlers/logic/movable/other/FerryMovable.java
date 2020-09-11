@@ -3,9 +3,12 @@ package jsettlers.logic.movable.other;
 import java.util.ArrayList;
 import java.util.List;
 
+import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
+import jsettlers.algorithms.simplebehaviortree.Node;
+import jsettlers.algorithms.simplebehaviortree.Root;
+import jsettlers.common.action.EMoveToType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.IGraphicsFerry;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.Movable;
@@ -16,6 +19,7 @@ import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.player.Player;
 
 import static java8.util.stream.StreamSupport.stream;
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class FerryMovable extends AttackableMovable implements IFerryMovable {
 
@@ -23,8 +27,30 @@ public class FerryMovable extends AttackableMovable implements IFerryMovable {
 
 	private final List<IAttackableHumanMovable> passengers = new ArrayList<>(MAX_NUMBER_OF_PASSENGERS);
 
+	private ShortPoint2D currentTarget = null;
+	private ShortPoint2D nextTarget = null;
+
 	public FerryMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.FERRY, position, player, movable);
+		super(grid, EMovableType.FERRY, position, player, movable, behaviour);
+
+	}
+
+	private static final Root<FerryMovable> behaviour = new Root<>(createFerryBehaviour());
+
+	private static Node<FerryMovable> createFerryBehaviour() {
+		return guardSelector(
+				guard(mov -> mov.nextTarget != null,
+					BehaviorTreeHelper.action(mov -> {
+						mov.currentTarget = mov.nextTarget;
+						mov.nextTarget = null;
+					})
+				),
+				guard(mov -> mov.currentTarget != null,
+					resetAfter(mov -> mov.currentTarget = null,
+						goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null)
+					)
+				)
+		);
 	}
 
 	@Override
@@ -68,5 +94,10 @@ public class FerryMovable extends AttackableMovable implements IFerryMovable {
 		super.killMovable();
 
 		stream(passengers).forEach(ILogicMovable::kill);
+	}
+
+	@Override
+	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
+		nextTarget = targetPosition;
 	}
 }

@@ -121,11 +121,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	private Tick<? extends Movable> tick;
 
-	@Deprecated
-	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
-		this(grid, movableType, position, player, replace, null);
-	}
-
 	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends Movable> behaviour) {
 		this.grid = grid;
 		this.position = position;
