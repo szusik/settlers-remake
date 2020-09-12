@@ -147,7 +147,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 	}
 
 	private boolean castSpell() {
-		if(position.getOnGridDistTo(currentTarget) > Constants.MAGE_CAST_DISTANCE) return false;
+		if(currentSpell.forcePresence() && position.getOnGridDistTo(currentTarget) > Constants.MAGE_CAST_DISTANCE) return false;
 
 		if(!player.getMannaInformation().useSpell(currentSpell)) {
 			player.showMessage(SimpleMessage.castFailed(position, "spell_failed"));
