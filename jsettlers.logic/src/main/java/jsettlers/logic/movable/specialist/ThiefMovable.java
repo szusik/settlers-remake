@@ -92,7 +92,7 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 
 	private void dropMaterialIfPossible() {
 		EMaterialType stolenMaterial = setMaterial(EMaterialType.NO_MATERIAL);
-		drop(stolenMaterial);
+		grid.dropMaterial(position, stolenMaterial, true, true);
 	}
 
 	protected static Node<ThiefMovable> stealMaterial() {
