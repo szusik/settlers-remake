@@ -117,12 +117,12 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP),
 							BehaviorTreeHelper.action(mov -> {mov.dropAction(mov.currentJob.getMaterial());}),
-							jobFinishedNode()
+							nodeToJob(drop(mov -> mov.currentJob.getMaterial()))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP_POPPED),
 							BehaviorTreeHelper.action(mov -> {mov.dropAction(mov.poppedMaterial);}),
-							jobFinishedNode()
+							nodeToJob(drop(mov -> mov.poppedMaterial))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PRE_SEARCH),
@@ -447,7 +447,6 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	}
 
 	private void dropAction(EMaterialType materialType) {
-		super.drop(materialType);
 		if (materialType == EMaterialType.GOLD) {
 			player.getEndgameStatistic().incrementAmountOfProducedGold();
 		}
