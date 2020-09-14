@@ -12,8 +12,6 @@ public interface ISoldierMovable extends IAttackableHumanMovable {
 	/**
 	 * This method is called when this movable has to defend it's building at the given position.
 	 *
-	 * @param pos
-	 *            The position the defending movable is standing.
 	 */
-	void defendTowerAt(ShortPoint2D pos);
+	void defendTowerAt();
 }

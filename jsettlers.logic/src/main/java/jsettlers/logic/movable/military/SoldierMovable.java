@@ -1,228 +1,277 @@
 package jsettlers.logic.movable.military;
 
 import jsettlers.algorithms.path.Path;
+import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
+import jsettlers.algorithms.simplebehaviortree.Node;
+import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.buildings.OccupierPlace;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
+import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
+import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
-import jsettlers.logic.movable.EGoInDirectionMode;
 import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.ISoldierMovable;
-import jsettlers.logic.movable.specialist.ThiefMovable;
 import jsettlers.logic.player.Player;
+
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public abstract class SoldierMovable extends AttackableHumanMovable implements ISoldierMovable {
 
-	private ESoldierState state = ESoldierState.SEARCH_FOR_ENEMIES;
+	protected IAttackable enemy;
+
 	private IOccupyableBuilding building;
-	private IAttackable enemy;
-	private ShortPoint2D oldPathTarget;
-
-	private boolean inSaveGotoMode = false;
-
-	private boolean isInTower;
-
+	protected boolean isInTower;
 	private ShortPoint2D inTowerAttackPosition;
-
 	private boolean defending;
 
-	private short minSearchDistance;
-	private short towerMaxSearchDistance;
-	private short defaultMaxSearchDistance;
 
-	public SoldierMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable, short minSearchDistance, short towerMaxSearchDistance, short defaultMaxSearchDistance) {
-		super(grid, movableType, position, player, movable);
+	private ShortPoint2D nextTarget = null;
+	private EMoveToType nextMoveToType;
 
-		this.minSearchDistance = minSearchDistance;
-		this.towerMaxSearchDistance = towerMaxSearchDistance;
-		this.defaultMaxSearchDistance = defaultMaxSearchDistance;
+	private ShortPoint2D currentTarget = null;
+	private ShortPoint2D goToTarget = null;
+
+	private int patrolStep = -1;
+	private ShortPoint2D[] patrolPoints = null;
+
+	private boolean enemyNearby;
+	private IAttackable toCloseEnemy;
+	private ShortPoint2D startPoint;
+
+
+	public SoldierMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
+		super(grid, movableType, position, player, movable, behaviour);
+
+		enemyNearby = true; // might not actually be true
+	}
+	
+	private static Root<SoldierMovable> behaviour = new Root<>(createSoldierBehaviour());
+
+	private static Node<SoldierMovable> createSoldierBehaviour() {
+		return guardSelector(
+				guard(mov -> mov.hasEffect(EEffectType.FROZEN),
+					BehaviorTreeHelper.sleep(mov -> mov.getEffectTime(EEffectType.FROZEN))
+				),
+				// go to tower
+				guard(mov -> mov.building != null && !mov.isInTower,
+					resetAfter(mov -> {
+						if(!mov.isInTower) {
+							mov.notifyTowerThatRequestFailed();
+						}
+					},
+						sequence(
+							selector(
+								condition(mov -> mov.building.getDoor().equals(mov.position)),
+								goToPos(mov -> mov.building.getDoor(), mov -> mov.building != null && !mov.building.isDestroyed() && mov.building.getPlayer() == mov.player) // TODO
+							),
+							BehaviorTreeHelper.action(mov -> {
+								mov.setVisible(false);
+								OccupierPlace place = mov.building.addSoldier(mov);
+								mov.setPosition(place.getPosition().calculatePoint(mov.building.getPosition()));
+								mov.enableNothingToDoAction(false);
+
+								if (mov.isBowman()) mov.inTowerAttackPosition = mov.building.getTowerBowmanSearchPosition(place);
+								mov.isInTower = true;
+							})
+						)
+					)
+				),
+				guard(mov -> mov.nextTarget != null,
+					BehaviorTreeHelper.action(mov -> {
+						mov.abortGoTo();
+
+						switch(mov.nextMoveToType) {
+							default:
+							case DEFAULT:
+								mov.currentTarget = mov.nextTarget;
+								break;
+							case FORCED:
+								mov.goToTarget = mov.nextTarget;
+								break;
+							case PATROL:
+								mov.patrolPoints = new ShortPoint2D[] {mov.position, mov.nextTarget};
+								mov.patrolStep = 0;
+								break;
+						}
+
+						mov.nextTarget = null;
+					})
+				),
+				guard(mov -> mov.goToTarget != null,
+					sequence(
+						ignoreFailure(goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null)), // TODO
+						BehaviorTreeHelper.action(mov -> {
+							mov.goToTarget = null;
+						})
+					)
+				),
+				// attack enemy at the door of the tower
+				guard(mov -> mov.defending,
+					selector(
+						sequence(
+							findEnemy(),
+							ignoreFailure(attackEnemy())
+						),
+						findTooCloseEnemy(),
+						BehaviorTreeHelper.action(mov -> {
+							mov.building.towerDefended(mov);
+							mov.defending = false;
+						})
+					)
+				),
+				// attack enemies from the top of the tower
+				guard(mov -> mov.isBowman() && mov.isInTower && mov.enemyNearby,
+					sequence(
+						findEnemy(),
+						attackEnemy()
+					)
+				),
+				// attack enemy
+				guard(mov -> mov.enemyNearby && !mov.isInTower,
+					selector(
+						sequence(
+							// handle potential enemy
+							findEnemy(),
+							selector(
+								// attack him
+								attackEnemy(),
+
+								condition(mov -> !mov.enemy.isAlive()), // enemy might die even if the attack fails
+
+								// or roughly chase enemy
+								goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.position, mov.enemy.getPosition())),
+								// or go to his position
+								BehaviorTreeHelper.action(mov -> {
+									mov.startPoint = mov.position;
+								}),
+								goToPos(mov -> mov.enemy.getPosition(), mov -> {
+									// hit him
+									if(mov.isEnemyAttackable()) return false;
+									// update behaviour (adjust target)
+									if(mov.startPoint.getOnGridDistTo(mov.position) > 2) return false;
+									return true;
+								}),
+								alwaysSucceed()
+							)
+						),
+						sequence(
+							// handle nearby enemies (bowman only)
+							findTooCloseEnemy(),
+							// run in opposite direction
+							ignoreFailure(goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.toCloseEnemy.getPosition(), mov.position)))
+						),
+						sequence(
+							// no enemy in sight
+							BehaviorTreeHelper.action(mov -> {
+								mov.enemyNearby = false;
+							})
+						)
+					)
+				),
+				guard(mov -> mov.currentTarget != null,
+					sequence(
+						ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> !mov.enemyNearby && mov.nextTarget == null && mov.currentTarget != null)), // TODO
+						BehaviorTreeHelper.action(mov -> {
+							mov.currentTarget = null;
+						})
+					)
+				),
+				guard(mov -> mov.patrolStep != -1,
+					sequence(
+						ignoreFailure(goToPos(mov -> mov.patrolPoints[mov.patrolStep], mov -> !mov.enemyNearby && mov.nextTarget == null && mov.patrolStep != -1)), // TODO
+						BehaviorTreeHelper.action(mov -> {
+							mov.patrolStep = (mov.patrolStep+1) % mov.patrolPoints.length;
+						})
+					)
+				)
+		);
 	}
 
-	@Override
-	protected void action() {
-		switch (state) {
-			case AGGRESSIVE:
-				break;
+	private static Node<SoldierMovable> findTooCloseEnemy() {
+		return sequence(
+				condition(mov -> mov.getMinSearchDistance() > 0),
+				condition(mov -> {
+					mov.toCloseEnemy = mov.grid.getEnemyInSearchArea(
+							mov.getAttackPosition(), mov, (short) 0, mov.getMinSearchDistance(), !mov.defending);
+					return mov.toCloseEnemy != null;
+				})
+		);
+	}
 
-			case FORCED_MOVE:
-				break;
+	private static Node<SoldierMovable> findEnemy() {
+		return condition(mov -> {
+			mov.enemy = mov.grid.getEnemyInSearchArea(mov.getAttackPosition(), mov, mov.getMinSearchDistance(), Constants.SOLDIER_SEARCH_RADIUS, !mov.defending);
+			if(mov.enemy instanceof IThiefMovable) ((IThiefMovable)mov.enemy).uncoveredBy(mov.player.getTeamId());
+			return mov.enemy != null;
+		});
+	}
 
-			case HITTING:
-				if (!isEnemyAttackable(enemy, isInTower)) {
-					changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES);
-				} else {
-					hitEnemy(enemy); // after the animation, execute the actual hit.
+	private static Node<SoldierMovable> attackEnemy() {
+		return sequence(
+				condition(SoldierMovable::isEnemyAttackable),
+				BehaviorTreeHelper.action(mov -> {mov.setDirection(EDirection.getApproxDirection(mov.position, mov.enemy.getPosition()));}),
+				BehaviorTreeHelper.action(SoldierMovable::startAttack),
+				playAction(EMovableAction.ACTION1, SoldierMovable::getAttackDuration),
+				condition(SoldierMovable::isEnemyAttackable),
+				BehaviorTreeHelper.action(SoldierMovable::hitEnemy)
 
-					if (state != SoldierMovable.ESoldierState.HITTING) {
-						break; // the soldier could have entered an attacked tower
-					}
+		);
+	}
 
-					if (!enemy.isAlive()) {
-						enemy = null;
-						changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES);
-						break; // don't directly walk on the enemy's position, because there may be others to walk in first
-					}
-				}
-				changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES);
-			case SEARCH_FOR_ENEMIES:
-				if(hasEffect(EEffectType.FROZEN)) break; // we can neither move nor hit
+	protected abstract short getAttackDuration();
 
-				IAttackable oldEnemy = enemy;
-				enemy = grid.getEnemyInSearchArea(getAttackPosition(), this, minSearchDistance, isInTower? towerMaxSearchDistance : defaultMaxSearchDistance, !defending);
-				if(enemy instanceof IThiefMovable) ((ThiefMovable)enemy).uncoveredBy(player.getTeamId());
+	protected void startAttack() {
 
-				// check if we have a new enemy. If so, go in unsafe mode again.
-				if (oldEnemy != null && oldEnemy != enemy) {
-					inSaveGotoMode = false;
-				}
+	}
 
-				// no enemy found, go back in normal mode
-				if (enemy == null) {
-					if (minSearchDistance > 0) {
-						IAttackable toCloseEnemy = grid.getEnemyInSearchArea(
-								getAttackPosition(), this, (short) 0, minSearchDistance, !defending);
-						if (toCloseEnemy != null) {
-							if (!isInTower) { // we are in danger because an enemy entered our range where we can't attack => run away
-								EDirection escapeDirection = EDirection.getApproxDirection(toCloseEnemy.getPosition(), position);
-								goInDirection(escapeDirection, EGoInDirectionMode.GO_IF_ALLOWED_AND_FREE);
-								moveTo(null, EMoveToType.DEFAULT); // reset moveToRequest, so the soldier doesn't go there after fleeing.
-
-							} // else { // we are in the tower, so wait and check again next time.
-
-							break;
-						}
-					}
-					if (defending) {
-						building.towerDefended(this);
-						defending = false;
-					}
-					changeStateTo(SoldierMovable.ESoldierState.AGGRESSIVE);
-
-				} else if (isEnemyAttackable(enemy, isInTower)) { // if enemy is close enough, attack it
-					lookInDirection(EDirection.getApproxDirection(position, enemy.getPosition()));
-					startAttackAnimation(enemy);
-					changeStateTo(SoldierMovable.ESoldierState.HITTING);
-
-				} else if (!isInTower) {
-					changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES);
-					goToEnemy(enemy);
-
-				} else {
-					changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES);
-
-				}
-
-				break;
-
-			case INIT_GOTO_TOWER:
-				changeStateTo(SoldierMovable.ESoldierState.GOING_TO_TOWER); // change state before requesting path because of checkPathStepPreconditions()
-				if (!position.equals(building.getDoor()) && !goToPos(building.getDoor())) {
-					notifyTowerThatRequestFailed();
-				}
-				break;
-
-			case GOING_TO_TOWER:
-				if (!building.isDestroyed() && building.getPlayer() == player) {
-					OccupierPlace place = building.addSoldier(this);
-					setVisible(false);
-					setPosition(place.getPosition().calculatePoint(building.getPosition()));
-					enableNothingToDoAction(false);
-
-					if (isBowman()) {
-						this.inTowerAttackPosition = building.getTowerBowmanSearchPosition(place);
-						changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES);
-					} else {
-						changeStateTo(SoldierMovable.ESoldierState.AGGRESSIVE);
-					}
-
-					isInTower = true;
-				} else {
-					playerControlled = true;
-					changeStateTo(SoldierMovable.ESoldierState.AGGRESSIVE); // do a check of the surrounding to find possible enemies.
-					building = null;
-				}
-				break;
-		}
+	private void abortGoTo() {
+		currentTarget = null;
+		goToTarget = null;
+		patrolStep = -1;
+		patrolPoints = null;
 	}
 
 	private void notifyTowerThatRequestFailed() {
-		if (building.getPlayer() == player) { // only notify, if the tower still belongs to this player
-			building.requestFailed(this);
-			building = null;
-			playerControlled = true;
-			state = SoldierMovable.ESoldierState.AGGRESSIVE;
-		}
+		if(building.getPlayer() != player) return; // only notify, if the tower still belongs to this player
+
+		building.requestFailed(this);
+		building = null;
+		playerControlled = true;
 	}
 
 	protected ShortPoint2D getAttackPosition() {
-		return isInTower && isBowman() ? inTowerAttackPosition : position;
+		return isInTower && !defending && isBowman() ? inTowerAttackPosition : position;
 	}
 
 	private boolean isBowman() {
 		return getMovableType().isBowman();
 	}
 
-	private void goToEnemy(IAttackable enemy) {
-		if (inSaveGotoMode) {
-			goToSavely(enemy);
-		} else {
-			EDirection dir = EDirection.getApproxDirection(position, enemy.getPosition());
-
-			if (goInDirection(dir, EGoInDirectionMode.GO_IF_ALLOWED_AND_FREE)) {
-				return;
-			} else {
-				inSaveGotoMode = true;
-				goToSavely(enemy);
-			}
-		}
+	protected void hitEnemy() {
 	}
 
-	private void goToSavely(IAttackable enemy) {
-		goToPos(enemy.getPosition());
-	}
+	protected abstract boolean isEnemyAttackable();
 
-	private void changeStateTo(SoldierMovable.ESoldierState state) {
-		this.state = state;
-		switch (state) {
-			case AGGRESSIVE:
-				if (oldPathTarget != null) {
-					goToPos(oldPathTarget);
-					oldPathTarget = null;
-				}
-				break;
-
-			default:
-				break;
-		}
-	}
-
-	protected void hitEnemy(IAttackable enemy) {
-	}
-
-	protected abstract void startAttackAnimation(IAttackable enemy);
-
-	protected abstract boolean isEnemyAttackable(IAttackable enemy, boolean isInTower);
+	protected abstract short getMinSearchDistance();
 
 	@Override
 	public boolean moveToTower(IOccupyableBuilding building) {
-		if (state != SoldierMovable.ESoldierState.GOING_TO_TOWER && state != SoldierMovable.ESoldierState.INIT_GOTO_TOWER) {
-			this.building = building;
-			playerControlled = false;
-			changeStateTo(SoldierMovable.ESoldierState.INIT_GOTO_TOWER);
-			abortPath();
-			this.oldPathTarget = null; // this prevents that the soldiers go to this position after he leaves the tower.
-			return true;
-		}
+		if(this.building != null) return false;
 
-		return false;
+		this.building = building;
+		playerControlled = false;
+
+		abortGoTo(); // this prevents that the soldiers goes to the last target after he leaves the tower.
+		return true;
 	}
 
 	public void leaveTower(ShortPoint2D newPosition) {
@@ -233,65 +282,42 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 			setSelected(false);
 
 			isInTower = false;
-			building = null;
 			defending = false;
-			changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES);
 
-		} else if (state == SoldierMovable.ESoldierState.INIT_GOTO_TOWER || state == SoldierMovable.ESoldierState.GOING_TO_TOWER) {
-			abortPath();
-			building = null;
-			changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES);
 		}
+
+		building = null;
 		playerControlled = true;
 	}
 
 	@Override
-	public void informAboutAttackable(IAttackable other) {
-		if (state == SoldierMovable.ESoldierState.AGGRESSIVE && (!isInTower || isBowman())) {
-			changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES); // this searches for the enemy on the next timer click
-		}
+	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
+		super.receiveHit(hitStrength, attackerPos, attackingPlayer);
+		enemyNearby = true;
 	}
 
-	public void defendTowerAt(ShortPoint2D pos) {
-		setPosition(pos);
-		changeStateTo(SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES);
+	@Override
+	public void informAboutAttackable(IAttackable other) {
+		enemyNearby = true;
+	}
+
+	@Override
+	public void defendTowerAt() {
+		setPosition(building.getPosition());
 		defending = true;
 	}
 
 	@Override
-	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
-		if (state == SoldierMovable.ESoldierState.INIT_GOTO_TOWER) {
-			return false; // abort previous path when we just got a tower set
-		}
+	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
+		if(!playerControlled) return;
 
-		boolean result = !((state == SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES || state == SoldierMovable.ESoldierState.HITTING) && step >= 2);
-		if (!result && oldPathTarget == null) {
-			oldPathTarget = pathTarget;
-		}
-
-		if (state == SoldierMovable.ESoldierState.GOING_TO_TOWER && (building == null || building.isDestroyed() || building.getPlayer() != player)) {
-			result = false;
-		}
-
-		if (enemy != null && state == SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES && isEnemyAttackable(enemy, false)) {
-			result = false;
-		}
-
-		return result;
-	}
-
-	@Override
-	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
-		if (targetPos != null && this.oldPathTarget != null) {
-			oldPathTarget = null; // reset the path target to be able to get the new one when we hijack the path
-			inSaveGotoMode = false;
-		}
-		changeStateTo(moveToType.isAttackOnTheWay() ? SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES : SoldierMovable.ESoldierState.FORCED_MOVE);
+		nextTarget = targetPosition;
+		nextMoveToType = moveToType;
 	}
 
 	@Override
 	public Path findWayAroundObstacle(ShortPoint2D position, Path path) {
-		if (state == SoldierMovable.ESoldierState.SEARCH_FOR_ENEMIES || state == SoldierMovable.ESoldierState.FORCED_MOVE) {
+		if (building == null) {
 			EDirection direction = EDirection.getDirection(position, path.getNextPos());
 
 			EDirection rightDir = direction.getNeighbor(-1);
@@ -351,21 +377,8 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 		}
 	}
 
-	@Override
-	protected void pathAborted(ShortPoint2D pathTarget) {
-		switch (state) {
-			case INIT_GOTO_TOWER:
-			case GOING_TO_TOWER:
-				notifyTowerThatRequestFailed();
-				break;
-			default:
-				state = SoldierMovable.ESoldierState.AGGRESSIVE;
-				break;
-		}
-	}
-
 	protected float getCombatStrength() {
-		boolean alliedGround = player.hasSameTeam(grid.getPlayerAt(getPosition()));
+		boolean alliedGround = player.hasSameTeam(grid.getPlayerAt(position));
 
 		float strengthMod = 1;
 		if(alliedGround && hasEffect(EEffectType.DEFEATISM)) strengthMod *= EEffectType.DEFEATISM_DAMAGE_FACTOR;
@@ -373,21 +386,5 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 		if(hasEffect(EEffectType.MOTIVATE_SWORDSMAN)) strengthMod *= EEffectType.MOTIVATE_SWORDSMAN_DAMAGE_FACTOR;
 
 		return player.getCombatStrengthInformation().getCombatStrength(isOnOwnGround()) * strengthMod;
-	}
-
-	/**
-	 * Internal state of the {@link SoldierMovable} class.
-	 *
-	 * @author Andreas Eberle
-	 */
-	public enum ESoldierState {
-		AGGRESSIVE,
-
-		SEARCH_FOR_ENEMIES,
-		HITTING,
-
-		INIT_GOTO_TOWER,
-		GOING_TO_TOWER,
-		FORCED_MOVE,
 	}
 }

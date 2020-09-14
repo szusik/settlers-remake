@@ -23,6 +23,7 @@ import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
+import jsettlers.algorithms.simplebehaviortree.NodeStatus;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 import jsettlers.common.action.EMoveToType;
@@ -184,7 +185,14 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected void action() {
-		if(tick != null) tick.tick();
+		if(tick != null) {
+			NodeStatus status = NodeStatus.SUCCESS;
+
+			// continue behaviour if the previous run was successful
+			for(int i = 0; i < 5 && status == NodeStatus.SUCCESS && isAlive(); i++) {
+				status = tick.tick();
+			}
+		}
 	}
 
 	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
@@ -1168,6 +1176,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	@Override
 	public boolean hasEffect(EEffectType effect) {
 		return effectEnd[effect.ordinal()] >= MatchConstants.clock().getTime();
+	}
+
+	protected int getEffectTime(EEffectType effect) {
+		return effectEnd[effect.ordinal()] - MatchConstants.clock().getTime();
 	}
 
 

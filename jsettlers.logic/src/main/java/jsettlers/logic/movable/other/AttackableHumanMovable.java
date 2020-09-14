@@ -17,11 +17,6 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 		super(grid, movableType, position, player, movable, behaviour);
 	}
 
-	@Deprecated
-	public AttackableHumanMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, movableType, position, player, movable);
-	}
-
 	@Override
 	public void leaveFerryAt(ShortPoint2D position) {
 		this.position = position;

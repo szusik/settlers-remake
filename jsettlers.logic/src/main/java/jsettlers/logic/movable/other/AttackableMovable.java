@@ -15,11 +15,6 @@ public class AttackableMovable extends Movable implements IAttackableMovable {
 
 	protected boolean attackable;
 
-	@Deprecated
-	public AttackableMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
-		this(grid, movableType, position, player, movable, null);
-	}
-
 	public AttackableMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable, Root<? extends AttackableMovable> behaviour) {
 		super(grid, movableType, position, player, movable, behaviour);
 

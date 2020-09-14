@@ -570,7 +570,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 				occupyingBuilding.changePlayerTo(attackerPos);
 			} else {
 				currDefender = occupyingBuilding.removeSoldier();
-				currDefender.getMovable().defendTowerAt(getPosition());
+				currDefender.getMovable().defendTowerAt();
 			}
 		}
 
