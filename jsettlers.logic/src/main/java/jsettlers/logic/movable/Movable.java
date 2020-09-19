@@ -178,13 +178,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 	}
 
-	protected void tookMaterial() {
-	}
-
-	protected boolean droppingMaterial() {
-		return true;
-	}
-
 	protected boolean checkPathStepPreconditions() {
 		if(pathStep != null && !pathStep.test(this)) {
 			aborted = true;

@@ -160,28 +160,6 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 		}
 	}
 
-	protected void tookMaterial() {
-		if (offer != null) {
-			offer.offerTaken();
-			offer = null;
-		}
-	}
-
-	@Override
-	public boolean droppingMaterial() {
-		if (request != null) {
-			if (request.isActive() && request.getPosition().equals(position)) {
-				request.deliveryFulfilled();
-				request = null;
-				return false;
-			} else {
-				request.deliveryAborted();
-				request = null;
-			}
-		}
-		return true; // offer the material
-	}
-
 	@Override
 	public void deliver(EMaterialType materialType, IMaterialOffer offer, IMaterialRequest request) {
 		if(!registered) return;
