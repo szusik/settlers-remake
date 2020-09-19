@@ -61,7 +61,6 @@ import jsettlers.logic.movable.specialist.ThiefMovable;
 import jsettlers.logic.player.Player;
 
 import java.util.LinkedList;
-import java.util.Objects;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
@@ -94,11 +93,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	public ShortPoint2D oldFowPosition = null;
 	protected ShortPoint2D position;
 
-	protected ShortPoint2D requestedTargetPosition = null;
-	/**
-	 * Move to type of current / last path action
-	 */
-	private EMoveToType requestedMoveToType = EMoveToType.DEFAULT;
 	protected Path path;
 
 	protected float         health;
@@ -151,14 +145,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 */
 	@Override
 	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
-		if (playerControlled && !alreadyWalkingToPosition(targetPosition)) {
-			this.requestedTargetPosition = targetPosition;
-			this.requestedMoveToType = Objects.requireNonNull(moveToType);
-		}
-	}
-
-	private boolean alreadyWalkingToPosition(ShortPoint2D targetPosition) {
-		return this.state == EMovableState.PATHING && this.path.getTargetPosition().equals(targetPosition);
 	}
 
 	public void leavePosition() {
@@ -192,9 +178,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 	}
 
-	protected void moveToPathSet(ShortPoint2D oldPosition, ShortPoint2D oldTargetPos, ShortPoint2D targetPos, EMoveToType moveToType) {
-	}
-
 	protected void tookMaterial() {
 	}
 
@@ -202,7 +185,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return true;
 	}
 
-	protected boolean checkPathStepPreconditions(ShortPoint2D pathTarget, int step, EMoveToType moveToType) {
+	protected boolean checkPathStepPreconditions() {
 		if(pathStep != null && !pathStep.test(this)) {
 			aborted = true;
 			return false;
@@ -410,44 +393,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				movableAction = EMovableAction.NO_ACTION;
 
 				break;
-		}
-
-		if (requestedTargetPosition != null) {
-			if (playerControlled) {
-				switch (state) {
-					case PATHING:
-						// if we're currently pathing, stop former pathing and calculate a new path
-						setState(EMovableState.DOING_NOTHING);
-						this.movableAction = EMovableAction.NO_ACTION;
-						this.path = null;
-
-					case DOING_NOTHING:
-						ShortPoint2D oldTargetPos = path != null ? path.getTargetPosition() : null;
-						ShortPoint2D oldPos = position;
-						boolean foundPath = goToPos(requestedTargetPosition); // progress is reset in here
-						requestedTargetPosition = null;
-
-						if (foundPath) {
-							moveToPathSet(oldPos, oldTargetPos, path.getTargetPosition(), requestedMoveToType);
-							return animationDuration; // we already follow the path and initiated the walking
-						} else {
-							break;
-						}
-
-					default:
-						break;
-				}
-			} else {
-				requestedTargetPosition = null;
-			}
-		}
-
-		switch (state) {
-			case GOING_SINGLE_STEP:
-			case PLAYING_ACTION:
-				setState(EMovableState.DOING_NOTHING);
-				this.movableAction = EMovableAction.NO_ACTION;
-				break;
 
 			case PATHING:
 				pathingAction();
@@ -475,7 +420,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	private void pathingAction() {
-		if (path == null || !path.hasNextStep() || ferryToEnter == null && !checkPathStepPreconditions(path.getTargetPosition(), path.getStep(), requestedMoveToType)) {
+		if (path == null || !path.hasNextStep() || ferryToEnter == null && !checkPathStepPreconditions()) {
 			// if path is finished, or canceled by strategy return from here
 			setState(EMovableState.DOING_NOTHING);
 			movableAction = EMovableAction.NO_ACTION;

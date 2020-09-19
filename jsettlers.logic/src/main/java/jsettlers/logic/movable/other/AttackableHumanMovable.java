@@ -13,6 +13,9 @@ import jsettlers.logic.player.Player;
 
 public class AttackableHumanMovable extends AttackableMovable implements IAttackableHumanMovable {
 
+	protected EMoveToType nextMoveToType;
+	protected ShortPoint2D nextTarget = null;
+
 	public AttackableHumanMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable, Root<? extends AttackableHumanMovable> behaviour) {
 		super(grid, movableType, position, player, movable, behaviour);
 	}
@@ -21,14 +24,31 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 	public void leaveFerryAt(ShortPoint2D position) {
 		this.position = position;
 		setState(Movable.EMovableState.DOING_NOTHING);
-		requestedTargetPosition = null;
+
 		grid.enterPosition(position, this, true);
 	}
 
 	@Override
+	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
+		if(!playerControlled) return;
+
+		nextTarget = targetPosition;
+		nextMoveToType = moveToType;
+	}
+
+	@Override
+	public void stopOrStartWorking(boolean stop) {
+		nextTarget = position;
+		nextMoveToType = stop? EMoveToType.FORCED : EMoveToType.DEFAULT;
+	}
+
+	@Override
 	public void moveToFerry(IFerryMovable ferry, ShortPoint2D entrancePosition) {
-		this.ferryToEnter = ferry;
-		moveTo(entrancePosition, EMoveToType.FORCED);
+		if(!playerControlled) return;
+
+		ferryToEnter = ferry;
+		nextTarget = entrancePosition;
+		nextMoveToType = EMoveToType.FORCED;
 	}
 
 	private ShortPoint2D targetingHealSpot = null;

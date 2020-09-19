@@ -27,8 +27,6 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 
 	private static final float ACTION1_DURATION = 1f;
 
-	private EMoveToType nextMoveToType;
-	private ShortPoint2D nextTarget = null;
 	private ShortPoint2D currentTarget = null;
 	private ShortPoint2D goToTarget = null;
 
@@ -125,28 +123,5 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 		super.decoupleMovable();
 
 		dropMaterialIfPossible();
-	}
-
-	@Override
-	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
-		if(playerControlled && (!targetPosition.equals(currentTarget) || nextMoveToType != moveToType)) {
-			nextTarget = targetPosition;
-			nextMoveToType = moveToType;
-		}
-	}
-
-	@Override
-	public void moveToFerry(IFerryMovable ferry, ShortPoint2D entrancePosition) {
-		if(playerControlled && (!entrancePosition.equals(currentTarget) || ferryToEnter != ferry)) {
-			ferryToEnter = ferry;
-			nextTarget = entrancePosition;
-			nextMoveToType = EMoveToType.FORCED;
-		}
-	}
-
-	@Override
-	public void stopOrStartWorking(boolean stop) {
-		nextTarget = position;
-		nextMoveToType = stop? EMoveToType.FORCED : EMoveToType.DEFAULT;
 	}
 }

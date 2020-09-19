@@ -25,8 +25,6 @@ public class GeologistMovable extends AttackableHumanMovable {
 	private static final float ACTION1_DURATION = 1.4f;
 	private static final float ACTION2_DURATION = 1.5f;
 
-	private EMoveToType nextMoveToType;
-	private ShortPoint2D nextTarget = null;
 	private ShortPoint2D currentTarget = null;
 	private ShortPoint2D goToTarget = null;
 	private ShortPoint2D centerPos = null;
@@ -142,28 +140,5 @@ public class GeologistMovable extends AttackableHumanMovable {
 					return success;
 				})
 		);
-	}
-
-	@Override
-	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
-		if(playerControlled && (!targetPosition.equals(currentTarget) || nextMoveToType != moveToType)) {
-			nextTarget = targetPosition;
-			nextMoveToType = moveToType;
-		}
-	}
-
-	@Override
-	public void moveToFerry(IFerryMovable ferry, ShortPoint2D entrancePosition) {
-		if(playerControlled && (!entrancePosition.equals(currentTarget) || ferryToEnter != ferry)) {
-			ferryToEnter = ferry;
-			nextTarget = entrancePosition;
-			nextMoveToType = EMoveToType.FORCED;
-		}
-	}
-
-	@Override
-	public void stopOrStartWorking(boolean stop) {
-		nextTarget = position;
-		nextMoveToType = stop?EMoveToType.FORCED:EMoveToType.DEFAULT;
 	}
 }

@@ -33,10 +33,6 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	private ShortPoint2D inTowerAttackPosition;
 	private boolean defending;
 
-
-	private ShortPoint2D nextTarget = null;
-	private EMoveToType nextMoveToType;
-
 	private ShortPoint2D currentTarget = null;
 	private ShortPoint2D goToTarget = null;
 
@@ -305,14 +301,6 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	public void defendTowerAt() {
 		setPosition(building.getPosition());
 		defending = true;
-	}
-
-	@Override
-	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
-		if(!playerControlled) return;
-
-		nextTarget = targetPosition;
-		nextMoveToType = moveToType;
 	}
 
 	@Override

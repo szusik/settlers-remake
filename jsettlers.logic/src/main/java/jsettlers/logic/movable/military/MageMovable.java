@@ -29,6 +29,7 @@ import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IBowmanMovable;
+import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
@@ -45,7 +46,6 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 
 	private transient final LandscapeEditor terraformHandle = new LandscapeEditor(pt -> grid.getLandscapeTypeAt(pt.x, pt.y), (pt, type) -> grid.setLandscape(pt.x, pt.y, type));
 
-	private ShortPoint2D nextTarget = null;
 	private ESpellType nextSpell;
 
 	private ShortPoint2D currentTarget = null;
@@ -110,6 +110,13 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 	@Override
 	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
 		nextTarget = targetPosition;
+		nextSpell = null;
+	}
+
+	@Override
+	public void moveToFerry(IFerryMovable ferry, ShortPoint2D entrancePosition) {
+		super.moveToFerry(ferry, entrancePosition);
+
 		nextSpell = null;
 	}
 
