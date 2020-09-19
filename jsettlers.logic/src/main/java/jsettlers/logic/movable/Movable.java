@@ -172,7 +172,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			NodeStatus status = NodeStatus.SUCCESS;
 
 			// continue behaviour if the previous run was successful
-			for(int i = 0; i < 5 && status == NodeStatus.SUCCESS && isAlive(); i++) {
+			for(int i = 0; i < 2 && status == NodeStatus.SUCCESS && isAlive(); i++) {
 				status = tick.tick();
 			}
 		}
