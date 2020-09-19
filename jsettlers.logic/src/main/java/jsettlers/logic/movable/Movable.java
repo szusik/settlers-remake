@@ -20,6 +20,7 @@ import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IEDirectionSupplier;
 import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
+import jsettlers.algorithms.simplebehaviortree.INodeStatusActionConsumer;
 import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
@@ -62,9 +63,7 @@ import jsettlers.logic.player.Player;
 import java.util.LinkedList;
 import java.util.Objects;
 
-import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.condition;
-import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.sequence;
-import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.waitFor;
+import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 /**
  * Central Movable class of JSettlers.
@@ -109,8 +108,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	private boolean isRightstep = false;
 	private int     flockDelay  = 700;
-
-	private EMaterialType takeDropMaterial;
 
 	private transient boolean selected    = false;
 	private transient boolean soundPlayed = false;
@@ -221,19 +218,32 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		aborted = true;
 	}
 
-	protected static <T extends Movable> Node<T> drop(IEMaterialTypeSupplier<T> materialType) {
+	protected static <T extends Movable> Node<T> drop(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> offerMaterial) {
 		return sequence(
+				playAction(EMovableAction.BEND_DOWN, mov -> Constants.MOVABLE_BEND_DURATION),
 				BehaviorTreeHelper.action(mov -> {
-					mov.drop(materialType.apply(mov));
+					EMaterialType takeDropMaterial = materialType.apply(mov);
+
+					if (takeDropMaterial == null || !takeDropMaterial.isDroppable()) return;
+
+					mov.setMaterial(EMaterialType.NO_MATERIAL);
+					mov.grid.dropMaterial(mov.position, takeDropMaterial, offerMaterial.test(mov), false);
 				}),
-				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
+				playAction(EMovableAction.RAISE_UP, mov -> Constants.MOVABLE_BEND_DURATION)
 		);
 	}
 
-	protected static <T extends Movable> Node<T> take(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> fromMap) {
+	protected static <T extends Movable> Node<T> take(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> fromMap, INodeStatusActionConsumer<T> tookMaterial) {
 		return sequence(
-				condition(mov -> mov.take(materialType.apply(mov), fromMap.test(mov))),
-				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
+				condition(mov -> !fromMap.test(mov) || mov.grid.canTakeMaterial(mov.position, materialType.apply(mov))),
+				playAction(EMovableAction.BEND_DOWN, mov -> Constants.MOVABLE_BEND_DURATION),
+				BehaviorTreeHelper.action(mov -> {
+					EMaterialType material = materialType.apply(mov);
+					mov.grid.takeMaterial(mov.position, material);
+					mov.setMaterial(material);
+					tookMaterial.accept(mov);
+				}),
+				playAction(EMovableAction.RAISE_UP, mov -> Constants.MOVABLE_BEND_DURATION)
 		);
 	}
 
@@ -381,8 +391,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		switch (state) { // ensure animation is finished, if not, reschedule
 			case GOING_SINGLE_STEP:
 			case PLAYING_ACTION:
-			case TAKE:
-			case DROP:
 			case PATHING:
 			case WAITING:
 				int remainingAnimationTime = animationStartTime + animationDuration - MatchConstants.clock().getTime();
@@ -395,12 +403,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 
 		switch (state) {
-			case TAKE:
-			case DROP:
-				if (this.movableAction != EMovableAction.RAISE_UP) {
-					break;
-				} // TAKE and DROP are finished if we get here and we the action is RAISE_UP, otherwise continue with second part.
-
 			case WAITING:
 			case GOING_SINGLE_STEP:
 			case PLAYING_ACTION:
@@ -449,21 +451,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 			case PATHING:
 				pathingAction();
-				break;
-
-			case TAKE:
-				grid.takeMaterial(position, takeDropMaterial);
-				setMaterial(takeDropMaterial);
-				playAnimation(EMovableAction.RAISE_UP, Constants.MOVABLE_BEND_DURATION);
-				tookMaterial();
-				break;
-			case DROP:
-				if (takeDropMaterial != null && takeDropMaterial.isDroppable()) {
-					boolean offerMaterial = droppingMaterial();
-					grid.dropMaterial(position, takeDropMaterial, offerMaterial, false);
-				}
-				setMaterial(EMaterialType.NO_MATERIAL);
-				playAnimation(EMovableAction.RAISE_UP, Constants.MOVABLE_BEND_DURATION);
 				break;
 
 			default:
@@ -727,8 +714,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 			case GOING_SINGLE_STEP:
 			case PLAYING_ACTION:
-			case TAKE:
-			case DROP:
 			case WAITING:
 				return false; // we can't do anything
 
@@ -810,30 +795,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		this.animationStartTime = MatchConstants.clock().getTime();
 		this.animationDuration = duration;
 		this.movableAction = movableAction;
-	}
-
-	/**
-	 * @param materialToTake
-	 * The material type to take
-	 * @return true if the animation will be executed.
-	 */
-	public final boolean take(EMaterialType materialToTake, boolean takeFromMap) {
-		if (!takeFromMap || grid.canTakeMaterial(position, materialToTake)) {
-			this.takeDropMaterial = materialToTake;
-
-			playAnimation(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION);
-			setState(EMovableState.TAKE);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public final void drop(EMaterialType materialToDrop) {
-		this.takeDropMaterial = materialToDrop;
-
-		playAnimation(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION);
-		setState(EMovableState.DROP);
 	}
 
 	/**
@@ -1149,9 +1110,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		GOING_SINGLE_STEP,
 		WAITING,
 		ON_FERRY,
-
-		TAKE,
-		DROP,
 
 		DEAD,
 

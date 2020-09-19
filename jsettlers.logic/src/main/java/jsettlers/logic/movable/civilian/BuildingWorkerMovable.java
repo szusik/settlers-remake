@@ -112,17 +112,17 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.TAKE),
-							nodeToJob(take(mov -> mov.currentJob.getMaterial(), mov -> mov.currentJob.isTakeMaterialFromMap()))
+							nodeToJob(take(mov -> mov.currentJob.getMaterial(), mov -> mov.currentJob.isTakeMaterialFromMap(), mov -> {}))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP),
 							BehaviorTreeHelper.action(mov -> {mov.dropAction(mov.currentJob.getMaterial());}),
-							nodeToJob(drop(mov -> mov.currentJob.getMaterial()))
+							nodeToJob(drop(mov -> mov.currentJob.getMaterial(), mov -> true))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP_POPPED),
 							BehaviorTreeHelper.action(mov -> {mov.dropAction(mov.poppedMaterial);}),
-							nodeToJob(drop(mov -> mov.poppedMaterial))
+							nodeToJob(drop(mov -> mov.poppedMaterial, mov -> true))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PRE_SEARCH),

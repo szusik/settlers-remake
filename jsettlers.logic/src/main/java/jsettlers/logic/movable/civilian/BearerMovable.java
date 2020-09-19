@@ -97,7 +97,11 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 							sequence(
 								handleOffer(),
 								goToPos(mov -> mov.request.getPosition(), mov -> mov.request != null && mov.request.isActive()), //TODO
-								drop(Movable::getMaterial)
+								drop(Movable::getMaterial, mov -> false),
+								BehaviorTreeHelper.action(mov -> {
+									mov.request.deliveryFulfilled();
+									mov.request = null;
+								})
 							),
 							BehaviorTreeHelper.action(BearerMovable::abortJob)
 						)
@@ -127,7 +131,11 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 					EOfferPriority minimumAcceptedPriority = mov.request != null ? mov.request.getMinimumAcceptedOfferPriority() : EOfferPriority.LOWEST;
 					return mov.offer.isStillValid(minimumAcceptedPriority);
 				}),
-				take(mov -> mov.materialType, mov -> true)
+				take(mov -> mov.materialType, mov -> true, mov -> {
+						mov.offer.offerTaken();
+						mov.offer = null;
+					}
+				)
 		);
 	}
 
