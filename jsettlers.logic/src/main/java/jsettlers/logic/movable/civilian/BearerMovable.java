@@ -97,10 +97,10 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 							sequence(
 								handleOffer(),
 								goToPos(mov -> mov.request.getPosition(), mov -> mov.request != null && mov.request.isActive()), //TODO
-								drop(Movable::getMaterial, mov -> false),
-								BehaviorTreeHelper.action(mov -> {
+								drop(Movable::getMaterial, mov -> {
 									mov.request.deliveryFulfilled();
 									mov.request = null;
+									return false;
 								})
 							),
 							BehaviorTreeHelper.action(BearerMovable::abortJob)

@@ -541,6 +541,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				kill();
 				return -1;
 			} else {
+				pathStep = null;
 				followPath(newPath);
 				return animationDuration;
 			}
