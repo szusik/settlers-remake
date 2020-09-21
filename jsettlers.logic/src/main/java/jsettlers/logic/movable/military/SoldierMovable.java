@@ -4,7 +4,6 @@ import jsettlers.algorithms.path.Path;
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.common.action.EMoveToType;
 import jsettlers.common.buildings.OccupierPlace;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
@@ -137,26 +136,29 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 						sequence(
 							// handle potential enemy
 							findEnemy(),
-							selector(
-								// attack him
-								attackEnemy(),
+							ignoreFailure(
+								selector(
+									// attack him
+									attackEnemy(),
 
-								condition(mov -> !mov.enemy.isAlive()), // enemy might die even if the attack fails
+									condition(mov -> !mov.enemy.isAlive()), // enemy might die even if the attack fails
 
-								// or roughly chase enemy
-								goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.position, mov.enemy.getPosition())),
-								// or go to his position
-								BehaviorTreeHelper.action(mov -> {
-									mov.startPoint = mov.position;
-								}),
-								goToPos(mov -> mov.enemy.getPosition(), mov -> {
-									// hit him
-									if(mov.isEnemyAttackable()) return false;
-									// update behaviour (adjust target)
-									if(mov.startPoint.getOnGridDistTo(mov.position) > 2) return false;
-									return true;
-								}),
-								alwaysSucceed()
+									// or roughly chase enemy
+									goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.position, mov.enemy.getPosition())),
+									// or go to his position
+									sequence(
+										BehaviorTreeHelper.action(mov -> {
+											mov.startPoint = mov.position;
+										}),
+										goToPos(mov -> mov.enemy.getPosition(), mov -> {
+											// hit him
+											if(mov.isEnemyAttackable()) return false;
+											// update behaviour (adjust target)
+											if(mov.startPoint.getOnGridDistTo(mov.position) > 2) return false;
+											return true;
+										})
+									)
+								)
 							)
 						),
 						sequence(
