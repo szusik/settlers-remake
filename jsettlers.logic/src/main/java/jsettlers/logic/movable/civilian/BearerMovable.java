@@ -117,7 +117,6 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 						mov.workerCreationRequest = null;
 						mov.registered = true;
 						mov.pathStep = null;
-						mov.enableNothingToDoAction(true);
 						mov.grid.addJobless(mov);
 					})
 				)

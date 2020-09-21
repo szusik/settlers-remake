@@ -867,18 +867,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return path != null;
 	}
 
-	public final ShortPoint2D followPresearchedPath() {
+	public final void followPresearchedPath() {
 		assert this.path != null : "path mustn't be null to be able to followPresearchedPath()!";
 		followPath(this.path);
-		return path.getTargetPosition();
 	}
 
 	public final void enableNothingToDoAction(boolean enable) {
 		this.enableNothingToDo = enable;
-	}
-
-	public void abortPath() {
-		path = null;
 	}
 
 	public boolean isOnOwnGround() {
