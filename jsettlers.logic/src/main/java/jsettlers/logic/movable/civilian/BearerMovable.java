@@ -50,16 +50,20 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 				guard(mov -> mov.barrack != null,
 					selector(
 						sequence(
-							goToPos(mov -> mov.barrack.getDoor(), mov -> false),
+							goToPos(mov -> mov.barrack.getDoor(), mov -> true),
 							condition(mov -> {
 								EMovableType soldierType = mov.barrack.popWeaponForBearer();
 								if(soldierType == null) return false;
+
+								ShortPoint2D targetPosition = mov.barrack.getSoldierTargetPosition();
+								mov.barrack = null;
+
 
 								mov.player.getEndgameStatistic().incrementAmountOfProducedSoldiers();
 								ILogicMovable convertedMovable = mov.convertTo(soldierType);
 
 								// TODO change
-								convertedMovable.moveTo(mov.barrack.getSoldierTargetPosition(), EMoveToType.DEFAULT);
+								convertedMovable.moveTo(targetPosition, EMoveToType.DEFAULT);
 								return true;
 							})
 						),

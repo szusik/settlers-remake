@@ -75,7 +75,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 
 						selector(
 							guard(mov -> mov.currentSpell == null,
-								goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+								ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null)) // TODO
 							),
 							guard(mov -> !mov.currentSpell.forcePresence(),
 								ignoreFailure(castSpellNode())
