@@ -366,7 +366,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 		switch (state) { // ensure animation is finished, if not, reschedule
 			case GOING_SINGLE_STEP:
-			case PLAYING_ACTION:
 			case PATHING:
 			case WAITING:
 				int remainingAnimationTime = animationStartTime + animationDuration - MatchConstants.clock().getTime();
@@ -381,7 +380,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		switch (state) {
 			case WAITING:
 			case GOING_SINGLE_STEP:
-			case PLAYING_ACTION:
 				setState(EMovableState.DOING_NOTHING); // the action is finished, as the time passed
 				movableAction = EMovableAction.NO_ACTION;
 
@@ -652,7 +650,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				return true;
 
 			case GOING_SINGLE_STEP:
-			case PLAYING_ACTION:
 			case WAITING:
 				return false; // we can't do anything
 
@@ -726,7 +723,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		assert state == EMovableState.DOING_NOTHING : "can't do playAction() if state isn't DOING_NOTHING. curr state: " + state;
 
 		playAnimation(movableAction, (short) (duration * 1000));
-		setState(EMovableState.PLAYING_ACTION);
+		setState(EMovableState.WAITING);
 		this.soundPlayed = false;
 	}
 
@@ -1038,7 +1035,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected enum EMovableState {
-		PLAYING_ACTION,
 		PATHING,
 		DOING_NOTHING,
 		GOING_SINGLE_STEP,
