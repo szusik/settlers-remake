@@ -252,10 +252,15 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> followPresearchedPath(IBooleanConditionFunction<T> pathStep) {
 		return sequence(
+
 				BehaviorTreeHelper.action(mov -> {
+					Movable realMov = mov;
+
 					mov.aborted = false;
 					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
-					mov.followPresearchedPath();
+
+					assert mov.path != null : "path mustn't be null to be able to followPresearchedPath()!";
+					realMov.followPath(mov.path);
 				}),
 				waitFor(condition(mov -> mov.path == null)),
 				condition(mov -> !mov.aborted)
@@ -271,7 +276,12 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	protected static <T extends Movable> Node<T> playAction(EMovableAction action, IShortSupplier<T> duration) {
 		return sequence(
 				BehaviorTreeHelper.action(mov -> {
-					mov.playAction(action, duration.apply(mov)/1000.f);
+					Movable realMov = mov;
+
+					realMov.playAnimation(action, duration.apply(mov));
+					realMov.setState(EMovableState.WAITING);
+
+					realMov.soundPlayed = false;
 				}),
 				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
 		);
@@ -280,9 +290,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	protected static <T extends Movable> Node<T> goToPos(IShortPoint2DSupplier<T> target, IBooleanConditionFunction<T> pathStep) {
 		return sequence(
 				condition(mov -> {
+					Movable realMov = mov;
+
 					mov.aborted = false;
 					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
-					mov.goToPos(target.apply(mov));
+					Path path = mov.grid.calculatePathTo(mov, target.apply(mov));
+
+					realMov.followPath(path);
 					return mov.path != null;
 				}),
 				waitFor(condition(mov -> mov.path == null)),
@@ -711,37 +725,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return former;
 	}
 
-	/**
-	 * Lets this movable execute the given action with given duration.
-	 *
-	 * @param movableAction
-	 * 		action to be animated.
-	 * @param duration
-	 * 		duration the animation should last (in seconds). // TODO change to milliseconds
-	 */
-	public final void playAction(EMovableAction movableAction, float duration) {
-		assert state == EMovableState.DOING_NOTHING : "can't do playAction() if state isn't DOING_NOTHING. curr state: " + state;
-
-		playAnimation(movableAction, (short) (duration * 1000));
-		setState(EMovableState.WAITING);
-		this.soundPlayed = false;
-	}
-
 	private void playAnimation(EMovableAction movableAction, short duration) {
 		this.animationStartTime = MatchConstants.clock().getTime();
 		this.animationDuration = duration;
 		this.movableAction = movableAction;
-	}
-
-	/**
-	 * @param sleepTime
-	 * 		time to sleep in milliseconds
-	 */
-	public final void sleep(short sleepTime) {
-		assert state == EMovableState.DOING_NOTHING : "can't do sleep() if state isn't DOING_NOTHING. curr state: " + state;
-
-		playAnimation(EMovableAction.NO_ACTION, sleepTime);
-		setState(EMovableState.WAITING);
 	}
 
 	/**
@@ -754,29 +741,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		if(hasEffect(EEffectType.FROZEN)) return;
 
 		this.direction = direction;
-	}
-
-	/**
-	 * Lets this movable go to the given position.
-	 *
-	 * @param targetPos
-	 * 		position to move to.
-	 * @return true if it was possible to calculate a path to the given position<br>
-	 * false if it wasn't possible to get a path.
-	 */
-	public final boolean goToPos(ShortPoint2D targetPos) {
-		assert state == EMovableState.DOING_NOTHING : "can't do goToPos() if state isn't DOING_NOTHING. curr state: " + state;
-
-		Path path = grid.calculatePathTo(this, targetPos);
-		if (path == null) {
-			if (ferryToEnter != null) {
-				enterFerry();
-			}
-			return false;
-		} else {
-			followPath(path);
-			return this.path != null;
-		}
 	}
 
 	/**
@@ -862,11 +826,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 
 		return path != null;
-	}
-
-	public final void followPresearchedPath() {
-		assert this.path != null : "path mustn't be null to be able to followPresearchedPath()!";
-		followPath(this.path);
 	}
 
 	public final void enableNothingToDoAction(boolean enable) {
