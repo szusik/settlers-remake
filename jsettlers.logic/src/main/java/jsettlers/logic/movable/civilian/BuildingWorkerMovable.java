@@ -537,6 +537,9 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		setVisible(true);
 
 		dropCurrentMaterial();
+
+		currentJob = null;
+		building = null;
 	}
 
 	private void dropCurrentMaterial() {
