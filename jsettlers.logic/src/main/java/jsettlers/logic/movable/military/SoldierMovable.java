@@ -53,9 +53,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 	private static Node<SoldierMovable> createSoldierBehaviour() {
 		return guardSelector(
-				guard(mov -> mov.hasEffect(EEffectType.FROZEN),
-					BehaviorTreeHelper.sleep(mov -> mov.getEffectTime(EEffectType.FROZEN))
-				),
+				handleFrozenEffect(),
 				// go to tower
 				guard(mov -> mov.building != null && !mov.isInTower,
 					resetAfter(mov -> {
@@ -263,7 +261,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 	@Override
 	public boolean moveToTower(IOccupyableBuilding building) {
-		if(this.building != null) return false;
+		if(this.building != null || hasEffect(EEffectType.FROZEN)) return false;
 
 		this.building = building;
 		playerControlled = false;

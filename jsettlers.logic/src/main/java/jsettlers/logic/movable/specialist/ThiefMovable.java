@@ -40,8 +40,13 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 
 	public static Node<ThiefMovable> createThiefBehaviour() {
 		return guardSelector(
+				handleFrozenEffect(),
 				guard(mov -> mov.nextTarget != null,
 					BehaviorTreeHelper.action(mov -> {
+						mov.goToTarget = null;
+						mov.currentTarget = null;
+						mov.returnPos = null;
+
 						// steal something
 						if(mov.nextMoveToType.isWorkOnDestination() && mov.getMaterial() == EMaterialType.NO_MATERIAL) {
 							Path dijkstraPath = mov.grid.searchDijkstra(mov, mov.nextTarget.x, mov.nextTarget.y, (short) 30, ESearchType.FOREIGN_MATERIAL);
@@ -60,10 +65,12 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 					})
 				),
 				guard(mov -> mov.goToTarget != null,
-						resetAfter(
-								mov -> mov.goToTarget = null,
-								goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null) // TODO
-						)
+					sequence(
+						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null), // TODO
+						BehaviorTreeHelper.action(mov -> {
+							mov.goToTarget = null;
+						})
+					)
 				),
 				guard(mov -> (mov.getMaterial() != EMaterialType.NO_MATERIAL && mov.isOnOwnGround()),
 					BehaviorTreeHelper.action(ThiefMovable::dropMaterialIfPossible)

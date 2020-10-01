@@ -36,8 +36,12 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 
 	private static Node<PioneerMovable> createPioneerBehaviour() {
 		return guardSelector(
+				handleFrozenEffect(),
 				guard(mov -> mov.nextTarget != null,
 					BehaviorTreeHelper.action(mov -> {
+						mov.currentTarget = null;
+						mov.goToTarget = null;
+
 						if(mov.nextMoveToType.isWorkOnDestination()) {
 							mov.currentTarget = mov.nextTarget;
 						} else {
@@ -47,29 +51,28 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 					})
 				),
 				guard(mov -> mov.goToTarget != null,
-					resetAfter(
-						mov -> mov.goToTarget = null,
-						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null) // TODO
+					sequence(
+						ignoreFailure(goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null)), // TODO
+						BehaviorTreeHelper.action(mov -> {
+							mov.goToTarget = null;
+						})
 					)
 				),
 				guard(mov -> mov.currentTarget != null,
-					resetAfter(mov -> {
-						mov.currentTarget = null;
-						mov.workDirection = null;
-					},
-
-						sequence(
-							selector(
-								condition(mov -> mov.position.equals(mov.currentTarget)),
-								goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
-							),
-							repeat(mov -> true,
-								sequence(
-									findWorkablePosition(),
-									ignoreFailure(workOnPosition())
-								)
+					sequence(
+						selector(
+							condition(mov -> mov.position.equals(mov.currentTarget)),
+							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+						),
+						ignoreFailure(repeat(mov -> true,
+							sequence(
+								findWorkablePosition(),
+								ignoreFailure(workOnPosition())
 							)
-						)
+						)),
+						BehaviorTreeHelper.action(mov -> {
+							mov.currentTarget = null;
+						})
 					)
 				)
 		);

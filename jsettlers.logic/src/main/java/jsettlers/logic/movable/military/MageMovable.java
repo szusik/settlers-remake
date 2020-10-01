@@ -59,6 +59,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 
 	private static Node<MageMovable> createMageBehaviour() {
 		return guardSelector(
+				handleFrozenEffect(),
 				guard(mov -> mov.nextTarget != null,
 					BehaviorTreeHelper.action(mov -> {
 						mov.currentTarget = mov.nextTarget;
@@ -68,11 +69,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 					})
 				),
 				guard(mov -> mov.currentTarget != null,
-					resetAfter(mov -> {
-						mov.currentTarget = null;
-						mov.currentSpell = null;
-					},
-
+					sequence(
 						selector(
 							guard(mov -> mov.currentSpell == null,
 								ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null)) // TODO
@@ -81,14 +78,16 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 								ignoreFailure(castSpellNode())
 							),
 							sequence(
-								ignoreFailure(
-									goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null &&
+								ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null &&
 											mov.position.getOnGridDistTo(mov.currentTarget) > Constants.MAGE_CAST_DISTANCE &&
-											mov.player.getMannaInformation().canUseSpell(mov.currentSpell))
-										), // TODO
-								castSpellNode()
+											mov.player.getMannaInformation().canUseSpell(mov.currentSpell)
+								)), // TODO
+								ignoreFailure(castSpellNode())
 							)
-						)
+						),
+						BehaviorTreeHelper.action(mov -> {
+							mov.currentTarget = null;
+						})
 					)
 				)
 		);

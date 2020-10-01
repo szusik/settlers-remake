@@ -102,6 +102,7 @@ public enum EMovableType {
 		PIKEMAN_L1, PIKEMAN_L2, PIKEMAN_L3
 	);
 
+	// add Movable#handleFrozenEffect() to movable's behaviour when adding a movable type to this enum
 	public static final Set<EMovableType> PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES = EnumSet.of(
 			SWORDSMAN_L1, SWORDSMAN_L2, SWORDSMAN_L3,
 			BOWMAN_L1, BOWMAN_L2, BOWMAN_L3,

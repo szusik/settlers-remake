@@ -27,6 +27,7 @@ import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.Tick;
+import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.mapobject.EMapObjectType;
@@ -498,8 +499,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	@Override
 	public void goSinglePathStep() {
-		if(hasEffect(EEffectType.FROZEN)) return;
-
 		initGoingSingleStep(path.getNextPos());
 		path.goToNextStep();
 	}
@@ -738,8 +737,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * The direction to look.
 	 */
 	public final void lookInDirection(EDirection direction) {
-		if(hasEffect(EEffectType.FROZEN)) return;
-
 		this.direction = direction;
 	}
 
@@ -754,8 +751,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * false if the target position is generally blocked or a movable occupies that position.
 	 */
 	public final boolean goInDirection(EDirection direction, EGoInDirectionMode mode) {
-		if(hasEffect(EEffectType.FROZEN)) return false;
-
 		ShortPoint2D targetPosition = direction.getNextHexPoint(position);
 
 		switch (mode) {
@@ -1027,6 +1022,12 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected int getEffectTime(EEffectType effect) {
 		return effectEnd[effect.ordinal()] - MatchConstants.clock().getTime();
+	}
+
+	protected static <T extends Movable> Guard<T> handleFrozenEffect() {
+		return guard(mov -> mov.hasEffect(EEffectType.FROZEN),
+				BehaviorTreeHelper.sleep(mov -> mov.getEffectTime(EEffectType.FROZEN))
+		);
 	}
 
 

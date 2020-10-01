@@ -37,8 +37,12 @@ public class GeologistMovable extends AttackableHumanMovable {
 
 	public static Node<GeologistMovable> createGeologistBehaviour() {
 		return guardSelector(
+				handleFrozenEffect(),
 				guard(mov -> mov.nextTarget != null,
 					BehaviorTreeHelper.action(mov -> {
+						mov.currentTarget = null;
+						mov.goToTarget = null;
+
 						if(mov.nextMoveToType.isWorkOnDestination()) {
 							mov.currentTarget = mov.nextTarget;
 						} else {
@@ -48,37 +52,37 @@ public class GeologistMovable extends AttackableHumanMovable {
 					})
 				),
 				guard(mov -> mov.goToTarget != null,
-					resetAfter(
-						mov -> mov.goToTarget = null,
-						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null) // TODO
+					sequence(
+						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null), // TODO
+						BehaviorTreeHelper.action(mov -> {
+							mov.goToTarget = null;
+						})
 					)
 				),
 				guard(mov -> mov.currentTarget != null,
-					resetAfter(mov -> {
-						mov.currentTarget = null;
-						mov.centerPos = null;
-					},
+					sequence(
+						selector(
+							condition(mov -> mov.position.equals(mov.currentTarget)),
+							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+						),
+						BehaviorTreeHelper.action(mov -> {mov.centerPos = mov.currentTarget;}),
+						ignoreFailure(repeat(mov -> true,
+							sequence(
+								findWorkablePosition(),
+								resetAfter(mov -> mov.grid.setMarked(mov.currentTarget, false),
 
-						sequence(
-							selector(
-								condition(mov -> mov.position.equals(mov.currentTarget)),
-								goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
-							),
-							BehaviorTreeHelper.action(mov -> {mov.centerPos = mov.currentTarget;}),
-							repeat(mov -> true,
-								sequence(
-									findWorkablePosition(),
-									resetAfter(mov -> mov.grid.setMarked(mov.currentTarget, false),
-
-										sequence(
-											BehaviorTreeHelper.action(mov -> {mov.grid.setMarked(mov.currentTarget, true);}),
-											goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null), // TODO
-											ignoreFailure(workOnPosition())
-										)
+									sequence(
+										BehaviorTreeHelper.action(mov -> {mov.grid.setMarked(mov.currentTarget, true);}),
+										goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null), // TODO
+										ignoreFailure(workOnPosition())
 									)
 								)
 							)
-						)
+						)),
+						BehaviorTreeHelper.action(mov -> {
+							mov.currentTarget = null;
+							mov.centerPos = null;
+						})
 					)
 				)
 		);
