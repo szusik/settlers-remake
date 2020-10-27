@@ -232,7 +232,16 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> goInDirectionIfFree(IEDirectionSupplier<T> direction) {
 		return sequence(
-				condition(mov -> mov.goInDirection(direction.apply(mov), EGoInDirectionMode.GO_IF_FREE)),
+				condition(mov -> {
+					ShortPoint2D targetPosition = direction.apply(mov).getNextHexPoint(mov.position);
+					if(mov.grid.isFreePosition(targetPosition.x, targetPosition.y)) {
+						((Movable)mov).initGoingSingleStep(targetPosition);
+						mov.setState(EMovableState.GOING_SINGLE_STEP);
+						return true;
+					} else {
+						return false;
+					}
+				}),
 				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
 		);
 	}
@@ -557,7 +566,26 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					),
 					followPresearchedPath(mov -> true)
 				),
-				flockToDecentralize(),
+				// flock to decentralize
+				sequence(
+					condition(mov -> {
+						ShortPoint2D decentVector = mov.grid.calcDecentralizeVector(mov.position.x, mov.position.y);
+
+						EDirection randomDirection = mov.getDirection().getNeighbor(MatchConstants.random().nextInt(-1, 1));
+						int dx = randomDirection.gridDeltaX + decentVector.x;
+						int dy = randomDirection.gridDeltaY + decentVector.y;
+
+						if (ShortPoint2D.getOnGridDist(dx, dy) >= 2) {
+							mov.flockDelay = Math.max(mov.flockDelay - 100, 500);
+							mov.flockDirection = EDirection.getApproxDirection(0, 0, dx, dy);
+							return true;
+						} else {
+							mov.flockDelay = Math.min(mov.flockDelay + 100, 1000);
+							return false;
+						}
+					}),
+					goInDirectionIfAllowedAndFree(mov -> mov.flockDirection)
+				),
 				sequence(
 					BehaviorTreeHelper.action(mov -> {
 						int turnDirection = MatchConstants.random().nextInt(-8, 8);
@@ -571,33 +599,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected EDirection flockDirection;
-
-	/**
-	 * Tries to walk the movable into a position where it has a minimum distance to others.
-	 *
-	 * @return true if the movable moves to flock, false if no flocking is required.
-	 */
-	private static <T extends Movable> Node<T> flockToDecentralize() {
-		return sequence(
-				condition(mov -> {
-					ShortPoint2D decentVector = mov.grid.calcDecentralizeVector(mov.position.x, mov.position.y);
-
-					EDirection randomDirection = mov.getDirection().getNeighbor(MatchConstants.random().nextInt(-1, 1));
-					int dx = randomDirection.gridDeltaX + decentVector.x;
-					int dy = randomDirection.gridDeltaY + decentVector.y;
-
-					if (ShortPoint2D.getOnGridDist(dx, dy) >= 2) {
-						mov.flockDelay = Math.max(mov.flockDelay - 100, 500);
-						mov.flockDirection = EDirection.getApproxDirection(0, 0, dx, dy);
-						return true;
-					} else {
-						mov.flockDelay = Math.min(mov.flockDelay + 100, 1000);
-						return false;
-					}
-				}),
-				goInDirectionIfAllowedAndFree(mov -> mov.flockDirection)
-		);
-	}
 
 	/**
 	 * A call to this method indicates this movable that it shall leave it's position to free the position for another movable.
@@ -771,14 +772,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			}
 			case GO_IF_ALLOWED_AND_FREE:
 				if ((grid.isValidPosition(this, targetPosition.x, targetPosition.y) && grid.hasNoMovableAt(targetPosition.x, targetPosition.y))) {
-					initGoingSingleStep(targetPosition);
-					setState(EMovableState.GOING_SINGLE_STEP);
-					return true;
-				} else {
-					break;
-				}
-			case GO_IF_FREE:
-				if (grid.isFreePosition(targetPosition.x, targetPosition.y)) {
 					initGoingSingleStep(targetPosition);
 					setState(EMovableState.GOING_SINGLE_STEP);
 					return true;
