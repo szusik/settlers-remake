@@ -74,7 +74,8 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 							mov.currentTarget = null;
 						})
 					)
-				)
+				),
+				doingNothingGuard()
 		);
 	}
 

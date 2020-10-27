@@ -84,7 +84,8 @@ public class GeologistMovable extends AttackableHumanMovable {
 							mov.centerPos = null;
 						})
 					)
-				)
+				),
+				doingNothingGuard()
 		);
 	}
 

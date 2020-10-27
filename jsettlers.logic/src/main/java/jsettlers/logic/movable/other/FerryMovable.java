@@ -49,7 +49,8 @@ public class FerryMovable extends AttackableMovable implements IFerryMovable {
 					resetAfter(mov -> mov.currentTarget = null,
 						goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null)
 					)
-				)
+				),
+				doingNothingGuard()
 		);
 	}
 

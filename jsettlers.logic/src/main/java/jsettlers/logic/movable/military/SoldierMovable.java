@@ -70,7 +70,6 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 								mov.setVisible(false);
 								OccupierPlace place = mov.building.addSoldier(mov);
 								mov.setPosition(place.getPosition().calculatePoint(mov.building.getPosition()));
-								mov.enableNothingToDoAction(false);
 
 								if (mov.isBowman()) mov.inTowerAttackPosition = mov.building.getTowerBowmanSearchPosition(place);
 								mov.isInTower = true;
@@ -188,6 +187,9 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 							mov.patrolStep = (mov.patrolStep+1) % mov.patrolPoints.length;
 						})
 					)
+				),
+				guard(mov -> !((SoldierMovable)mov).isInTower,
+					doingNothingAction()
 				)
 		);
 	}
@@ -221,6 +223,11 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				BehaviorTreeHelper.action(SoldierMovable::hitEnemy)
 
 		);
+	}
+
+	@Override
+	protected boolean isBusy() {
+		return super.isBusy() || isInTower;
 	}
 
 	protected abstract short getAttackDuration();
@@ -273,7 +280,6 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	public void leaveTower(ShortPoint2D newPosition) {
 		if (isInTower) {
 			setPosition(newPosition);
-			enableNothingToDoAction(true);
 			setVisible(true);
 			setSelected(false);
 

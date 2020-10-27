@@ -21,6 +21,7 @@ import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.workers.DockyardBuilding;
 import jsettlers.logic.buildings.workers.MillBuilding;
@@ -298,10 +299,10 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 						mov.building = null;
 						mov.registered = true;
 						mov.pathStep = null;
-						mov.enableNothingToDoAction(true);
 						mov.grid.addJobless(mov);
 					})
-				)
+				),
+				doingNothingGuard()
 		);
 	}
 
@@ -324,6 +325,11 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	}
 
 	@Override
+	protected boolean isBusy() {
+		return super.isBusy() || !registered;
+	}
+
+	@Override
 	public EBuildingType getGarrisonedBuildingType() {
 		if(building != null) {
 			return building.getBuildingVariant().getType();
@@ -338,7 +344,9 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		if (currentJobName.equals("null")) {
 			currentJob = null;
 		} else {
-			currentJob = building.getBuildingVariant().getJobByName(currentJobName);
+			EBuildingType building = (EBuildingType) ois.readObject();
+			ECivilisation civilisation = (ECivilisation) ois.readObject();
+			currentJob = building.getVariant(civilisation).getJobByName(currentJobName);
 		}
 	}
 
@@ -346,6 +354,8 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		oos.defaultWriteObject();
 		if (currentJob != null) {
 			oos.writeUTF(currentJob.getName());
+			oos.writeObject(building.getBuildingVariant().getType());
+			oos.writeObject(building.getPlayer().getCivilisation());
 		} else {
 			oos.writeUTF("null");
 		}
@@ -517,8 +527,8 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	public void setWorkerJob(IWorkerRequestBuilding building) {
 		this.building = building;
 		this.currentJob = building.getBuildingVariant().getStartJob();
-		super.enableNothingToDoAction(false);
 		building.occupyBuilding(this);
+		this.registered = false;
 	}
 
 	@Override

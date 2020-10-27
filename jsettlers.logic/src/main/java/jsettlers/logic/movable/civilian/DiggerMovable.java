@@ -57,7 +57,8 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 						mov.registered = true;
 						mov.grid.addJobless(mov);
 					})
-				)
+				),
+				doingNothingGuard()
 		);
 	}
 

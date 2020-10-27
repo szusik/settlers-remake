@@ -98,11 +98,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected float         health;
 	private boolean       visible           = true;
-	private boolean       enableNothingToDo = true;
 	private ILogicMovable pushedFrom;
 
 	private boolean isRightstep = false;
-	private int     flockDelay  = 700;
+	protected int     flockDelay  = 700;
 
 	private transient boolean selected    = false;
 	private transient boolean soundPlayed = false;
@@ -149,7 +148,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	public void leavePosition() {
-		if (state != EMovableState.DOING_NOTHING || !enableNothingToDo) {
+		if (isBusy()) {
 			return;
 		}
 
@@ -410,16 +409,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 		if (state == EMovableState.DOING_NOTHING) { // if movable is currently doing nothing
 			action();
-			if (state == EMovableState.DOING_NOTHING) { // if movable is still doing nothing after strategy, consider doingNothingAction()
-				if (this.isShip()) {
-					pushShips();
-				}
-				if (visible && enableNothingToDo) {
-					return doingNothingAction();
-				} else {
-					return Constants.MOVABLE_INTERRUPT_PERIOD;
-				}
-			}
+		}
+
+		if (state == EMovableState.DOING_NOTHING) {
+			return Constants.MOVABLE_INTERRUPT_PERIOD;
 		}
 
 		return animationDuration;
@@ -542,53 +535,68 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		isRightstep = !isRightstep;
 	}
 
-	private int doingNothingAction() {
-		if (this.isShip()) {
-			return flockDelay;
-		}
-		if (grid.isBlockedOrProtected(position.x, position.y)) {
-			Path newPath = grid.searchDijkstra(this, position.x, position.y, (short) 50, ESearchType.NON_BLOCKED_OR_PROTECTED);
-			if (newPath == null) {
-				kill();
-				return -1;
-			} else {
-				pathStep = null;
-				followPath(newPath);
-				return animationDuration;
-			}
-		} else {
-			if (flockToDecentralize()) {
-				return animationDuration;
-			} else {
-				int turnDirection = MatchConstants.random().nextInt(-8, 8);
-				if (Math.abs(turnDirection) <= 1) {
-					lookInDirection(direction.getNeighbor(turnDirection));
-				}
-			}
-
-			return flockDelay;
-		}
+	protected static <T extends Movable> Guard<T> doingNothingGuard() {
+		return guard(mov -> true, doingNothingAction());
 	}
+
+	protected static <T extends Movable> Node<T> doingNothingAction() {
+		return selector(
+				sequence(
+					condition(Movable::isShip),
+					BehaviorTreeHelper.action(Movable::pushShips),
+					sleep(mov -> ((Movable)mov).flockDelay)
+				),
+				sequence(
+					condition(mov -> mov.grid.isBlockedOrProtected(mov.position.x, mov.position.y)),
+					selector(
+						condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, (short) 50, ESearchType.NON_BLOCKED_OR_PROTECTED)),
+						sequence(
+							BehaviorTreeHelper.action(Movable::kill),
+							alwaysFail()
+						)
+					),
+					followPresearchedPath(mov -> true)
+				),
+				flockToDecentralize(),
+				sequence(
+					BehaviorTreeHelper.action(mov -> {
+						int turnDirection = MatchConstants.random().nextInt(-8, 8);
+						if (Math.abs(turnDirection) <= 1) {
+							mov.lookInDirection(mov.getDirection().getNeighbor(turnDirection));
+						}
+					}),
+					sleep(mov -> ((Movable)mov).flockDelay)
+				)
+		);
+	}
+
+	protected EDirection flockDirection;
 
 	/**
 	 * Tries to walk the movable into a position where it has a minimum distance to others.
 	 *
 	 * @return true if the movable moves to flock, false if no flocking is required.
 	 */
-	private boolean flockToDecentralize() {
-		ShortPoint2D decentVector = grid.calcDecentralizeVector(position.x, position.y);
+	private static <T extends Movable> Node<T> flockToDecentralize() {
+		return sequence(
+				condition(mov -> {
+					ShortPoint2D decentVector = mov.grid.calcDecentralizeVector(mov.position.x, mov.position.y);
 
-		EDirection randomDirection = direction.getNeighbor(MatchConstants.random().nextInt(-1, 1));
-		int dx = randomDirection.gridDeltaX + decentVector.x;
-		int dy = randomDirection.gridDeltaY + decentVector.y;
+					EDirection randomDirection = mov.getDirection().getNeighbor(MatchConstants.random().nextInt(-1, 1));
+					int dx = randomDirection.gridDeltaX + decentVector.x;
+					int dy = randomDirection.gridDeltaY + decentVector.y;
 
-		if (ShortPoint2D.getOnGridDist(dx, dy) >= 2) {
-			flockDelay = Math.max(flockDelay - 100, 500);
-			return this.goInDirection(EDirection.getApproxDirection(0, 0, dx, dy), EGoInDirectionMode.GO_IF_ALLOWED_AND_FREE);
-		} else {
-			flockDelay = Math.min(flockDelay + 100, 1000);
-			return false;
-		}
+					if (ShortPoint2D.getOnGridDist(dx, dy) >= 2) {
+						mov.flockDelay = Math.max(mov.flockDelay - 100, 500);
+						mov.flockDirection = EDirection.getApproxDirection(0, 0, dx, dy);
+						return true;
+					} else {
+						mov.flockDelay = Math.min(mov.flockDelay + 100, 1000);
+						return false;
+					}
+				}),
+				goInDirectionIfAllowedAndFree(mov -> mov.flockDirection)
+		);
 	}
 
 	/**
@@ -607,7 +615,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 		switch (state) {
 			case DOING_NOTHING:
-				if (!enableNothingToDo) { // don't go to random direction if movable shouldn't do something in DOING_NOTHING
+				if (isBusy()) { // don't go to random direction if movable shouldn't do something in DOING_NOTHING
 					return false;
 				}
 
@@ -622,6 +630,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 						|| grid.isValidPosition(this, position.x, position.y)) { // exchange positions
 						EDirection directionToPushing = EDirection.getApproxDirection(this.position, pushingMovable.getPosition());
 						pushingMovable.goSinglePathStep(); // if no free direction found, exchange the positions of the movables
+						pathStep = null;
 						goInDirection(directionToPushing, EGoInDirectionMode.GO_IF_ALLOWED_WAIT_TILL_FREE);
 						return true;
 
@@ -823,8 +832,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return path != null;
 	}
 
-	public final void enableNothingToDoAction(boolean enable) {
-		this.enableNothingToDo = enable;
+	protected boolean isBusy() {
+		return state != EMovableState.DOING_NOTHING;
 	}
 
 	public boolean isOnOwnGround() {

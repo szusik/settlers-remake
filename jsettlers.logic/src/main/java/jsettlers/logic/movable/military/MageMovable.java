@@ -89,7 +89,8 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 							mov.currentTarget = null;
 						})
 					)
-				)
+				),
+				doingNothingGuard()
 		);
 	}
 

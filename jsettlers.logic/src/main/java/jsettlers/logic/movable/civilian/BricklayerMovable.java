@@ -59,7 +59,8 @@ public class BricklayerMovable extends CivilianMovable implements IManageableBri
 						mov.registered = true;
 						mov.grid.addJobless(mov);
 					})
-				)
+				),
+				doingNothingGuard()
 		);
 	}
 

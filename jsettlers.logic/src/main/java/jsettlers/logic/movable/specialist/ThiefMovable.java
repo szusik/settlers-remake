@@ -91,7 +91,8 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 							)
 						)
 					)
-				)
+				),
+				doingNothingGuard()
 		);
 	}
 

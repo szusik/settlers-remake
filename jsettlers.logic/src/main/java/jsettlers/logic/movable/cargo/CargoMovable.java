@@ -59,7 +59,7 @@ public abstract class CargoMovable extends AttackableMovable {
 				// choose a new trader if the old one is no longer requesting
 				selector(
 					condition(CargoMovable::findNewTrader),
-					BehaviorTreeHelper.sleep(1000)
+					doingNothingAction()
 				)
 		);
 	}
