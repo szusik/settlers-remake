@@ -102,6 +102,9 @@ subprojects {
             implementation 'net.sourceforge.streamsupport:streamsupport-flow:' + rootProject.ext.streamSupportVersion
             implementation 'net.sourceforge.streamsupport:streamsupport-literal:' + rootProject.ext.streamSupportVersion
 
+            //add music dependencies
+            implementation group: 'javazoom', name: 'jlayer', version: '1.0.1'
+
             testImplementation 'junit:junit:4.12'
         }
     }
