@@ -21,8 +21,8 @@ public final class MusicManager {
 	public final static String ULTIMATE_EDITION_MUSIC_FOLDER_NAME = "MUSIC";
 	public final static String HISTORY_EDITION_MUSIC_FOLDER_NAME = "Theme";
 
-	public final static String ULTIMATE_EDITION_FILE_TYPE = "ogg";
-	public final static String HISTORY_EDITION_FILE_TYPE = "mp3";
+	private final static String ULTIMATE_EDITION_FILE_TYPE = "ogg";
+	private final static String HISTORY_EDITION_FILE_TYPE = "mp3";
 
 	private final static String MUSIC_FILE_PREFIX = "Track";
 
