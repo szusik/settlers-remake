@@ -152,7 +152,7 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 		clock.setTaskExecutor(new GuiTaskExecutor(grid, this, this.playerId));
 		connector.addListener(this);
 
-		MusicManager.startMusic(player.getCivilisation(), false);
+		MusicManager.startMusicThread(player.getCivilisation(), false);
 	}
 
 	@Override
@@ -388,7 +388,7 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 				break;
 
 			case EXIT:
-				MusicManager.stopMusic();
+				MusicManager.stopMusicThread();
 				gameStoppable.stopGame();
 				break;
 

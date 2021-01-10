@@ -1,28 +1,15 @@
 package jsettlers.common.music;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.advanced.AdvancedPlayer;
-
 /**
  *
- * supports mp3, gradle takes care of dependencies TODO add volume and generic audio stream
+ * Background thread for ingame music
  *
  * @author MarviMarv
  */
-
 public class MusicThread implements Runnable {
-
-	/**
-	 * The lookup path for the music files.
-	 */
-	private static File lookupPath;
-
-	private AdvancedPlayer player;
 	private final Thread musicThread;
+	private final MusicPlayer musicPlayer;
+	private final int startVolume;
 
 	private final String musicFilePath;
 	private final String musicFileType;
@@ -30,10 +17,11 @@ public class MusicThread implements Runnable {
 
 	private boolean canceled;
 
-	public MusicThread(final String musicFilePath, final String musicFileType, final String[] musicTracks) {
+	public MusicThread(final MusicPlayer musicPlayer, final int volume, final String musicFilePath, final String musicFileType, final String[] musicTracks) {
 		canceled = false;
-		player = null;
 
+		this.musicPlayer = musicPlayer;
+		this.startVolume = volume;
 		this.musicFilePath = musicFilePath;
 		this.musicFileType = musicFileType;
 		this.musicTracks = musicTracks;
@@ -49,18 +37,8 @@ public class MusicThread implements Runnable {
 
 		while (!canceled) {
 
-			try {
-				if (musicFileType == "mp3") {
-					player = new AdvancedPlayer(new FileInputStream(musicFilePath + musicTracks[trackIndex] + "." + musicFileType));
-					player.play();
-				}
-
-				trackIndex++;
-			} catch (JavaLayerException e) {
-				e.printStackTrace();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
+			musicPlayer.play(musicFilePath + musicTracks[trackIndex] + "." + musicFileType, startVolume);
+			trackIndex++;
 
 			if (trackIndex == musicTracks.length) {
 				trackIndex = 0;
@@ -74,12 +52,7 @@ public class MusicThread implements Runnable {
 
 	public void cancel() {
 		canceled = true;
-
-		if (player != null) {
-			player.close();
-			player = null;
-		}
-
+		musicPlayer.stop();
 		musicThread.interrupt();
 	}
 }
