@@ -350,7 +350,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			}
 		} catch (Throwable t) {
 			System.err.println("Main draw handler cought throwable:");
-			t.printStackTrace(System.err);
+			t.printStackTrace();
 		}
 	}
 
