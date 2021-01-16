@@ -43,11 +43,11 @@ import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
-import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
 import jsettlers.logic.movable.civilian.HealerMovable;
 import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.cargo.DonkeyMovable;
+import jsettlers.logic.movable.civilian.LegacyBuildingWorkerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
@@ -91,7 +91,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	private int   animationStartTime;
 	private short animationDuration;
 
-	public ShortPoint2D oldFowPosition = null;
+	public transient ShortPoint2D oldFowPosition = null;
 	protected ShortPoint2D position;
 
 	protected Path path;
@@ -558,13 +558,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				sequence(
 					condition(mov -> mov.grid.isBlockedOrProtected(mov.position.x, mov.position.y)),
 					selector(
-						condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, (short) 50, ESearchType.NON_BLOCKED_OR_PROTECTED)),
 						sequence(
-							BehaviorTreeHelper.action(Movable::kill),
-							alwaysFail()
-						)
-					),
-					followPresearchedPath(mov -> true)
+							condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, (short) 50, ESearchType.NON_BLOCKED_OR_PROTECTED)),
+							followPresearchedPath(mov -> true)
+						),
+						// just "succeed" after dying
+						BehaviorTreeHelper.action(Movable::kill)
+					)
 				),
 				// flock to decentralize
 				sequence(
@@ -1109,7 +1109,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case WATERWORKER:
 			case WINEGROWER:
 			case DOCKWORKER:
-				return new BuildingWorkerMovable(grid, movableType, position, player, movable);
+				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
 
 			case HEALER:
 				return new HealerMovable(grid, position, player, movable);

@@ -119,12 +119,15 @@ import jsettlers.logic.map.loading.list.MapList;
 import jsettlers.logic.map.loading.newmap.MapFileHeader;
 import jsettlers.logic.map.loading.newmap.MapFileHeader.MapType;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.civilian.LegacyBuildingWorkerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
+import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IAttackableMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.interfaces.ISoldierMovable;
+import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.objects.arrow.ArrowObject;
 import jsettlers.logic.objects.stack.StackMapObject;
 import jsettlers.logic.player.Player;
@@ -172,6 +175,10 @@ public final class MainGrid implements Serializable {
 		this.movablePathfinderGrid = new MovablePathfinderGrid();
 		// prevents StackOverflowErrors
 		ArrowObject.class.getSimpleName();
+		IAttackableHumanMovable.class.getSimpleName();
+		AttackableHumanMovable.class.getSimpleName();
+		LegacyBuildingWorkerMovable.class.getSimpleName();
+
 		MapObjectsManagerGrid grid = new MapObjectsManagerGrid();
 		this.mapObjectsManager = new MapObjectsManager(grid);
 

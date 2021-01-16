@@ -32,6 +32,7 @@ import jsettlers.logic.map.loading.MapLoadException;
 import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.logic.map.loading.list.DirectoryMapLister;
 import jsettlers.logic.map.loading.newmap.MapFileHeader;
+import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.player.PlayerSetting;
 import jsettlers.main.JSettlersGame;
@@ -60,6 +61,7 @@ public class SwingManagedJSettlers {
 		System.setProperty("sun.awt.noerasebackground", "true");
 		// prevent stack overflow exceptions => load deep classes when stack is still low
 		AttackableHumanMovable.class.getSimpleName();
+		BuildingWorkerMovable.class.getSimpleName();
 
 		setupResources(true, args);
 

@@ -8,7 +8,7 @@ import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IHealerMovable;
 import jsettlers.logic.player.Player;
 
-public class HealerMovable extends BuildingWorkerMovable implements IHealerMovable {
+public class HealerMovable extends LegacyBuildingWorkerMovable implements IHealerMovable {
 
 	private IAttackableHumanMovable patient = null;
 
