@@ -111,7 +111,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected boolean playerControlled;
 
-	private Tick<? extends Movable> tick;
+	private Tick<? extends Movable> tick;//TODO fix behaviour tree serialisation
 
 	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends Movable> behaviour) {
 		this.grid = grid;
@@ -188,7 +188,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected boolean aborted;
-	protected IBooleanConditionFunction<Movable> pathStep;
+	protected IBooleanConditionFunction<Movable> pathStep; //TODO remove so that tests will continue working in the future
 
 	protected void pathAborted(ShortPoint2D pathTarget) {
 		aborted = true;
