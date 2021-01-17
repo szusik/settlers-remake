@@ -4,9 +4,11 @@ import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
+import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.material.EPriority;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EDirection;
@@ -30,6 +32,33 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	public BuildingWorkerMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends BuildingWorkerMovable> behaviour) {
 		super(grid, movableType, position, player, replace, behaviour);
 	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> executeSearch(ESearchType searchType) {
+		return BehaviorTreeHelper.condition(mov -> mov.grid.executeSearchType(mov, mov.position, searchType));
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> leaveHome() {
+		return sequence(
+				repeat(Repeat.Policy.PREEMPTIVE,
+					mov -> mov.building.getPriority() == EPriority.STOPPED,
+					alwaysRunning()
+				),
+				BehaviorTreeHelper.action(mov -> {mov.setVisible(true);})
+		);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> enterHome() {
+		return sequence(
+				// I am not sure if the repeat structure is actually necessary but it won't hurt
+				repeat(mov -> !((BuildingWorkerMovable)mov).building.getDoor().equals(((BuildingWorkerMovable)mov).getPosition()),
+						selector(
+								goToPos(mov -> ((BuildingWorkerMovable)mov).building.getDoor(), BuildingWorkerMovable::tmpPathStep), // TODO
+								sleep(1000)
+						)
+				),
+				hide()
+		);
+	};
 
 	protected static <T extends BuildingWorkerMovable> Guard<T> handleBuildingDestroyedGuard() {
 		return guard(mov -> mov.building != null && mov.building.isDestroyed(),

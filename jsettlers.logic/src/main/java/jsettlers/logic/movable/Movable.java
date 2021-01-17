@@ -44,6 +44,7 @@ import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
+import jsettlers.logic.movable.civilian.ForesterMovable;
 import jsettlers.logic.movable.civilian.HealerMovable;
 import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.cargo.DonkeyMovable;
@@ -192,6 +193,22 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected void pathAborted(ShortPoint2D pathTarget) {
 		aborted = true;
+	}
+
+	protected static <T extends Movable> Node<T> setDirectionNode(IEDirectionSupplier<T> direction) {
+		return BehaviorTreeHelper.action(mov -> {mov.setDirection(direction.apply(mov));});
+	}
+
+	protected static <T extends Movable> Node<T> setMaterialNode(EMaterialType material) {
+		return BehaviorTreeHelper.action(mov -> {mov.setMaterial(material);});
+	}
+
+	protected static <T extends Movable> Node<T> hide() {
+		return BehaviorTreeHelper.action(mov -> {mov.setVisible(false);});
+	}
+
+	protected static <T extends Movable> Node<T> show() {
+		return BehaviorTreeHelper.action(mov -> {mov.setVisible(true);});
 	}
 
 	protected static <T extends Movable> Node<T> drop(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> offerMaterial) {
@@ -1095,7 +1112,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case CHARCOAL_BURNER:
 			case FARMER:
 			case FISHERMAN:
-			case FORESTER:
 			case MELTER:
 			case MILLER:
 			case MINER:
@@ -1110,6 +1126,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case WINEGROWER:
 			case DOCKWORKER:
 				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
+
+			case FORESTER:
+				return new ForesterMovable(grid, movableType, position, player, movable);
 
 			case HEALER:
 				return new HealerMovable(grid, position, player, movable);

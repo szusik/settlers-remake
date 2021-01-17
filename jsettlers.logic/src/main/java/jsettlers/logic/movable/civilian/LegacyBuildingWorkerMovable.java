@@ -79,23 +79,19 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SHOW),
-							repeat(Repeat.Policy.PREEMPTIVE,
-									mov -> mov.building.getPriority() == EPriority.STOPPED,
-									alwaysRunning()
-							),
+							leaveHome(),
 							BehaviorTreeHelper.action(mov -> {
 								ShortPoint2D pos = mov.getCurrentJobPos();
 								if (mov.currentJob.getDirection() != null) {
 									mov.lookInDirection(mov.currentJob.getDirection());
 								}
 								mov.setPosition(pos);
-								mov.setVisible(true);
 							}),
 							jobFinishedNode()
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.HIDE),
-							BehaviorTreeHelper.action(mov -> {mov.setVisible(false);}),
+							hide(),
 							jobFinishedNode()
 						),
 						sequence(

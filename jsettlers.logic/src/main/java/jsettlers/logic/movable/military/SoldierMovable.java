@@ -66,8 +66,8 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 								condition(mov -> mov.building.getDoor().equals(mov.position)),
 								goToPos(mov -> mov.building.getDoor(), mov -> mov.building != null && !mov.building.isDestroyed() && mov.building.getPlayer() == mov.player) // TODO
 							),
+							hide(),
 							BehaviorTreeHelper.action(mov -> {
-								mov.setVisible(false);
 								OccupierPlace place = mov.building.addSoldier(mov);
 								mov.setPosition(place.getPosition().calculatePoint(mov.building.getPosition()));
 
