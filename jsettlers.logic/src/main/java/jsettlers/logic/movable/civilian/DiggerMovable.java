@@ -42,7 +42,7 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 									sequence(
 										BehaviorTreeHelper.action(mov -> {mov.grid.setMarked(mov.targetPosition, true);}),
 										goToPos(mov -> mov.targetPosition, mov -> mov.requester != null && mov.requester.isDiggerRequestActive()), // TODO
-										playAction(EMovableAction.ACTION1, mov -> (short)1000),
+										playAction(EMovableAction.ACTION1, (short)1000),
 										BehaviorTreeHelper.action(DiggerMovable::executeDigg)
 									)
 								)

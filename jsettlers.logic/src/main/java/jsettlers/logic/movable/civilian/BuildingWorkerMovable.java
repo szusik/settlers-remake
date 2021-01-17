@@ -78,6 +78,27 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		);
 	}
 
+	protected static <T extends BuildingWorkerMovable> Node<T> defaultWorkCycle(Node<T> doWork) {
+		return defaultFramework(
+			guard(mov -> ((BuildingWorkerMovable)mov).building != null,
+				sequence(
+					enterHome(),
+					repeat(mov -> true, doWork)
+				)
+			)
+		);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> defaultFramework(Guard<T> doWork) {
+		return guardSelector(
+				fleeIfNecessary(),
+				handleBuildingDestroyedGuard(),
+				doWork,
+				registerMovableGuard(),
+				doingNothingGuard()
+		);
+	}
+
 	@Override
 	protected boolean isBusy() {
 		return super.isBusy() || !registered;

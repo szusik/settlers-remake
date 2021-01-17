@@ -51,9 +51,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 	private static final Root<LegacyBuildingWorkerMovable> tree = new Root<>(createBuildingWorkerBehaviour());
 
 	private static Node<LegacyBuildingWorkerMovable> createBuildingWorkerBehaviour() {
-		return guardSelector(
-				fleeIfNecessary(),
-				handleBuildingDestroyedGuard(),
+		return defaultFramework(
 				guard(mov -> mov.currentJob != null,
 					selector(
 						sequence(
@@ -280,9 +278,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						// unknown job type
 						BehaviorTreeHelper.action(LegacyBuildingWorkerMovable::abortJob)
 					)
-				),
-				registerMovableGuard(),
-				doingNothingGuard()
+				)
 		);
 	}
 

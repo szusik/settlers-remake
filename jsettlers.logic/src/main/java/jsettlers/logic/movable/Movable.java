@@ -44,7 +44,7 @@ import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
-import jsettlers.logic.movable.civilian.ForesterMovable;
+import jsettlers.logic.movable.civilian.SimpleBuildingWorkerMovable;
 import jsettlers.logic.movable.civilian.HealerMovable;
 import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.cargo.DonkeyMovable;
@@ -213,7 +213,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> drop(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> offerMaterial) {
 		return sequence(
-				playAction(EMovableAction.BEND_DOWN, mov -> Constants.MOVABLE_BEND_DURATION),
+				playAction(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION),
 				BehaviorTreeHelper.action(mov -> {
 					EMaterialType takeDropMaterial = materialType.apply(mov);
 
@@ -222,21 +222,21 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					mov.setMaterial(EMaterialType.NO_MATERIAL);
 					mov.grid.dropMaterial(mov.position, takeDropMaterial, offerMaterial.test(mov), false);
 				}),
-				playAction(EMovableAction.RAISE_UP, mov -> Constants.MOVABLE_BEND_DURATION)
+				playAction(EMovableAction.RAISE_UP, Constants.MOVABLE_BEND_DURATION)
 		);
 	}
 
 	protected static <T extends Movable> Node<T> take(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> fromMap, INodeStatusActionConsumer<T> tookMaterial) {
 		return sequence(
 				condition(mov -> !fromMap.test(mov) || mov.grid.canTakeMaterial(mov.position, materialType.apply(mov))),
-				playAction(EMovableAction.BEND_DOWN, mov -> Constants.MOVABLE_BEND_DURATION),
+				playAction(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION),
 				BehaviorTreeHelper.action(mov -> {
 					EMaterialType material = materialType.apply(mov);
 					mov.grid.takeMaterial(mov.position, material);
 					mov.setMaterial(material);
 					tookMaterial.accept(mov);
 				}),
-				playAction(EMovableAction.RAISE_UP, mov -> Constants.MOVABLE_BEND_DURATION)
+				playAction(EMovableAction.RAISE_UP, Constants.MOVABLE_BEND_DURATION)
 		);
 	}
 
@@ -292,6 +292,15 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				condition(mov -> !mov.aborted)
 
 		);
+	}
+
+	/**
+	 *
+	 * @param duration
+	 * 			duration in milliseconds
+	 */
+	protected static <T extends Movable> Node<T> playAction(EMovableAction action, short duration) {
+		return playAction(action, mov -> duration);
 	}
 
 	/**
@@ -1128,7 +1137,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
 
 			case FORESTER:
-				return new ForesterMovable(grid, movableType, position, player, movable);
+				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
 
 			case HEALER:
 				return new HealerMovable(grid, position, player, movable);

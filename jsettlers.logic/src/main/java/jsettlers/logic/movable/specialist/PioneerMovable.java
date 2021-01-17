@@ -124,7 +124,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 		return sequence(
 				condition(mov -> mov.grid.fitsSearchType(mov, mov.position.x, mov.position.y, ESearchType.UNENFORCED_FOREIGN_GROUND)),
 
-				playAction(EMovableAction.ACTION1, mov -> (short)(ACTION1_DURATION*1000)),
+				playAction(EMovableAction.ACTION1, (short)(ACTION1_DURATION*1000)),
 
 				BehaviorTreeHelper.action(mov -> {
 					mov.grid.changePlayerAt(mov.position, mov.getPlayer());

@@ -97,7 +97,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 	private static Node<MageMovable> castSpellNode() {
 		return sequence(
 				condition(MageMovable::castSpell),
-				playAction(EMovableAction.ACTION1, mov -> (short)(ACTION1_DURATION*1000))
+				playAction(EMovableAction.ACTION1, (short)(ACTION1_DURATION*1000))
 		);
 	}
 

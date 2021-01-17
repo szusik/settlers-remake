@@ -134,8 +134,8 @@ public class GeologistMovable extends AttackableHumanMovable {
 					return success;
 				}),
 
-				playAction(EMovableAction.ACTION1, mov -> (short)(ACTION1_DURATION*1000)),
-				playAction(EMovableAction.ACTION2, mov -> (short)(ACTION2_DURATION*1000)),
+				playAction(EMovableAction.ACTION1, (short)(ACTION1_DURATION*1000)),
+				playAction(EMovableAction.ACTION2, (short)(ACTION2_DURATION*1000)),
 
 				condition(mov -> {
 					mov.grid.setMarked(mov.currentTarget, false);

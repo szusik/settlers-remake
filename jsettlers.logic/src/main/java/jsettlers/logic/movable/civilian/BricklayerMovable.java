@@ -48,7 +48,7 @@ public class BricklayerMovable extends CivilianMovable implements IManageableBri
 						repeat(mov -> true,
 							sequence(
 								condition(mov -> mov.constructionSite.tryToTakeMaterial()),
-								playAction(EMovableAction.ACTION1, mov -> (short)(BRICKLAYER_ACTION_DURATION*1000))
+								playAction(EMovableAction.ACTION1, (short)(BRICKLAYER_ACTION_DURATION*1000))
 							)
 						)
 					)

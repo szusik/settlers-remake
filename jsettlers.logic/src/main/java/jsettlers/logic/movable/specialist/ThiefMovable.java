@@ -105,7 +105,7 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 		return sequence(
 				condition(mov -> mov.grid.fitsSearchType(mov, mov.currentTarget.x, mov.currentTarget.y, ESearchType.FOREIGN_MATERIAL)),
 
-				playAction(EMovableAction.ACTION1, mov -> (short)(ACTION1_DURATION*1000)),
+				playAction(EMovableAction.ACTION1, (short)(ACTION1_DURATION*1000)),
 
 				condition(mov -> {
 					EMaterialType stolenMaterial = mov.grid.takeMaterial(mov.currentTarget);
