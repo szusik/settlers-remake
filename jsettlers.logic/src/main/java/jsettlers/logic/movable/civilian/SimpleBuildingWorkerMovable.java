@@ -31,6 +31,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		trees.put(EMovableType.LUMBERJACK, new Root<>(createLumberjackBehaviour()));
 		trees.put(EMovableType.WATERWORKER, new Root<>(createWaterworkerBehaviour()));
 		trees.put(EMovableType.FISHERMAN, new Root<>(createFishermanBehaviour()));
+		trees.put(EMovableType.STONECUTTER, new Root<>(createStonecutterBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -61,11 +62,11 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 
 	private static final short LUMBERJACK_ACTION1_DURATION = (short)1000;
 
-	private static Node<SimpleBuildingWorkerMovable> lumberjackAction() {
+	private static Node<SimpleBuildingWorkerMovable> playAction3Times(EMovableAction action, short duration) {
 		return sequence(
-				playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
-				playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
-				playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)
+				playAction(action, duration),
+				playAction(action, duration),
+				playAction(action, duration)
 		);
 	}
 
@@ -88,14 +89,14 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 								sequence(
 									goInDirectionWaitFree(EDirection.EAST, BuildingWorkerMovable::tmpPathStep),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									lumberjackAction(),
-									lumberjackAction(),
+									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
+									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
 									goInDirectionWaitFree(EDirection.WEST, BuildingWorkerMovable::tmpPathStep)
 								),
 								sequence(
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									lumberjackAction(),
-									lumberjackAction()
+									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
+									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)
 								)
 							),
 							executeSearch(ESearchType.CUTTABLE_TREE),
@@ -104,10 +105,10 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									goInDirectionWaitFree(EDirection.SOUTH_EAST, BuildingWorkerMovable::tmpPathStep),
 									goInDirectionWaitFree(EDirection.NORTH_EAST, BuildingWorkerMovable::tmpPathStep),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									lumberjackAction(),
+									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
 									goInDirectionWaitFree(EDirection.NORTH_EAST, BuildingWorkerMovable::tmpPathStep),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									lumberjackAction(),
+									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
 									goInDirectionWaitFree(EDirection.SOUTH_WEST, BuildingWorkerMovable::tmpPathStep),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
 									take(mov -> EMaterialType.TRUNK, mov -> false, mov -> {})
@@ -186,6 +187,36 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 							goToOutputStack(EMaterialType.FISH, BuildingWorkerMovable::tmpPathStep),
 							setDirectionNode(mov -> EDirection.SOUTH_WEST),
 							dropProduced(mov -> EMaterialType.FISH)
+						)
+					),
+					enterHome()
+				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createStonecutterBehaviour() {
+		return defaultWorkCycle(
+				sequence(
+					sleep(3000),
+					waitFor(
+						sequence(
+							isAllowedToWork(),
+							outputStackNotFull(EMaterialType.STONE),
+							preSearchPath(true, ESearchType.CUTTABLE_STONE)
+						)
+					),
+					setMaterialNode(EMaterialType.NO_MATERIAL),
+					show(),
+					ignoreFailure(
+						sequence(
+							followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+							setDirectionNode(mov -> EDirection.SOUTH_WEST),
+							playAction3Times(EMovableAction.ACTION1, (short)750),
+							playAction3Times(EMovableAction.ACTION1, (short)750),
+							executeSearch(ESearchType.CUTTABLE_STONE),
+							take(mov -> EMaterialType.STONE, mov -> false, mov -> {}),
+							goToOutputStack(EMaterialType.STONE, BuildingWorkerMovable::tmpPathStep),
+							dropProduced(mov -> EMaterialType.STONE)
 						)
 					),
 					enterHome()
