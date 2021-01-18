@@ -1141,7 +1141,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case BAKER:
 			case CHARCOAL_BURNER:
 			case FARMER:
-			case FISHERMAN:
 			case MELTER:
 			case MILLER:
 			case MINER:
@@ -1155,6 +1154,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case DOCKWORKER:
 				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
 
+			case FISHERMAN:
 			case WATERWORKER:
 			case LUMBERJACK:
 			case FORESTER:

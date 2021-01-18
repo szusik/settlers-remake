@@ -47,6 +47,9 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 				drop(material, mov -> true)
 		);
 	}
+	protected static <T extends BuildingWorkerMovable> Node<T> lookAtSearched(ESearchType searchType) {
+		return setDirectionNode(mov -> ((BuildingWorkerMovable)mov).grid.getDirectionOfSearched(mov.getPosition(), searchType));
+	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> executeSearch(ESearchType searchType) {
 		return BehaviorTreeHelper.condition(mov -> mov.grid.executeSearchType(mov, mov.position, searchType));
@@ -97,7 +100,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		return guard(mov -> !((BuildingWorkerMovable)mov).registered,
 				BehaviorTreeHelper.action(mov -> {
 					mov.dropCurrentMaterial();
-					mov.building = null;
+					mov.abortJob();
 					((BuildingWorkerMovable)mov).registered = true;
 					mov.pathStep = null;
 					mov.grid.addJobless(mov);

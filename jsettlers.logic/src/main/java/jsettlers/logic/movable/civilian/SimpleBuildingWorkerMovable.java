@@ -5,12 +5,12 @@ import java.util.Map;
 
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
+import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -30,6 +30,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		trees.put(EMovableType.FORESTER, new Root<>(createForesterBehaviour()));
 		trees.put(EMovableType.LUMBERJACK, new Root<>(createLumberjackBehaviour()));
 		trees.put(EMovableType.WATERWORKER, new Root<>(createWaterworkerBehaviour()));
+		trees.put(EMovableType.FISHERMAN, new Root<>(createFishermanBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -138,11 +139,53 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					ignoreFailure(
 						sequence(
 							followPresearchedPath(BuildingWorkerMovable::tmpPathStep),
-							setDirectionNode(mov -> ((SimpleBuildingWorkerMovable)mov).grid.getDirectionOfSearched(mov.getPosition(), ESearchType.RIVER)),
+							lookAtSearched(ESearchType.RIVER),
 							playAction(EMovableAction.ACTION1, (short)1000),
 							setMaterialNode(EMaterialType.WATER),
 							goToOutputStack(EMaterialType.WATER, BuildingWorkerMovable::tmpPathStep),
 							dropProduced(mov -> EMaterialType.WATER)
+						)
+					),
+					enterHome()
+				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createFishermanBehaviour() {
+		return defaultWorkCycle(
+				sequence(
+					sleep(3000),
+					waitFor(
+						sequence(
+							isAllowedToWork(),
+							outputStackNotFull(EMaterialType.FISH),
+							preSearchPath(false, ESearchType.FISHABLE)
+						)
+					),
+					setMaterialNode(EMaterialType.NO_MATERIAL),
+					show(),
+					ignoreFailure(
+						sequence(
+							followPresearchedPath(BuildingWorkerMovable::tmpPathStep),
+							lookAtSearched(ESearchType.FISHABLE),
+							playAction(EMovableAction.ACTION1, (short)1500),
+							selector(
+								//try taking fish
+								condition(mov -> {
+									SimpleBuildingWorkerMovable smov = (SimpleBuildingWorkerMovable) mov;
+									return smov.grid.tryTakingResource(smov.getDirection().getNextHexPoint(smov.position), EResourceType.FISH);
+								}),
+								sequence(// fishing failed
+									playAction(EMovableAction.ACTION3, (short)2000),
+									alwaysFail()
+								)
+							),
+							// fishing succeeded
+							playAction(EMovableAction.ACTION2, (short)1000),
+							setMaterialNode(EMaterialType.FISH),
+							goToOutputStack(EMaterialType.FISH, BuildingWorkerMovable::tmpPathStep),
+							setDirectionNode(mov -> EDirection.SOUTH_WEST),
+							dropProduced(mov -> EMaterialType.FISH)
 						)
 					),
 					enterHome()
