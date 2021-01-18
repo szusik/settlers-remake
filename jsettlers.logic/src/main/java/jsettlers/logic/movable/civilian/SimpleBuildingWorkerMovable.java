@@ -29,6 +29,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 	static {
 		trees.put(EMovableType.FORESTER, new Root<>(createForesterBehaviour()));
 		trees.put(EMovableType.LUMBERJACK, new Root<>(createLumberjackBehaviour()));
+		trees.put(EMovableType.WATERWORKER, new Root<>(createWaterworkerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -57,8 +58,6 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		);
 	}
 
-	private static final RelativePoint LUMBERJACK_DROPOFF_POINT = new RelativePoint(0, 3);
-
 	private static final short LUMBERJACK_ACTION1_DURATION = (short)1000;
 
 	private static Node<SimpleBuildingWorkerMovable> lumberjackAction() {
@@ -76,12 +75,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					waitFor(
 						sequence(
 							isAllowedToWork(),
-							condition(mov -> {
-								// TODO generify
-								ShortPoint2D dropOff = LUMBERJACK_DROPOFF_POINT.calculatePoint(mov.building.getPosition());
-
-								return ((SimpleBuildingWorkerMovable)mov).grid.canPushMaterial(dropOff);
-							}),
+							outputStackNotFull(EMaterialType.TRUNK),
 							preSearchPath(true, ESearchType.CUTTABLE_TREE)
 						)
 					),
@@ -119,8 +113,36 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 								)
 							),
 							setMaterialNode(EMaterialType.TRUNK),
-							goToPos(mov -> LUMBERJACK_DROPOFF_POINT.calculatePoint(mov.building.getPosition()),  BuildingWorkerMovable::tmpPathStep),
+							goToOutputStack(EMaterialType.TRUNK, BuildingWorkerMovable::tmpPathStep),
 							dropProduced(mov -> EMaterialType.TRUNK)
+						)
+					),
+					enterHome()
+				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createWaterworkerBehaviour() {
+		return defaultWorkCycle(
+				sequence(
+					sleep(3000),
+					waitFor(
+						sequence(
+							isAllowedToWork(),
+							outputStackNotFull(EMaterialType.WATER),
+							preSearchPath(false, ESearchType.RIVER)
+						)
+					),
+					setMaterialNode(EMaterialType.EMPTY_BUCKET),
+					show(),
+					ignoreFailure(
+						sequence(
+							followPresearchedPath(BuildingWorkerMovable::tmpPathStep),
+							setDirectionNode(mov -> ((SimpleBuildingWorkerMovable)mov).grid.getDirectionOfSearched(mov.getPosition(), ESearchType.RIVER)),
+							playAction(EMovableAction.ACTION1, (short)1000),
+							setMaterialNode(EMaterialType.WATER),
+							goToOutputStack(EMaterialType.WATER, BuildingWorkerMovable::tmpPathStep),
+							dropProduced(mov -> EMaterialType.WATER)
 						)
 					),
 					enterHome()

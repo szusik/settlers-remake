@@ -1151,11 +1151,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case SLAUGHTERER:
 			case SMITH:
 			case STONECUTTER:
-			case WATERWORKER:
 			case WINEGROWER:
 			case DOCKWORKER:
 				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
 
+			case WATERWORKER:
 			case LUMBERJACK:
 			case FORESTER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);

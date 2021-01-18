@@ -1,12 +1,14 @@
 package jsettlers.logic.movable.civilian;
 
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
+import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
 import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
@@ -14,6 +16,7 @@ import jsettlers.common.material.ESearchType;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableWorker;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IWorkerRequestBuilding;
@@ -47,6 +50,24 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 
 	protected static <T extends BuildingWorkerMovable> Node<T> executeSearch(ESearchType searchType) {
 		return BehaviorTreeHelper.condition(mov -> mov.grid.executeSearchType(mov, mov.position, searchType));
+	}
+
+	protected ShortPoint2D getOutputStackPosition(EMaterialType outputMaterial) {
+		for(RelativeStack stack : building.getBuildingVariant().getOfferStacks()) {
+			if(stack.getMaterialType() == outputMaterial) {
+				return stack.calculatePoint(building.getPosition());
+			}
+		}
+
+		throw new AssertionError("stack for " + outputMaterial + " not found in " + building.getBuildingVariant());
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(EMaterialType outputMaterial, IBooleanConditionFunction<T> pathStep) {
+		return goToPos(mov -> mov.getOutputStackPosition(outputMaterial), pathStep);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> outputStackNotFull(EMaterialType outputMaterial) {
+		return condition(mov -> mov.grid.canPushMaterial(mov.getOutputStackPosition(outputMaterial)));
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> isAllowedToWork() {
