@@ -7,7 +7,6 @@ import java.io.ObjectOutputStream;
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.jobs.EBuildingJobType;
 import jsettlers.common.buildings.jobs.IBuildingJob;
@@ -15,7 +14,6 @@ import jsettlers.common.map.shapes.MapCircle;
 import jsettlers.common.map.shapes.MapCircleIterator;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.EMaterialType;
-import jsettlers.common.material.EPriority;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
@@ -41,7 +39,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 
 	private EMaterialType poppedMaterial;
 
-	private ShortPoint2D markedPosition;
 	private IAttackableHumanMovable nextPatient = null;
 
 	public LegacyBuildingWorkerMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
@@ -77,7 +74,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SHOW),
-							leaveHome(),
+							waitFor(isAllowedToWork()),
 							BehaviorTreeHelper.action(mov -> {
 								ShortPoint2D pos = mov.getCurrentJobPos();
 								if (mov.currentJob.getDirection() != null) {
@@ -85,6 +82,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 								}
 								mov.setPosition(pos);
 							}),
+							show(),
 							jobFinishedNode()
 						),
 						sequence(
@@ -103,13 +101,11 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP),
-							BehaviorTreeHelper.action(mov -> {mov.dropAction(mov.currentJob.getMaterial());}),
-							nodeToJob(drop(mov -> mov.currentJob.getMaterial(), mov -> true))
+							nodeToJob(dropProduced(mov -> mov.currentJob.getMaterial()))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP_POPPED),
-							BehaviorTreeHelper.action(mov -> {mov.dropAction(mov.poppedMaterial);}),
-							nodeToJob(drop(mov -> mov.poppedMaterial, mov -> true))
+							nodeToJob(dropProduced(mov -> mov.currentJob.getMaterial()))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PRE_SEARCH),
@@ -121,14 +117,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.FOLLOW_SEARCHED),
-							resetAfter(LegacyBuildingWorkerMovable::clearMark,
-								nodeToJob(
-									sequence(
-										BehaviorTreeHelper.action(LegacyBuildingWorkerMovable::mark),
-										followPresearchedPath(LegacyBuildingWorkerMovable::pathStep)
-									)
-								)
-							)
+							nodeToJob(followPresearchedPathMarkTarget(LegacyBuildingWorkerMovable::pathStep))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.LOOK_AT_SEARCHED),
@@ -410,12 +399,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 		return poppedMaterial != null;
 	}
 
-	private void dropAction(EMaterialType materialType) {
-		if (materialType == EMaterialType.GOLD) {
-			player.getEndgameStatistic().incrementAmountOfProducedGold();
-		}
-	}
-
 	/**
 	 * @param dijkstra
 	 * 		if true, dijkstra algorithm is used<br>
@@ -487,18 +470,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 		super.buildingDestroyed();
 
 		currentJob = null;
-	}
-
-	private void mark() {
-		markedPosition = path.getTargetPosition();
-		grid.setMarked(markedPosition, true);
-	}
-
-	private void clearMark() {
-		if (markedPosition != null) {
-			grid.setMarked(markedPosition, false);
-			markedPosition = null;
-		}
 	}
 
 	private boolean pathStep() {

@@ -1,6 +1,7 @@
 package jsettlers.logic.movable.civilian;
 
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
+import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
@@ -33,18 +34,23 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		super(grid, movableType, position, player, replace, behaviour);
 	}
 
+	protected static <T extends BuildingWorkerMovable> Node<T> dropProduced(IEMaterialTypeSupplier<T> material) {
+		return sequence(
+				BehaviorTreeHelper.action(mov -> {
+					if(material.apply(mov) == EMaterialType.GOLD) {
+						mov.getPlayer().getEndgameStatistic().incrementAmountOfProducedGold();
+					}
+				}),
+				drop(material, mov -> true)
+		);
+	}
+
 	protected static <T extends BuildingWorkerMovable> Node<T> executeSearch(ESearchType searchType) {
 		return BehaviorTreeHelper.condition(mov -> mov.grid.executeSearchType(mov, mov.position, searchType));
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> leaveHome() {
-		return sequence(
-				repeat(Repeat.Policy.PREEMPTIVE,
-					mov -> mov.building.getPriority() == EPriority.STOPPED,
-					alwaysRunning()
-				),
-				BehaviorTreeHelper.action(mov -> {mov.setVisible(true);})
-		);
+	protected static <T extends BuildingWorkerMovable> Node<T> isAllowedToWork() {
+		return condition(mov -> mov.building.getPriority() != EPriority.STOPPED);
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> enterHome() {

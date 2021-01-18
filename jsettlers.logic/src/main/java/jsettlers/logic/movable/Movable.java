@@ -262,6 +262,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
 		);
 	}
+	protected static <T extends Movable> Node<T> goInDirectionWaitFree(EDirection direction, IBooleanConditionFunction<T> pathStep) {
+		return goInDirectionWaitFree(mov -> direction, pathStep);
+	}
 
 	protected static <T extends Movable> Node<T> goInDirectionWaitFree(IEDirectionSupplier<T> direction, IBooleanConditionFunction<T> pathStep) {
 		return sequence(
@@ -275,6 +278,24 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		);
 	}
 
+	private ShortPoint2D markedTarget = null;
+
+	protected static <T extends Movable> Node<T> followPresearchedPathMarkTarget(IBooleanConditionFunction<T> pathStep) {
+		return resetAfter(mov -> {
+					Movable mmov = (Movable) mov;
+					mmov.grid.setMarked(mmov.markedTarget, false);
+					mmov.markedTarget = null;
+				},
+				sequence(
+					BehaviorTreeHelper.action(mov -> {
+						Movable mmov = (Movable) mov;
+						mmov.markedTarget = mmov.path.getTargetPosition();
+						mmov.grid.setMarked(mmov.markedTarget, true);
+					}),
+					followPresearchedPath(pathStep)
+				)
+		);
+	}
 
 	protected static <T extends Movable> Node<T> followPresearchedPath(IBooleanConditionFunction<T> pathStep) {
 		return sequence(
@@ -1126,7 +1147,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case MINER:
 			case PIG_FARMER:
 			case DONKEY_FARMER:
-			case LUMBERJACK:
 			case SAWMILLER:
 			case SLAUGHTERER:
 			case SMITH:
@@ -1136,6 +1156,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case DOCKWORKER:
 				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
 
+			case LUMBERJACK:
 			case FORESTER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
 
