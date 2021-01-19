@@ -167,27 +167,36 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	 * 		if true, dijkstra algorithm is used<br>
 	 * 		if false, in area finder is used.
 	 */
-	protected static <T extends BuildingWorkerMovable> Node<T> preSearchPath(boolean dijkstra, ESearchType searchType) {
+	protected static <T extends BuildingWorkerMovable> Node<T> preSearchPathNoWarning(boolean dijkstra, ESearchType searchType) {
 		return BehaviorTreeHelper.condition(mov -> {
 			ShortPoint2D workAreaCenter = mov.building.getWorkAreaCenter();
 
-			boolean pathFound = mov.preSearchPath(dijkstra, workAreaCenter.x, workAreaCenter.y, mov.building.getBuildingVariant().getWorkRadius(),
+			return mov.preSearchPath(dijkstra, workAreaCenter.x, workAreaCenter.y, mov.building.getBuildingVariant().getWorkRadius(),
 					searchType);
-
-			if (pathFound) {
-				mov.searchFailedCtr = 0;
-				mov.building.setCannotWork(false);
-				return true;
-			} else {
-				mov.searchFailedCtr++;
-
-				if (mov.searchFailedCtr > 10) {
-					mov.building.setCannotWork(true);
-					mov.player.showMessage(SimpleMessage.cannotFindWork(mov.building));
-				}
-				return false;
-			}
 		});
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> preSearchPath(boolean dijkstra, ESearchType searchType) {
+		return selector(
+				sequence(
+					preSearchPathNoWarning(dijkstra, searchType),
+					BehaviorTreeHelper.action(mov -> {
+						mov.searchFailedCtr = 0;
+						mov.building.setCannotWork(false);
+					})
+				),
+				sequence(
+					BehaviorTreeHelper.action(mov -> {
+						mov.searchFailedCtr++;
+
+						if (mov.searchFailedCtr > 10) {
+							mov.building.setCannotWork(true);
+							mov.player.showMessage(SimpleMessage.cannotFindWork(mov.building));
+						}
+					}),
+					alwaysFail()
+				)
+		);
 	}
 
 	protected boolean tryTakingResource() {

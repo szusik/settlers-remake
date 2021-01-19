@@ -32,6 +32,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		trees.put(EMovableType.WATERWORKER, new Root<>(createWaterworkerBehaviour()));
 		trees.put(EMovableType.FISHERMAN, new Root<>(createFishermanBehaviour()));
 		trees.put(EMovableType.STONECUTTER, new Root<>(createStonecutterBehaviour()));
+		trees.put(EMovableType.WINEGROWER, new Root<>(createWinegrowerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -220,6 +221,59 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						)
 					),
 					enterHome()
+				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createWinegrowerBehaviour() {
+		return defaultWorkCycle(
+				ignoreFailure(
+					sequence(
+						waitFor(isAllowedToWork()),
+						selector(
+							sequence(
+								outputStackNotFull(EMaterialType.WINE),
+								preSearchPath(true, ESearchType.HARVESTABLE_WINE),
+								ignoreFailure(
+									sequence(
+										setMaterialNode(EMaterialType.BASKET),
+										show(),
+										followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+										setDirectionNode(mov -> EDirection.NORTH_WEST),
+										take(mov -> EMaterialType.BASKET, mov -> false, mov -> {}),
+										executeSearch(ESearchType.HARVESTABLE_WINE),
+										enterHome(),
+										sleep(3000),
+										setMaterialNode(EMaterialType.WINE),
+										show(),
+										goToOutputStack(EMaterialType.WINE, BuildingWorkerMovable::tmpPathStep),
+										setDirectionNode(mov -> EDirection.NORTH_EAST),
+										dropProduced(mov -> EMaterialType.WINE)
+									)
+								)
+							),
+							sequence(
+								preSearchPath(true, ESearchType.PLANTABLE_WINE),
+								ignoreFailure(
+									sequence(
+										setMaterialNode(EMaterialType.PLANT),
+										show(),
+										followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+										setDirectionNode(mov -> EDirection.SOUTH_WEST),
+										playAction(EMovableAction.ACTION1, (short)4000),
+										executeSearch(ESearchType.PLANTABLE_WINE),
+										setMaterialNode(EMaterialType.NO_MATERIAL)
+									)
+								)
+							),
+							sequence(
+								sleep(1000),
+								alwaysFail()
+							)
+						),
+						enterHome(),
+						sleep(8000)
+					)
 				)
 		);
 	}
