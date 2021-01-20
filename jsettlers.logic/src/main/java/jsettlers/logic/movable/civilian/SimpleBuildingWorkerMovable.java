@@ -33,6 +33,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		trees.put(EMovableType.FISHERMAN, new Root<>(createFishermanBehaviour()));
 		trees.put(EMovableType.STONECUTTER, new Root<>(createStonecutterBehaviour()));
 		trees.put(EMovableType.WINEGROWER, new Root<>(createWinegrowerBehaviour()));
+		trees.put(EMovableType.FARMER, new Root<>(createFarmerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -253,7 +254,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 								)
 							),
 							sequence(
-								preSearchPath(true, ESearchType.PLANTABLE_WINE),
+								preSearchPathNoWarning(true, ESearchType.PLANTABLE_WINE),
 								ignoreFailure(
 									sequence(
 										setMaterialNode(EMaterialType.PLANT),
@@ -262,6 +263,74 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 										setDirectionNode(mov -> EDirection.SOUTH_WEST),
 										playAction(EMovableAction.ACTION1, (short)4000),
 										executeSearch(ESearchType.PLANTABLE_WINE),
+										setMaterialNode(EMaterialType.NO_MATERIAL)
+									)
+								)
+							),
+							sequence(
+								sleep(1000),
+								alwaysFail()
+							)
+						),
+						enterHome(),
+						sleep(8000)
+					)
+				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createFarmerBehaviour() {
+		return defaultWorkCycle(
+				ignoreFailure(
+					sequence(
+						waitFor(isAllowedToWork()),
+						selector(
+							sequence(
+								outputStackNotFull(EMaterialType.CROP),
+								preSearchPath(true, ESearchType.CUTTABLE_CORN),
+								ignoreFailure(
+									sequence(
+										show(),
+										setMaterialNode(EMaterialType.SCYTHE),
+										followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+
+										setDirectionNode(mov -> EDirection.SOUTH_WEST),
+										playAction(EMovableAction.ACTION1, (short)1000),
+										setDirectionNode(mov -> EDirection.NORTH_WEST),
+										playAction(EMovableAction.ACTION1, (short)1000),
+										setDirectionNode(mov -> EDirection.NORTH_EAST),
+										playAction(EMovableAction.ACTION1, (short)1000),
+										setDirectionNode(mov -> EDirection.SOUTH_EAST),
+										playAction(EMovableAction.ACTION1, (short)1000),
+
+										executeSearch(ESearchType.CUTTABLE_CORN),
+										setDirectionNode(mov -> EDirection.NORTH_EAST),
+										setMaterialNode(EMaterialType.NO_MATERIAL),
+										take(mov -> EMaterialType.CROP, mov -> false, mov -> {}),
+										goToOutputStack(EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep),
+										setDirectionNode(mov -> EDirection.NORTH_EAST),
+										drop(mov -> EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep)
+									)
+								)
+							),
+							sequence(
+								preSearchPathNoWarning(true, ESearchType.PLANTABLE_CORN),
+								ignoreFailure(
+									sequence(
+										show(),
+										setMaterialNode(EMaterialType.PLANT),
+										followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+
+										setDirectionNode(mov -> EDirection.NORTH_EAST),
+										playAction(EMovableAction.ACTION2, (short)1400),
+										setDirectionNode(mov -> EDirection.SOUTH_EAST),
+										playAction(EMovableAction.ACTION2, (short)1400),
+										setDirectionNode(mov -> EDirection.SOUTH_WEST),
+										playAction(EMovableAction.ACTION2, (short)1400),
+										setDirectionNode(mov -> EDirection.NORTH_WEST),
+										playAction(EMovableAction.ACTION2, (short)1400),
+
+										executeSearch(ESearchType.PLANTABLE_CORN),
 										setMaterialNode(EMaterialType.NO_MATERIAL)
 									)
 								)

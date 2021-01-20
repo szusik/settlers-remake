@@ -1140,7 +1140,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 			case BAKER:
 			case CHARCOAL_BURNER:
-			case FARMER:
 			case MELTER:
 			case MILLER:
 			case MINER:
@@ -1158,6 +1157,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case LUMBERJACK:
 			case FORESTER:
 			case WINEGROWER:
+			case FARMER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
 
 			case HEALER:
