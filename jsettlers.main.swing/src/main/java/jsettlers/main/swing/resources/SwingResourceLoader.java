@@ -16,9 +16,9 @@ package jsettlers.main.swing.resources;
 
 import jsettlers.common.resources.SettlersFolderChecker;
 import jsettlers.common.resources.SettlersFolderChecker.SettlersFolderInfo;
-import jsettlers.common.music.MusicManager;
 import jsettlers.graphics.image.reader.DatFileUtils;
 import jsettlers.graphics.map.draw.ImageProvider;
+import jsettlers.graphics.sound.MusicManager;
 import jsettlers.graphics.sound.SoundManager;
 import jsettlers.logic.map.loading.list.MapList;
 import jsettlers.logic.map.loading.list.MapList.DefaultMapListFactory;

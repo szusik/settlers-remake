@@ -1,12 +1,13 @@
-package jsettlers.common.music;
-
-import jsettlers.common.player.ECivilisation;
+package jsettlers.graphics.sound;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import jsettlers.common.player.ECivilisation;
+import go.graphics.sound.SoundPlayer;
 
 /**
  *
@@ -16,7 +17,7 @@ import java.util.List;
  *
  * @author MarviMarv
  */
-public final class MusicManager {
+public final class MusicManager implements Runnable {
 
 	public final static String ULTIMATE_EDITION_MUSIC_FOLDER_NAME = "MUSIC";
 	public final static String HISTORY_EDITION_MUSIC_FOLDER_NAME = "Theme";
@@ -30,22 +31,14 @@ public final class MusicManager {
 	private final static String[][] ULTIMATE_EDITION_MUSIC_SET = { { "02", "03", "12" }, { "06", "07", "14" }, { "04", "05", "13" }, { "08", "09", "10" }, { "11" } };
 	private final static String[][] HISTORY_EDITION_MUSIC_SET = { { "02", "03", "04" }, { "05", "06", "07" }, { "08", "09", "10" }, { "13", "14", "15" }, { "11", "12" } };
 
-	private final static int MUSIC_VOLUME = 50;
-
 	private static File lookupPath;
 	private static String fileType;
 	private static String[][] musicSet;
-
-	private static MusicThread musicThread;
-	private static MusicPlayer musicPlayer;
 
 	static {
 		MusicManager.lookupPath = null;
 		MusicManager.fileType = null;
 		MusicManager.musicSet = null;
-
-		MusicManager.musicThread = null;
-		musicPlayer = new MusicPlayer();
 	}
 
 	public static void setLookupPath(final File lookupPath) {
@@ -68,32 +61,47 @@ public final class MusicManager {
 		}
 	}
 
-	public static void startMusicThread(final ECivilisation civilisation, final boolean playAll) {
-		if (MusicManager.lookupPath != null) {
-			MusicManager.musicThread = new MusicThread(
-					musicPlayer,
-					MusicManager.MUSIC_VOLUME,
-					MusicManager.lookupPath.getAbsolutePath() + "\\" + MusicManager.MUSIC_FILE_PREFIX,
-					MusicManager.fileType,
-					MusicManager.assembleMusicSet(civilisation, playAll));
+	private Thread musicThread;
+	private final SoundPlayer soundPlayer;
+	private final ECivilisation civilisation;
 
-			MusicManager.musicThread.start();
+	public MusicManager(SoundPlayer soundPlayer, ECivilisation civilisation) {
+		this.soundPlayer = soundPlayer;
+		this.civilisation = civilisation;
+		this.musicThread = null;
+	}
+
+	public boolean isRunning() {
+		return musicThread != null && !musicThread.isInterrupted() && musicThread.isAlive();
+	}
+
+	public void startMusic() {
+		if (MusicManager.lookupPath != null) {
+			if (!isRunning()) {
+				musicThread = new Thread(this);
+				musicThread.setName("MusicThread");
+				musicThread.setDaemon(true);
+				musicThread.start();
+			}
 		}
 	}
 
-	public static void stopMusicThread() {
+	public void stopMusic() {
 		if (MusicManager.lookupPath != null) {
-			MusicManager.musicThread.cancel();
+			if (isRunning()) {
+				soundPlayer.stopMusic();
+				musicThread.interrupt();
+			}
 		}
 	}
 
-	public static void setMusicVolume(final int volume) {
-		if (MusicManager.lookupPath != null) {
-			musicPlayer.setVolume(volume);
+	public void setMusicVolume(float volume, boolean relative) {
+		if (MusicManager.lookupPath != null && isRunning()) {
+			soundPlayer.setMusicVolume(volume, relative);
 		}
 	}
 
-	private static String[] assembleMusicSet(final ECivilisation civilisation, final boolean playAll) {
+	private String[] assembleMusicSet(final ECivilisation civilisation, final boolean playAll) {
 		List<String> list = new ArrayList<String>();
 
 		if (playAll) {
@@ -108,5 +116,21 @@ public final class MusicManager {
 		Collections.shuffle(list);
 
 		return list.toArray(new String[0]);
+	}
+
+	@Override
+	public void run() {
+		int trackIndex = 0;
+		String[] musicSet = this.assembleMusicSet(civilisation, soundPlayer.isMusicPlayAll());
+
+		while (!Thread.currentThread().isInterrupted()) {
+			File musicFile = new File(MusicManager.lookupPath.getAbsolutePath() + "\\" + MusicManager.MUSIC_FILE_PREFIX + musicSet[trackIndex] + "." + MusicManager.fileType);
+			this.soundPlayer.playMusic(musicFile);
+			trackIndex++;
+
+			if (trackIndex == musicSet.length) {
+				trackIndex = 0;
+			}
+		}
 	}
 }

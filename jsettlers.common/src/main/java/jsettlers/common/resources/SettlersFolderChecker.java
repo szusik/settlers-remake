@@ -16,7 +16,6 @@ package jsettlers.common.resources;
 
 import java.io.File;
 
-import jsettlers.common.music.MusicManager;
 import jsettlers.common.utils.FileUtils;
 import jsettlers.common.utils.mutables.Mutable;
 
@@ -88,8 +87,8 @@ public final class SettlersFolderChecker {
 				});
 			} else if (FileUtils.nameEqualsIgnoringCase("MAP", currentFolder)) {
 				mapsFolder.object = currentFolder;
-			} else if (FileUtils.nameEqualsIgnoringCase(MusicManager.ULTIMATE_EDITION_MUSIC_FOLDER_NAME, currentFolder) ||
-					FileUtils.nameEqualsIgnoringCase(MusicManager.HISTORY_EDITION_MUSIC_FOLDER_NAME, currentFolder)) {
+			} else if (FileUtils.nameEqualsIgnoringCase("MUSIC", currentFolder) || //ultimate edition music folder
+					FileUtils.nameEqualsIgnoringCase("Theme", currentFolder)) { //history edition music folder
 				musicFolder.object = currentFolder;
 			}
 		});

@@ -63,7 +63,6 @@ import jsettlers.common.movable.ESoldierType;
 import jsettlers.common.movable.ESpellType;
 import jsettlers.common.movable.IIDable;
 import jsettlers.common.movable.IGraphicsMovable;
-import jsettlers.common.music.MusicManager;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
@@ -151,8 +150,6 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 		}
 		clock.setTaskExecutor(new GuiTaskExecutor(grid, this, this.playerId));
 		connector.addListener(this);
-
-		MusicManager.startMusicThread(player.getCivilisation(), false);
 	}
 
 	@Override
@@ -388,7 +385,6 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 				break;
 
 			case EXIT:
-				MusicManager.stopMusicThread();
 				gameStoppable.stopGame();
 				break;
 

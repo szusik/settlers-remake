@@ -53,6 +53,8 @@ public class SettingsManager implements ISoundSettingsProvider {
 	private static final String SETTING_LOCALE = "locale";
 	private static final String SETTING_SERVER = "server";
 	private static final String SETTING_VOLUME = "volume";
+	private static final String SETTING_VOLUME_MUSIC = "volume-music";
+	private static final String SETTING_MUSIC_PLAYALL = "music-playall";
 	private static final String SETTING_FULL_SCREEN_MODE = "fullScreenMode";
 
 	private static final String SETTING_GRAPHICS_DEBUG = "debug-opengl";
@@ -186,6 +188,20 @@ public class SettingsManager implements ISoundSettingsProvider {
 		return 1;
 	}
 
+	public float getMusicVolume() {
+		String volumeString = get(SETTING_VOLUME_MUSIC);
+		try {
+			float volume = volumeString != null ? Float.parseFloat(volumeString) : 0.3f;
+			return Math.min(Math.max(volume, 0), 1);
+		} catch (NumberFormatException e) {
+		}
+		return 1;
+	}
+
+	public boolean isMusicPlayAll() {
+		return Boolean.parseBoolean(get(SETTING_MUSIC_PLAYALL));
+	}
+
 	public int getFpsLimit() {
 		String fpsLimitString = get(SETTING_FPS_LIMIT);
 		try {
@@ -201,6 +217,14 @@ public class SettingsManager implements ISoundSettingsProvider {
   }
 	public void setVolume(float volume) {
 		set(SETTING_VOLUME, Float.toString(volume));
+	}
+
+	public void setMusicVolume(float volume) {
+		set(SETTING_VOLUME_MUSIC, Float.toString(volume));
+	}
+
+	public void setMusicPlayAll(boolean playall) {
+		set(SETTING_MUSIC_PLAYALL, Boolean.toString(playall));
 	}
 
 	public void setFpsLimit(int fpsLimit) {set(SETTING_FPS_LIMIT,Integer.toString(fpsLimit));}

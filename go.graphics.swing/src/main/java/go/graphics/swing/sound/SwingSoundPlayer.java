@@ -14,19 +14,27 @@
  *******************************************************************************/
 package go.graphics.swing.sound;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.BooleanControl;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import go.graphics.sound.ForgettingQueue;
 import go.graphics.sound.ForgettingQueue.Sound;
 import go.graphics.sound.ISoundDataRetriever;
 import go.graphics.sound.SoundPlayer;
+
+import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
+import static javax.sound.sampled.AudioSystem.getAudioInputStream;
 
 public class SwingSoundPlayer implements SoundPlayer {
 	private static final int BUFFER_SIZE = 4048 * 4;
@@ -35,6 +43,8 @@ public class SwingSoundPlayer implements SoundPlayer {
 	private final ISoundSettingsProvider soundSettingsProvider;
 	private ForgettingQueue<Integer> queue = new ForgettingQueue<>();
 	private ISoundDataRetriever soundDataRetriever;
+	private SourceDataLine musicLine;
+	private float musicVolume;
 
 	public SwingSoundPlayer(ISoundSettingsProvider soundSettingsProvider) {
 		this.soundSettingsProvider = soundSettingsProvider;
@@ -42,6 +52,9 @@ public class SwingSoundPlayer implements SoundPlayer {
 		for (int i = 0; i < SOUND_THREADS; i++) {
 			new Thread(soundGroup, new SoundPlayerTask(), "soundplayer" + i).start();
 		}
+
+		this.musicLine = null;
+		this.musicVolume = soundSettingsProvider.getMusicVolume();
 	}
 
 	@Override
@@ -130,5 +143,93 @@ public class SwingSoundPlayer implements SoundPlayer {
 	@Override
 	public void setSoundDataRetriever(ISoundDataRetriever soundDataRetriever) {
 		this.soundDataRetriever = soundDataRetriever;
+	}
+
+	/**
+	 * Music
+	 *
+	 */
+	public void playMusic(final File musicFile) {
+		try (final AudioInputStream in = getAudioInputStream(musicFile)) {
+
+			final AudioFormat outFormat = getMusicOutFormat(in.getFormat());
+			final DataLine.Info info = new DataLine.Info(SourceDataLine.class, outFormat);
+
+			try (final SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info)) {
+
+				if (line != null) {
+					this.musicLine = line;
+
+					line.open(outFormat);
+
+					if (this.musicVolume == 0f && soundSettingsProvider.getMusicVolume() != 0f) {
+						this.musicVolume = 0.3f;
+					}
+					setMusicVolume(this.musicVolume, false);
+
+					line.start();
+					streamMusic(getAudioInputStream(outFormat, in), line);
+					line.drain();
+					line.stop();
+				}
+			}
+		} catch (UnsupportedAudioFileException
+				| LineUnavailableException
+				| IOException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	private AudioFormat getMusicOutFormat(final AudioFormat inFormat) {
+		final int ch = inFormat.getChannels();
+		final float rate = inFormat.getSampleRate();
+		return new AudioFormat(PCM_SIGNED, rate, 16, ch, ch * 2, rate, false);
+	}
+
+	private void streamMusic(final AudioInputStream in, final SourceDataLine line)
+			throws IOException {
+		final byte[] buffer = new byte[65536];
+		for (int n = 0; n != -1; n = in.read(buffer, 0, buffer.length)) {
+			line.write(buffer, 0, n);
+		}
+	}
+
+	public void stopMusic() {
+		if (this.musicLine != null) {
+			musicLine.stop();
+			musicLine.close();
+		}
+	}
+
+	public void setMusicVolume(float volume, boolean relative) {
+		if (this.musicLine != null) {
+			try {
+				FloatControl gainControl = (FloatControl) this.musicLine.getControl(FloatControl.Type.MASTER_GAIN);
+				BooleanControl muteControl = (BooleanControl) this.musicLine.getControl(BooleanControl.Type.MUTE);
+
+				if (relative) {
+					this.musicVolume += volume;
+				} else {
+					this.musicVolume = volume;
+				}
+
+				if (this.musicVolume <= 0f) {
+					muteControl.setValue(true);
+					this.musicVolume = 0f;
+				} else {
+					if (this.musicVolume > 1f) {
+						this.musicVolume = 1f;
+					}
+					muteControl.setValue(false);
+					gainControl.setValue((float) (Math.log(this.musicVolume) / Math.log(10.0) * 20.0));
+				}
+			} catch (Exception ex) {
+				System.out.println("unable to set the volume to the provided source");
+			}
+		}
+	}
+
+	public boolean isMusicPlayAll() {
+		return soundSettingsProvider.isMusicPlayAll();
 	}
 }

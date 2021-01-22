@@ -101,6 +101,15 @@ public class MainPanel extends UIPanel {
 		}
 	};
 
+	private final LabeledButton musicOnOff = new LabeledButton(Labels.getString("game-menu-music"), new Action(EActionType.MUSIC_ON_OFF)) {
+		@Override
+		public boolean isActive() {
+			return game.getGameTimeProvider().isGamePausing();
+		}
+	};
+
+	private final CountArrows changeMusicVolumeArrows = new CountArrows(() -> new Action(EActionType.MUSIC_VOLUME_UP), () -> new Action(EActionType.MUSIC_VOLUME_DOWN));
+
 	private final LabeledButton exitButton = new LabeledButton(Labels.getString("game-menu-quit"), new Action(EActionType.EXIT));
 	private final LabeledButton saveButton = new LabeledButton(Labels.getString("game-menu-save"), new Action(EActionType.SAVE));
 	private final LabeledButton cancelButton = new LabeledButton(Labels.getString("game-menu-cancel"), new ExecutableAction() {
@@ -114,6 +123,9 @@ public class MainPanel extends UIPanel {
 		gamePanel.addChild(changeSpeedArrows, .1f, .9f, .25f, 1f);
 		gamePanel.addChild(pausedButton, .25f, .9f, .60f, 1f);
 		gamePanel.addChild(speedLabel, .60f, .9f, .9f, 1f);
+
+		gamePanel.addChild(musicOnOff, .25f, .75f, .9f, .85f);
+		gamePanel.addChild(changeMusicVolumeArrows, .1f, .75f, .25f, .85f);
 
 		gamePanel.addChild(saveButton, .1f, .34f, .9f, .44f);
 		gamePanel.addChild(exitButton, .1f, .22f, .9f, .32f);
