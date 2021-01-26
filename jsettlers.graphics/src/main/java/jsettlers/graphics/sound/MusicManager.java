@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import java8.util.Lists;
+import java8.util.Lists2;
 import jsettlers.common.player.ECivilisation;
 import go.graphics.sound.SoundPlayer;
 
@@ -19,79 +21,43 @@ import go.graphics.sound.SoundPlayer;
  */
 public final class MusicManager implements Runnable {
 
-	public final static String ULTIMATE_EDITION_MUSIC_FOLDER_NAME = "MUSIC";
-	public final static String HISTORY_EDITION_MUSIC_FOLDER_NAME = "Theme";
-
-	private final static String ULTIMATE_EDITION_FILE_TYPE = "ogg";
-	private final static String HISTORY_EDITION_FILE_TYPE = "mp3";
-
-	private final static String MUSIC_FILE_PREFIX = "Track";
-
-	// private final static int[] CIVILISATION = {0, 1, 2, 3, 4}; //roman, egyptian, asian, amazon, unknown
 	private final static String[][] ULTIMATE_EDITION_MUSIC_SET = { { "02", "03", "12" }, { "06", "07", "14" }, { "04", "05", "13" }, { "08", "09", "10" }, { "11" } };
 	private final static String[][] HISTORY_EDITION_MUSIC_SET = { { "02", "03", "04" }, { "05", "06", "07" }, { "08", "09", "10" }, { "13", "14", "15" }, { "11", "12" } };
 
-	private static File lookupPath;
-	private static String fileType;
-	private static String[][] musicSet;
-
-	static {
-		MusicManager.lookupPath = null;
-		MusicManager.fileType = null;
-		MusicManager.musicSet = null;
-	}
+	private static File lookupPath = null;
 
 	public static void setLookupPath(final File lookupPath) {
-		boolean valid = false;
-
-		if (lookupPath.getName().equals(MusicManager.HISTORY_EDITION_MUSIC_FOLDER_NAME)) {
-			MusicManager.fileType = MusicManager.HISTORY_EDITION_FILE_TYPE;
-			MusicManager.musicSet = MusicManager.HISTORY_EDITION_MUSIC_SET;
-			valid = true;
-		} else if (lookupPath.getName().equals(MusicManager.ULTIMATE_EDITION_MUSIC_FOLDER_NAME)) {
-			MusicManager.fileType = MusicManager.ULTIMATE_EDITION_FILE_TYPE;
-			MusicManager.musicSet = MusicManager.ULTIMATE_EDITION_MUSIC_SET;
-			valid = true;
-		} else {
-			// throw new Exception("invalid music folder");
-		}
-
-		if (valid) {
-			MusicManager.lookupPath = lookupPath;
-		}
+		MusicManager.lookupPath = lookupPath;
 	}
 
-	private Thread musicThread;
+	private Thread musicThread = null;
 	private final SoundPlayer soundPlayer;
 	private final ECivilisation civilisation;
+	private boolean paused = true;
 
 	public MusicManager(SoundPlayer soundPlayer, ECivilisation civilisation) {
 		this.soundPlayer = soundPlayer;
 		this.civilisation = civilisation;
-		this.musicThread = null;
 	}
 
 	public boolean isRunning() {
-		return musicThread != null && !musicThread.isInterrupted() && musicThread.isAlive();
+		return !paused;
 	}
 
 	public void startMusic() {
-		if (MusicManager.lookupPath != null) {
-			if (!isRunning()) {
-				musicThread = new Thread(this);
-				musicThread.setName("MusicThread");
-				musicThread.setDaemon(true);
-				musicThread.start();
-			}
+		if(!isRunning()) {
+			paused = false;
+			musicThread = new Thread(this);
+			musicThread.setName("MusicThread");
+			musicThread.setDaemon(true);
+			musicThread.start();
 		}
 	}
 
 	public void stopMusic() {
-		if (MusicManager.lookupPath != null) {
-			if (isRunning()) {
-				soundPlayer.stopMusic();
-				musicThread.interrupt();
-			}
+		if (isRunning()) {
+			paused = true;
+			soundPlayer.stopMusic();
 		}
 	}
 
@@ -101,34 +67,49 @@ public final class MusicManager implements Runnable {
 		}
 	}
 
-	private String[] assembleMusicSet(final ECivilisation civilisation, final boolean playAll) {
-		List<String> list = new ArrayList<String>();
+	private List<File> assembleMusicSet(final ECivilisation civilisation, final boolean playAll) {
+		// there are no music files available
+		if(lookupPath == null || !lookupPath.exists()) return Lists2.of();
 
-		if (playAll) {
-			for (int i = 0; i < MusicManager.musicSet.length; i++) {
-				list.addAll(Arrays.asList(MusicManager.musicSet[i]));
+
+		List<File> list = new ArrayList<>();
+		// just take all mp3 and ogg files
+		if(playAll) {
+			list.addAll(Arrays.asList(lookupPath.listFiles((file, name) -> name.endsWith(".mp3") || name.endsWith(".ogg"))));
+		} else if(lookupPath.getName().equals("Theme")) { // history edition
+			for(String fileName : HISTORY_EDITION_MUSIC_SET[civilisation.ordinal]) {
+				File file = new File(lookupPath, "Track" + fileName + ".mp3");
+				if(file.exists()) list.add(file);
 			}
 		} else {
-			list.addAll(Arrays.asList(MusicManager.musicSet[civilisation.getFileIndex() - 1]));
+			// ultimate edition
+			for(String fileName : ULTIMATE_EDITION_MUSIC_SET[civilisation.ordinal]) {
+				File file = new File(lookupPath, "Track" + fileName + ".ogg");
+				if(file.exists()) list.add(file);
+			}
+		}
+
+		// this music folder is custom made
+		if(list.isEmpty()) {
+			list.addAll(Arrays.asList(lookupPath.listFiles((file, name) -> name.matches(civilisation.name() + ".\\d*.(mp3|ogg)"))));
 		}
 
 		// shuffle list so we don't get bored :)
 		Collections.shuffle(list);
 
-		return list.toArray(new String[0]);
+		return list;
 	}
 
 	@Override
 	public void run() {
 		int trackIndex = 0;
-		String[] musicSet = this.assembleMusicSet(civilisation, soundPlayer.isMusicPlayAll());
+		List<File> musicSet = this.assembleMusicSet(civilisation, soundPlayer.isMusicPlayAll());
 
-		while (!Thread.currentThread().isInterrupted()) {
-			File musicFile = new File(MusicManager.lookupPath.getAbsolutePath() + "\\" + MusicManager.MUSIC_FILE_PREFIX + musicSet[trackIndex] + "." + MusicManager.fileType);
-			this.soundPlayer.playMusic(musicFile);
+		while (!paused) {
+			this.soundPlayer.playMusic(musicSet.get(trackIndex));
 			trackIndex++;
 
-			if (trackIndex == musicSet.length) {
+			if (trackIndex == musicSet.size()) {
 				trackIndex = 0;
 			}
 		}
