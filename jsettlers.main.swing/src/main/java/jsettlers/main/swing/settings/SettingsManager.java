@@ -76,6 +76,8 @@ public class SettingsManager implements ISoundSettingsProvider {
 
 	public static void setup(String... args) throws IOException {
 		manager = new SettingsManager(args);
+
+		CommonConstants.PLAYALL_MUSIC = manager::isMusicPlayAll;
 	}
 
 	public static SettingsManager getInstance() {

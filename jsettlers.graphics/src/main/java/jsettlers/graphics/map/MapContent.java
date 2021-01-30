@@ -1000,11 +1000,12 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 				musicManager.startMusic();
 			}
 			break;
+			// TODO find a good way to do this
 		case MUSIC_VOLUME_UP:
-			musicManager.setMusicVolume(0.05f, true);
+			//musicManager.setMusicVolume(0.05f, true);
 			break;
 		case MUSIC_VOLUME_DOWN:
-			musicManager.setMusicVolume(-0.05f, true);
+			//musicManager.setMusicVolume(-0.05f, true);
 			break;
 		default:
 			break;

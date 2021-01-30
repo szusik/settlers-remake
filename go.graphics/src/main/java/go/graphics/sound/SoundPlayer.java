@@ -19,8 +19,6 @@ import java.io.File;
 public interface SoundPlayer {
 	/**
 	 * Starts to play a sound.
-	 * <p>
-	 * Blocks until the sound is played.
 	 * 
 	 * @param soundStart
 	 * @param leftVolume
@@ -30,8 +28,5 @@ public interface SoundPlayer {
 
 	void setSoundDataRetriever(ISoundDataRetriever soundDataRetriever);
 
-	void playMusic(final File musicFile);
-	void stopMusic();
-	void setMusicVolume(float volume, boolean relative);
-	boolean isMusicPlayAll();
+	SoundHandle openSound(File musicFile);
 }

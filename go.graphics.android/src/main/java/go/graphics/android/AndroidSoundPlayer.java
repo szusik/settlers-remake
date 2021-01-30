@@ -17,13 +17,18 @@ package go.graphics.android;
 import go.graphics.sound.ForgettingQueue;
 import go.graphics.sound.ForgettingQueue.Sound;
 import go.graphics.sound.ISoundDataRetriever;
+import go.graphics.sound.SoundHandle;
 import go.graphics.sound.SoundPlayer;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 
 public class AndroidSoundPlayer implements SoundPlayer {
 	private static final int SAMPLERATE = 22050;
@@ -34,11 +39,15 @@ public class AndroidSoundPlayer implements SoundPlayer {
 
 	private boolean paused;
 
+	private final SoundPool musicPlayback;
+
 	public AndroidSoundPlayer(int parallelSounds) {
 		ThreadGroup soundgroup = new ThreadGroup("soundplayer");
 		for (int i = 0; i < parallelSounds; i++) {
 			new Thread(soundgroup, new PlaySoundTask(), "soundplayer" + i).start();
 		}
+
+		musicPlayback = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 	}
 
 	@Override
@@ -55,8 +64,8 @@ public class AndroidSoundPlayer implements SoundPlayer {
 	private class PlaySoundTask implements Runnable {
 		@Override
 		public void run() {
-			int bufferSize = AudioTrack.getMinBufferSize(SAMPLERATE, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
-			AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLERATE, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+			int bufferSize = AudioTrack.getMinBufferSize(SAMPLERATE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+			AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLERATE, AudioFormat.CHANNEL_OUT_MONO,
 					AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
 			track.play();
 			try {
@@ -76,9 +85,16 @@ public class AndroidSoundPlayer implements SoundPlayer {
 				}
 			} catch (InterruptedException e) {
 				// exit
+			} finally {
+				track.release();
 			}
 		}
 
+	}
+
+	@Override
+	public SoundHandle openSound(File musicFile) {
+		return null;
 	}
 
 	@Override
@@ -88,6 +104,10 @@ public class AndroidSoundPlayer implements SoundPlayer {
 
 	public void setPaused(boolean paused) {
 		this.paused = paused;
+		if(paused) {
+			musicPlayback.autoPause();
+		} else {
+			musicPlayback.autoResume();
+		}
 	}
-
 }

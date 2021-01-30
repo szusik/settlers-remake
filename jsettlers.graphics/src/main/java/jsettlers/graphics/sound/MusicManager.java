@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import java8.util.Lists;
+import go.graphics.sound.SoundHandle;
 import java8.util.Lists2;
+import jsettlers.common.CommonConstants;
 import jsettlers.common.player.ECivilisation;
 import go.graphics.sound.SoundPlayer;
 
@@ -15,7 +17,7 @@ import go.graphics.sound.SoundPlayer;
  *
  * music management of different s3 versions, provides CIVILISATION specific music management
  *
- * TODO: PC only so far, add ingame gui config, validate music files and integrate exception handling
+ * TODO: validate music files and integrate exception handling
  *
  * @author MarviMarv
  */
@@ -34,6 +36,8 @@ public final class MusicManager implements Runnable {
 	private final SoundPlayer soundPlayer;
 	private final ECivilisation civilisation;
 	private boolean paused = true;
+	private SoundHandle activeTrack = null;
+	private float volume;
 
 	public MusicManager(SoundPlayer soundPlayer, ECivilisation civilisation) {
 		this.soundPlayer = soundPlayer;
@@ -56,14 +60,30 @@ public final class MusicManager implements Runnable {
 
 	public void stopMusic() {
 		if (isRunning()) {
+			if(activeTrack != null) activeTrack.pause();
 			paused = true;
-			soundPlayer.stopMusic();
+
+			synchronized (this) {
+				notify();
+			}
+
+			try {
+				musicThread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void setMusicVolume(float volume, boolean relative) {
-		if (MusicManager.lookupPath != null && isRunning()) {
-			soundPlayer.setMusicVolume(volume, relative);
+		if(relative) {
+			this.volume += volume;
+		} else {
+			this.volume = volume;
+		}
+
+		if (isRunning() && activeTrack != null) {
+			activeTrack.setVolume(volume);
 		}
 	}
 
@@ -103,15 +123,46 @@ public final class MusicManager implements Runnable {
 	@Override
 	public void run() {
 		int trackIndex = 0;
-		List<File> musicSet = this.assembleMusicSet(civilisation, soundPlayer.isMusicPlayAll());
+		List<SoundHandle> musicSet = new ArrayList<>();
+		for(File musicFile : assembleMusicSet(civilisation, CommonConstants.PLAYALL_MUSIC.get())) {
+			musicSet.add(soundPlayer.openSound(musicFile));
+		}
+
+		// nothing to do here
+		if(musicSet.isEmpty()) return;
 
 		while (!paused) {
-			this.soundPlayer.playMusic(musicSet.get(trackIndex));
+			activeTrack = musicSet.get(trackIndex);
+
+			activeTrack.setVolume(volume);
+			activeTrack.start();
+
+			// wait until the track is completed or we are killed
+			try {
+				long until = activeTrack.getPlaybackDuration() + System.currentTimeMillis();
+				while(true) {
+					long delta = until - System.currentTimeMillis();
+					if(delta <= 0 || paused) break;
+
+					wait(delta);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			activeTrack = null;
+
 			trackIndex++;
+
 
 			if (trackIndex == musicSet.size()) {
 				trackIndex = 0;
 			}
+		}
+
+		// cleanup music files
+		for(SoundHandle handle : musicSet) {
+			handle.dismiss();
 		}
 	}
 }

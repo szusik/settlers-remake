@@ -14,6 +14,8 @@
  *******************************************************************************/
 package jsettlers.common;
 
+import java8.util.function.Supplier;
+
 public abstract class CommonConstants {
 	/**
 	 * A byte value indicating that the given position is visible.
@@ -85,4 +87,6 @@ public abstract class CommonConstants {
 	 * Disables the checksum test for original maps.
 	 */
 	public static boolean DISABLE_ORIGINAL_MAPS_CHECKSUM = false;
+
+	public static Supplier<Boolean> PLAYALL_MUSIC = () -> false;
 }
