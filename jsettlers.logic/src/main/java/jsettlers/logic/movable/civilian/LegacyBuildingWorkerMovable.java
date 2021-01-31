@@ -65,7 +65,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.WAIT),
-							BehaviorTreeHelper.sleep(1000),
+							BehaviorTreeHelper.sleep(mov -> (int)(mov.currentJob.getTime()*1000)),
 							jobFinishedNode()
 						),
 						sequence(
@@ -105,7 +105,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.DROP_POPPED),
-							nodeToJob(dropProduced(mov -> mov.currentJob.getMaterial()))
+							nodeToJob(dropProduced(mov -> mov.poppedMaterial))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PRE_SEARCH),
