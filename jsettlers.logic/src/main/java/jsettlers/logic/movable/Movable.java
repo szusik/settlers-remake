@@ -1010,7 +1010,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	@Override
 	public final boolean isAlive() {
-		return health > 0;
+		return state != EMovableState.DEAD;
 	}
 
 	@Override
@@ -1072,7 +1072,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected int getEffectTime(EEffectType effect) {
-		if(!effectEnd.containsKey(effect)) return -1;
+		if(!effectEnd.containsKey(effect)) return -MatchConstants.clock().getTime();
 		return effectEnd.get(effect) - MatchConstants.clock().getTime();
 	}
 
