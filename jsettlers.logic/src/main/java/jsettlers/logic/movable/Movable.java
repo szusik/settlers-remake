@@ -62,7 +62,9 @@ import jsettlers.logic.movable.specialist.PioneerMovable;
 import jsettlers.logic.movable.specialist.ThiefMovable;
 import jsettlers.logic.player.Player;
 
+import java.util.EnumMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
@@ -87,7 +89,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	private EMaterialType  materialType  = EMaterialType.NO_MATERIAL;
 	private EMovableAction movableAction = EMovableAction.NO_ACTION;
 	private EDirection     direction;
-	private int[] effectEnd = new int[EEffectType.values().length];
+	private final Map<EEffectType, Integer> effectEnd = new EnumMap<>(EEffectType.class);
 
 	private int   animationStartTime;
 	private short animationDuration;
@@ -430,7 +432,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	@Override
 	public int timerEvent() {
-		if (state == EMovableState.DEAD) {
+		if (!isAlive()) {
 			return -1;
 		}
 
@@ -657,7 +659,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 */
 	@Override
 	public boolean push(ILogicMovable pushingMovable) {
-		if (state == EMovableState.DEAD) {
+		if (!isAlive()) {
 			return false;
 		}
 
@@ -901,7 +903,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 */
 	@Override
 	public final void kill() {
-		if(state == EMovableState.DEAD) return;
+		if(!isAlive()) return;
 
 		decoupleMovable();
 
@@ -913,7 +915,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected void decoupleMovable() {
-		if (state == EMovableState.DEAD) {
+		if (!isAlive()) {
 			return; // this movable already died.
 		}
 
@@ -1061,16 +1063,16 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	public void addEffect(EEffectType effect) {
-		effectEnd[effect.ordinal()] = effect.getTime()*1000 + MatchConstants.clock().getTime();
+		effectEnd.put(effect, effect.getTime()*1000 + MatchConstants.clock().getTime());
 	}
 
 	@Override
 	public boolean hasEffect(EEffectType effect) {
-		return effectEnd[effect.ordinal()] >= MatchConstants.clock().getTime();
+		return effectEnd.get(effect) >= MatchConstants.clock().getTime();
 	}
 
 	protected int getEffectTime(EEffectType effect) {
-		return effectEnd[effect.ordinal()] - MatchConstants.clock().getTime();
+		return effectEnd.get(effect) - MatchConstants.clock().getTime();
 	}
 
 	protected static <T extends Movable> Guard<T> handleFrozenEffect() {

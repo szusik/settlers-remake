@@ -326,7 +326,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 			return true;
 		} else {
 			nextPatient = null;
-			if(movable != null) movable.push(this);
+			if(movable != null) movable.leavePosition();
 			return false;
 		}
 	}
