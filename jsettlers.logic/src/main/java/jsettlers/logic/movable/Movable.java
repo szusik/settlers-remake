@@ -1068,10 +1068,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	@Override
 	public boolean hasEffect(EEffectType effect) {
-		return effectEnd.get(effect) >= MatchConstants.clock().getTime();
+		return getEffectTime(effect) > 0;
 	}
 
 	protected int getEffectTime(EEffectType effect) {
+		if(!effectEnd.containsKey(effect)) return -1;
 		return effectEnd.get(effect) - MatchConstants.clock().getTime();
 	}
 
