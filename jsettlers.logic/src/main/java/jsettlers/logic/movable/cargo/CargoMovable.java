@@ -50,7 +50,7 @@ public abstract class CargoMovable extends AttackableMovable {
 									ShortPoint2D nextPosition = mov.waypoints.next();
 									return mov.preSearchPath(true, nextPosition.x, nextPosition.y, mov.getWaypointSearchRadius(), ESearchType.VALID_FREE_POSITION);
 								}),
-								followPresearchedPath((mov2) -> !((CargoMovable)mov2).lostCargo)
+								followPresearchedPath((mov2) -> !mov2.lostCargo)
 							)
 						)),
 						BehaviorTreeHelper.action(CargoMovable::dropMaterialIfPossible)

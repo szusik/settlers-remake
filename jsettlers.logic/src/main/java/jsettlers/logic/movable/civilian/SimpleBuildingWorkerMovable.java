@@ -175,7 +175,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 							selector(
 								//try taking fish
 								condition(mov -> {
-									SimpleBuildingWorkerMovable smov = (SimpleBuildingWorkerMovable) mov;
+									SimpleBuildingWorkerMovable smov = mov;
 									return smov.grid.tryTakingResource(smov.getDirection().getNextHexPoint(smov.position), EResourceType.FISH);
 								}),
 								sequence(// fishing failed

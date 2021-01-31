@@ -49,7 +49,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 		enemyNearby = true; // might not actually be true
 	}
 	
-	private static Root<SoldierMovable> behaviour = new Root<>(createSoldierBehaviour());
+	private static final Root<SoldierMovable> behaviour = new Root<>(createSoldierBehaviour());
 
 	private static Node<SoldierMovable> createSoldierBehaviour() {
 		return guardSelector(
@@ -188,7 +188,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 						})
 					)
 				),
-				guard(mov -> !((SoldierMovable)mov).isInTower,
+				guard(mov -> !mov.isInTower,
 					doingNothingAction()
 				)
 		);

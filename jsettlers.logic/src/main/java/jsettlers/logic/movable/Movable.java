@@ -284,13 +284,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> followPresearchedPathMarkTarget(IBooleanConditionFunction<T> pathStep) {
 		return resetAfter(mov -> {
-					Movable mmov = (Movable) mov;
+					Movable mmov = mov;
 					mmov.grid.setMarked(mmov.markedTarget, false);
 					mmov.markedTarget = null;
 				},
 				sequence(
 					BehaviorTreeHelper.action(mov -> {
-						Movable mmov = (Movable) mov;
+						Movable mmov = mov;
 						mmov.markedTarget = mmov.path.getTargetPosition();
 						mmov.grid.setMarked(mmov.markedTarget, true);
 					}),
@@ -602,7 +602,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				sequence(
 					condition(Movable::isShip),
 					BehaviorTreeHelper.action(Movable::pushShips),
-					sleep(mov -> ((Movable)mov).flockDelay)
+					sleep(mov -> mov.flockDelay)
 				),
 				sequence(
 					condition(mov -> mov.grid.isBlockedOrProtected(mov.position.x, mov.position.y)),
@@ -642,7 +642,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 							mov.lookInDirection(mov.getDirection().getNeighbor(turnDirection));
 						}
 					}),
-					sleep(mov -> ((Movable)mov).flockDelay)
+					sleep(mov -> mov.flockDelay)
 				)
 		);
 	}

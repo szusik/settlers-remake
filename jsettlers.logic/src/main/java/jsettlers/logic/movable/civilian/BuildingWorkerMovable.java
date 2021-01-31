@@ -6,7 +6,6 @@ import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
-import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.landscape.EResourceType;
@@ -16,7 +15,6 @@ import jsettlers.common.material.ESearchType;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableWorker;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IWorkerRequestBuilding;
@@ -48,7 +46,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		);
 	}
 	protected static <T extends BuildingWorkerMovable> Node<T> lookAtSearched(ESearchType searchType) {
-		return setDirectionNode(mov -> ((BuildingWorkerMovable)mov).grid.getDirectionOfSearched(mov.getPosition(), searchType));
+		return setDirectionNode(mov -> mov.grid.getDirectionOfSearched(mov.getPosition(), searchType));
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> executeSearch(ESearchType searchType) {
@@ -80,15 +78,15 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	protected static <T extends BuildingWorkerMovable> Node<T> enterHome() {
 		return sequence(
 				// I am not sure if the repeat structure is actually necessary but it won't hurt
-				repeat(mov -> !((BuildingWorkerMovable)mov).building.getDoor().equals(((BuildingWorkerMovable)mov).getPosition()),
+				repeat(mov -> !mov.building.getDoor().equals(mov.getPosition()),
 						selector(
-								goToPos(mov -> ((BuildingWorkerMovable)mov).building.getDoor(), BuildingWorkerMovable::tmpPathStep), // TODO
+								goToPos(mov -> mov.building.getDoor(), BuildingWorkerMovable::tmpPathStep), // TODO
 								sleep(1000)
 						)
 				),
 				hide()
 		);
-	};
+	}
 
 	protected static <T extends BuildingWorkerMovable> Guard<T> handleBuildingDestroyedGuard() {
 		return guard(mov -> mov.building != null && mov.building.isDestroyed(),
@@ -110,7 +108,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 
 	protected static <T extends BuildingWorkerMovable> Node<T> defaultWorkCycle(Node<T> doWork) {
 		return defaultFramework(
-			guard(mov -> ((BuildingWorkerMovable)mov).building != null,
+			guard(mov -> mov.building != null,
 				sequence(
 					enterHome(),
 					repeat(mov -> true, doWork)

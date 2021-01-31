@@ -23,7 +23,7 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class ThiefMovable extends AttackableHumanMovable implements IThiefMovable {
 
-	private BitSet uncoveredBy = new BitSet();
+	private final BitSet uncoveredBy = new BitSet();
 
 	private static final float ACTION1_DURATION = 1f;
 
