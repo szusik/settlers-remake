@@ -274,7 +274,8 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 						.forEach(sendEnemies::add);
 
 
-				sort(spellRegion()).filter((x, y) -> !grid.isBlockedOrProtected(x, y))
+				// the fitsSearchType only works with PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES and nothing else!
+				sort(spellRegion()).filter((x, y) -> !grid.fitsSearchType(this, x, y, ESearchType.NON_BLOCKED_OR_PROTECTED))
 						.forEach((x, y) -> {
 							ILogicMovable send = sendEnemies.poll();
 							if(send != null) {
@@ -296,7 +297,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 
 
 				sort(spellRegion(position, Constants.SPELL_EFFECT_RADIUS))
-						.filter((x, y) -> !grid.isBlockedOrProtected(x, y))
+						.filter((x, y) -> !grid.fitsSearchType(this, x, y, ESearchType.NON_BLOCKED_OR_PROTECTED))
 						.forEach((x, y) -> {
 						ILogicMovable send = callDefenders.poll();
 							if(send != null) {
