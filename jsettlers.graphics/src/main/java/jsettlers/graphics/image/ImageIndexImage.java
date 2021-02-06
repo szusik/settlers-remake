@@ -95,9 +95,9 @@ public class ImageIndexImage extends Image {
 	public void drawOnlyImageAt(GLDrawContext gl, float x, float y, float z, Color torsoColor, float fow) {
 		if(isTorso) {
 			draw(gl, geometryIndex, x, y, z, 1, 1, 1, torsoColor, fow);
+			torso.draw(gl, torso.geometryIndex, x, y, z, 1, 1, 1, torsoColor, fow);
 		} else {
 			draw(gl, geometryIndex, x, y, z, 1, 1, 1, null, fow);
-			torso.draw(gl, torso.geometryIndex, x, y, z, 1, 1, 1, torsoColor, fow);
 
 		}
 	}
