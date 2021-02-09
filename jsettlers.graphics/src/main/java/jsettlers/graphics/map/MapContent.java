@@ -222,6 +222,9 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private UIPoint currentSelectionAreaStart;
 	private IInGamePlayer localPlayer;
 
+	private long lastGametimeUpdate;
+	private int lastGametime;
+
 	public MapContent(IStartedGame game, SoundPlayer soundPlayer, ETextDrawPosition textDrawPosition) {
 		this(game, soundPlayer, textDrawPosition,null);
 	}
@@ -277,6 +280,9 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 
 		this.connector = new MapInterfaceConnector(this);
 		this.connector.addListener(this);
+
+		lastGametimeUpdate = System.nanoTime();
+		lastGametime = gameTimeProvider.getGameTime();
 	}
 
 	private void resizeTo(int newWindowWidth, int newWindowHeight) {
@@ -447,7 +453,20 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			return;
 		}
 
-		String fps = Labels.getString("map-fps", framerate.getRate());
+		long currentRealtime = System.nanoTime();
+		int currentGametime = gameTimeProvider.getGameTime();
+
+		// both are in ms
+		float deltaRealtime = (currentRealtime - lastGametimeUpdate)/1000.f/1000.f;
+		float deltaGametime = currentGametime - lastGametime;
+
+		// update reference only once a second. TODO remove the noise even further
+		if(deltaRealtime >= 1000) {
+			lastGametime = currentGametime;
+			lastGametimeUpdate = currentRealtime;
+		}
+
+		String fps = Labels.getString("map-fps", framerate.getRate(), deltaGametime/deltaRealtime);
 		long gameTime = gameTimeProvider.getGameTime() / 1000;
 		String timeString = Labels.getString("map-time", gameTime / 60 / 60, (gameTime / 60) % 60, (gameTime) % 60);
 
@@ -460,8 +479,8 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 
 		float sideXOffset = 2 * letterWidth;
 
-		drawer.drawString(getConfiguredX(sideXOffset, windowWidth, 7 * letterWidth), yFirstLine, fps);
-		drawer.drawString(getConfiguredX(sideXOffset + 9 * letterWidth, windowWidth, 9 * letterWidth), yFirstLine, timeString);
+		drawer.drawString(getConfiguredX(sideXOffset, windowWidth, fps.length() * letterWidth), yFirstLine, fps);
+		drawer.drawString(getConfiguredX(sideXOffset + (fps.length()+2) * letterWidth, windowWidth, 9 * letterWidth), yFirstLine, timeString);
 		drawer.drawString(getConfiguredX(sideXOffset, windowWidth, 7 * letterWidth), ySecondLine, CommitInfo.COMMIT_HASH_SHORT);
 	}
 
