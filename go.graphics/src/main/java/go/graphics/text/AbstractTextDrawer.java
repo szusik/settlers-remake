@@ -48,8 +48,9 @@ public abstract class AbstractTextDrawer<T extends GLDrawContext> {
 		charsBuilder.append("¡¿áéíñóú–"); // spanish
 		charsBuilder.append("óąćęŁłńŚśźŻż"); // polish
 
-		// TODO russian characters are breaking some characters like + for some reason
 		charsBuilder.append("АБВГДЖЗИКЛМНОПРСТУФХШабвгдежзийклмнопрстуфхцчшщыьэюяё"); // russian
+
+		// TODO add more language specific characters if needed
 
 
 		CHARACTERS = charsBuilder.toString();
@@ -118,7 +119,7 @@ public abstract class AbstractTextDrawer<T extends GLDrawContext> {
 		int max_len = getMaxLen();
 
 		tex_width = max_len;
-		tex_height = gentex_line_height*16;
+		tex_height = gentex_line_height*TEXTURE_LINE_COUNT;
 
 		setupBitmapDraw();
 
@@ -127,7 +128,7 @@ public abstract class AbstractTextDrawer<T extends GLDrawContext> {
 			for (int c = 0; c != TEXTURE_LINE_LEN; c++) {
 				int i = l*TEXTURE_LINE_LEN+c;
 				if(i == CHARACTER_COUNT) break;
-				drawChar(new char[]{CHARACTERS.charAt(i)}, line_offset, l * gentex_line_height);
+				drawChar(new char[]{CHARACTERS.charAt(i)}, line_offset, (l+1) * gentex_line_height);
 				line_offset += char_widths[i]+char_spacing;
 			}
 		}
@@ -161,7 +162,7 @@ public abstract class AbstractTextDrawer<T extends GLDrawContext> {
 				if(l*TEXTURE_LINE_LEN+c == CHARACTER_COUNT) break;
 
 				float dx = line_offset;
-				float dy = tex_height-(l*gentex_line_height+descent);
+				float dy = tex_height-((l+1)*gentex_line_height+descent);
 
 				float dw = char_widths[l*TEXTURE_LINE_LEN+c];
 				float dh = gentex_line_height;
