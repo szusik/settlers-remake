@@ -30,7 +30,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	private IOccupyableBuilding building;
 	protected boolean isInTower;
 	private ShortPoint2D inTowerAttackPosition;
-	private boolean defending;
+	protected boolean defending;
 
 	private ShortPoint2D currentTarget = null;
 	private ShortPoint2D goToTarget = null;

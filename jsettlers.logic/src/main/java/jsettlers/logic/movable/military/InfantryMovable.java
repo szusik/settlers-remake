@@ -18,7 +18,7 @@ public class InfantryMovable extends SoldierMovable {
 	protected boolean isEnemyAttackable() {
 		if(!enemy.isAlive()) return false;
 		int maxDistance = position.getOnGridDistTo(enemy.getPosition());
-		return (maxDistance == 1 || (!enemy.isTower() && getMovableType().isPikeman() && maxDistance <= 2));
+		return (maxDistance == 1 || (!enemy.isTower() && getMovableType().isPikeman() && maxDistance <= 2)) || (defending && maxDistance <= 3);
 	}
 
 	@Override
