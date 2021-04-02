@@ -170,17 +170,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 	}
 
-	protected void action() {
-		if(tick != null) {
-			NodeStatus status = NodeStatus.SUCCESS;
-
-			// continue behaviour if the previous run was successful
-			for(int i = 0; i < 2 && status == NodeStatus.SUCCESS && isAlive(); i++) {
-				status = tick.tick();
-			}
-		}
-	}
-
 	protected boolean checkPathStepPreconditions() {
 		if(pathStep != null && !pathStep.test(this)) {
 			aborted = true;
@@ -308,7 +297,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					mov.aborted = false;
 					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
 
-					assert mov.path != null : "path mustn't be null to be able to followPresearchedPath()!";
+					assert mov.path != null : "path must be non-null to be able to followPresearchedPath()!";
 					realMov.followPath(mov.path);
 				}),
 				waitFor(condition(mov -> mov.path == null)),
@@ -466,7 +455,14 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 
 		if (state == EMovableState.DOING_NOTHING) { // if movable is currently doing nothing
-			action();
+			if(tick != null) {
+				NodeStatus status = NodeStatus.SUCCESS;
+
+				// continue behaviour if the previous run was successful
+				for(int i = 0; i < 2 && status == NodeStatus.SUCCESS && isAlive(); i++) {
+					status = tick.tick();
+				}
+			}
 		}
 
 		if (state == EMovableState.DOING_NOTHING) {

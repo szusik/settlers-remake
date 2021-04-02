@@ -33,12 +33,12 @@ public final class BehaviorTreeHelper {
 		return debug(debugMessage, action(action));
 	}
 
-	public static <T> Action<T> action(INodeStatusActionFunction<T> action) {
+	public static <T> Action<T> action2(INodeStatusActionFunction<T> action) {
 		return new Action<>(action);
 	}
 
-	public static <T> Node<T> action(String debugMessage, INodeStatusActionFunction<T> action) {
-		return debug(debugMessage, action(action));
+	public static <T> Node<T> action2(String debugMessage, INodeStatusActionFunction<T> action) {
+		return debug(debugMessage, action2(action));
 	}
 
 	public static <T> Condition<T> condition(IBooleanConditionFunction<T> condition) {
