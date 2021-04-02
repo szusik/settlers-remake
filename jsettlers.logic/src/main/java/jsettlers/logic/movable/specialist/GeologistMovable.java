@@ -39,7 +39,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 		return guardSelector(
 				handleFrozenEffect(),
 				guard(mov -> mov.nextTarget != null,
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.currentTarget = null;
 						mov.goToTarget = null;
 
@@ -54,7 +54,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 				guard(mov -> mov.goToTarget != null,
 					sequence(
 						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null), // TODO
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.goToTarget = null;
 						})
 					)
@@ -65,21 +65,21 @@ public class GeologistMovable extends AttackableHumanMovable {
 							condition(mov -> mov.position.equals(mov.currentTarget)),
 							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
 						),
-						BehaviorTreeHelper.action(mov -> {mov.centerPos = mov.currentTarget;}),
+						action(mov -> {mov.centerPos = mov.currentTarget;}),
 						ignoreFailure(repeat(mov -> true,
 							sequence(
 								findWorkablePosition(),
 								resetAfter(mov -> mov.grid.setMarked(mov.currentTarget, false),
 
 									sequence(
-										BehaviorTreeHelper.action(mov -> {mov.grid.setMarked(mov.currentTarget, true);}),
+										action(mov -> {mov.grid.setMarked(mov.currentTarget, true);}),
 										goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null), // TODO
 										ignoreFailure(workOnPosition())
 									)
 								)
 							)
 						)),
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.currentTarget = null;
 							mov.centerPos = null;
 						})

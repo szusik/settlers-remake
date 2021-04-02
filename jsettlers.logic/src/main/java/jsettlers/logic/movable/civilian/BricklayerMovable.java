@@ -38,11 +38,11 @@ public class BricklayerMovable extends CivilianMovable implements IManageableBri
 						selector(
 							goToPos(mov -> mov.targetPosition, mov -> mov.constructionSite != null && mov.constructionSite.isBricklayerRequestActive()), // TODO
 							sequence(
-								BehaviorTreeHelper.action(BricklayerMovable::abortJob),
+								action(BricklayerMovable::abortJob),
 								alwaysFail()
 							)
 						),
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.lookInDirection(mov.lookDirection);
 						}),
 						repeat(mov -> true,
@@ -54,7 +54,7 @@ public class BricklayerMovable extends CivilianMovable implements IManageableBri
 					)
 				),
 				guard(mov -> !mov.registered,
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.constructionSite = null;
 						mov.registered = true;
 						mov.grid.addJobless(mov);

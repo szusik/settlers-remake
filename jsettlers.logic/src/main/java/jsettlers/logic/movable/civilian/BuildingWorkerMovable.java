@@ -37,7 +37,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 
 	protected static <T extends BuildingWorkerMovable> Node<T> dropProduced(IEMaterialTypeSupplier<T> material) {
 		return sequence(
-				BehaviorTreeHelper.action(mov -> {
+				action(mov -> {
 					if(material.apply(mov) == EMaterialType.GOLD) {
 						mov.getPlayer().getEndgameStatistic().incrementAmountOfProducedGold();
 					}
@@ -90,13 +90,13 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 
 	protected static <T extends BuildingWorkerMovable> Guard<T> handleBuildingDestroyedGuard() {
 		return guard(mov -> mov.building != null && mov.building.isDestroyed(),
-				BehaviorTreeHelper.action(BuildingWorkerMovable::buildingDestroyed)
+				action(BuildingWorkerMovable::buildingDestroyed)
 		);
 	}
 
 	protected static <T extends BuildingWorkerMovable> Guard<T> registerMovableGuard() {
 		return guard(mov -> !((BuildingWorkerMovable)mov).registered,
-				BehaviorTreeHelper.action(mov -> {
+				action(mov -> {
 					mov.dropCurrentMaterial();
 					mov.abortJob();
 					((BuildingWorkerMovable)mov).registered = true;
@@ -178,13 +178,13 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		return selector(
 				sequence(
 					preSearchPathNoWarning(dijkstra, searchType),
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.searchFailedCtr = 0;
 						mov.building.setCannotWork(false);
 					})
 				),
 				sequence(
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.searchFailedCtr++;
 
 						if (mov.searchFailedCtr > 10) {

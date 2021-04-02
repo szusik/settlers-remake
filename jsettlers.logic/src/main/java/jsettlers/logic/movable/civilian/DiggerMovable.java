@@ -40,19 +40,19 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 								resetAfter(
 									mov -> mov.grid.setMarked(mov.targetPosition, false),
 									sequence(
-										BehaviorTreeHelper.action(mov -> {mov.grid.setMarked(mov.targetPosition, true);}),
+										action(mov -> {mov.grid.setMarked(mov.targetPosition, true);}),
 										goToPos(mov -> mov.targetPosition, mov -> mov.requester != null && mov.requester.isDiggerRequestActive()), // TODO
 										playAction(EMovableAction.ACTION1, (short)1000),
-										BehaviorTreeHelper.action(DiggerMovable::executeDigg)
+										action(DiggerMovable::executeDigg)
 									)
 								)
 							)
 						),
-						BehaviorTreeHelper.action(DiggerMovable::abortJob)
+						action(DiggerMovable::abortJob)
 					)
 				),
 				guard(mov -> !mov.registered,
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.requester = null;
 						mov.registered = true;
 						mov.grid.addJobless(mov);

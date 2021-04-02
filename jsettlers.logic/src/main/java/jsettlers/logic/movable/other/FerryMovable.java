@@ -40,7 +40,7 @@ public class FerryMovable extends AttackableMovable implements IFerryMovable {
 	private static Node<FerryMovable> createFerryBehaviour() {
 		return guardSelector(
 				guard(mov -> mov.nextTarget != null,
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.currentTarget = mov.nextTarget;
 						mov.nextTarget = null;
 					})

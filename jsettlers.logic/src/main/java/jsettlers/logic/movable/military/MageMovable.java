@@ -61,7 +61,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 		return guardSelector(
 				handleFrozenEffect(),
 				guard(mov -> mov.nextTarget != null,
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.currentTarget = mov.nextTarget;
 						mov.currentSpell = mov.nextSpell;
 						mov.nextTarget = null;
@@ -85,7 +85,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 								ignoreFailure(castSpellNode())
 							)
 						),
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.currentTarget = null;
 						})
 					)

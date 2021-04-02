@@ -5,6 +5,7 @@ import java.util.Map;
 
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
+import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
@@ -12,6 +13,7 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.buildings.workers.DockyardBuilding;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
@@ -174,10 +176,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 							playAction(EMovableAction.ACTION1, (short)1500),
 							selector(
 								//try taking fish
-								condition(mov -> {
-									SimpleBuildingWorkerMovable smov = mov;
-									return smov.grid.tryTakingResource(smov.getDirection().getNextHexPoint(smov.position), EResourceType.FISH);
-								}),
+								condition(mov -> mov.grid.tryTakingResource(mov.getDirection().getNextHexPoint(mov.position), EResourceType.FISH)),
 								sequence(// fishing failed
 									playAction(EMovableAction.ACTION3, (short)2000),
 									alwaysFail()

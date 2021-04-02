@@ -75,7 +75,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SHOW),
 							waitFor(isAllowedToWork()),
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								ShortPoint2D pos = mov.getCurrentJobPos();
 								if (mov.currentJob.getDirection() != null) {
 									mov.lookInDirection(mov.currentJob.getDirection());
@@ -92,7 +92,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SET_MATERIAL),
-							BehaviorTreeHelper.action(mov -> {mov.setMaterial(mov.currentJob.getMaterial());}),
+							action(mov -> {mov.setMaterial(mov.currentJob.getMaterial());}),
 							jobFinishedNode()
 						),
 						sequence(
@@ -129,12 +129,12 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.BUILD_SHIP),
-							BehaviorTreeHelper.action(mov -> {((DockyardBuilding)mov.building).buildShipAction();}),
+							action(mov -> {((DockyardBuilding)mov.building).buildShipAction();}),
 							jobFinishedNode()
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.LOOK_AT),
-							BehaviorTreeHelper.action(mov -> {mov.setDirection(mov.currentJob.getDirection());}),
+							action(mov -> {mov.setDirection(mov.currentJob.getDirection());}),
 							jobFinishedNode()
 						),
 						sequence(
@@ -166,7 +166,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SMOKE_ON),
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								mov.grid.placeSmoke(mov.getCurrentJobPos(), true);
 								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.SMOKE);
 							}),
@@ -174,7 +174,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SMOKE_OFF),
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								mov.grid.placeSmoke(mov.getCurrentJobPos(), false);
 								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.SMOKE);
 							}),
@@ -182,7 +182,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.START_WORKING),
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								if (mov.building instanceof SlaughterhouseBuilding) {
 									((SlaughterhouseBuilding) mov.building).requestSound();
 								}
@@ -194,7 +194,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.STOP_WORKING),
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								if (mov.building instanceof SlaughterhouseBuilding) {
 									((SlaughterhouseBuilding) mov.building).requestSound();
 								}
@@ -214,7 +214,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_PLACE),
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								mov.grid.placePigAt(mov.getCurrentJobPos(), true);
 								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.PIG);
 							}),
@@ -222,7 +222,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_REMOVE),
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								mov.grid.placePigAt(mov.getCurrentJobPos(), false);
 								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.PIG);
 							}),
@@ -246,7 +246,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							nodeToJob(
 								sequence(
 									condition(mov -> mov.grid.feedDonkeyAt(mov.getCurrentJobPos())),
-									BehaviorTreeHelper.action(mov -> {
+									action(mov -> {
 										mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.DONKEY);
 									})
 								)
@@ -265,18 +265,18 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							nodeToJob(condition(LegacyBuildingWorkerMovable::heal))
 						),
 						// unknown job type
-						BehaviorTreeHelper.action(LegacyBuildingWorkerMovable::abortJob)
+						action(LegacyBuildingWorkerMovable::abortJob)
 					)
 				)
 		);
 	}
 
 	private static Node<LegacyBuildingWorkerMovable> jobFailedNode() {
-		return BehaviorTreeHelper.action(LegacyBuildingWorkerMovable::jobFailed);
+		return action(LegacyBuildingWorkerMovable::jobFailed);
 	}
 
 	private static Node<LegacyBuildingWorkerMovable> jobFinishedNode() {
-		return BehaviorTreeHelper.action(LegacyBuildingWorkerMovable::jobFinished);
+		return action(LegacyBuildingWorkerMovable::jobFinished);
 	}
 
 	private static Node<LegacyBuildingWorkerMovable> nodeToJob(Node<LegacyBuildingWorkerMovable> child) {

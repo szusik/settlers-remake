@@ -33,10 +33,10 @@ public abstract class CivilianMovable extends Movable implements ICivilianMovabl
 	protected static <T extends CivilianMovable> Guard<T> fleeIfNecessary() {
 		return guard(CivilianMovable::checkPlayerOfPosition,
 				sequence(
-					BehaviorTreeHelper.action(CivilianMovable::abortJob),
+					action(CivilianMovable::abortJob),
 					repeat(mov -> ((CivilianMovable)mov).searchesCounter <= 120,
 						sequence(
-							BehaviorTreeHelper.action(mov -> {((CivilianMovable)mov).searchesCounter++;}),
+							action(mov -> {((CivilianMovable)mov).searchesCounter++;}),
 							ignoreFailure(
 								selector(
 									// move to nearest own ground
@@ -44,12 +44,12 @@ public abstract class CivilianMovable extends Movable implements ICivilianMovabl
 										condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, Constants.MOVABLE_FLEEING_DIJKSTRA_RADIUS, ESearchType.VALID_FREE_POSITION)
 												|| mov.preSearchPath(false, mov.position.x, mov.position.y, Constants.MOVABLE_FLEEING_MAX_RADIUS, ESearchType.VALID_FREE_POSITION)),
 
-										BehaviorTreeHelper.action(mov -> {((CivilianMovable)mov).lastCheckedPosition = null;}),
+										action(mov -> {((CivilianMovable)mov).lastCheckedPosition = null;}),
 										followPresearchedPath(CivilianMovable::checkEvacuationPath)
 									),
 									// or move in random directions
 									sequence(
-										BehaviorTreeHelper.action(mov -> {
+										action(mov -> {
 											EDirection currentDirection = mov.getDirection();
 											if (mov.turnNextTime || MatchConstants.random().nextFloat() < 0.10) {
 												mov.turnNextTime = false;
@@ -59,18 +59,18 @@ public abstract class CivilianMovable extends Movable implements ICivilianMovabl
 										selector(
 											sequence(
 												goInDirectionIfFree(Movable::getDirection),
-												BehaviorTreeHelper.action(mov -> {
+												action(mov -> {
 													mov.turnNextTime = MatchConstants.random().nextInt(7) == 0;
 												})
 											),
-											BehaviorTreeHelper.action(mov -> {mov.turnNextTime = true;})
+											action(mov -> {mov.turnNextTime = true;})
 										)
 									)
 								)
 							)
 						)
 					),
-					BehaviorTreeHelper.action(Movable::kill)
+					action(Movable::kill)
 				)
 		);
 	}

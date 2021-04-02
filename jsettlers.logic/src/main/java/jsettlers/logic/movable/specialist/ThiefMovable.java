@@ -42,7 +42,7 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 		return guardSelector(
 				handleFrozenEffect(),
 				guard(mov -> mov.nextTarget != null,
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.goToTarget = null;
 						mov.currentTarget = null;
 						mov.returnPos = null;
@@ -67,13 +67,13 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 				guard(mov -> mov.goToTarget != null,
 					sequence(
 						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null), // TODO
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.goToTarget = null;
 						})
 					)
 				),
 				guard(mov -> (mov.getMaterial() != EMaterialType.NO_MATERIAL && mov.isOnOwnGround()),
-					BehaviorTreeHelper.action(ThiefMovable::dropMaterialIfPossible)
+					action(ThiefMovable::dropMaterialIfPossible)
 				),
 				guard(mov -> mov.currentTarget != null,
 					sequence(
@@ -85,7 +85,7 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 							condition(mov -> mov.getMaterial() != EMaterialType.NO_MATERIAL),
 							sequence(
 								stealMaterial(),
-								BehaviorTreeHelper.action(mov -> {
+								action(mov -> {
 									mov.goToTarget = mov.returnPos;
 								})
 							)

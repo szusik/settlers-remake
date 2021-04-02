@@ -40,7 +40,7 @@ public abstract class CargoMovable extends AttackableMovable {
 					sequence(
 						goToPos(mov -> mov.tradeBuilding.getPickUpPosition(), mov -> true),
 						condition(CargoMovable::loadUp),
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.waypoints = mov.tradeBuilding.getWaypointsIterator();
 							mov.lostCargo = false;
 						}),
@@ -53,7 +53,7 @@ public abstract class CargoMovable extends AttackableMovable {
 								followPresearchedPath((mov2) -> !mov2.lostCargo)
 							)
 						)),
-						BehaviorTreeHelper.action(CargoMovable::dropMaterialIfPossible)
+						action(CargoMovable::dropMaterialIfPossible)
 					)
 				),
 				// choose a new trader if the old one is no longer requesting

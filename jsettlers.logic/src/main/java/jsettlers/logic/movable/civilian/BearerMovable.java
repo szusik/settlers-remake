@@ -67,7 +67,7 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 								return true;
 							})
 						),
-						BehaviorTreeHelper.action(BearerMovable::abortJob)
+						action(BearerMovable::abortJob)
 					)
 				),
 				guard(mov -> mov.workerCreationRequest != null,
@@ -77,14 +77,14 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 								condition(mov -> mov.offer == null),
 								handleOffer()
 							),
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								EMovableType newMovable = mov.workerCreationRequest.requestedMovableType();
 								mov.workerCreationRequest = null;
 								mov.setMaterial(EMaterialType.NO_MATERIAL);
 								mov.convertTo(newMovable);
 							})
 						),
-						BehaviorTreeHelper.action(BearerMovable::abortJob)
+						action(BearerMovable::abortJob)
 					)
 				),
 				guard(mov -> mov.request != null && mov.request.isActive(),
@@ -107,12 +107,12 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 									return false;
 								})
 							),
-							BehaviorTreeHelper.action(BearerMovable::abortJob)
+							action(BearerMovable::abortJob)
 						)
 					)
 				),
 				guard(mov -> !mov.registered,
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.offer = null;
 						mov.request = null;
 						mov.barrack = null;

@@ -187,25 +187,25 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected static <T extends Movable> Node<T> setDirectionNode(IEDirectionSupplier<T> direction) {
-		return BehaviorTreeHelper.action(mov -> {mov.setDirection(direction.apply(mov));});
+		return action(mov -> {mov.setDirection(direction.apply(mov));});
 	}
 
 	protected static <T extends Movable> Node<T> setMaterialNode(EMaterialType material) {
-		return BehaviorTreeHelper.action(mov -> {mov.setMaterial(material);});
+		return action(mov -> {mov.setMaterial(material);});
 	}
 
 	protected static <T extends Movable> Node<T> hide() {
-		return BehaviorTreeHelper.action(mov -> {mov.setVisible(false);});
+		return action(mov -> {mov.setVisible(false);});
 	}
 
 	protected static <T extends Movable> Node<T> show() {
-		return BehaviorTreeHelper.action(mov -> {mov.setVisible(true);});
+		return action(mov -> {mov.setVisible(true);});
 	}
 
 	protected static <T extends Movable> Node<T> drop(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> offerMaterial) {
 		return sequence(
 				playAction(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION),
-				BehaviorTreeHelper.action(mov -> {
+				action(mov -> {
 					EMaterialType takeDropMaterial = materialType.apply(mov);
 
 					if (takeDropMaterial == null || !takeDropMaterial.isDroppable()) return;
@@ -221,7 +221,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return sequence(
 				condition(mov -> !fromMap.test(mov) || mov.grid.canTakeMaterial(mov.position, materialType.apply(mov))),
 				playAction(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION),
-				BehaviorTreeHelper.action(mov -> {
+				action(mov -> {
 					EMaterialType material = materialType.apply(mov);
 					mov.grid.takeMaterial(mov.position, material);
 					mov.setMaterial(material);
@@ -259,7 +259,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> goInDirectionWaitFree(IEDirectionSupplier<T> direction, IBooleanConditionFunction<T> pathStep) {
 		return sequence(
-				BehaviorTreeHelper.action(mov -> {
+				action(mov -> {
 					mov.aborted = false;
 					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
 					mov.goInDirection(direction.apply(mov), EGoInDirectionMode.GO_IF_ALLOWED_WAIT_TILL_FREE);
@@ -278,7 +278,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					mmov.markedTarget = null;
 				},
 				sequence(
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						Movable mmov = mov;
 						mmov.markedTarget = mmov.path.getTargetPosition();
 						mmov.grid.setMarked(mmov.markedTarget, true);
@@ -291,7 +291,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	protected static <T extends Movable> Node<T> followPresearchedPath(IBooleanConditionFunction<T> pathStep) {
 		return sequence(
 
-				BehaviorTreeHelper.action(mov -> {
+				action(mov -> {
 					Movable realMov = mov;
 
 					mov.aborted = false;
@@ -322,7 +322,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 */
 	protected static <T extends Movable> Node<T> playAction(EMovableAction action, IShortSupplier<T> duration) {
 		return sequence(
-				BehaviorTreeHelper.action(mov -> {
+				action(mov -> {
 					Movable realMov = mov;
 
 					realMov.playAnimation(action, duration.apply(mov));
@@ -597,7 +597,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return selector(
 				sequence(
 					condition(Movable::isShip),
-					BehaviorTreeHelper.action(Movable::pushShips),
+					action(Movable::pushShips),
 					sleep(mov -> mov.flockDelay)
 				),
 				sequence(
@@ -608,7 +608,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 							followPresearchedPath(mov -> true)
 						),
 						// just "succeed" after dying
-						BehaviorTreeHelper.action(Movable::kill)
+						action(Movable::kill)
 					)
 				),
 				// flock to decentralize
@@ -632,7 +632,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					goInDirectionIfAllowedAndFree(mov -> mov.flockDirection)
 				),
 				sequence(
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						int turnDirection = MatchConstants.random().nextInt(-8, 8);
 						if (Math.abs(turnDirection) <= 1) {
 							mov.lookInDirection(mov.getDirection().getNeighbor(turnDirection));

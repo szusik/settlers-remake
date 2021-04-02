@@ -38,7 +38,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 		return guardSelector(
 				handleFrozenEffect(),
 				guard(mov -> mov.nextTarget != null,
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.currentTarget = null;
 						mov.goToTarget = null;
 
@@ -53,7 +53,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 				guard(mov -> mov.goToTarget != null,
 					sequence(
 						ignoreFailure(goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null)), // TODO
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.goToTarget = null;
 						})
 					)
@@ -70,7 +70,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 								ignoreFailure(workOnPosition())
 							)
 						)),
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.currentTarget = null;
 						})
 					)
@@ -126,7 +126,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 
 				playAction(EMovableAction.ACTION1, (short)(ACTION1_DURATION*1000)),
 
-				BehaviorTreeHelper.action(mov -> {
+				action(mov -> {
 					mov.grid.changePlayerAt(mov.position, mov.getPlayer());
 				})
 		);

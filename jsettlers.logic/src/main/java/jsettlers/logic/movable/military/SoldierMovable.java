@@ -67,7 +67,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 								goToPos(mov -> mov.building.getDoor(), mov -> mov.building != null && !mov.building.isDestroyed() && mov.building.getPlayer() == mov.player) // TODO
 							),
 							hide(),
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								OccupierPlace place = mov.building.addSoldier(mov);
 								mov.setPosition(place.getPosition().calculatePoint(mov.building.getPosition()));
 
@@ -78,7 +78,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 					)
 				),
 				guard(mov -> mov.nextTarget != null,
-					BehaviorTreeHelper.action(mov -> {
+					action(mov -> {
 						mov.abortGoTo();
 
 						switch(mov.nextMoveToType) {
@@ -101,7 +101,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				guard(mov -> mov.goToTarget != null,
 					sequence(
 						ignoreFailure(goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null)), // TODO
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.goToTarget = null;
 						})
 					)
@@ -114,7 +114,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 							ignoreFailure(attackEnemy())
 						),
 						findTooCloseEnemy(),
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.building.towerDefended(mov);
 							mov.defending = false;
 						})
@@ -144,7 +144,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 									goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.position, mov.enemy.getPosition())),
 									// or go to his position
 									sequence(
-										BehaviorTreeHelper.action(mov -> {
+										action(mov -> {
 											mov.startPoint = mov.position;
 										}),
 										goToPos(mov -> mov.enemy.getPosition(), mov -> {
@@ -166,7 +166,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 						),
 						sequence(
 							// no enemy in sight
-							BehaviorTreeHelper.action(mov -> {
+							action(mov -> {
 								mov.enemyNearby = false;
 							})
 						)
@@ -175,7 +175,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				guard(mov -> mov.currentTarget != null,
 					sequence(
 						ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> !mov.enemyNearby && mov.nextTarget == null && mov.currentTarget != null)), // TODO
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.currentTarget = null;
 						})
 					)
@@ -183,7 +183,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				guard(mov -> mov.patrolStep != -1,
 					sequence(
 						ignoreFailure(goToPos(mov -> mov.patrolPoints[mov.patrolStep], mov -> !mov.enemyNearby && mov.nextTarget == null && mov.patrolStep != -1)), // TODO
-						BehaviorTreeHelper.action(mov -> {
+						action(mov -> {
 							mov.patrolStep = (mov.patrolStep+1) % mov.patrolPoints.length;
 						})
 					)
@@ -216,11 +216,11 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	private static Node<SoldierMovable> attackEnemy() {
 		return sequence(
 				condition(SoldierMovable::isEnemyAttackable),
-				BehaviorTreeHelper.action(mov -> {mov.setDirection(EDirection.getApproxDirection(mov.position, mov.enemy.getPosition()));}),
-				BehaviorTreeHelper.action(SoldierMovable::startAttack),
+				action(mov -> {mov.setDirection(EDirection.getApproxDirection(mov.position, mov.enemy.getPosition()));}),
+				action(SoldierMovable::startAttack),
 				playAction(EMovableAction.ACTION1, SoldierMovable::getAttackDuration),
 				condition(SoldierMovable::isEnemyAttackable),
-				BehaviorTreeHelper.action(SoldierMovable::hitEnemy)
+				action(SoldierMovable::hitEnemy)
 
 		);
 	}
