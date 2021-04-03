@@ -5,6 +5,7 @@ import jsettlers.algorithms.simplebehaviortree.nodes.IGetPropertyProducer;
 import jsettlers.algorithms.simplebehaviortree.nodes.ISetPropertyConsumer;
 import jsettlers.algorithms.simplebehaviortree.nodes.IgnoreFailure;
 import jsettlers.algorithms.simplebehaviortree.nodes.Property;
+import jsettlers.algorithms.simplebehaviortree.nodes.RepeatCount;
 import jsettlers.algorithms.simplebehaviortree.nodes.ResetAfter;
 import jsettlers.algorithms.simplebehaviortree.nodes.Sleep;
 import jsettlers.algorithms.simplebehaviortree.nodes.Action;
@@ -100,6 +101,15 @@ public final class BehaviorTreeHelper {
 
 	public static <T> Repeat<T> repeat(IBooleanConditionFunction<T> condition, Node<T> child) {
 		return new Repeat<>(condition, child);
+	}
+
+	public static <T> RepeatCount<T> repeatLoop(IIntSupplier<T> times, Node<T> child) {
+		return new RepeatCount<>(times, child);
+
+	}
+
+	public static <T> RepeatCount<T> repeatLoop(int times, Node<T> child) {
+		return new RepeatCount<>(c -> times, child);
 	}
 
 	@SafeVarargs

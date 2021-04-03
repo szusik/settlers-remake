@@ -3,6 +3,7 @@ package jsettlers.algorithms.simplebehaviortree;
 import org.junit.Test;
 
 import jsettlers.algorithms.simplebehaviortree.nodes.Parallel;
+import jsettlers.common.utils.mutables.MutableInt;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 import static jsettlers.algorithms.simplebehaviortree.NodeStatus.*;
@@ -112,6 +113,56 @@ public class SimpleBehaviorTreeTest {
 		for(NodeStatus status : statuses) {
 			assertEquals(status, tick.tick());
 		}
+	}
+
+	@Test
+	public void testRepeatCount() {
+		Root<TestMovable> repeatTree = new Root<>(
+				repeatLoop(2,
+					sequence(
+						action(TestMovable::actionA),
+						alwaysFail()
+					)
+				)
+		);
+
+		testTree(repeatTree, FAILURE);
+
+		Root<TestMovable> repeatTree2 = new Root<>(
+				repeatLoop(1,
+						action(TestMovable::actionA)
+				)
+		);
+
+		testTree(repeatTree2, SUCCESS);
+
+
+		MutableInt counter = new MutableInt();
+
+		Root<TestMovable> repeatTree3 = new Root<>(
+				repeatLoop(mov -> counter.value,
+					action(mov -> {
+						counter.value--;
+					})
+				)
+		);
+
+		for(int var : new int[] {0, 1, 2, 3, 4, 5, 100, 5000}) {
+			counter.value = var;
+			testTree(repeatTree3, SUCCESS);
+			assertEquals(0, counter.value);
+		}
+	}
+
+	@Test(expected = AssertionError.class)
+	public void testRepeatCountFail() {
+		Root<TestMovable> repeatTree = new Root<>(
+				repeatLoop(2,
+					action(TestMovable::actionA)
+				)
+		);
+
+		testTree(repeatTree, FAILURE);
 	}
 
 	private class TestMovable {

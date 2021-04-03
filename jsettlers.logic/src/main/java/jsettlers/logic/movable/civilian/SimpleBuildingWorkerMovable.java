@@ -66,14 +66,6 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 
 	private static final short LUMBERJACK_ACTION1_DURATION = (short)1000;
 
-	private static Node<SimpleBuildingWorkerMovable> playAction3Times(EMovableAction action, short duration) {
-		return sequence(
-				playAction(action, duration),
-				playAction(action, duration),
-				playAction(action, duration)
-		);
-	}
-
 	private static Node<SimpleBuildingWorkerMovable> createLumberjackBehaviour() {
 		return defaultWorkCycle(
 				sequence(
@@ -93,14 +85,12 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 								sequence(
 									goInDirectionWaitFree(EDirection.EAST, BuildingWorkerMovable::tmpPathStep),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
-									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
+									repeatLoop(6, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)),
 									goInDirectionWaitFree(EDirection.WEST, BuildingWorkerMovable::tmpPathStep)
 								),
 								sequence(
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
-									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)
+									repeatLoop(6, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION))
 								)
 							),
 							executeSearch(ESearchType.CUTTABLE_TREE),
@@ -109,10 +99,10 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									goInDirectionWaitFree(EDirection.SOUTH_EAST, BuildingWorkerMovable::tmpPathStep),
 									goInDirectionWaitFree(EDirection.NORTH_EAST, BuildingWorkerMovable::tmpPathStep),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
+									repeatLoop(3, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)),
 									goInDirectionWaitFree(EDirection.NORTH_EAST, BuildingWorkerMovable::tmpPathStep),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									playAction3Times(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION),
+									repeatLoop(3, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)),
 									goInDirectionWaitFree(EDirection.SOUTH_WEST, BuildingWorkerMovable::tmpPathStep),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
 									take(mov -> EMaterialType.TRUNK, mov -> false, mov -> {})
@@ -195,6 +185,9 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		);
 	}
 
+	private static final short STONECUTTER_ACTION1_DURATION = (short)750;
+	private static final int STONECUTTER_CUT_STONE_ITERATIONS = 6;
+
 	private static Node<SimpleBuildingWorkerMovable> createStonecutterBehaviour() {
 		return defaultWorkCycle(
 				sequence(
@@ -212,8 +205,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						sequence(
 							followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
 							setDirectionNode(mov -> EDirection.SOUTH_WEST),
-							playAction3Times(EMovableAction.ACTION1, (short)750),
-							playAction3Times(EMovableAction.ACTION1, (short)750),
+							repeatLoop(STONECUTTER_CUT_STONE_ITERATIONS, playAction(EMovableAction.ACTION1, STONECUTTER_ACTION1_DURATION)),
 							executeSearch(ESearchType.CUTTABLE_STONE),
 							take(mov -> EMaterialType.STONE, mov -> false, mov -> {}),
 							goToOutputStack(EMaterialType.STONE, BuildingWorkerMovable::tmpPathStep),
