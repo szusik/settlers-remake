@@ -124,15 +124,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							nodeToJob(condition(LegacyBuildingWorkerMovable::lookAtSearched))
 						),
 						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.GO_TO_DOCK),
-							nodeToJob(goToPos(mov -> ((DockyardBuilding)mov.building).getDock().getPosition(), LegacyBuildingWorkerMovable::pathStep))
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.BUILD_SHIP),
-							action(mov -> {((DockyardBuilding)mov.building).buildShipAction();}),
-							jobFinishedNode()
-						),
-						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.LOOK_AT),
 							action(mov -> {mov.setDirection(mov.currentJob.getDirection());}),
 							jobFinishedNode()

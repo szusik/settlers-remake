@@ -36,6 +36,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		trees.put(EMovableType.STONECUTTER, new Root<>(createStonecutterBehaviour()));
 		trees.put(EMovableType.WINEGROWER, new Root<>(createWinegrowerBehaviour()));
 		trees.put(EMovableType.FARMER, new Root<>(createFarmerBehaviour()));
+		trees.put(EMovableType.DOCKWORKER, new Root<>(createDockworkerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -334,6 +335,44 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						enterHome(),
 						sleep(8000)
 					)
+				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createDockworkerBehaviour() {
+		return defaultWorkCycle(
+				sequence(
+					sleep(3000),
+					waitFor(
+						sequence(
+							isAllowedToWork(),
+							condition(mov -> ((DockyardBuilding)mov.building).getOrderedShipType()!= null),
+							selector(
+								inputStackNotEmpty(EMaterialType.PLANK),
+								inputStackNotEmpty(EMaterialType.IRON)
+							)
+						)
+					),
+					show(),
+					selector(
+						sequence(
+							inputStackNotEmpty(EMaterialType.PLANK),
+							goToInputStack(EMaterialType.PLANK, BuildingWorkerMovable::tmpPathStep),
+							take(mov -> EMaterialType.PLANK, mov -> true, mov -> {})
+						),
+						sequence(
+							inputStackNotEmpty(EMaterialType.IRON),
+							goToInputStack(EMaterialType.IRON, BuildingWorkerMovable::tmpPathStep),
+							take(mov -> EMaterialType.IRON, mov -> true, mov -> {})
+						)
+					),
+					goToPos(mov -> ((DockyardBuilding)mov.building).getDock().getPosition(), BuildingWorkerMovable::tmpPathStep),
+					setMaterialNode(EMaterialType.NO_MATERIAL),
+					repeatLoop(6, sequence(
+						playAction(EMovableAction.ACTION1, (short)750),
+						action(mov -> ((DockyardBuilding)mov.building).buildShipAction())
+					)),
+					enterHome()
 				)
 		);
 	}

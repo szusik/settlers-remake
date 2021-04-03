@@ -156,24 +156,6 @@ public enum EBuildingJobType {
 	GO_TO,
 
 	/**
-	 * Goes to the dock.
-	 * <p>
-	 * Success: The settler is at the position
-	 * <p>
-	 * Fail: The position is unreachable.
-	 */
-	GO_TO_DOCK,
-
-	/**
-	 * Build a ship.
-	 * <p>
-	 * Success: always
-	 * <p>
-	 * Fail: never
-	 */
-	BUILD_SHIP,
-
-	/**
 	 * Look at
 	 * <p>
 	 * Parameter: direction

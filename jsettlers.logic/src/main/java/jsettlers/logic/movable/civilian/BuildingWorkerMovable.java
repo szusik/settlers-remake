@@ -63,12 +63,30 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		throw new AssertionError("stack for " + outputMaterial + " not found in " + building.getBuildingVariant());
 	}
 
+	protected ShortPoint2D getInputStackPosition(EMaterialType inputMaterial) {
+		for(RelativeStack stack : building.getBuildingVariant().getRequestStacks()) {
+			if(stack.getMaterialType() == inputMaterial) {
+				return stack.calculatePoint(building.getPosition());
+			}
+		}
+
+		throw new AssertionError("stack for " + inputMaterial + " not found in " + building.getBuildingVariant());
+	}
+
 	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(EMaterialType outputMaterial, IBooleanConditionFunction<T> pathStep) {
 		return goToPos(mov -> mov.getOutputStackPosition(outputMaterial), pathStep);
 	}
 
+	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(EMaterialType outputMaterial, IBooleanConditionFunction<T> pathStep) {
+		return goToPos(mov -> mov.getInputStackPosition(outputMaterial), pathStep);
+	}
+
 	protected static <T extends BuildingWorkerMovable> Node<T> outputStackNotFull(EMaterialType outputMaterial) {
 		return condition(mov -> mov.grid.canPushMaterial(mov.getOutputStackPosition(outputMaterial)));
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> inputStackNotEmpty(EMaterialType inputMaterial) {
+		return condition(mov -> mov.grid.canTakeMaterial(mov.getInputStackPosition(inputMaterial), inputMaterial));
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> isAllowedToWork() {
