@@ -1,7 +1,7 @@
 package jsettlers.algorithms.simplebehaviortree.nodes;
 
 import jsettlers.algorithms.simplebehaviortree.Decorator;
-import jsettlers.algorithms.simplebehaviortree.IIntSupplier;
+import jsettlers.algorithms.simplebehaviortree.IIntegerSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
 import jsettlers.algorithms.simplebehaviortree.Tick;
@@ -10,9 +10,9 @@ public class RepeatCount<T> extends Decorator<T> {
 
 	private static final long serialVersionUID = 3896956062570134419L;
 
-	private final IIntSupplier<T> iterationsSupplier;
+	private final IIntegerSupplier<T> iterationsSupplier;
 
-	public RepeatCount(IIntSupplier<T> times, Node<T> child) {
+	public RepeatCount(IIntegerSupplier<T> times, Node<T> child) {
 		super(child);
 		iterationsSupplier = times;
 	}

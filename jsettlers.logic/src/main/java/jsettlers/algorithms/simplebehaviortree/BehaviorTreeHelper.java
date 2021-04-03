@@ -103,7 +103,7 @@ public final class BehaviorTreeHelper {
 		return new Repeat<>(condition, child);
 	}
 
-	public static <T> RepeatCount<T> repeatLoop(IIntSupplier<T> times, Node<T> child) {
+	public static <T> RepeatCount<T> repeatLoop(IIntegerSupplier<T> times, Node<T> child) {
 		return new RepeatCount<>(times, child);
 
 	}
