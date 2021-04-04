@@ -388,7 +388,7 @@ public class BuildingCreatorApp implements IMapInterfaceListener, Runnable {
 			builder.append(tile.getDx());
 			builder.append("\" dy=\"");
 			builder.append(tile.getDy());
-			builder.append("\" block=\"true\" />\n");
+			builder.append("\" />\n");
 		}
 		builder.append("\n");
 		for (RelativePoint tile : definition.getJustProtected()) {
