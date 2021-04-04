@@ -186,6 +186,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		aborted = true;
 	}
 
+	protected static <T extends Movable> Node<T> setDirectionNode(EDirection direction) {
+		return action(mov -> {mov.setDirection(direction);});
+	}
+
 	protected static <T extends Movable> Node<T> setDirectionNode(IEDirectionSupplier<T> direction) {
 		return action(mov -> {mov.setDirection(direction.apply(mov));});
 	}
@@ -1140,7 +1144,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case BAKER:
 			case CHARCOAL_BURNER:
 			case MELTER:
-			case MILLER:
 			case MINER:
 			case PIG_FARMER:
 			case DONKEY_FARMER:
@@ -1157,6 +1160,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case WINEGROWER:
 			case FARMER:
 			case DOCKWORKER:
+			case MILLER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
 
 			case HEALER:

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
@@ -14,6 +13,8 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.workers.DockyardBuilding;
+import jsettlers.logic.buildings.workers.MillBuilding;
+import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
@@ -37,6 +38,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		trees.put(EMovableType.WINEGROWER, new Root<>(createWinegrowerBehaviour()));
 		trees.put(EMovableType.FARMER, new Root<>(createFarmerBehaviour()));
 		trees.put(EMovableType.DOCKWORKER, new Root<>(createDockworkerBehaviour()));
+		trees.put(EMovableType.MILLER, new Root<>(createMillerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -301,7 +303,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 										take(mov -> EMaterialType.CROP, mov -> false, mov -> {}),
 										goToOutputStack(EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep),
 										setDirectionNode(mov -> EDirection.NORTH_EAST),
-										drop(mov -> EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep)
+										dropProduced(mov -> EMaterialType.CROP)
 									)
 								)
 							),
@@ -372,6 +374,51 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						playAction(EMovableAction.ACTION1, (short)750),
 						action(mov -> ((DockyardBuilding)mov.building).buildShipAction())
 					)),
+					enterHome()
+				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createMillerBehaviour() {
+		return defaultWorkCycle(
+				sequence(
+					sleep(3000),
+					waitFor(
+						sequence(
+							isAllowedToWork(),
+							inputStackNotEmpty(EMaterialType.CROP),
+							outputStackNotFull(EMaterialType.FLOUR)
+						)
+					),
+					show(),
+					goToInputStack(EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep),
+					selector(
+						sequence(
+							condition(mov -> mov.getDirection().equals(EDirection.NORTH_WEST) ||
+									MatchConstants.random().nextBoolean()),
+							setDirectionNode(EDirection.NORTH_WEST)
+						),
+						setDirectionNode(EDirection.NORTH_EAST)
+					),
+					take(mov -> EMaterialType.CROP, mov -> true, mov -> {}),
+					enterHome(),
+					sleep(1000),
+					action(mov -> ((MillBuilding) mov.building).setRotating(true)),
+					sleep(5000),
+					action(mov -> ((MillBuilding) mov.building).setRotating(false)),
+					sleep(1000),
+					setMaterialNode(EMaterialType.FLOUR),
+					show(),
+					goToOutputStack(EMaterialType.FLOUR, BuildingWorkerMovable::tmpPathStep),
+					selector(
+						sequence(
+							condition(mov -> mov.getDirection().equals(EDirection.NORTH_WEST) ||
+									MatchConstants.random().nextBoolean()),
+							setDirectionNode(EDirection.NORTH_WEST)
+						),
+						setDirectionNode(EDirection.NORTH_EAST)
+					),
+					dropProduced(mov -> EMaterialType.FLOUR),
 					enterHome()
 				)
 		);

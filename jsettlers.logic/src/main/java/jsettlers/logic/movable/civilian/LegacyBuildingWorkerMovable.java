@@ -177,9 +177,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 								if (mov.building instanceof SlaughterhouseBuilding) {
 									((SlaughterhouseBuilding) mov.building).requestSound();
 								}
-								if (mov.building instanceof MillBuilding) {
-									((MillBuilding) mov.building).setRotating(true);
-								}
 							}),
 							jobFinishedNode()
 						),
@@ -188,9 +185,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							action(mov -> {
 								if (mov.building instanceof SlaughterhouseBuilding) {
 									((SlaughterhouseBuilding) mov.building).requestSound();
-								}
-								if (mov.building instanceof MillBuilding) {
-									((MillBuilding) mov.building).setRotating(false);
 								}
 							}),
 							jobFinishedNode()
