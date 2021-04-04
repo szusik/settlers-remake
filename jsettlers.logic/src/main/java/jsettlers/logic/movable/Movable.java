@@ -1148,7 +1148,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case PIG_FARMER:
 			case DONKEY_FARMER:
 			case SAWMILLER:
-			case SLAUGHTERER:
 			case SMITH:
 				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
 
@@ -1161,6 +1160,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case FARMER:
 			case DOCKWORKER:
 			case MILLER:
+			case SLAUGHTERER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
 
 			case HEALER:

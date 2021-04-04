@@ -14,6 +14,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.workers.DockyardBuilding;
 import jsettlers.logic.buildings.workers.MillBuilding;
+import jsettlers.logic.buildings.workers.SlaughterhouseBuilding;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -39,6 +40,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		trees.put(EMovableType.FARMER, new Root<>(createFarmerBehaviour()));
 		trees.put(EMovableType.DOCKWORKER, new Root<>(createDockworkerBehaviour()));
 		trees.put(EMovableType.MILLER, new Root<>(createMillerBehaviour()));
+		trees.put(EMovableType.SLAUGHTERER, new Root<>(createSlaughtererBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -419,6 +421,35 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						setDirectionNode(EDirection.NORTH_EAST)
 					),
 					dropProduced(mov -> EMaterialType.FLOUR),
+					enterHome()
+				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createSlaughtererBehaviour() {
+		return defaultWorkCycle(
+				sequence(
+					sleep(4000),
+					waitFor(
+						sequence(
+							isAllowedToWork(),
+							inputStackNotEmpty(EMaterialType.PIG),
+							outputStackNotFull(EMaterialType.MEAT)
+						)
+					),
+					show(),
+					goToInputStack(EMaterialType.PIG, BuildingWorkerMovable::tmpPathStep),
+					setDirectionNode(EDirection.NORTH_EAST),
+					take(mov -> EMaterialType.PIG, mov -> true, mov -> {}),
+					enterHome(),
+					sleep(1000),
+					action(mov -> ((SlaughterhouseBuilding) mov.building).requestSound()),
+					sleep(4700),
+					setMaterialNode(EMaterialType.MEAT),
+					show(),
+					goToOutputStack(EMaterialType.MEAT, BuildingWorkerMovable::tmpPathStep),
+					setDirectionNode(EDirection.NORTH_WEST),
+					dropProduced(mov -> EMaterialType.MEAT),
 					enterHome()
 				)
 		);
