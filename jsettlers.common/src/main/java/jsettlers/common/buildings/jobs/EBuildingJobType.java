@@ -124,25 +124,7 @@ public enum EBuildingJobType {
 	PRE_SEARCH,
 
 	/**
-	 * Searches a given search type with the InAreaFinder. The search center is given by the working center of the building.
-	 * <p>
-	 * Parameters: <br>
-	 * search (type to be searched @see {@link ESearchType}), <br>
-	 * dx, dy (position the movable will be showed later with SHOW)
-	 * <p>
-	 * This job always fails if the working radius is 0.
-	 * <p>
-	 * Success: A path to the searched thing has been found.
-	 * <p>
-	 * Fail: If the searched thing was not found.
-	 * 
-	 * @see ESearchType
-	 * @see jsettlers.common.buildings.BuildingVariant#getWorkRadius()
-	 */
-	PRE_SEARCH_IN_AREA,
-
-	/**
-	 * Follows the pre-calculated path that has been searched with {@link #PRE_SEARCH} or {@link #PRE_SEARCH_IN_AREA}
+	 * Follows the pre-calculated path that has been searched with {@link #PRE_SEARCH}
 	 */
 	FOLLOW_SEARCHED,
 
@@ -248,16 +230,6 @@ public enum EBuildingJobType {
 	 * Parameters: The position where smoke was.
 	 */
 	SMOKE_OFF,
-
-	/**
-	 * Building starts working, e.g. for a mill.
-	 */
-	START_WORKING,
-
-	/**
-	 * Building stops working, e.g. for a mill.
-	 */
-	STOP_WORKING,
 
 	/**
 	 * Places a pig at (dx, dy)

@@ -112,10 +112,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							nodeToJob(condition(mov -> mov.preSearchPathAction(true)))
 						),
 						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PRE_SEARCH_IN_AREA),
-							nodeToJob(condition(mov -> mov.preSearchPathAction(false)))
-						),
-						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.FOLLOW_SEARCHED),
 							nodeToJob(followPresearchedPathMarkTarget(LegacyBuildingWorkerMovable::pathStep))
 						),
@@ -168,24 +164,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							action(mov -> {
 								mov.grid.placeSmoke(mov.getCurrentJobPos(), false);
 								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.SMOKE);
-							}),
-							jobFinishedNode()
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.START_WORKING),
-							action(mov -> {
-								if (mov.building instanceof SlaughterhouseBuilding) {
-									((SlaughterhouseBuilding) mov.building).requestSound();
-								}
-							}),
-							jobFinishedNode()
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.STOP_WORKING),
-							action(mov -> {
-								if (mov.building instanceof SlaughterhouseBuilding) {
-									((SlaughterhouseBuilding) mov.building).requestSound();
-								}
 							}),
 							jobFinishedNode()
 						),
