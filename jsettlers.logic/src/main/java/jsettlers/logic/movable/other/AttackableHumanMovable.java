@@ -15,6 +15,7 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 
 	protected EMoveToType nextMoveToType;
 	protected ShortPoint2D nextTarget = null;
+	protected boolean goingToHealer = false;
 
 	public AttackableHumanMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable, Root<? extends AttackableHumanMovable> behaviour) {
 		super(grid, movableType, position, player, movable, behaviour);
@@ -34,12 +35,14 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 
 		nextTarget = targetPosition;
 		nextMoveToType = moveToType;
+		goingToHealer = false;
 	}
 
 	@Override
 	public void stopOrStartWorking(boolean stop) {
 		nextTarget = position;
 		nextMoveToType = stop? EMoveToType.FORCED : EMoveToType.DEFAULT;
+		goingToHealer = false;
 	}
 
 	@Override
@@ -49,9 +52,8 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 		ferryToEnter = ferry;
 		nextTarget = entrancePosition;
 		nextMoveToType = EMoveToType.FORCED;
+		goingToHealer = false;
 	}
-
-	private ShortPoint2D targetingHealSpot = null;
 
 	@Override
 	public void heal() {
@@ -59,18 +61,24 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 	}
 
 	@Override
+	public boolean isGoingToTreatment() {
+		return goingToHealer;
+	}
+
+	@Override
 	public boolean needsTreatment() {
 		if(health == getMovableType().getHealth()) return false;
-		if(path != null && path.getTargetPosition().equals(targetingHealSpot)) return false;
+		if(!playerControlled) return false;
 		return true;
 	}
 
 	@Override
 	public boolean pingWounded(IHealerMovable healer) {
-		if(!healer.requestTreatment(this)) return false;
+		if(!needsTreatment() || isGoingToTreatment()) return false;
 
-		targetingHealSpot = new ShortPoint2D(healer.getPosition().x+2, healer.getPosition().y+2);
-		moveTo(targetingHealSpot, EMoveToType.FORCED);
+		nextTarget = healer.getHealSpot();
+		nextMoveToType = EMoveToType.FORCED;
+		goingToHealer = true;
 		return true;
 	}
 

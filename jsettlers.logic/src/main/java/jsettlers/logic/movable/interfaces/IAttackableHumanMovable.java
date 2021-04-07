@@ -14,6 +14,8 @@ public interface IAttackableHumanMovable extends IAttackableMovable {
 
 	boolean needsTreatment();
 
+	boolean isGoingToTreatment();
+
 	void heal();
 
 	/**

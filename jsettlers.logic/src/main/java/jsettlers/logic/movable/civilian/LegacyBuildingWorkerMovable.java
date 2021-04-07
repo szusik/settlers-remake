@@ -10,8 +10,6 @@ import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.jobs.EBuildingJobType;
 import jsettlers.common.buildings.jobs.IBuildingJob;
-import jsettlers.common.map.shapes.MapCircle;
-import jsettlers.common.map.shapes.MapCircleIterator;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.menu.messages.SimpleMessage;
@@ -20,15 +18,9 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.buildings.workers.DockyardBuilding;
-import jsettlers.logic.buildings.workers.MillBuilding;
-import jsettlers.logic.buildings.workers.SlaughterhouseBuilding;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IWorkerRequestBuilding;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
-import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
-import jsettlers.logic.movable.interfaces.IHealerMovable;
-import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.player.Player;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
@@ -38,8 +30,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 	private transient IBuildingJob currentJob = null;
 
 	private EMaterialType poppedMaterial;
-
-	private IAttackableHumanMovable nextPatient = null;
 
 	public LegacyBuildingWorkerMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
 		super(grid, movableType, position, player, replace, tree);
@@ -215,18 +205,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 								)
 							)
 						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.CAN_HEAL),
-							nodeToJob(condition(LegacyBuildingWorkerMovable::canHeal))
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.CALL_WOUNDED),
-							nodeToJob(condition(LegacyBuildingWorkerMovable::callWounded))
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.HEAL),
-							nodeToJob(condition(LegacyBuildingWorkerMovable::heal))
-						),
 						// unknown job type
 						action(LegacyBuildingWorkerMovable::abortJob)
 					)
@@ -278,72 +256,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 	@Override
 	protected void decoupleMovable() {
 		super.decoupleMovable();
-	}
-
-	private boolean canHeal() {
-		ShortPoint2D jobPos = getCurrentJobPos();
-
-		ILogicMovable movable = grid.getMovableAt(jobPos.x, jobPos.y);
-		if(movable instanceof IAttackableHumanMovable && ((IAttackableHumanMovable)movable).needsTreatment()) {
-			nextPatient = (IAttackableHumanMovable) movable;
-			return true;
-		} else {
-			nextPatient = null;
-			if(movable != null) movable.leavePosition();
-			return false;
-		}
-	}
-
-	private boolean callWounded() {
-		// check if patient is still interested
-		IAttackableHumanMovable patient = ((IHealerMovable) this).getPatient();
-		if (patient != null) {
-			int healX = position.x + 2;
-			int healY = position.y + 2;
-
-			if (patient.getPath() == null ||
-					!patient.getPath().getTargetPosition().equals(healX, healY)) {
-				// reset patient
-				((IHealerMovable) this).requestTreatment(null);
-			}
-		}
-
-		patient = ((IHealerMovable) this).getPatient();
-		if (patient != null) return true;
-
-		IAttackableHumanMovable bestPatient = null;
-		float patientHealth = Float.MAX_VALUE;
-		MapCircleIterator iter = new MapCircleIterator(new MapCircle(building.getWorkAreaCenter(), building.getBuildingVariant().getWorkRadius()));
-
-		int width = grid.getWidth();
-		int height = grid.getHeight();
-		while (iter.hasNext()) {
-			ShortPoint2D next = iter.next();
-			if (next.x > 0 && next.x < width && next.y > 0 && next.y < height) {
-				ILogicMovable potentialPatient = grid.getMovableAt(next.x, next.y);
-				if (potentialPatient instanceof IAttackableHumanMovable &&
-						potentialPatient.getPlayer() == player &&
-						((IAttackableHumanMovable) potentialPatient).needsTreatment()) {
-					float newHealth = potentialPatient.getHealth();
-					if (newHealth < patientHealth) {
-						bestPatient = (IAttackableHumanMovable) potentialPatient;
-						patientHealth = newHealth;
-					}
-				}
-			}
-		}
-
-		return bestPatient != null && bestPatient.pingWounded((IHealerMovable) this);
-	}
-
-	private boolean heal() {
-		if(nextPatient != null) {
-			nextPatient.heal();
-			((IHealerMovable)this).requestTreatment(null);
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	private boolean isJobless() {

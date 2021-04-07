@@ -71,6 +71,8 @@ public class BuildingVariant {
 
 	private final BuildingAreaBitSet buildingAreaBitSet;
 
+	private final RelativePoint healSpot;
+
 	/**
 	 * Constructs an enum object.
 	 */
@@ -104,6 +106,8 @@ public class BuildingVariant {
 		buildMarks = file.getBuildmarks();
 		groundTypes = EnumSet.copyOf(file.getGroundtypes());
 		viewDistance = file.getViewdistance();
+
+		healSpot = file.getHealSpot();
 
 		this.numberOfConstructionMaterials = calculateNumberOfConstructionMaterials();
 
@@ -397,6 +401,16 @@ public class BuildingVariant {
 
 	public boolean needsFlattenedGround() {
 		return !mine;
+	}
+
+	/**
+	 * Returns the position a movable should be healed at.<br>
+	 * Only usable for hospitals.
+	 *
+	 * @return the heal spot.
+	 */
+	public RelativePoint getHealSpot() {
+		return healSpot;
 	}
 
 	public Set<ELandscapeType> getRequiredGroundTypeAt(int relativeX, int relativeY) {

@@ -72,6 +72,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_BRICKLAYER = "bricklayer";
 	private static final String ATTR_DIRECTION = "direction";
 	private static final String TAG_BUILDMARK = "buildmark";
+	private static final String TAG_HEALSPOT = "healspot";
 	private static final String TAG_IMAGE = "image";
 	private static final String TAG_GROUNDTYE = "ground";
 
@@ -84,6 +85,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private String startJobName = "";
 	private RelativePoint door = new RelativePoint(0, 0);
 	private IBuildingJob startJob = null;
+	private RelativePoint healSpot = new RelativePoint(0, 0);
 
 	private EMovableType workerType;
 
@@ -167,6 +169,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 				readImageLink(attributes);
 			} else if (TAG_BUILDMARK.equals(tagName)) {
 				buildmarks.add(readRelativeTile(attributes));
+			} else if(TAG_HEALSPOT.equals(tagName)) {
+				healSpot = readRelativeTile(attributes);
 			} else if (TAG_GROUNDTYE.equals(tagName)) {
 				groundtypes.add(ELandscapeType.valueOf(attributes.getValue("groundtype")));
 			} else if (TAG_OCCUPYER.equals(tagName)) {
@@ -425,6 +429,10 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativePoint[] getBuildmarks() {
 		return buildmarks.toArray(new RelativePoint[buildmarks.size()]);
+	}
+
+	public RelativePoint getHealSpot() {
+		return healSpot;
 	}
 
 	public List<ELandscapeType> getGroundtypes() {

@@ -105,12 +105,14 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 	public void moveToCast(ShortPoint2D at, ESpellType spell) {
 		nextTarget = at;
 		nextSpell = spell;
+		goingToHealer = false;
 	}
 
 	@Override
 	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
 		nextTarget = targetPosition;
 		nextSpell = null;
+		goingToHealer = false;
 	}
 
 	@Override
@@ -484,6 +486,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 		if(stop) {
 			nextTarget = null;
 			nextSpell = null;
+			goingToHealer = false;
 		}
 	}
 }

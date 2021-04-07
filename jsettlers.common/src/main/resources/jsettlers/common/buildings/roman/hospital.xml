@@ -4,6 +4,7 @@
 	<ground groundtype="GRASS" />
 	<ground groundtype="EARTH" />
 	<ground groundtype="FLATTENED" />
+
 	<blocked dx="-2" dy="-3" />
 	<blocked dx="-2" dy="-2" />
 	<blocked dx="-2" dy="-1" />
@@ -80,11 +81,12 @@
 	<blocked dx="3" dy="-3" block="false" />
 	<blocked dx="2" dy="-4" block="false" />
 	<blocked dx="4" dy="-2" block="false" />
+	<blocked dx="4" dy="4" block="false" />
 
 	<door dx="2" dy="2" />
 
-	<constructionStack dx="2" dy="3" material="PLANK" buildrequired="1" />
-	<constructionStack dx="4" dy="3" material="STONE" buildrequired="1" />
+	<constructionStack dx="2" dy="3" material="PLANK" buildrequired="3" />
+	<constructionStack dx="4" dy="3" material="STONE" buildrequired="3" />
 
 	<bricklayer dx="-1" dy="2" direction="NORTH_EAST" />
 	<bricklayer dx="1" dy="4" direction="NORTH_EAST" />
@@ -100,21 +102,10 @@
 	<buildmark dx="-3" dy="-1" />
 	<buildmark dx="-3" dy="-5" />
 
+	<healspot dx="4" dy="4" />
+
 	<image file="14" for="GUI" type="GUI" sequence="93" image="0"/>
 	<image file="13" for="FINAL" type="SETTLER" sequence="29" image="0"/>
 	<image file="13" for="BUILD" type="SETTLER" sequence="29" image="1"/>
 
-	<startjob name="gohome"/>
-
-	<job name="gohome"		successjob="reset"		failjob="reset"		type="GO_TO"/>
-	<job name="reset"		successjob="hide"		failjob="hide"		type="SHOW" dx="2" dy="2"/>
-	<job name="hide"		successjob="start"		failjob="start"		type="HIDE"/>
-
-	<job name="start"		successjob="checkheal"	failjob="waitheal"	type="CALL_WOUNDED" dx="4" dy="4"/>
-	<job name="checkheal"	successjob="show"		failjob="hide"		type="CAN_HEAL" dx="4" dy="4"/>
-	<job name="show"		successjob="heal1"		failjob="hide"		type="SHOW" dx="2" dy="2" direction="SOUTH_EAST"/>
-	<job name="heal1"		successjob="heal2"		failjob="hideheal"	type="HEAL"/>
-	<job name="heal2"		successjob="hideheal"	failjob="hideheal"	type="PLAY_ACTION1" time="1"/>
-	<job name="hideheal"	successjob="waitheal"	failjob="waitheal"	type="HIDE"/>
-	<job name="waitheal"	successjob="hide"		failjob="hide"		type="WAIT" time="2"/>
 </building>
