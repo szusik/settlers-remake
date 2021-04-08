@@ -32,13 +32,14 @@
 	<blocked dx="-2" dy="-4" />
 	<blocked dx="-1" dy="-4" />
 	<blocked dx="2" dy="1" />
+	<blocked dx="-3" dy="0" />
+	<blocked dx="-4" dy="-1" />
+	<blocked dx="-4" dy="-2" />
 
 	<blocked dx="2" dy="4" block="false" />
 	<blocked dx="-2" dy="1" block="false" />
-	<blocked dx="-3" dy="0" block="false" />
 	<blocked dx="2" dy="2" block="false" />
 	<blocked dx="2" dy="3" block="false" />
-	<blocked dx="-4" dy="-2" block="false" />
 	<blocked dx="-4" dy="-4" block="false" />
 	<blocked dx="-4" dy="-6" block="false" />
 	<blocked dx="-4" dy="-3" block="false" />
@@ -46,7 +47,6 @@
 	<blocked dx="-3" dy="-6" block="false" />
 	<blocked dx="-2" dy="-6" block="false" />
 	<blocked dx="-1" dy="-5" block="false" />
-	<blocked dx="-4" dy="-1" block="false" />
 	<blocked dx="3" dy="2" block="false" />
 	<blocked dx="3" dy="3" block="false" />
 	<blocked dx="3" dy="1" block="false" />
@@ -62,6 +62,13 @@
 	<blocked dx="-2" dy="-5" block="false" />
 	<blocked dx="-3" dy="-5" block="false" />
 	<blocked dx="0" dy="3" block="false" />
+	<blocked dx="-5" dy="-2" block="false" />
+	<blocked dx="-5" dy="-3" block="false" />
+	<blocked dx="-5" dy="-4" block="false" />
+	<blocked dx="-5" dy="-1" block="false" />
+	<blocked dx="-4" dy="0" block="false" />
+	<blocked dx="-3" dy="1" block="false" />
+	<blocked dx="-2" dy="2" block="false" />
 
 	<door dx="-1" dy="1" />
 
