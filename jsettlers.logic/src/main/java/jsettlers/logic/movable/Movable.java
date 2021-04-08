@@ -114,6 +114,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected boolean playerControlled;
 
+	private boolean leavePosition = false;
+
 	private Tick<? extends Movable> tick;//TODO fix behaviour tree serialisation
 
 	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends Movable> behaviour) {
@@ -155,19 +157,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			return;
 		}
 
-		int offset = MatchConstants.random().nextInt(EDirection.NUMBER_OF_DIRECTIONS);
-
-		for (int i = 0; i < EDirection.NUMBER_OF_DIRECTIONS; i++) {
-			EDirection currDir = EDirection.VALUES[(i + offset) % EDirection.NUMBER_OF_DIRECTIONS];
-			if (goInDirection(currDir, EGoInDirectionMode.GO_IF_ALLOWED_AND_FREE)) {
-				break;
-			} else {
-				ILogicMovable movableAtPos = grid.getMovableAt(currDir.getNextTileX(position.x), currDir.getNextTileY(position.y));
-				if (movableAtPos != null) {
-					movableAtPos.push(this);
-				}
-			}
-		}
+		leavePosition = true;
 	}
 
 	protected boolean checkPathStepPreconditions() {
@@ -469,6 +459,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			}
 		}
 
+		leavePosition = false;
+
 		if (state == EMovableState.DOING_NOTHING) {
 			return Constants.MOVABLE_INTERRUPT_PERIOD;
 		}
@@ -599,6 +591,17 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> doingNothingAction() {
 		return selector(
+				sequence(
+					condition(mov -> ((Movable) mov).leavePosition),
+					selector(
+						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[0]),
+						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[1]),
+						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[2]),
+						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[3]),
+						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[4]),
+						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[5])
+					)
+				),
 				sequence(
 					condition(Movable::isShip),
 					action(Movable::pushShips),
