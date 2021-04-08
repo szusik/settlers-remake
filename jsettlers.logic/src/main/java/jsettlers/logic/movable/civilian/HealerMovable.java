@@ -105,7 +105,7 @@ public class HealerMovable extends BuildingWorkerMovable implements IHealerMovab
 
 
 					if(potentialPatient.getPlayer() == player &&
-							realPotentialPatient.isGoingToTreatment() &&
+							!realPotentialPatient.isGoingToTreatment() &&
 							realPotentialPatient.needsTreatment()) {
 						float newHealth = potentialPatient.getHealth();
 						if (newHealth < patientHealth) {
