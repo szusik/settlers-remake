@@ -43,7 +43,7 @@ public class VulkanContextCreator extends JAWTContextCreator {
 	private long debugCallback;
 
 	@Override
-	protected void onNewDrawable() throws ContextException {
+	protected void onNewConnection() throws ContextException {
 		boolean wrapCtx = false;
 
 		try(MemoryStack stack = MemoryStack.stackPush()) {
@@ -101,7 +101,7 @@ public class VulkanContextCreator extends JAWTContextCreator {
 	}
 
 	@Override
-	protected void onNewConnection() throws ContextException {
+	protected void onNewDrawable() throws ContextException {
 		// same event
 		// onNewDrawable();
 	}

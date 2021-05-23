@@ -1236,9 +1236,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 							.waitSemaphoreCount(1);
 				}
 
-				if(vkQueueSubmit(graphicsQueue, graphSubmitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+				int error = vkQueueSubmit(graphicsQueue, graphSubmitInfo, VK_NULL_HANDLE);
+				if(error != VK_SUCCESS) {
 					// whatever
-					System.out.println("Could not submit CommandBuffers.");
+					System.out.println("Could not submit CommandBuffers: " + error);
 				} else {
 					cmdBfrSend = true;
 				}
