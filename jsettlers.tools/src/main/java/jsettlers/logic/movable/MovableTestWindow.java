@@ -30,6 +30,7 @@ import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.testmap.MovableTestsMap;
 import jsettlers.logic.player.Player;
 import jsettlers.logic.player.Team;
+import jsettlers.logic.timer.RescheduleTimer;
 import jsettlers.main.swing.lookandfeel.JSettlersLookAndFeelExecption;
 import jsettlers.main.swing.resources.SwingResourceLoader;
 import jsettlers.network.synchronic.timer.NetworkTimer;
@@ -46,6 +47,7 @@ public class MovableTestWindow {
 	private MovableTestWindow() throws InterruptedException, JSettlersLookAndFeelExecption, IOException, SwingResourceLoader.ResourceSetupException {
 		MatchConstants.init(new NetworkTimer(true), 1000);
 		MatchConstants.clock().startExecution();
+		RescheduleTimer.schedule(MatchConstants.clock());
 
 		MovableTestsMap grid = new MovableTestsMap(100, 100, PLAYER_0);
 		IMapInterfaceConnector connector = TestToolUtils.openTestWindow(grid);
