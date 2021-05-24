@@ -130,6 +130,8 @@ public class VulkanUtils {
 					.sorted().findFirst(); // sorted insures that we prefer the KHRONOS layer if both (KHRONOS and LUNARG(old name)) are present
 			if(validationLayerOpt.isPresent()) {
 				layersPointer = stack.pointers(stack.UTF8(validationLayerOpt.get()));
+			} else {
+				System.err.println("Could not find any validation layer!");
 			}
 		}
 
@@ -175,9 +177,7 @@ public class VulkanUtils {
 	public static VkSurfaceFormatKHR findSurfaceFormat(VkSurfaceFormatKHR.Buffer allSurfaceFormats) {
 		// TODO proper SurfaceFormat finding
 		Optional<VkSurfaceFormatKHR> defaultSurfaceFormat = allSurfaceFormats.stream().filter(format -> format.format() == VK_FORMAT_B8G8R8A8_UNORM).findFirst();
-		if(defaultSurfaceFormat.isPresent()) return defaultSurfaceFormat.get();
-
-		return allSurfaceFormats.get(0);
+		return defaultSurfaceFormat.orElseGet(() -> allSurfaceFormats.get(0));
 	}
 
 	public static VkPhysicalDevice findPhysicalDevice(VkPhysicalDevice[] allPhysicalDevices) {
