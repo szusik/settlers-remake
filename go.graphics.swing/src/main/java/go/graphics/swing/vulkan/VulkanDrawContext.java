@@ -757,6 +757,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		multiBuffers.add(vkMultiBfrHandle);
 		return vkMultiBfrHandle;
 	}
+
 	protected VulkanBufferHandle createBuffer(int size, int type) {
 		if(type == STAGING_BUFFER) {
 			bufferCreateInfo.usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);

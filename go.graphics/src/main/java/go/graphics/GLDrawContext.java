@@ -109,7 +109,10 @@ public abstract class GLDrawContext {
 		};
 	}
 
-	public static final int MAX_CACHE_COUNT = 40;
+	// vulkan only guarantees 12 buffer handles and two more are already used
+	// see VulkanPipeline.UnifiedMultiPipeline
+	public static final int MAX_CACHE_COUNT = 10;
+
 	private void addNewHandle() {
 		if(MAX_CACHE_COUNT == managedHandles.size()) throw new Error("ManangedHandle slots exceeded!");
 		TextureHandle tex = generateTexture(ManagedHandle.TEX_DIM, ManagedHandle.TEX_DIM, null, "managed" + ManagedHandle.instance_count);

@@ -9,7 +9,7 @@ uniform mat4 globalTransform;
 uniform mat4 projection;
 
 layout(std140) uniform geometryDataBuffer {
-	vec4 geometryData[4*1000];
+	vec4 geometryData[4*1024];
 };
 
 out vec4 frag_color;

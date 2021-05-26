@@ -7,13 +7,15 @@ import java.util.Arrays;
 
 public class ManagedHandle {
 
-	public static final int MAX_QUADS = 1000;
+	// also change buffer size in shaders.
+	// check minimum device limits first.
+	public static final int MAX_QUADS = 1024;
 	public static final int TEX_DIM = 2048;
 
 	protected static int instance_count = 0;
 
 	protected int quad_index = 0;
-	private int[] remaining_pixels = new int[TEX_DIM];
+	private final int[] remaining_pixels = new int[TEX_DIM];
 
 	public final UnifiedDrawHandle bufferHolder;
 	protected final MultiDrawHandle multiCache;

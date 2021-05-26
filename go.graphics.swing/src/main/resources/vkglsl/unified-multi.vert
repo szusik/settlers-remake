@@ -16,7 +16,7 @@ layout(binding=0) uniform GlobalData {
 layout(constant_id=2) const int MAX_GEOMETRY_BUFFER_COUNT = 10;
 
 layout(binding=3) uniform GeometryData {
-    vec4 geometryData[4*1000];
+    vec4 geometryData[4*1024];
 } geomtryBuffer[MAX_GEOMETRY_BUFFER_COUNT];
 
 layout(push_constant) uniform UnifiedPerCall {
