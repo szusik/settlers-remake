@@ -16,7 +16,7 @@ jar {
 }
 
 shadowJar {
-    baseName = 'JSettlers'
+    archiveBaseName = 'JSettlers'
     classifier = ''
 }
 
