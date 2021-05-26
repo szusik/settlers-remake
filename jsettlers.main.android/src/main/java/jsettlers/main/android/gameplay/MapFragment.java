@@ -270,12 +270,14 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 
 	@Click(R.id.button_buildings_menu)
 	void showBuildingsMenu() {
+		removeSelectionMenu();
 		showMenu();
 		addBuildingsMenuFragment();
 	}
 
 	@Click(R.id.button_goods_menu)
 	void showGoodsMenu() {
+		removeSelectionMenu();
 		showMenu();
 
 		if (getChildFragmentManager().findFragmentByTag(TAG_FRAGMENT_GOODS_MENU) == null) {
@@ -287,6 +289,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 
 	@Click(R.id.button_settlers_menu)
 	void showSettlersMenu() {
+		removeSelectionMenu();
 		showMenu();
 
 		if (getChildFragmentManager().findFragmentByTag(TAG_FRAGMENT_SETTLERS_MENU) == null) {
