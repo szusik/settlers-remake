@@ -26,3 +26,5 @@ dependencies {
 	testImplementation project(':jsettlers.testutils')
 	testImplementation project(':jsettlers.main.swing')
 }
+
+tasks.getByPath(":jsettlers.logic:compileJava").dependsOn(tasks.getByPath(":jsettlers.common:copyMainResources"))

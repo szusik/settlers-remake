@@ -36,3 +36,5 @@ task generateLayouts(dependsOn: tasks.getByPath(':jsettlers.graphics:layoutbuild
     inputs.dir file('./src/main/res/layout')
     outputs.dir file(layoutsFolder)
 }
+
+tasks.getByPath(":jsettlers.graphics:layoutbuilder:compileJava").dependsOn(tasks.getByPath(":jsettlers.common:copyMainResources"))

@@ -15,7 +15,6 @@ ext {
 
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
         google()
     }
@@ -165,8 +164,8 @@ task releaseJSettlers(type: Zip) {
         }
     }
 
-    destinationDir releaseDir
-    baseName "JSettlers"
+    destinationDirectory.set(releaseDir);
+    archiveBaseName.set("JSettlers");
 }
 
 
@@ -184,8 +183,8 @@ if (findProject(':jsettlers.main.android')) {
             rename 'jsettlers.main.android-debug.apk', 'JSettlers-Android.apk'
         }
 
-        destinationDir releaseDir
-        baseName "JSettlers-Android"
+        destinationDirectory.set(releaseDir);
+        archiveBaseName.set("JSettlers-Android");
     }
 }
 
