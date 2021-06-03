@@ -5,7 +5,7 @@ layout(location=0) in vec2 vertex;
 layout(location=1) in vec2 texcoord;
 layout(location=2) in vec2 co_vertex;
 
-layout(constant_id=1) const int MAX_GLOBALTRANS_COUNT = 4;
+layout(constant_id=0) const int MAX_GLOBALTRANS_COUNT = 4;
 
 layout(set=0, binding=0) uniform GlobalData {
 	mat4 projection;

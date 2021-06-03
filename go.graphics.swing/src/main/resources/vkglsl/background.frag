@@ -4,7 +4,6 @@
 layout (location=0) in float frag_color;
 layout (location=1) in vec2 frag_texcoord;
 
-layout(constant_id=0) const int MAX_TEXTURE_COUNT = 2;
 layout (set=1, binding=0) uniform sampler2D texHandle;
 
 layout(push_constant) uniform LocalData {

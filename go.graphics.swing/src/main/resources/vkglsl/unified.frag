@@ -5,7 +5,6 @@
 layout (location=0) in vec2 frag_texcoord;
 
 
-layout(constant_id=0) const int MAX_TEXTURE_COUNT = 1;
 layout(set=1, binding=0) uniform sampler2D texHandle;
 
 layout(set=0, binding=1) uniform UnifiedData {

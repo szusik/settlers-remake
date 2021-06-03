@@ -392,8 +392,8 @@ public class VulkanUtils {
 				.topology(topology);
 
 		VkSpecializationMapEntry.Buffer max_globalattr_count_at = VkSpecializationMapEntry.callocStack(2, stack);
-		max_globalattr_count_at.get(0).set(1, 0, 4)
-				.set(3, 4, 4);
+		max_globalattr_count_at.get(0).set(0, 0, 4)
+				.set(1, 4, 4);
 		VkSpecializationInfo max_globalattr_count = VkSpecializationInfo.callocStack(stack)
 				.pData(stack.calloc(8).putInt(0, MAX_GLOBALTRANS_COUNT).putInt(4, GLDrawContext.MAX_CACHE_COUNT))
 				.pMapEntries(max_globalattr_count_at);
@@ -406,16 +406,9 @@ public class VulkanUtils {
 				.pSpecializationInfo(max_globalattr_count)
 				.pName(stack.UTF8("main"));
 
-		VkSpecializationMapEntry.Buffer max_texture_count_at = VkSpecializationMapEntry.callocStack(1, stack);
-		max_texture_count_at.get(0).set(0, 0, 4);
-		VkSpecializationInfo max_texture_count = VkSpecializationInfo.callocStack(stack)
-				.pData(stack.calloc(4).putInt(0, MAX_TEXTURE_COUNT))
-				.pMapEntries(max_texture_count_at);
-
 		stages.get(1).sType(VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO)
 				.stage(VK_SHADER_STAGE_FRAGMENT_BIT)
 				.module(fragShader)
-				.pSpecializationInfo(max_texture_count)
 				.pName(stack.UTF8("main"));
 
 		VkPipelineRasterizationStateCreateInfo rasterizationState = VkPipelineRasterizationStateCreateInfo.callocStack(stack)

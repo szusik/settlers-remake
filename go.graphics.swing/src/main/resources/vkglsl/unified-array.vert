@@ -8,7 +8,7 @@ layout(location=2) in vec2 co_vertex;
 layout(location=3) in vec4 color_in;
 layout(location=4) in vec4 trans_in;
 
-layout(constant_id=1) const int MAX_GLOBALTRANS_COUNT = 4;
+layout(constant_id=0) const int MAX_GLOBALTRANS_COUNT = 4;
 
 layout(set=0, binding=0) uniform GlobalData {
     mat4 projection;
