@@ -528,15 +528,15 @@ public class VulkanUtils {
 		}
 	}
 
-	public static long createDescriptorPool(MemoryStack stack, VkDevice device, int pipelineCount) {
+	public static long createDescriptorPool(MemoryStack stack, VkDevice device, int totalImageCount, int totalUBOCount, int maxSets) {
 		VkDescriptorPoolSize.Buffer sizes = VkDescriptorPoolSize.callocStack(2, stack);
-		sizes.get(0).set(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_TEXTURE_COUNT);
-		sizes.get(1).set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, pipelineCount*2+GLDrawContext.MAX_CACHE_COUNT);
+		sizes.get(0).set(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, totalImageCount);
+		sizes.get(1).set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, totalUBOCount);
 
 		VkDescriptorPoolCreateInfo createInfo = VkDescriptorPoolCreateInfo.callocStack(stack)
 				.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO)
 				.pPoolSizes(sizes)
-				.maxSets(pipelineCount + MAX_TEXTURE_COUNT);
+				.maxSets(maxSets);
 
 		LongBuffer poolBfr = stack.callocLong(1);
 		if(vkCreateDescriptorPool(device, createInfo, null, poolBfr) != VK_SUCCESS) {

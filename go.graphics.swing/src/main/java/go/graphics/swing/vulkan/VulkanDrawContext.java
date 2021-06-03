@@ -116,6 +116,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private long descPool = VK_NULL_HANDLE;
 
 	public long textureDescLayout = VK_NULL_HANDLE;
+	public long multiDescLayout = VK_NULL_HANDLE;
 
 	private VulkanPipeline backgroundPipeline = null;
 	private VulkanPipeline lineUnifiedPipeline = null;
@@ -206,7 +207,13 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			framebufferCreateInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
 					.layers(1);
 
-			descPool = VulkanUtils.createDescriptorPool(stack, device, 5);
+			descPool = VulkanUtils.createDescriptorPool(stack, device,
+					// all textures
+					VulkanUtils.MAX_TEXTURE_COUNT,
+					// five pipelines * 2 buffers + every cache
+					10+GLDrawContext.MAX_CACHE_COUNT,
+					// five pipelines + every texture + every cache
+					5 + VulkanUtils.MAX_TEXTURE_COUNT + GLDrawContext.MAX_CACHE_COUNT);
 
 
 			VkDescriptorSetLayoutBinding.Buffer textureBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
@@ -214,6 +221,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			textureDescLayout = VulkanUtils.createDescriptorSetLayout(stack, device, textureBindings);
 
+
+			VkDescriptorSetLayoutBinding.Buffer multiBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
+			textureBindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, null);
+
+			multiDescLayout = VulkanUtils.createDescriptorSetLayout(stack, device, multiBindings);
 
 			unifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, descPool, renderPass, EPrimitiveType.Quad);
 			lineUnifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, descPool, renderPass, EPrimitiveType.Line);
@@ -296,6 +308,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(unifiedArrayPipeline != null) unifiedArrayPipeline.destroy();
 		if(unifiedMultiPipeline != null) unifiedMultiPipeline.destroy();
 		if(unifiedPipeline != null) unifiedPipeline.destroy();
+		if(multiDescLayout != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(device, multiDescLayout, null);
 		if(textureDescLayout != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(device, textureDescLayout, null);
 		if(descPool != VK_NULL_HANDLE) vkDestroyDescriptorPool(device, descPool, null);
 
