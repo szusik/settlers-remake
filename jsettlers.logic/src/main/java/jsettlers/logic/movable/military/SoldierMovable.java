@@ -59,6 +59,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 					resetAfter(mov -> {
 						if(!mov.isInTower) {
 							mov.notifyTowerThatRequestFailed();
+							mov.building = null;
 						}
 					},
 						sequence(
