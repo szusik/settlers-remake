@@ -100,7 +100,7 @@ import static org.lwjgl.util.vma.Vma.*;
 public class VulkanUtils {
 
 
-	public static final int MAX_TEXTURE_COUNT = GLDrawContext.MAX_CACHE_COUNT + 5;
+	public static final int MAX_TEXTURE_COUNT = GLDrawContext.MAX_CACHE_COUNT + 5 + 128;
 	public static final int MAX_GLOBALTRANS_COUNT = 10;
 
 	public static List<String> defaultExtensionArray(boolean debug) {
@@ -537,13 +537,13 @@ public class VulkanUtils {
 
 	public static long createDescriptorPool(MemoryStack stack, VkDevice device, int pipelineCount) {
 		VkDescriptorPoolSize.Buffer sizes = VkDescriptorPoolSize.callocStack(2, stack);
-		sizes.get(0).set(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, pipelineCount*MAX_TEXTURE_COUNT);
+		sizes.get(0).set(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_TEXTURE_COUNT);
 		sizes.get(1).set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, pipelineCount*2+GLDrawContext.MAX_CACHE_COUNT);
 
 		VkDescriptorPoolCreateInfo createInfo = VkDescriptorPoolCreateInfo.callocStack(stack)
 				.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO)
 				.pPoolSizes(sizes)
-				.maxSets(pipelineCount);
+				.maxSets(pipelineCount + MAX_TEXTURE_COUNT);
 
 		LongBuffer poolBfr = stack.callocLong(1);
 		if(vkCreateDescriptorPool(device, createInfo, null, poolBfr) != VK_SUCCESS) {

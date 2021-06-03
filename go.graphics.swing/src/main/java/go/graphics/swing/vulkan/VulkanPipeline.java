@@ -29,10 +29,13 @@ public abstract class VulkanPipeline {
 	protected VulkanDrawContext dc;
 
 	protected VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo; // MUST NOT BE ALLOCATED FROM STACK
-	protected LongBuffer setLayouts = BufferUtils.createLongBuffer(1).put(0, 0);
+	protected LongBuffer setLayouts = BufferUtils.createLongBuffer(2).put(0, 0).put(1, 0);
 	protected long descSet = 0;
 	protected ByteBuffer writtenPushConstantBfr;
 	protected ByteBuffer pushConstantBfr;
+
+	private long[] writtenBfrs;
+	private long[] writtenDescSets;
 
 	public VulkanPipeline(MemoryStack stack, VulkanDrawContext dc, String prefix, long descPool, long renderPass, int primitive) {
 		this.dc = dc;
@@ -53,6 +56,7 @@ public abstract class VulkanPipeline {
 			VkDescriptorSetLayoutBinding.Buffer bindings = getDescriptorSetLayoutBindings();
 			if(bindings != null) {
 				VulkanUtils.createDescriptorSetLayout(stack, dc.device, bindings, setLayouts);
+				setLayouts.put(1, dc.textureDescLayout);
 				pipelineLayoutCreateInfo.pSetLayouts(setLayouts);
 			}
 
@@ -63,7 +67,10 @@ public abstract class VulkanPipeline {
 			pipelineLayout = VulkanUtils.createPipelineLayout(stack, dc.device, pipelineLayoutCreateInfo);
 			pipeline = VulkanUtils.createPipeline(stack, dc.device, primitive, pipelineLayout, renderPass, vertShader, fragShader, inputStateCreateInfo);
 
-			descSet = VulkanUtils.createDescriptorSet(stack, dc.device, descPool, setLayouts);
+			descSet = VulkanUtils.createDescriptorSet(stack, dc.device, descPool, stack.longs(setLayouts.get(0)));
+
+			writtenDescSets = new long[1];
+			writtenDescSets[0] = descSet;
 		} finally {
 			if(vertShader != VK_NULL_HANDLE) VK10.vkDestroyShaderModule(dc.device, vertShader, null);
 			if(fragShader != VK_NULL_HANDLE) VK10.vkDestroyShaderModule(dc.device, fragShader, null);
@@ -79,7 +86,7 @@ public abstract class VulkanPipeline {
 	public void destroy() {
 		if(pipeline != VK_NULL_HANDLE) vkDestroyPipeline(dc.device, pipeline, null);
 		if(pipelineLayout != VK_NULL_HANDLE) vkDestroyPipelineLayout(dc.device, pipelineLayout, null);
-		if(setLayouts != null) while(setLayouts.hasRemaining()) vkDestroyDescriptorSetLayout(dc.device, setLayouts.get(), null);
+		if(setLayouts.get(0) != 0L) vkDestroyDescriptorSetLayout(dc.device, setLayouts.get(0), null);
 	}
 
 	private VkViewport.Buffer viewportUpdate = VkViewport.create(1);
@@ -93,7 +100,7 @@ public abstract class VulkanPipeline {
 
 	public void bind(VkCommandBuffer commandBuffer, long frame) {
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, new long[] {descSet}, null);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, writtenDescSets, null);
 
 		if(writtenBfrs.length>0 && writtenBfrs[0] != VK_NULL_HANDLE) {
 			vkCmdBindVertexBuffers(commandBuffer, 0, writtenBfrs, new long[writtenBfrs.length]);
@@ -126,8 +133,6 @@ public abstract class VulkanPipeline {
 		vkUpdateDescriptorSets(dc.device, write, null);
 	}
 
-	private long[] writtenBfrs;
-
 	public void bindVertexBuffers(VkCommandBuffer commandBuffer, long... bfrs) {
 		for(int i = 0; i != bfrs.length; i++) {
 			if(writtenBfrs[i] != bfrs[i]) {
@@ -135,6 +140,17 @@ public abstract class VulkanPipeline {
 				writtenBfrs = bfrs;
 				return;
 			}
+		}
+	}
+
+	public void bindDescSets(VkCommandBuffer commandBuffer, long... descSets) {
+		long[] newWrittenDescSets = new long[1 + descSets.length];
+		newWrittenDescSets[0] = descSet;
+		System.arraycopy(descSets, 0, newWrittenDescSets, 1, descSets.length);
+
+		if(!Arrays.equals(writtenDescSets, newWrittenDescSets)) {
+			writtenDescSets = newWrittenDescSets;
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, writtenDescSets, null);
 		}
 	}
 
@@ -149,10 +165,9 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkDescriptorSetLayoutBinding.Buffer getDescriptorSetLayoutBindings() {
-			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(3);
+			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(2);
 			bindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null);
-			bindings.get(1).set(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.MAX_TEXTURE_COUNT, VK_SHADER_STAGE_FRAGMENT_BIT, null);
-			bindings.get(2).set(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null); // height matrix
+			bindings.get(1).set(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null); // height matrix
 			return bindings;
 		}
 
@@ -189,10 +204,9 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkDescriptorSetLayoutBinding.Buffer getDescriptorSetLayoutBindings() {
-			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(3);
+			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(2);
 			bindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null);
-			bindings.get(1).set(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.MAX_TEXTURE_COUNT, VK_SHADER_STAGE_FRAGMENT_BIT, null);
-			bindings.get(2).set(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null); // shadow depth
+			bindings.get(1).set(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null); // shadow depth
 			return bindings;
 		}
 
@@ -249,10 +263,9 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkDescriptorSetLayoutBinding.Buffer getDescriptorSetLayoutBindings() {
-			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(3);
+			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(2);
 			bindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null);
-			bindings.get(1).set(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.MAX_TEXTURE_COUNT, VK_SHADER_STAGE_FRAGMENT_BIT, null);
-			bindings.get(2).set(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null); // shadow depth
+			bindings.get(1).set(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null); // shadow depth
 			return bindings;
 		}
 
@@ -289,11 +302,10 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkDescriptorSetLayoutBinding.Buffer getDescriptorSetLayoutBindings() {
-			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(4);
+			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(3);
 			bindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null);
-			bindings.get(1).set(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.MAX_TEXTURE_COUNT, VK_SHADER_STAGE_FRAGMENT_BIT, null);
-			bindings.get(2).set(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null); // shadow depth
-			bindings.get(3).set(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, GLDrawContext.MAX_CACHE_COUNT, VK_SHADER_STAGE_ALL_GRAPHICS, null); // geometry
+			bindings.get(1).set(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null); // shadow depth
+			bindings.get(2).set(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, GLDrawContext.MAX_CACHE_COUNT, VK_SHADER_STAGE_ALL_GRAPHICS, null); // geometry
 			return bindings;
 		}
 

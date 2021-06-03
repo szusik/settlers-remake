@@ -8,20 +8,19 @@ layout(location=3) in vec3 additional; // intensity,index,mode
 
 layout(constant_id=1) const int MAX_GLOBALTRANS_COUNT = 4;
 
-layout(binding=0) uniform GlobalData {
+layout(set=0, binding=0) uniform GlobalData {
     mat4 projection;
     mat4 globalTrans[MAX_GLOBALTRANS_COUNT];
 } global;
 
 layout(constant_id=2) const int MAX_GEOMETRY_BUFFER_COUNT = 10;
 
-layout(binding=3) uniform GeometryData {
+layout(set=0, binding=2) uniform GeometryData {
     vec4 geometryData[4*1024];
 } geomtryBuffer[MAX_GEOMETRY_BUFFER_COUNT];
 
 layout(push_constant) uniform UnifiedPerCall {
     int globalTransIndex;
-    int texIndex;
     int geometryIndex;
 } local;
 

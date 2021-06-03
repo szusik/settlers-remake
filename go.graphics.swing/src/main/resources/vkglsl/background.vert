@@ -8,18 +8,17 @@ layout(location=2) in float color;
 
 layout(constant_id=1) const int MAX_GLOBALTRANS_COUNT = 4;
 
-layout(binding=0) uniform GlobalData {
+layout(set=0, binding=0) uniform GlobalData {
 	mat4 projection;
 	mat4 globalTrans[MAX_GLOBALTRANS_COUNT];
 } global;
 
-layout(binding=2) uniform BackgroundData {
+layout(set=0, binding=1) uniform BackgroundData {
 	mat4 height;
 } background;
 
 layout(push_constant) uniform LocalData {
 	int globalTransIndex;
-	int texIndex;
 } local;
 
 layout (location=0) out float frag_color;

@@ -6,15 +6,15 @@ layout (location=0) in vec2 frag_texcoord;
 
 
 layout(constant_id=0) const int MAX_TEXTURE_COUNT = 1;
-layout (binding=1) uniform sampler2D texHandle[MAX_TEXTURE_COUNT];
+layout(set=1, binding=0) uniform sampler2D texHandle;
 
-layout(binding=2) uniform UnifiedData {
+layout(set=0, binding=1) uniform UnifiedData {
     float shadow_depth;
 } unified;
 
 layout(push_constant) uniform UnifiedPerCall {
     int globalTransIndex;
-    int texIndex;
+    int padding;
     vec2 localRot;
     vec4 localTrans;
     vec4 color;
@@ -36,9 +36,9 @@ void main() {
 
         vec4 tex_color;
         if(progress_fence) {
-            tex_color = texture(texHandle[local.texIndex], fragColor.rg+(fragColor.ba-fragColor.rg)*frag_texcoord);
+            tex_color = texture(texHandle, fragColor.rg+(fragColor.ba-fragColor.rg)*frag_texcoord);
         } else {
-            tex_color = texture(texHandle[local.texIndex], frag_texcoord);
+            tex_color = texture(texHandle, frag_texcoord);
         }
 
         bool image_fence = local.mode>0;
