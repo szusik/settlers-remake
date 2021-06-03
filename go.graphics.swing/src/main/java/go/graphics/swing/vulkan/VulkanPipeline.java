@@ -29,7 +29,7 @@ public abstract class VulkanPipeline {
 	protected VulkanDrawContext dc;
 
 	protected VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo; // MUST NOT BE ALLOCATED FROM STACK
-	protected LongBuffer setLayouts = BufferUtils.createLongBuffer(2).put(0, 0).put(1, 0);
+	protected final LongBuffer setLayouts;
 	protected long descSet = 0;
 	protected ByteBuffer writtenPushConstantBfr;
 	protected ByteBuffer pushConstantBfr;
@@ -37,11 +37,25 @@ public abstract class VulkanPipeline {
 	private long[] writtenBfrs;
 	private long[] writtenDescSets;
 
-	public VulkanPipeline(MemoryStack stack, VulkanDrawContext dc, String prefix, long descPool, long renderPass, int primitive) {
+	public VulkanPipeline(MemoryStack stack,
+						  VulkanDrawContext dc,
+						  String prefix,
+						  long descPool,
+						  long renderPass,
+						  int primitive,
+						  long... additionalDescSets) {
 		this.dc = dc;
 
 		long vertShader = VK_NULL_HANDLE;
 		long fragShader = VK_NULL_HANDLE;
+
+		setLayouts = BufferUtils.createLongBuffer(1 + additionalDescSets.length);
+		setLayouts.put(0);
+		for(long additionalDescSet : additionalDescSets) {
+			setLayouts.put(additionalDescSet);
+		}
+		setLayouts.rewind();
+
 		try {
 			vertShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".vert");
 			fragShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".frag");
@@ -55,8 +69,7 @@ public abstract class VulkanPipeline {
 
 			VkDescriptorSetLayoutBinding.Buffer bindings = getDescriptorSetLayoutBindings();
 			if(bindings != null) {
-				VulkanUtils.createDescriptorSetLayout(stack, dc.device, bindings, setLayouts);
-				setLayouts.put(1, dc.textureDescLayout);
+				setLayouts.put(1, VulkanUtils.createDescriptorSetLayout(stack, dc.device, bindings));
 				pipelineLayoutCreateInfo.pSetLayouts(setLayouts);
 			}
 
@@ -189,7 +202,7 @@ public abstract class VulkanPipeline {
 		}
 
 		public BackgroundPipeline(MemoryStack stack, VulkanDrawContext dc, long descPool, long renderPass) {
-			super(stack, dc, "background", descPool, renderPass, EPrimitiveType.Triangle);
+			super(stack, dc, "background", descPool, renderPass, EPrimitiveType.Triangle, dc.textureDescLayout);
 		}
 	}
 
@@ -228,7 +241,7 @@ public abstract class VulkanPipeline {
 		}
 
 		public UnifiedPipeline(MemoryStack stack, VulkanDrawContext dc, long descPool, long renderPass, int primitive) {
-			super(stack, dc, "unified", descPool, renderPass, primitive);
+			super(stack, dc, "unified", descPool, renderPass, primitive, dc.textureDescLayout);
 		}
 	}
 
@@ -270,7 +283,7 @@ public abstract class VulkanPipeline {
 		}
 
 		public UnifiedArrayPipeline(MemoryStack stack, VulkanDrawContext dc, long descPool, long renderPass) {
-			super(stack, dc, "unified-array", descPool, renderPass, EPrimitiveType.Quad);
+			super(stack, dc, "unified-array", descPool, renderPass, EPrimitiveType.Quad, dc.textureDescLayout);
 		}
 	}
 
@@ -310,7 +323,7 @@ public abstract class VulkanPipeline {
 		}
 
 		public UnifiedMultiPipeline(MemoryStack stack, VulkanDrawContext dc, long descPool, long renderPass) {
-			super(stack, dc, "unified-multi", descPool, renderPass, EPrimitiveType.Quad);
+			super(stack, dc, "unified-multi", descPool, renderPass, EPrimitiveType.Quad, dc.textureDescLayout);
 		}
-    }
+	}
 }

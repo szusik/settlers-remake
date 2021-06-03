@@ -629,11 +629,13 @@ public class VulkanUtils {
 		return dataCpy;
 	}
 
-	public static void createDescriptorSetLayout(MemoryStack stack, VkDevice device, VkDescriptorSetLayoutBinding.Buffer bindings, LongBuffer to) {
+	public static long createDescriptorSetLayout(MemoryStack stack, VkDevice device, VkDescriptorSetLayoutBinding.Buffer bindings) {
 		VkDescriptorSetLayoutCreateInfo createInfo = VkDescriptorSetLayoutCreateInfo.callocStack(stack)
 				.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO)
 				.pBindings(bindings);
-		vkCreateDescriptorSetLayout(device, createInfo, null, to);
+		LongBuffer output = stack.callocLong(1);
+		vkCreateDescriptorSetLayout(device, createInfo, null, output);
+		return output.get(0);
 	}
 
 	public static long createAllocator(MemoryStack stack, VkInstance instance, VkDevice device, VkPhysicalDevice physicalDevice) {

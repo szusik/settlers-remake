@@ -212,9 +212,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			VkDescriptorSetLayoutBinding.Buffer textureBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
 			textureBindings.get(0).set(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, null);
 
-			LongBuffer textureDescLayoutBfr = stack.longs(0);
-			VulkanUtils.createDescriptorSetLayout(stack, device, textureBindings, textureDescLayoutBfr);
-			textureDescLayout = textureDescLayoutBfr.get(0);
+			textureDescLayout = VulkanUtils.createDescriptorSetLayout(stack, device, textureBindings);
 
 
 			unifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, descPool, renderPass, EPrimitiveType.Quad);
