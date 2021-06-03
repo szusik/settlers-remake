@@ -1,5 +1,8 @@
 package jsettlers.input.tasks;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 
 import jsettlers.common.movable.EMovableType;
@@ -7,8 +10,11 @@ import jsettlers.common.position.ShortPoint2D;
 
 public class ChangeMovableRatioTask extends SimpleGuiTask {
 
-	private final ShortPoint2D position;
-	private final EMovableType moveableType;
+	private ShortPoint2D position;
+	private EMovableType moveableType;
+
+	public ChangeMovableRatioTask() {
+	}
 
 	public ChangeMovableRatioTask(EGuiAction action, byte playerId, ShortPoint2D position, EMovableType moveableType) {
 		super(action, playerId);
@@ -22,6 +28,20 @@ public class ChangeMovableRatioTask extends SimpleGuiTask {
 
 	public EMovableType getMoveableType() {
 		return moveableType;
+	}
+
+	@Override
+	protected void serializeTask(DataOutputStream dos) throws IOException {
+		super.serializeTask(dos);
+		SimpleGuiTask.serializePosition(dos, position);
+		dos.writeInt(moveableType.ordinal());
+	}
+
+	@Override
+	protected void deserializeTask(DataInputStream dis) throws IOException {
+		super.deserializeTask(dis);
+		position = SimpleGuiTask.deserializePosition(dis);
+		moveableType = EMovableType.VALUES[dis.readInt()];
 	}
 
 	@Override
