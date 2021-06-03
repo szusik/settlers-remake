@@ -19,7 +19,6 @@ import java.nio.LongBuffer;
 import java.util.Arrays;
 
 import go.graphics.EPrimitiveType;
-import go.graphics.GLDrawContext;
 
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -60,12 +59,22 @@ public abstract class VulkanPipeline {
 			vertShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".vert");
 			fragShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".frag");
 
+			int pushConstantSize = getPushConstantSize();
+
+			VkPushConstantRange.Buffer pushConstantRanges = VkPushConstantRange.create(1);
+			pushConstantRanges.get(0).set(VK_SHADER_STAGE_ALL_GRAPHICS, 0, pushConstantSize);
+
 			pipelineLayoutCreateInfo = VkPipelineLayoutCreateInfo.create()
 					.sType(VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO)
-					.pPushConstantRanges(getPushConstantRanges());
+					.pPushConstantRanges(pushConstantRanges);
 
-			pushConstantBfr = BufferUtils.createByteBuffer(pipelineLayoutCreateInfo.pPushConstantRanges().size()-4);
-			writtenPushConstantBfr = BufferUtils.createByteBuffer(pushConstantBfr.capacity());
+			if(pushConstantSize == 4) {
+				pushConstantBfr = null;
+				writtenPushConstantBfr = null;
+			} else {
+				pushConstantBfr = BufferUtils.createByteBuffer(pushConstantSize - 4);
+				writtenPushConstantBfr = BufferUtils.createByteBuffer(pushConstantSize - 4);
+			}
 
 			VkDescriptorSetLayoutBinding.Buffer bindings = getDescriptorSetLayoutBindings();
 			if(bindings != null) {
@@ -92,7 +101,7 @@ public abstract class VulkanPipeline {
 		}
 	}
 
-	protected abstract VkPushConstantRange.Buffer getPushConstantRanges();
+	protected abstract int getPushConstantSize();
 	protected abstract VkPipelineVertexInputStateCreateInfo getVertexInputState(MemoryStack stack);
 	protected abstract VkDescriptorSetLayoutBinding.Buffer getDescriptorSetLayoutBindings();
 
@@ -126,10 +135,14 @@ public abstract class VulkanPipeline {
 		}
 
 		vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 0, new int[] {dc.globalAttrIndex});
-		vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 4, writtenPushConstantBfr);
+		if(writtenPushConstantBfr != null) {
+			vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 4, writtenPushConstantBfr);
+		}
 	}
 
 	public void pushConstants(VkCommandBuffer commandBuffer) {
+		if(pushConstantBfr == null) throw new IllegalStateException("This pipeline has no special push constants!");
+
 		if(pushConstantBfr.compareTo(writtenPushConstantBfr) != 0) {
 			vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 4, pushConstantBfr);
 			writtenPushConstantBfr.put(pushConstantBfr);
@@ -170,10 +183,8 @@ public abstract class VulkanPipeline {
 	public static class BackgroundPipeline extends VulkanPipeline {
 
 		@Override
-		protected VkPushConstantRange.Buffer getPushConstantRanges() {
-			VkPushConstantRange.Buffer pushConstantRanges = VkPushConstantRange.create(1);
-			pushConstantRanges.get(0).set(VK_SHADER_STAGE_ALL_GRAPHICS, 0, 2*4);
-			return pushConstantRanges;
+		protected int getPushConstantSize() {
+			return 4;
 		}
 
 		@Override
@@ -209,10 +220,8 @@ public abstract class VulkanPipeline {
 	public static class UnifiedPipeline extends VulkanPipeline {
 
 		@Override
-		protected VkPushConstantRange.Buffer getPushConstantRanges() {
-			VkPushConstantRange.Buffer pushConstantRanges = VkPushConstantRange.create(1);
-			pushConstantRanges.get(0).set(VK_SHADER_STAGE_ALL_GRAPHICS, 0, (2*4+2+4)*4);//(4*4+2+3)*4);
-			return pushConstantRanges;
+		protected int getPushConstantSize() {
+			return (2*4+2+4)*4;
 		}
 
 		@Override
@@ -248,10 +257,8 @@ public abstract class VulkanPipeline {
 	public static class UnifiedArrayPipeline extends VulkanPipeline {
 
 		@Override
-		protected VkPushConstantRange.Buffer getPushConstantRanges() {
-			VkPushConstantRange.Buffer pushConstantRanges = VkPushConstantRange.create(1);
-			pushConstantRanges.get(0).set(VK_SHADER_STAGE_ALL_GRAPHICS, 0, 2*4);
-			return pushConstantRanges;
+		protected int getPushConstantSize() {
+			return 4;
 		}
 
 		@Override
@@ -290,10 +297,8 @@ public abstract class VulkanPipeline {
     public static class UnifiedMultiPipeline extends VulkanPipeline {
 
 		@Override
-		protected VkPushConstantRange.Buffer getPushConstantRanges() {
-			VkPushConstantRange.Buffer pushConstantRanges = VkPushConstantRange.create(1);
-			pushConstantRanges.get(0).set(VK_SHADER_STAGE_ALL_GRAPHICS, 0, 3*4);
-			return pushConstantRanges;
+		protected int getPushConstantSize() {
+			return 4;
 		}
 
 		@Override

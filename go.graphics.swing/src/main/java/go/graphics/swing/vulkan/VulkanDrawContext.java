@@ -396,9 +396,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		bindDescSets(getTextureDescSet(call.sourceQuads.texture), verticesDescSet);
 
-		unifiedMultiPipeline.pushConstantBfr.putInt(0, call.getVertexArrayId());
-
-		unifiedMultiPipeline.pushConstants(graphCommandBuffer);
 		unifiedMultiPipeline.bindVertexBuffers(graphCommandBuffer, vkDrawCalls.getBufferIdVk());
 
 		vkCmdDraw(graphCommandBuffer, 4, call.used, 0, 0);

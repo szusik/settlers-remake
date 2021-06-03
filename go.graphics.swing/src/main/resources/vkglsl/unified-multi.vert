@@ -40,8 +40,5 @@ void main() {
     vec4 transformed = vec4(local_vert*scale, 0, 1);
     transformed.xyz += position;
 
-    //if(gl_VertexIndex == 1 || gl_VertexIndex == 2) transformed.x += 10;
-    //if(gl_VertexIndex == 2 || gl_VertexIndex == 3) transformed.y += 10;
-
     gl_Position = global.projection * global.globalTrans[local.globalTransIndex] * transformed;
 }
