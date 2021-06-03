@@ -223,9 +223,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 
 			VkDescriptorSetLayoutBinding.Buffer multiBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
-			textureBindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, null);
+			multiBindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, null);
 
 			multiDescLayout = VulkanUtils.createDescriptorSetLayout(stack, device, multiBindings);
+
 
 			unifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, descPool, renderPass, EPrimitiveType.Quad);
 			lineUnifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, descPool, renderPass, EPrimitiveType.Line);
@@ -274,8 +275,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			installUniformBuffer(unifiedUniformBfr, 1, 0, unifiedArrayPipeline);
 			installUniformBuffer(unifiedUniformBfr, 1, 0, unifiedMultiPipeline);
 			installUniformBuffer(unifiedUniformBfr, 1, 0, unifiedPipeline);
-
-			for(int i = 0; i != MAX_CACHE_COUNT; i++) installUniformBuffer(unifiedUniformBfr, 2, i, unifiedMultiPipeline);
 
 		} finally {
 			if(unifiedUniformBfr == null) invalidate();
@@ -384,7 +383,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	@Override
 	protected void drawMulti(MultiDrawHandle call) {
 		if(!commandBufferRecording || call == null || call.drawCalls == null || call.sourceQuads == null) return;
-		if(call.getVertexArrayId() >= installedManagedHandleCount) return;
 
 		updateUnifiedStatic();
 
@@ -392,7 +390,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		bind(unifiedMultiPipeline);
 
-		bindDescSets(getTextureDescSet(call.sourceQuads.texture));
+		VulkanBufferHandle vkQuads = (VulkanBufferHandle)call.sourceQuads.vertices;
+
+		long verticesDescSet = multiDescriptorSets.computeIfAbsent(vkQuads, this::createMultiDescriptorSet);
+
+		bindDescSets(getTextureDescSet(call.sourceQuads.texture), verticesDescSet);
 
 		unifiedMultiPipeline.pushConstantBfr.putInt(0, call.getVertexArrayId());
 
@@ -403,6 +405,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		((VulkanMultiBufferHandle)call.drawCalls).inc();
 	}
+
+	private Map<VulkanBufferHandle, Long> multiDescriptorSets = new HashMap<>();
 
 	private VulkanMultiBufferHandle unifiedArrayBfr = createMultiBuffer(2*100*4*4, DYNAMIC_BUFFER);
 	private ByteBuffer unifiedArrayStaging = BufferUtils.createByteBuffer(2*100*4*4);
@@ -1082,8 +1086,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		CLEAR_VALUES.get(1).depthStencil().set(1, 0);
 	}
 
-	private int installedManagedHandleCount = 0;
-
 
 	private static final VkCommandBufferBeginInfo commandBufferBeginInfo = VkCommandBufferBeginInfo.calloc().sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO);
 
@@ -1110,14 +1112,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			for (VulkanTextureHandle texture : textures) {
 				texture.tick();
-			}
-
-			if(installedManagedHandleCount < managedHandles.size()) {
-				for(int i = installedManagedHandleCount; i != managedHandles.size(); i++) {
-					installUniformBuffer((VulkanBufferHandle) managedHandles.get(i).bufferHolder.vertices, 2, i, unifiedMultiPipeline);
-				}
-
-				installedManagedHandleCount = managedHandles.size();
 			}
 
 			IntBuffer swapchainImageIndexBfr = stack.callocInt(1);
@@ -1341,5 +1335,28 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		pipeline.update(install_uniform_buffer_write);
 
+	}
+
+	private long createMultiDescriptorSet(VulkanBufferHandle multiBuffer) {
+		try(MemoryStack stack = MemoryStack.stackPush()) {
+			long descSet = VulkanUtils.createDescriptorSet(stack, device, descPool, stack.longs(multiDescLayout));
+
+			VkDescriptorBufferInfo.Buffer install_uniform_buffer = VkDescriptorBufferInfo.create(1);
+			install_uniform_buffer.get(0).set(multiBuffer.getBufferIdVk(), 0, VK_WHOLE_SIZE);
+
+
+			VkWriteDescriptorSet.Buffer install_uniform_buffer_write = VkWriteDescriptorSet.create(1)
+					.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET)
+					.descriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+					.pBufferInfo(install_uniform_buffer)
+					.descriptorCount(1)
+					.dstArrayElement(0)
+					.dstBinding(0)
+					.dstSet(descSet);
+
+			vkUpdateDescriptorSets(device, install_uniform_buffer_write, null);
+
+			return descSet;
+		}
 	}
 }

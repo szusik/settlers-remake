@@ -392,10 +392,9 @@ public class VulkanUtils {
 				.topology(topology);
 
 		VkSpecializationMapEntry.Buffer max_globalattr_count_at = VkSpecializationMapEntry.callocStack(2, stack);
-		max_globalattr_count_at.get(0).set(0, 0, 4)
-				.set(1, 4, 4);
+		max_globalattr_count_at.get(0).set(0, 0, 4);
 		VkSpecializationInfo max_globalattr_count = VkSpecializationInfo.callocStack(stack)
-				.pData(stack.calloc(8).putInt(0, MAX_GLOBALTRANS_COUNT).putInt(4, GLDrawContext.MAX_CACHE_COUNT))
+				.pData(stack.calloc(4).putInt(0, MAX_GLOBALTRANS_COUNT))
 				.pMapEntries(max_globalattr_count_at);
 
 

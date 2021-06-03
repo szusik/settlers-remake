@@ -9,7 +9,6 @@ layout(set=0, binding=1) uniform UnifiedData {
 
 layout(push_constant) uniform UnifiedPerCall {
     int globalTransIndex;
-    int geometryIndex;
 } local;
 
 layout (location=0) in vec2 frag_texcoord;

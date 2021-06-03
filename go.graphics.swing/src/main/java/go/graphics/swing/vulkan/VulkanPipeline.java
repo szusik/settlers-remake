@@ -69,7 +69,7 @@ public abstract class VulkanPipeline {
 
 			VkDescriptorSetLayoutBinding.Buffer bindings = getDescriptorSetLayoutBindings();
 			if(bindings != null) {
-				setLayouts.put(1, VulkanUtils.createDescriptorSetLayout(stack, dc.device, bindings));
+				setLayouts.put(0, VulkanUtils.createDescriptorSetLayout(stack, dc.device, bindings));
 				pipelineLayoutCreateInfo.pSetLayouts(setLayouts);
 			}
 
@@ -315,15 +315,14 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkDescriptorSetLayoutBinding.Buffer getDescriptorSetLayoutBindings() {
-			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(3);
+			VkDescriptorSetLayoutBinding.Buffer bindings = VkDescriptorSetLayoutBinding.calloc(2);
 			bindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null);
 			bindings.get(1).set(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS, null); // shadow depth
-			bindings.get(2).set(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, GLDrawContext.MAX_CACHE_COUNT, VK_SHADER_STAGE_ALL_GRAPHICS, null); // geometry
 			return bindings;
 		}
 
 		public UnifiedMultiPipeline(MemoryStack stack, VulkanDrawContext dc, long descPool, long renderPass) {
-			super(stack, dc, "unified-multi", descPool, renderPass, EPrimitiveType.Quad, dc.textureDescLayout);
+			super(stack, dc, "unified-multi", descPool, renderPass, EPrimitiveType.Quad, dc.textureDescLayout, dc.multiDescLayout);
 		}
 	}
 }

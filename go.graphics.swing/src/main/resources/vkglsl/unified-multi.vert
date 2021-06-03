@@ -13,15 +13,12 @@ layout(set=0, binding=0) uniform GlobalData {
     mat4 globalTrans[MAX_GLOBALTRANS_COUNT];
 } global;
 
-layout(constant_id=1) const int MAX_GEOMETRY_BUFFER_COUNT = 10;
-
-layout(set=0, binding=2) uniform GeometryData {
+layout(set=2, binding=0) uniform GeometryData {
     vec4 geometryData[4*1024];
-} geomtryBuffer[MAX_GEOMETRY_BUFFER_COUNT];
+} geomtryBuffer;
 
 layout(push_constant) uniform UnifiedPerCall {
     int globalTransIndex;
-    int geometryIndex;
 } local;
 
 layout (location=0) out vec2 frag_texcoord;
@@ -37,8 +34,8 @@ void main() {
 
     int index = gl_VertexIndex+(int(additional.y));
 
-    frag_texcoord = geomtryBuffer[local.geometryIndex].geometryData[index].zw;
-    vec2 local_vert = geomtryBuffer[local.geometryIndex].geometryData[index].xy;
+    frag_texcoord = geomtryBuffer.geometryData[index].zw;
+    vec2 local_vert = geomtryBuffer.geometryData[index].xy;
 
     vec4 transformed = vec4(local_vert*scale, 0, 1);
     transformed.xyz += position;
