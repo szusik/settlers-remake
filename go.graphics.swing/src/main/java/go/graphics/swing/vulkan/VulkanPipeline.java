@@ -39,7 +39,7 @@ public abstract class VulkanPipeline {
 	public VulkanPipeline(MemoryStack stack,
 						  VulkanDrawContext dc,
 						  String prefix,
-						  long descPool,
+						  VulkanDescriptorPool descPool,
 						  long renderPass,
 						  int primitive,
 						  long... additionalDescSets) {
@@ -212,7 +212,7 @@ public abstract class VulkanPipeline {
 					.pVertexBindingDescriptions(bindings);
 		}
 
-		public BackgroundPipeline(MemoryStack stack, VulkanDrawContext dc, long descPool, long renderPass) {
+		public BackgroundPipeline(MemoryStack stack, VulkanDrawContext dc, VulkanDescriptorPool descPool, long renderPass) {
 			super(stack, dc, "background", descPool, renderPass, EPrimitiveType.Triangle, dc.textureDescLayout);
 		}
 	}
@@ -249,7 +249,7 @@ public abstract class VulkanPipeline {
 					.pVertexBindingDescriptions(bindings);
 		}
 
-		public UnifiedPipeline(MemoryStack stack, VulkanDrawContext dc, long descPool, long renderPass, int primitive) {
+		public UnifiedPipeline(MemoryStack stack, VulkanDrawContext dc, VulkanDescriptorPool descPool, long renderPass, int primitive) {
 			super(stack, dc, "unified", descPool, renderPass, primitive, dc.textureDescLayout);
 		}
 	}
@@ -289,7 +289,7 @@ public abstract class VulkanPipeline {
 			return bindings;
 		}
 
-		public UnifiedArrayPipeline(MemoryStack stack, VulkanDrawContext dc, long descPool, long renderPass) {
+		public UnifiedArrayPipeline(MemoryStack stack, VulkanDrawContext dc, VulkanDescriptorPool descPool, long renderPass) {
 			super(stack, dc, "unified-array", descPool, renderPass, EPrimitiveType.Quad, dc.textureDescLayout);
 		}
 	}
@@ -326,7 +326,7 @@ public abstract class VulkanPipeline {
 			return bindings;
 		}
 
-		public UnifiedMultiPipeline(MemoryStack stack, VulkanDrawContext dc, long descPool, long renderPass) {
+		public UnifiedMultiPipeline(MemoryStack stack, VulkanDrawContext dc, VulkanDescriptorPool descPool, long renderPass) {
 			super(stack, dc, "unified-multi", descPool, renderPass, EPrimitiveType.Quad, dc.textureDescLayout, dc.multiDescLayout);
 		}
 	}

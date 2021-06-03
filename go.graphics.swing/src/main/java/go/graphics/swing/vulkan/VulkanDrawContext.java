@@ -113,7 +113,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private long fetchFramebufferSemaphore = VK_NULL_HANDLE;
 	private long presentFramebufferSemaphore = VK_NULL_HANDLE;
 
-	private long descPool = VK_NULL_HANDLE;
+	private VulkanDescriptorPool descPool = null;
 
 	public long textureDescLayout = VK_NULL_HANDLE;
 	public long multiDescLayout = VK_NULL_HANDLE;
@@ -207,13 +207,13 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			framebufferCreateInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
 					.layers(1);
 
-			descPool = VulkanUtils.createDescriptorPool(stack, device,
-					// all textures
+			descPool = new VulkanDescriptorPool(device,
+					// five pipelines + every texture + every cache
+					5 + VulkanUtils.MAX_TEXTURE_COUNT + GLDrawContext.MAX_CACHE_COUNT,
 					VulkanUtils.MAX_TEXTURE_COUNT,
 					// five pipelines * 2 buffers + every cache
-					10+GLDrawContext.MAX_CACHE_COUNT,
-					// five pipelines + every texture + every cache
-					5 + VulkanUtils.MAX_TEXTURE_COUNT + GLDrawContext.MAX_CACHE_COUNT);
+					10+GLDrawContext.MAX_CACHE_COUNT
+			);
 
 
 			VkDescriptorSetLayoutBinding.Buffer textureBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
@@ -309,7 +309,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(unifiedPipeline != null) unifiedPipeline.destroy();
 		if(multiDescLayout != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(device, multiDescLayout, null);
 		if(textureDescLayout != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(device, textureDescLayout, null);
-		if(descPool != VK_NULL_HANDLE) vkDestroyDescriptorPool(device, descPool, null);
+		if(descPool != null) descPool.destroy();
 
 		for(long allocator : allocators) if(allocator != 0) vmaDestroyAllocator(allocator);
 

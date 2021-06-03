@@ -544,10 +544,10 @@ public class VulkanUtils {
 		return poolBfr.get(0);
 	}
 
-	public static long createDescriptorSet(MemoryStack stack, VkDevice device, long descPool, LongBuffer setLayouts) {
+	public static long createDescriptorSet(MemoryStack stack, VkDevice device, VulkanDescriptorPool descPool, LongBuffer setLayouts) {
 		VkDescriptorSetAllocateInfo allocInfo = VkDescriptorSetAllocateInfo.callocStack(stack)
 				.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO)
-				.descriptorPool(descPool)
+				.descriptorPool(descPool.getDescriptorPool())
 				.pSetLayouts(setLayouts);
 
 		LongBuffer descSet = stack.callocLong(1);
