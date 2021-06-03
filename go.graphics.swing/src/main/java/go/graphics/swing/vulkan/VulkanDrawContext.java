@@ -381,7 +381,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		bind(unifiedMultiPipeline);
 
-		bindTextureDescSet(call.sourceQuads.texture);
+		bindDescSets(getTextureDescSet(call.sourceQuads.texture));
 
 		unifiedMultiPipeline.pushConstantBfr.putInt(0, call.getVertexArrayId());
 
@@ -415,7 +415,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		long vb = ((VulkanBufferHandle)call.vertices).getBufferIdVk();
 		unifiedArrayPipeline.bindVertexBuffers(graphCommandBuffer, vb, vb, unifiedArrayBfr.getBufferIdVk());
-		bindTextureDescSet(call.texture);
+		bindDescSets(getTextureDescSet(call.texture));
 
 		vkCmdDraw(graphCommandBuffer, vertexCount, array_len, call.offset, 0);
 		unifiedArrayBfr.inc();
@@ -435,7 +435,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			bind(lineUnifiedPipeline);
 		}
 
-		bindTextureDescSet(call.texture);
+		bindDescSets(getTextureDescSet(call.texture));
 
 		long vb = ((VulkanBufferHandle)call.vertices).getBufferIdVk();
 		lastPipeline.bindVertexBuffers(graphCommandBuffer, vb, vb);
@@ -507,7 +507,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			backgroundDataUpdated = false;
 		}
 
-		bindTextureDescSet(call.texture);
+		bindDescSets(getTextureDescSet(call.texture));
 
 		backgroundPipeline.bindVertexBuffers(graphCommandBuffer, vkShape.getBufferIdVk(), vkColor.getBufferIdVk());
 
@@ -1293,11 +1293,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		lastPipeline.bindDescSets(graphCommandBuffer, descSets);
 	}
 
-	private void bindTextureDescSet(TextureHandle texture) {
+	private long getTextureDescSet(TextureHandle texture) {
 		if(texture == null) {
-			bindDescSets(textures.stream().filter(tex -> tex.getTextureId() != -1).findAny().get().descSet);
+			return textures.stream().filter(tex -> tex.getTextureId() != -1).findAny().get().descSet;
 		} else {
-			bindDescSets(((VulkanTextureHandle) texture).descSet);
+			return ((VulkanTextureHandle) texture).descSet;
 		}
 	}
 
