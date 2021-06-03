@@ -21,8 +21,8 @@ import go.graphics.text.EFontSize;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
@@ -46,8 +46,11 @@ public final class LWJGLTextDrawer extends AbstractTextDrawer<GLDrawContext> {
 
 	@Override
 	protected int init() {
-		BufferedImage tmp_bi = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
-		Graphics tmp_graph = tmp_bi.getGraphics();
+		BufferedImage tmp_bi = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D tmp_graph = tmp_bi.createGraphics();
+		tmp_graph.setRenderingHint(
+				RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		tmp_graph.setFont(FONT);
 		FontMetrics fm = tmp_graph.getFontMetrics();
 		for(int i = 0;i != CHARACTER_COUNT; i++) char_widths[i] = fm.charWidth(CHARACTERS.charAt(i));
@@ -76,6 +79,9 @@ public final class LWJGLTextDrawer extends AbstractTextDrawer<GLDrawContext> {
 	protected void setupBitmapDraw() {
 		pre_render = new BufferedImage(tex_width, tex_height, BufferedImage.TYPE_INT_ARGB);
 		graph = pre_render.createGraphics();
+		graph.setRenderingHint(
+				RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		graph.setColor(Color.WHITE);
 		graph.setFont(FONT);
 	}

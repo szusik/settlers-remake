@@ -144,7 +144,7 @@ public abstract class AbstractTextDrawer<T extends GLDrawContext> {
 			for(int x = 0;x != tex_width;x++) {
 				int pixel = pixels[(tex_height-y-1)*tex_width+x];
 
-				short a = ((pixel >> 24) != 0 ? alpha_channel : 0);
+				short a = (short)(((pixel >> 24)&0xFF)*15f/255f);
 				bfr.put((short) (a | alpha_white));
 			}
 		}
