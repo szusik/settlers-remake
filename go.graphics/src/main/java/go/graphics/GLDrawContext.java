@@ -109,9 +109,12 @@ public abstract class GLDrawContext {
 		};
 	}
 
-	// vulkan only guarantees 12 buffer handles and two more are already used
-	// see VulkanPipeline.UnifiedMultiPipeline
-	public static final int MAX_CACHE_COUNT = 10;
+	/* vulkan allocates resources based on this number.
+		Keeps it within reasonable bounds and look at Table 54.
+		Required Limits in the vulkan spec for reference.
+		TODO allocate new descriptor sets if an old one is full, instead of crashing
+	 */
+	public static final int MAX_CACHE_COUNT = 64;
 
 	private void addNewHandle() {
 		if(MAX_CACHE_COUNT == managedHandles.size()) throw new Error("ManangedHandle slots exceeded!");
