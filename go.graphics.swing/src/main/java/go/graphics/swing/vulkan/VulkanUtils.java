@@ -104,6 +104,9 @@ public class VulkanUtils {
 	public static final int ALLOCATE_UBO_SLOTS = 10;
 	public static final int ALLOCATE_SET_SLOTS = 20;
 
+	public static final int TEXTURE_POOL_SIZE = 10;
+	public static final int MULTI_POOL_SIZE = 10;
+
 	public static final int MAX_GLOBALTRANS_COUNT = 10;
 
 	public static List<String> defaultExtensionArray(boolean debug) {

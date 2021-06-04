@@ -113,7 +113,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private long fetchFramebufferSemaphore = VK_NULL_HANDLE;
 	private long presentFramebufferSemaphore = VK_NULL_HANDLE;
 
-	private VulkanDescriptorPool descPool = null;
+	private VulkanDescriptorPool universalDescPool = null;
+	private VulkanDescriptorPool textureDescPool = null;
+	private VulkanDescriptorPool multiDescPool = null;
 
 	public VulkanDescriptorSetLayout textureDescLayout = null;
 	public VulkanDescriptorSetLayout multiDescLayout = null;
@@ -208,11 +210,23 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 					.layers(1);
 
 
-			final Map<Integer, Integer> allocateAmounts = new HashMap<>();
-			allocateAmounts.put(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VulkanUtils.ALLOCATE_UBO_SLOTS);
-			allocateAmounts.put(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.ALLOCATE_TEXTURE_SLOTS);
+			final Map<Integer, Integer> universalAllocateAmounts = new HashMap<>();
+			universalAllocateAmounts.put(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VulkanUtils.ALLOCATE_UBO_SLOTS);
+			universalAllocateAmounts.put(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.ALLOCATE_TEXTURE_SLOTS);
 
-			descPool = new VulkanDescriptorPool(device, VulkanUtils.ALLOCATE_SET_SLOTS, allocateAmounts);
+			universalDescPool = new VulkanDescriptorPool(device, VulkanUtils.ALLOCATE_SET_SLOTS, universalAllocateAmounts);
+
+
+			final Map<Integer, Integer> textureAllocateAmounts = new HashMap<>();
+			textureAllocateAmounts.put(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.TEXTURE_POOL_SIZE);
+
+			textureDescPool = new VulkanDescriptorPool(device, VulkanUtils.TEXTURE_POOL_SIZE, textureAllocateAmounts);
+
+
+			final Map<Integer, Integer> multiAllocateAmounts = new HashMap<>();
+			multiAllocateAmounts.put(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VulkanUtils.MULTI_POOL_SIZE);
+
+			multiDescPool = new VulkanDescriptorPool(device, VulkanUtils.MULTI_POOL_SIZE, multiAllocateAmounts);
 
 
 			VkDescriptorSetLayoutBinding.Buffer textureBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
@@ -227,11 +241,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			multiDescLayout = new VulkanDescriptorSetLayout(device, multiBindings);
 
 
-			unifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, descPool, renderPass, EPrimitiveType.Quad);
-			lineUnifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, descPool, renderPass, EPrimitiveType.Line);
-			unifiedArrayPipeline = new VulkanPipeline.UnifiedArrayPipeline(stack, this, descPool, renderPass);
-			unifiedMultiPipeline = new VulkanPipeline.UnifiedMultiPipeline(stack, this, descPool, renderPass);
-			backgroundPipeline = new VulkanPipeline.BackgroundPipeline(stack, this, descPool, renderPass);
+			unifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, universalDescPool, renderPass, EPrimitiveType.Quad);
+			lineUnifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, universalDescPool, renderPass, EPrimitiveType.Line);
+			unifiedArrayPipeline = new VulkanPipeline.UnifiedArrayPipeline(stack, this, universalDescPool, renderPass);
+			unifiedMultiPipeline = new VulkanPipeline.UnifiedMultiPipeline(stack, this, universalDescPool, renderPass);
+			backgroundPipeline = new VulkanPipeline.BackgroundPipeline(stack, this, universalDescPool, renderPass);
 
 
 			LongBuffer semaphoreBfr = stack.callocLong(1);
@@ -308,7 +322,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(unifiedPipeline != null) unifiedPipeline.destroy();
 		if(multiDescLayout != null) multiDescLayout.destroy();
 		if(textureDescLayout != null) textureDescLayout.destroy();
-		if(descPool != null) descPool.destroy();
+		if(multiDescPool != null) multiDescPool.destroy();
+		if(textureDescPool != null) textureDescPool.destroy();
+		if(universalDescPool != null) universalDescPool.destroy();
 
 		for(long allocator : allocators) if(allocator != 0) vmaDestroyAllocator(allocator);
 
@@ -756,7 +772,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		long textureDescSet = descSet;
 
 		if(textureDescSet == 0 && color) { // only color images can be used
-			textureDescSet = descPool.createNewSet(textureDescLayout);
+			textureDescSet = textureDescPool.createNewSet(textureDescLayout);
 		}
 
 		VulkanTextureHandle vkTexHandle = new VulkanTextureHandle(this,
@@ -1327,7 +1343,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 	private long createMultiDescriptorSet(VulkanBufferHandle multiBuffer) {
-		long descSet = descPool.createNewSet(multiDescLayout);
+		long descSet = multiDescPool.createNewSet(multiDescLayout);
 
 		VkDescriptorBufferInfo.Buffer install_uniform_buffer = VkDescriptorBufferInfo.create(1);
 		install_uniform_buffer.get(0).set(multiBuffer.getBufferIdVk(), 0, VK_WHOLE_SIZE);
