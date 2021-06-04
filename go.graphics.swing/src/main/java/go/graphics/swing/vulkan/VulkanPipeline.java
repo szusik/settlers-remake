@@ -32,6 +32,7 @@ public abstract class VulkanPipeline {
 	protected long descSet = 0;
 	protected ByteBuffer writtenPushConstantBfr;
 	protected ByteBuffer pushConstantBfr;
+	private VulkanDescriptorSetLayout ownDescriptorSetLayout = null;
 
 	private long[] writtenBfrs;
 	private long[] writtenDescSets;
@@ -42,16 +43,16 @@ public abstract class VulkanPipeline {
 						  VulkanDescriptorPool descPool,
 						  long renderPass,
 						  int primitive,
-						  long... additionalDescSets) {
+						  VulkanDescriptorSetLayout... additionalDescSetLayout) {
 		this.dc = dc;
 
 		long vertShader = VK_NULL_HANDLE;
 		long fragShader = VK_NULL_HANDLE;
 
-		setLayouts = BufferUtils.createLongBuffer(1 + additionalDescSets.length);
+		setLayouts = BufferUtils.createLongBuffer(1 + additionalDescSetLayout.length);
 		setLayouts.put(0);
-		for(long additionalDescSet : additionalDescSets) {
-			setLayouts.put(additionalDescSet);
+		for(VulkanDescriptorSetLayout additionalSetLayout : additionalDescSetLayout) {
+			setLayouts.put(additionalSetLayout.getLayout());
 		}
 		setLayouts.rewind();
 
@@ -76,11 +77,9 @@ public abstract class VulkanPipeline {
 				writtenPushConstantBfr = BufferUtils.createByteBuffer(pushConstantSize - 4);
 			}
 
-			VkDescriptorSetLayoutBinding.Buffer bindings = getDescriptorSetLayoutBindings();
-			if(bindings != null) {
-				setLayouts.put(0, VulkanUtils.createDescriptorSetLayout(stack, dc.device, bindings));
-				pipelineLayoutCreateInfo.pSetLayouts(setLayouts);
-			}
+			ownDescriptorSetLayout = new VulkanDescriptorSetLayout(dc.device, getDescriptorSetLayoutBindings());
+			setLayouts.put(0, ownDescriptorSetLayout.getLayout());
+			pipelineLayoutCreateInfo.pSetLayouts(setLayouts);
 
 			VkPipelineVertexInputStateCreateInfo inputStateCreateInfo = getVertexInputState(stack);
 			writtenBfrs = new long[inputStateCreateInfo.vertexBindingDescriptionCount()];
@@ -89,7 +88,7 @@ public abstract class VulkanPipeline {
 			pipelineLayout = VulkanUtils.createPipelineLayout(stack, dc.device, pipelineLayoutCreateInfo);
 			pipeline = VulkanUtils.createPipeline(stack, dc.device, primitive, pipelineLayout, renderPass, vertShader, fragShader, inputStateCreateInfo);
 
-			descSet = VulkanUtils.createDescriptorSet(stack, dc.device, descPool, stack.longs(setLayouts.get(0)));
+			descSet = descPool.createNewSet(ownDescriptorSetLayout);
 
 			writtenDescSets = new long[1];
 			writtenDescSets[0] = descSet;
@@ -108,7 +107,7 @@ public abstract class VulkanPipeline {
 	public void destroy() {
 		if(pipeline != VK_NULL_HANDLE) vkDestroyPipeline(dc.device, pipeline, null);
 		if(pipelineLayout != VK_NULL_HANDLE) vkDestroyPipelineLayout(dc.device, pipelineLayout, null);
-		if(setLayouts.get(0) != 0L) vkDestroyDescriptorSetLayout(dc.device, setLayouts.get(0), null);
+		if(ownDescriptorSetLayout != null) ownDescriptorSetLayout.destroy();
 	}
 
 	private VkViewport.Buffer viewportUpdate = VkViewport.create(1);

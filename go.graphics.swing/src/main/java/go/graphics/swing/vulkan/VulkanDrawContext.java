@@ -115,8 +115,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	private VulkanDescriptorPool descPool = null;
 
-	public long textureDescLayout = VK_NULL_HANDLE;
-	public long multiDescLayout = VK_NULL_HANDLE;
+	public VulkanDescriptorSetLayout textureDescLayout = null;
+	public VulkanDescriptorSetLayout multiDescLayout = null;
 
 	private VulkanPipeline backgroundPipeline = null;
 	private VulkanPipeline lineUnifiedPipeline = null;
@@ -207,25 +207,27 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			framebufferCreateInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
 					.layers(1);
 
-			descPool = new VulkanDescriptorPool(device,
-					// five pipelines + every texture + every cache
-					5 + VulkanUtils.MAX_TEXTURE_COUNT + GLDrawContext.MAX_CACHE_COUNT,
-					VulkanUtils.MAX_TEXTURE_COUNT,
-					// five pipelines * 2 buffers + every cache
-					10+GLDrawContext.MAX_CACHE_COUNT
-			);
+			// five pipelines + every texture + every cache
+			final int maxDescriptorSetAmount = 5 + VulkanUtils.MAX_TEXTURE_COUNT + GLDrawContext.MAX_CACHE_COUNT;
+			final Map<Integer, Integer> allocateAmounts = new HashMap<>();
+			// five pipelines * 2 buffers + every cache
+			allocateAmounts.put(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10+GLDrawContext.MAX_CACHE_COUNT);
+			// one for every texture
+			allocateAmounts.put(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.MAX_TEXTURE_COUNT);
+
+			descPool = new VulkanDescriptorPool(device,	maxDescriptorSetAmount, allocateAmounts);
 
 
 			VkDescriptorSetLayoutBinding.Buffer textureBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
 			textureBindings.get(0).set(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, null);
 
-			textureDescLayout = VulkanUtils.createDescriptorSetLayout(stack, device, textureBindings);
+			textureDescLayout = new VulkanDescriptorSetLayout(device, textureBindings);
 
 
 			VkDescriptorSetLayoutBinding.Buffer multiBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
 			multiBindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, null);
 
-			multiDescLayout = VulkanUtils.createDescriptorSetLayout(stack, device, multiBindings);
+			multiDescLayout = new VulkanDescriptorSetLayout(device, multiBindings);
 
 
 			unifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, descPool, renderPass, EPrimitiveType.Quad);
@@ -307,8 +309,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(unifiedArrayPipeline != null) unifiedArrayPipeline.destroy();
 		if(unifiedMultiPipeline != null) unifiedMultiPipeline.destroy();
 		if(unifiedPipeline != null) unifiedPipeline.destroy();
-		if(multiDescLayout != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(device, multiDescLayout, null);
-		if(textureDescLayout != VK_NULL_HANDLE) vkDestroyDescriptorSetLayout(device, textureDescLayout, null);
+		if(multiDescLayout != null) multiDescLayout.destroy();
+		if(textureDescLayout != null) textureDescLayout.destroy();
 		if(descPool != null) descPool.destroy();
 
 		for(long allocator : allocators) if(allocator != 0) vmaDestroyAllocator(allocator);
@@ -350,21 +352,21 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 	protected VulkanBufferHandle unifiedUniformBfr = null;
-	private ByteBuffer unifiedUniformBfrData = BufferUtils.createByteBuffer(4);
+	private final ByteBuffer unifiedUniformBfrData = BufferUtils.createByteBuffer(4);
 	private boolean unifiedDataUpdated = false;
 
 
-	private LongBuffer imageBfr = BufferUtils.createLongBuffer(1);
-	private LongBuffer imageViewBfr = BufferUtils.createLongBuffer(1);
-	private PointerBuffer imageAllocationBfr = BufferUtils.createPointerBuffer(1);
+	private final LongBuffer imageBfr = BufferUtils.createLongBuffer(1);
+	private final LongBuffer imageViewBfr = BufferUtils.createLongBuffer(1);
+	private final PointerBuffer imageAllocationBfr = BufferUtils.createPointerBuffer(1);
 
 
 	@Override
 	public TextureHandle generateTexture(int width, int height, ShortBuffer data, String name) {
-		return generateTextureInternal(width, height, data, name, 0L);
+		return generateTextureInternal(width, height, data, 0L);
 	}
 
-	private TextureHandle generateTextureInternal(int width, int height, ShortBuffer data, String name, long descSet) {
+	private TextureHandle generateTextureInternal(int width, int height, ShortBuffer data, long descSet) {
 		if(!commandBufferRecording) return null;
 		if(consumedTexSlots == VulkanUtils.MAX_TEXTURE_COUNT) {
 			throw new Error("Out of texture slots: increase VulkanUtils.MAX_TEXTURE_COUNT");
@@ -403,10 +405,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		((VulkanMultiBufferHandle)call.drawCalls).inc();
 	}
 
-	private Map<VulkanBufferHandle, Long> multiDescriptorSets = new HashMap<>();
+	private final Map<VulkanBufferHandle, Long> multiDescriptorSets = new HashMap<>();
 
-	private VulkanMultiBufferHandle unifiedArrayBfr = createMultiBuffer(2*100*4*4, DYNAMIC_BUFFER);
-	private ByteBuffer unifiedArrayStaging = BufferUtils.createByteBuffer(2*100*4*4);
+	private final VulkanMultiBufferHandle unifiedArrayBfr = createMultiBuffer(2*100*4*4, DYNAMIC_BUFFER);
+	private final ByteBuffer unifiedArrayStaging = BufferUtils.createByteBuffer(2*100*4*4);
 
 	@Override
 	protected void drawUnifiedArray(UnifiedDrawHandle call, int primitive, int vertexCount, float[] trans, float[] colors, int array_len) {
@@ -433,7 +435,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		unifiedArrayBfr.inc();
 	}
 
-	private Map<Integer, VulkanBufferHandle> lineIndexBfr = new HashMap<>();
+	private final Map<Integer, VulkanBufferHandle> lineIndexBfr = new HashMap<>();
 
 	@Override
 	protected void drawUnified(UnifiedDrawHandle call, int primitive, int vertices, int mode, float x, float y, float z, float sx, float sy, AbstractColor color, float intensity) {
@@ -545,12 +547,12 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 	protected final VulkanBufferHandle backgroundUniformBfr;
-	private ByteBuffer backgroundUniformBfrData = BufferUtils.createByteBuffer((4*4+2*4+1)*4);
+	private final ByteBuffer backgroundUniformBfrData = BufferUtils.createByteBuffer((4*4+2*4+1)*4);
 	private boolean backgroundDataUpdated = false;
 
 
 	protected int globalAttrIndex = 0;
-	private Matrix4f global = new Matrix4f();
+	private final Matrix4f global = new Matrix4f();
 
 	@Override
 	public void setGlobalAttributes(float x, float y, float z, float sx, float sy, float sz) {
@@ -614,8 +616,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		changeLayout(vkTexture, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, true);
 	}
 
-	private static final String REP_TEXTURE_MARKER = "replaced-texture";
-
 	@Override
 	public TextureHandle resizeTexture(TextureHandle textureIndex, int width, int height, ShortBuffer data) {
 		if(textureIndex == null) return null;
@@ -623,7 +623,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		((VulkanTextureHandle)textureIndex).setDestroy();
 		if(!commandBufferRecording) return null;
 
-		return generateTextureInternal(width, height, data, REP_TEXTURE_MARKER, ((VulkanTextureHandle)textureIndex).descSet);
+		return generateTextureInternal(width, height, data, ((VulkanTextureHandle)textureIndex).descSet);
 	}
 
 
@@ -745,8 +745,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		syncQueues(vkBuffer.getEvent(), vkBuffer.getBufferIdVk());
 	}
 
-	private LongBuffer bufferBfr = BufferUtils.createLongBuffer(1);
-	private PointerBuffer bufferAllocationBfr = BufferUtils.createPointerBuffer(1);
+	private final LongBuffer bufferBfr = BufferUtils.createLongBuffer(1);
+	private final PointerBuffer bufferAllocationBfr = BufferUtils.createPointerBuffer(1);
 
 	private final VkBufferCreateInfo bufferCreateInfo = VkBufferCreateInfo.create()
 			.sType(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO)
@@ -762,9 +762,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		long textureDescSet = descSet;
 
 		if(textureDescSet == 0 && color) { // only color images can be used
-			try (MemoryStack stack = MemoryStack.stackPush()) {
-				textureDescSet = VulkanUtils.createDescriptorSet(stack, device, descPool, stack.longs(textureDescLayout));
-			}
+			textureDescSet = descPool.createNewSet(textureDescLayout);
 		}
 
 		VulkanTextureHandle vkTexHandle = new VulkanTextureHandle(this,
@@ -832,8 +830,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 
-	private LongBuffer syncQueueBfr = BufferUtils.createLongBuffer(1);
-	private VkBufferMemoryBarrier.Buffer synQueueArea = VkBufferMemoryBarrier.create(1)
+	private final LongBuffer syncQueueBfr = BufferUtils.createLongBuffer(1);
+	private final VkBufferMemoryBarrier.Buffer synQueueArea = VkBufferMemoryBarrier.create(1)
 			.sType(VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER)
 			.srcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 			.dstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
@@ -892,10 +890,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private long[] swapchainImages;
 	private long[] swapchainViews;
 	private long[] framebuffers;
-	private VkSurfaceCapabilitiesKHR surfaceCapabilities = VkSurfaceCapabilitiesKHR.create();
-	private VkSwapchainCreateInfoKHR swapchainCreateInfo = VkSwapchainCreateInfoKHR.create();
-	private VkFramebufferCreateInfo framebufferCreateInfo = VkFramebufferCreateInfo.create();
-	private VkImageViewCreateInfo swapchainImageViewCreateInfo = VkImageViewCreateInfo.create();
+	private final VkSurfaceCapabilitiesKHR surfaceCapabilities = VkSurfaceCapabilitiesKHR.create();
+	private final VkSwapchainCreateInfoKHR swapchainCreateInfo = VkSwapchainCreateInfoKHR.create();
+	private final VkFramebufferCreateInfo framebufferCreateInfo = VkFramebufferCreateInfo.create();
+	private final VkImageViewCreateInfo swapchainImageViewCreateInfo = VkImageViewCreateInfo.create();
 
 	private void destroySwapchainViews(int count) {
 		if(swapchainViews == null) return;
@@ -920,8 +918,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private VulkanTextureHandle depthImage = null;
 	protected final VulkanBufferHandle globalUniformStagingBuffer;
 	protected final VulkanBufferHandle globalUniformBuffer;
-	private ByteBuffer globalUniformBufferData;
-	private Matrix4f projMatrix = new Matrix4f();
+	private final ByteBuffer globalUniformBufferData;
+	private final Matrix4f projMatrix = new Matrix4f();
 
 	private int newWidth;
 	private int newHeight;
@@ -1151,7 +1149,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 	private VulkanBufferHandle framebufferReadBack = null;
-	private VkBufferImageCopy.Buffer readBackRegion = VkBufferImageCopy.create(1);
+	private final VkBufferImageCopy.Buffer readBackRegion = VkBufferImageCopy.create(1);
 	private int rbWidth = -1, rbHeight = -1;
 
 	private boolean fbCBrecording = false;
@@ -1335,25 +1333,23 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 	private long createMultiDescriptorSet(VulkanBufferHandle multiBuffer) {
-		try(MemoryStack stack = MemoryStack.stackPush()) {
-			long descSet = VulkanUtils.createDescriptorSet(stack, device, descPool, stack.longs(multiDescLayout));
+		long descSet = descPool.createNewSet(multiDescLayout);
 
-			VkDescriptorBufferInfo.Buffer install_uniform_buffer = VkDescriptorBufferInfo.create(1);
-			install_uniform_buffer.get(0).set(multiBuffer.getBufferIdVk(), 0, VK_WHOLE_SIZE);
+		VkDescriptorBufferInfo.Buffer install_uniform_buffer = VkDescriptorBufferInfo.create(1);
+		install_uniform_buffer.get(0).set(multiBuffer.getBufferIdVk(), 0, VK_WHOLE_SIZE);
 
 
-			VkWriteDescriptorSet.Buffer install_uniform_buffer_write = VkWriteDescriptorSet.create(1)
-					.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET)
-					.descriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
-					.pBufferInfo(install_uniform_buffer)
-					.descriptorCount(1)
-					.dstArrayElement(0)
-					.dstBinding(0)
-					.dstSet(descSet);
+		VkWriteDescriptorSet.Buffer install_uniform_buffer_write = VkWriteDescriptorSet.create(1)
+				.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET)
+				.descriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+				.pBufferInfo(install_uniform_buffer)
+				.descriptorCount(1)
+				.dstArrayElement(0)
+				.dstBinding(0)
+				.dstSet(descSet);
 
-			vkUpdateDescriptorSets(device, install_uniform_buffer_write, null);
+		vkUpdateDescriptorSets(device, install_uniform_buffer_write, null);
 
-			return descSet;
-		}
+		return descSet;
 	}
 }

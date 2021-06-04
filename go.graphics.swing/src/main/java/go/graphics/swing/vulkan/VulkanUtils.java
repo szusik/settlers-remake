@@ -78,9 +78,9 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -527,27 +527,30 @@ public class VulkanUtils {
 		}
 	}
 
-	public static long createDescriptorPool(MemoryStack stack, VkDevice device, int totalImageCount, int totalUBOCount, int maxSets) {
-		VkDescriptorPoolSize.Buffer sizes = VkDescriptorPoolSize.callocStack(2, stack);
-		sizes.get(0).set(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, totalImageCount);
-		sizes.get(1).set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, totalUBOCount);
+	public static long createDescriptorPool(VkDevice device, int maxSets, Map<Integer, Integer> descriptorAmounts) {
+		VkDescriptorPoolSize.Buffer sizes = VkDescriptorPoolSize.calloc(descriptorAmounts.keySet().size());
 
-		VkDescriptorPoolCreateInfo createInfo = VkDescriptorPoolCreateInfo.callocStack(stack)
+		for(Map.Entry<Integer, Integer> descriptorAmount : descriptorAmounts.entrySet()) {
+			sizes.get().set(descriptorAmount.getKey(), descriptorAmount.getValue());
+		}
+		sizes.rewind();
+
+		VkDescriptorPoolCreateInfo createInfo = VkDescriptorPoolCreateInfo.calloc()
 				.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO)
 				.pPoolSizes(sizes)
 				.maxSets(maxSets);
 
-		LongBuffer poolBfr = stack.callocLong(1);
+		LongBuffer poolBfr = BufferUtils.createLongBuffer(1);
 		if(vkCreateDescriptorPool(device, createInfo, null, poolBfr) != VK_SUCCESS) {
 			throw new Error("Could not create DescriptorPool.");
 		}
 		return poolBfr.get(0);
 	}
 
-	public static long createDescriptorSet(MemoryStack stack, VkDevice device, VulkanDescriptorPool descPool, LongBuffer setLayouts) {
+	public static long createDescriptorSet(MemoryStack stack, VkDevice device, long descPool, LongBuffer setLayouts) {
 		VkDescriptorSetAllocateInfo allocInfo = VkDescriptorSetAllocateInfo.callocStack(stack)
 				.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO)
-				.descriptorPool(descPool.getDescriptorPool())
+				.descriptorPool(descPool)
 				.pSetLayouts(setLayouts);
 
 		LongBuffer descSet = stack.callocLong(1);
@@ -628,11 +631,11 @@ public class VulkanUtils {
 		return dataCpy;
 	}
 
-	public static long createDescriptorSetLayout(MemoryStack stack, VkDevice device, VkDescriptorSetLayoutBinding.Buffer bindings) {
-		VkDescriptorSetLayoutCreateInfo createInfo = VkDescriptorSetLayoutCreateInfo.callocStack(stack)
+	public static long createDescriptorSetLayout(VkDevice device, VkDescriptorSetLayoutBinding.Buffer bindings) {
+		VkDescriptorSetLayoutCreateInfo createInfo = VkDescriptorSetLayoutCreateInfo.calloc()
 				.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO)
 				.pBindings(bindings);
-		LongBuffer output = stack.callocLong(1);
+		LongBuffer output = BufferUtils.createLongBuffer(1);
 		vkCreateDescriptorSetLayout(device, createInfo, null, output);
 		return output.get(0);
 	}
