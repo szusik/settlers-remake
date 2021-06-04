@@ -100,7 +100,10 @@ import static org.lwjgl.util.vma.Vma.*;
 public class VulkanUtils {
 
 
-	public static final int MAX_TEXTURE_COUNT = GLDrawContext.MAX_CACHE_COUNT + 5 + 128;
+	public static final int ALLOCATE_TEXTURE_SLOTS = 10;
+	public static final int ALLOCATE_UBO_SLOTS = 10;
+	public static final int ALLOCATE_SET_SLOTS = 20;
+
 	public static final int MAX_GLOBALTRANS_COUNT = 10;
 
 	public static List<String> defaultExtensionArray(boolean debug) {

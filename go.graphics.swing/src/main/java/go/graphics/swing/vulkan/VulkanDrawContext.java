@@ -207,15 +207,12 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			framebufferCreateInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
 					.layers(1);
 
-			// five pipelines + every texture + every cache
-			final int maxDescriptorSetAmount = 5 + VulkanUtils.MAX_TEXTURE_COUNT + GLDrawContext.MAX_CACHE_COUNT;
-			final Map<Integer, Integer> allocateAmounts = new HashMap<>();
-			// five pipelines * 2 buffers + every cache
-			allocateAmounts.put(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10+GLDrawContext.MAX_CACHE_COUNT);
-			// one for every texture
-			allocateAmounts.put(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.MAX_TEXTURE_COUNT);
 
-			descPool = new VulkanDescriptorPool(device,	maxDescriptorSetAmount, allocateAmounts);
+			final Map<Integer, Integer> allocateAmounts = new HashMap<>();
+			allocateAmounts.put(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VulkanUtils.ALLOCATE_UBO_SLOTS);
+			allocateAmounts.put(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VulkanUtils.ALLOCATE_TEXTURE_SLOTS);
+
+			descPool = new VulkanDescriptorPool(device, VulkanUtils.ALLOCATE_SET_SLOTS, allocateAmounts);
 
 
 			VkDescriptorSetLayoutBinding.Buffer textureBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
@@ -368,9 +365,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	private TextureHandle generateTextureInternal(int width, int height, ShortBuffer data, long descSet) {
 		if(!commandBufferRecording) return null;
-		if(consumedTexSlots == VulkanUtils.MAX_TEXTURE_COUNT) {
-			throw new Error("Out of texture slots: increase VulkanUtils.MAX_TEXTURE_COUNT");
-		}
 
 		if(width == 0) width = 1;
 		if(height == 0) height = 1;
