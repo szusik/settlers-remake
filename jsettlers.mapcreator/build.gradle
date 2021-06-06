@@ -28,4 +28,5 @@ dependencies {
     implementation project(':jsettlers.graphics')
     implementation project(':jsettlers.logic')
     implementation project(':jsettlers.main.swing')
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
 }
