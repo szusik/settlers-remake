@@ -66,4 +66,6 @@ dependencies {
     testImplementation project(':jsettlers.testutils')
 }
 
-tasks.getByPath(":jsettlers.common:copyMainResources").dependsOn(compileTextures)
+copyMainResources {
+    dependsOn compileTextures
+}

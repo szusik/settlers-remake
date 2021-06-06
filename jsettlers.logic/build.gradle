@@ -29,4 +29,6 @@ dependencies {
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 }
 
-tasks.getByPath(":jsettlers.logic:compileJava").dependsOn(tasks.getByPath(":jsettlers.common:copyMainResources"))
+compileJava {
+	dependsOn tasks.getByPath(":jsettlers.common:copyMainResources")
+}
