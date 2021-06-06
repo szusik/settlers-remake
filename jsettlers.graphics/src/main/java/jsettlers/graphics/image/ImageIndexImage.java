@@ -76,8 +76,8 @@ public class ImageIndexImage extends Image {
 		this.vmax = vmax;
 		this.isTorso = isTorso;
 
-		geometry = GLDrawContext.createQuadGeometry(-offsetX + IMAGE_DRAW_OFFSET, -offsetY + height + IMAGE_DRAW_OFFSET,
-				-offsetX + width + IMAGE_DRAW_OFFSET,-offsetY + IMAGE_DRAW_OFFSET,
+		geometry = GLDrawContext.createQuadGeometry(-offsetX + IMAGE_DRAW_OFFSET, -offsetY + IMAGE_DRAW_OFFSET,
+				-offsetX + width + IMAGE_DRAW_OFFSET,-offsetY + IMAGE_DRAW_OFFSET + height,
 				umin, vmin, umax, vmax);
 	}
 
