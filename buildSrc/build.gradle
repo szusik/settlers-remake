@@ -14,6 +14,17 @@
  */
 
 apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     implementation gradleApi()
+
+    implementation "org.lwjgl:lwjgl-shaderc:3.2.3"
+    implementation "org.lwjgl:lwjgl-shaderc:3.2.3:natives-linux"
+    implementation "org.lwjgl:lwjgl-shaderc:3.2.3:natives-macos"
+    implementation "org.lwjgl:lwjgl-shaderc:3.2.3:natives-windows"
+    implementation "org.lwjgl:lwjgl-shaderc:3.2.3:natives-windows-x86"
 }
