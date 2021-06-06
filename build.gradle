@@ -91,7 +91,6 @@ subprojects {
             implementation 'net.sourceforge.streamsupport:streamsupport-atomic:' + rootProject.ext.streamSupportVersion
             implementation 'net.sourceforge.streamsupport:streamsupport-flow:' + rootProject.ext.streamSupportVersion
             implementation 'net.sourceforge.streamsupport:streamsupport-literal:' + rootProject.ext.streamSupportVersion
-            implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
             testImplementation 'junit:junit:4.12'
         }
