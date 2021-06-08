@@ -15,16 +15,33 @@
 
 apply plugin: 'java'
 
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
-    implementation gradleApi()
+	implementation gradleApi()
 
-    implementation "org.lwjgl:lwjgl-shaderc:3.2.3"
-    implementation "org.lwjgl:lwjgl-shaderc:3.2.3:natives-linux"
-    implementation "org.lwjgl:lwjgl-shaderc:3.2.3:natives-macos"
-    implementation "org.lwjgl:lwjgl-shaderc:3.2.3:natives-windows"
-    implementation "org.lwjgl:lwjgl-shaderc:3.2.3:natives-windows-x86"
+
+	implementation "org.lwjgl:lwjgl:3.2.3"
+	implementation "org.lwjgl:lwjgl-shaderc:3.2.3"
+
+	OperatingSystem os = DefaultNativePlatform.currentOperatingSystem;
+
+	if(os.isWindows()) {
+		runtimeOnly "org.lwjgl:lwjgl:3.2.3:natives-windows"
+		runtimeOnly "org.lwjgl:lwjgl-shaderc:3.2.3:natives-windows"
+
+		runtimeOnly "org.lwjgl:lwjgl:3.2.3:natives-windows-x86"
+		runtimeOnly "org.lwjgl:lwjgl-shaderc:3.2.3:natives-windows-x86"
+	} else if(os.isMacOsX()) {
+		runtimeOnly "org.lwjgl:lwjgl:3.2.3:natives-macos"
+		runtimeOnly "org.lwjgl:lwjgl-shaderc:3.2.3:natives-macos"
+	} else {
+		runtimeOnly "org.lwjgl:lwjgl:3.2.3:natives-linux"
+		runtimeOnly "org.lwjgl:lwjgl-shaderc:3.2.3:natives-linux"
+	}
+
 }

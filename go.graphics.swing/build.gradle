@@ -1,43 +1,72 @@
 apply plugin: 'java'
 
+import jsettlers.shaders.compile.ShaderCompilationTask
+
+String[] variants = new String[] {
+		"natives-linux",
+		"natives-macos",
+		"natives-windows",
+		"natives-windows-x86"
+};
+
+String[] modules = new String[] {
+		"lwjgl",
+		"lwjgl-opengl",
+		"lwjgl-glfw",
+		"lwjgl-vma",
+}
+
 dependencies {
-    implementation project(':go.graphics')
+	implementation project(':go.graphics')
 
-    def lwjglVersion = rootProject.ext.lwjglVersion
+	def lwjglVersion = rootProject.ext.lwjglVersion
 
-    implementation "org.lwjgl:lwjgl:"+lwjglVersion
-    implementation "org.lwjgl:lwjgl-opengl:"+lwjglVersion
-    implementation "org.lwjgl:lwjgl-glfw:"+lwjglVersion
-    implementation "org.lwjgl:lwjgl-egl:"+lwjglVersion
-    implementation "org.lwjgl:lwjgl-jawt:"+lwjglVersion
-    implementation "org.lwjgl:lwjgl-vma:"+lwjglVersion
-    implementation "org.lwjgl:lwjgl-vulkan:"+lwjglVersion
-    implementation "org.joml:joml:1.9.17"
+	for(String module : modules) {
+		implementation "org.lwjgl:" + module + ":" + lwjglVersion
 
-    implementation "org.lwjgl:lwjgl:"+lwjglVersion+":natives-linux"
-    implementation "org.lwjgl:lwjgl:"+lwjglVersion+":natives-macos"
-    implementation "org.lwjgl:lwjgl:"+lwjglVersion+":natives-windows"
-    implementation "org.lwjgl:lwjgl:"+lwjglVersion+":natives-windows-x86"
+		for(String variant : variants) {
+			runtimeOnly "org.lwjgl:" + module + ":" + lwjglVersion + ":" + variant
+		}
+	}
 
-    implementation "org.lwjgl:lwjgl-opengl:"+lwjglVersion+":natives-linux"
-    implementation "org.lwjgl:lwjgl-opengl:"+lwjglVersion+":natives-macos"
-    implementation "org.lwjgl:lwjgl-opengl:"+lwjglVersion+":natives-windows"
-    implementation "org.lwjgl:lwjgl-opengl:"+lwjglVersion+":natives-windows-x86"
+	implementation "org.lwjgl:lwjgl-vulkan:" + lwjglVersion
+	implementation "org.lwjgl:lwjgl-egl:" + lwjglVersion
+	implementation "org.lwjgl:lwjgl-jawt:" + lwjglVersion
 
-    implementation "org.lwjgl:lwjgl-glfw:"+lwjglVersion+":natives-linux"
-    implementation "org.lwjgl:lwjgl-glfw:"+lwjglVersion+":natives-macos"
-    implementation "org.lwjgl:lwjgl-glfw:"+lwjglVersion+":natives-windows"
-    implementation "org.lwjgl:lwjgl-glfw:"+lwjglVersion+":natives-windows-x86"
-
-    implementation "org.lwjgl:lwjgl-vma:"+lwjglVersion+":natives-linux"
-    implementation "org.lwjgl:lwjgl-vma:"+lwjglVersion+":natives-macos"
-    implementation "org.lwjgl:lwjgl-vma:"+lwjglVersion+":natives-windows"
-    implementation "org.lwjgl:lwjgl-vma:"+lwjglVersion+":natives-windows-x86"
+	implementation "org.joml:joml:1.9.17"
 
 
-    // macos support
-    implementation "org.jogamp.gluegen:gluegen-rt:2.3.2"
-    implementation "org.jogamp.jogl:jogl-all:2.3.2"
-    runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-macosx-universal"
-    runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-macosx-universal"
+	// macos support
+	implementation "org.jogamp.gluegen:gluegen-rt:2.3.2"
+	implementation "org.jogamp.jogl:jogl-all:2.3.2"
+	runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-macosx-universal"
+	runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-macosx-universal"
+}
+
+def shaderDefinitionDir = 'src/main/glsl/'
+def shaderJavaOutputDir = 'src/generated/java'
+def shaderResOutputDir = 'src/generated/resources'
+
+sourceSets {
+	main.java.srcDirs += [shaderJavaOutputDir]
+	main.resources.srcDirs += [shaderResOutputDir]
+}
+
+task compileShaders(type: ShaderCompilationTask) {
+	inputDirectory = file(shaderDefinitionDir).toPath()
+	generatedSourcesDirectory = file(shaderJavaOutputDir).toPath()
+	generatedResourcesDirectory = file(shaderResOutputDir).toPath()
+}
+
+compileJava {
+	dependsOn compileShaders
+}
+
+copyMainResources {
+	dependsOn compileShaders
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
 }

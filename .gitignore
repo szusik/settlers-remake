@@ -6,7 +6,7 @@ local.properties
 /jsettlers.graphics/layoutbuilder/build/
 
 # Generated sources
-/jsettlers.common/src/generated/
+*/src/generated/
 
 # Fake test project roots
 /*/testRoot
