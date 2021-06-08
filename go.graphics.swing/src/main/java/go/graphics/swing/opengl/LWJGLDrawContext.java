@@ -550,10 +550,10 @@ public class LWJGLDrawContext extends GLDrawContext {
 		private ArrayList<String> attributes = new ArrayList<>();
 
 		private int createShader(String name, int type) throws IOException {
-			if(Platform.get() == Platform.MACOSX) name = "appleglsl/" + name;
+			if(Platform.get() == Platform.MACOSX) name = "swing/apple/" + name;
 
 			StringBuilder source = new StringBuilder();
-			try(InputStream shaderFile = getClass().getResourceAsStream("/"+name)) {
+			try(InputStream shaderFile = getClass().getResourceAsStream("/go/graphics/" + name)) {
 				if (shaderFile == null) return -1;
 				BufferedReader is = new BufferedReader(new InputStreamReader(shaderFile));
 

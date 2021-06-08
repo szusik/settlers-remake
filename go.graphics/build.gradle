@@ -22,3 +22,11 @@ task compileShaders(type: ShaderCompilationTask) {
 	generatedSourcesDirectory = file(shaderJavaOutputDir).toPath()
 	generatedResourcesDirectory = file(shaderResOutputDir).toPath()
 }
+
+compileJava {
+	dependsOn compileShaders
+}
+
+copyMainResources {
+	dependsOn compileShaders
+}

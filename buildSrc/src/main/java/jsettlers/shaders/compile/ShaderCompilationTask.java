@@ -132,7 +132,6 @@ public class ShaderCompilationTask extends DefaultTask {
 			output.get(outputArray);
 
 			Files.write(outputFile, outputArray);
-			System.out.println(1);
 		}
 
 		if(options.copySource()) {

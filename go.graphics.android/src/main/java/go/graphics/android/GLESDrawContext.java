@@ -546,7 +546,7 @@ public class GLESDrawContext extends GLDrawContext {
 
 		private int createShader(String name, int type) throws IOException {
 			StringBuilder source = new StringBuilder();
-			try(InputStream shaderFile = getClass().getResourceAsStream("/"+name)) {
+			try(InputStream shaderFile = GLESDrawContext.class.getResourceAsStream("/go/graphics/"+name)) {
 				if (shaderFile == null) return -1;
 				BufferedReader is = new BufferedReader(new InputStreamReader(shaderFile));
 
