@@ -17,7 +17,7 @@ package go.graphics.swing.vulkan;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.shaderc.Shaderc;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vma.VmaAllocationCreateInfo;
 import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.util.vma.VmaVulkanFunctions;
@@ -74,9 +74,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -566,75 +569,60 @@ public class VulkanUtils {
 		return descSet.get(0);
 	}
 
+	private static byte[] readShader(String shaderName) {
+		try(InputStream in = VulkanUtils.class.getResourceAsStream(shaderName)) {
+			byte[] output = new byte[0];
+			int usedCapacity = 0;
+
+
+			byte[] buffer = new byte[1024];
+			do {
+				int read = in.read(buffer);
+
+				if(read == -1) {
+					byte[] realOutput = new byte[usedCapacity];
+					System.arraycopy(output, 0, realOutput, 0, usedCapacity);
+					return realOutput;
+				}
+
+				if(output.length - usedCapacity < read) {
+					byte[] newOutput = new byte[output.length*2 + read];
+					System.arraycopy(output, 0, newOutput, 0, usedCapacity);
+
+					output = newOutput;
+				}
+
+				System.arraycopy(buffer, 0, output, usedCapacity, read);
+				usedCapacity += read;
+
+			} while (true);
+
+		} catch (IOException e) {
+			throw new Error(e);
+		}
+	}
+
+	private static final int SHADER_CODE_ALIGN = 4;
+
 	public static long createShaderModule(MemoryStack stack, VkDevice device, String fileName) {
-		ByteBuffer code = compileShader(fileName);
-		if(code == null) throw new Error("Could not compile shader: " + fileName);
+		byte[] code = readShader(fileName);
+
+		ByteBuffer codeBuffer = BufferUtils.createByteBuffer(code.length);
+		//int padding = (int) (SHADER_CODE_ALIGN - (MemoryUtil.memAddress(codeBuffer) % SHADER_CODE_ALIGN));
+		//codeBuffer.position(padding);
+		codeBuffer.put(code);
+		codeBuffer.rewind();
 
 		LongBuffer modulePtr = stack.callocLong(1);
 
 		VkShaderModuleCreateInfo shaderModuleCreateInfo = VkShaderModuleCreateInfo.create()
 				.sType(VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO)
-				.pCode(code);
+				.pCode(codeBuffer);
+
 		if(vkCreateShaderModule(device, shaderModuleCreateInfo, null, modulePtr) != VK_SUCCESS) {
 			throw new Error("Could not create ShaderModule.");
 		}
 		return modulePtr.get(0);
-	}
-
-	public static ByteBuffer compileShader(String fileName) {
-		int shaderc_stage;
-		switch(fileName.split("\\.")[1]) {
-			case "vert":
-				shaderc_stage = Shaderc.shaderc_vertex_shader;
-				break;
-			case "geom":
-				shaderc_stage = Shaderc.shaderc_geometry_shader;
-				break;
-			case "frag":
-				shaderc_stage = Shaderc.shaderc_fragment_shader;
-				break;
-			default:
-				throw new Error(fileName + " not a valid shader file name!");
-		}
-
-		StringBuilder source = new StringBuilder();
-		try(InputStream shaderFile = VulkanUtils.class.getResourceAsStream("/vkglsl/"+fileName)) {
-			if (shaderFile == null) return null;
-			BufferedReader is = new BufferedReader(new InputStreamReader(shaderFile));
-
-			String line;
-			while ((line = is.readLine()) != null) source.append(line).append("\n");
-		} catch (IOException ex) {
-			throw new Error(ex);
-		}
-
-		long compiler = Shaderc.shaderc_compiler_initialize();
-		long options = Shaderc.shaderc_compile_options_initialize();
-		Shaderc.shaderc_compile_options_set_target_env(options, Shaderc.shaderc_target_env_vulkan, Shaderc.shaderc_env_version_vulkan_1_0);
-		long result = Shaderc.shaderc_compile_into_spv(compiler, source.toString(), shaderc_stage, fileName, "main", options);
-
-
-		String err = Shaderc.shaderc_result_get_error_message(result);
-		if(err != null && !err.isEmpty()) {
-			Shaderc.shaderc_result_release(result);
-			Shaderc.shaderc_compile_options_release(options);
-			Shaderc.shaderc_compiler_release(compiler);
-			throw new Error(fileName + ": " + err);
-		}
-
-		ByteBuffer data = Shaderc.shaderc_result_get_bytes(result);
-		// should not happen
-		if(data == null) throw new Error("shaderc failed to compile " + fileName + ".");
-
-		ByteBuffer dataCpy = BufferUtils.createByteBuffer(data.remaining());
-		while(data.hasRemaining()) dataCpy.put(data.get());
-		dataCpy.rewind();
-
-		Shaderc.shaderc_result_release(result);
-		Shaderc.shaderc_compile_options_release(options);
-		Shaderc.shaderc_compiler_release(compiler);
-
-		return dataCpy;
 	}
 
 	public static long createDescriptorSetLayout(VkDevice device, VkDescriptorSetLayoutBinding.Buffer bindings) {

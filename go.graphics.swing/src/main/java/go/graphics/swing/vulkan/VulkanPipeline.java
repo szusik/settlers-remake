@@ -57,8 +57,8 @@ public abstract class VulkanPipeline {
 		setLayouts.rewind();
 
 		try {
-			vertShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".vert");
-			fragShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".frag");
+			vertShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".vert.spv");
+			fragShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".frag.spv");
 
 			int pushConstantSize = getPushConstantSize();
 
