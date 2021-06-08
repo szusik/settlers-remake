@@ -128,18 +128,11 @@ public class ShaderCompilationTask extends DefaultTask {
 			String sourceName = baseOutputFile.getFileName().toString();
 			Path outputFile = parent.resolve(sourceName + SPIRV_SUFFIX);
 
-			byte[] outputArray;
+			byte[] outputArray = new byte[output.remaining()];
+			output.get(outputArray);
 
-			if(output.hasArray()) {
-				outputArray = output.array();
-			} else {
-				outputArray = new byte[output.remaining()];
-				output.get(outputArray);
-			}
-
-			Files.write(outputFile, outputArray,
-					StandardOpenOption.TRUNCATE_EXISTING,
-					StandardOpenOption.CREATE);
+			Files.write(outputFile, outputArray);
+			System.out.println(1);
 		}
 
 		if(options.copySource()) {

@@ -1,6 +1,7 @@
 package jsettlers.shaders.compile;
 
 import org.gradle.api.logging.Logger;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.util.shaderc.Shaderc;
 
 import java.nio.ByteBuffer;
@@ -57,7 +58,10 @@ public class ShaderCompiler {
 		ByteBuffer resultData = null;
 
 		if(status == Shaderc.shaderc_compilation_status_success) {
-			resultData = Shaderc.shaderc_result_get_bytes(result);
+			ByteBuffer tmpResultData = Shaderc.shaderc_result_get_bytes(result);
+			resultData = BufferUtils.createByteBuffer(tmpResultData.capacity());
+			resultData.put(tmpResultData);
+			resultData.rewind();
 		}
 
 		Shaderc.shaderc_result_release(result);
