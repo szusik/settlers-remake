@@ -52,6 +52,11 @@ sourceSets {
 	main.resources.srcDirs += [shaderResOutputDir]
 }
 
+clean {
+	delete file(shaderJavaOutputDir)
+	delete file(shaderResOutputDir)
+}
+
 task compileShaders(type: ShaderCompilationTask) {
 	inputDirectory = file(shaderDefinitionDir).toPath()
 	generatedSourcesDirectory = file(shaderJavaOutputDir).toPath()

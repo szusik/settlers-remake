@@ -1,5 +1,5 @@
 entryPoint = main
-compilerOutput = SPIRV_TEXT
+compilerOutput = DO_NOT_COMPILE
 targetApi = LEGACY_OPENGL
 saveOutput = false
 copySource = true
