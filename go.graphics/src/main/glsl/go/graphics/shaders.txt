@@ -1,0 +1,4 @@
+entryPoint = main
+compilerOutput = DO_NOT_COMPILE
+saveOutput = false
+copySource = true

@@ -1,0 +1,4 @@
+entryPoint = main
+compilerOutput = SPIRV_BINARY
+saveOutput = true
+copySource = true
