@@ -23,14 +23,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jsettlers.common.CommonConstants;
 import jsettlers.common.map.IGraphicsBackgroundListener;
-import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import go.graphics.FramerateComputer;
 import jsettlers.logic.buildings.Building;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.MainGrid;
-import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableManager;
 
 /**
