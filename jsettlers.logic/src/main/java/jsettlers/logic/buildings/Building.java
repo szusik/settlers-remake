@@ -384,15 +384,18 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 		return type.getVariant(player.getCivilisation());
 	}
 
-	public void setPlayer(Player player) {
-		if(player.getTeamId() == fowTeam || (fowTeam != -1 && MatchConstants.ENABLE_ALL_PLAYER_FOG_OF_WAR)) {
-			fow = true;
-		} else if(fow) {
+	public void setPlayer(Player newPlayer) {
+		boolean newFow = newPlayer.getTeamId() == fowTeam || (fowTeam != -1 && MatchConstants.ENABLE_ALL_PLAYER_FOG_OF_WAR);
+
+		if(fow && !newFow) {
 			// this building should no longer remove fog of war
-			queueNewViewDistance(getVD(), (short)0);
+			queueNewViewDistance(getVD(), (short) 0);
+		} else if(!fow && newFow) {
+			queueNewViewDistance((short) 0, getVD());
 		}
 
-		this.player = player;
+		fow = newFow;
+		player = newPlayer;
 	}
 
 	@Override
