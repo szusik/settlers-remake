@@ -108,9 +108,9 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 
 	protected Building(EBuildingType type, Player player, ShortPoint2D position, IBuildingsGrid buildingsGrid) {
 		this.type = type;
-		setPlayer(player);
 		this.pos = position;
 		this.grid = buildingsGrid;
+		setPlayer(player);
 
 		allBuildings.add(this);
 		setState(EBuildingState.CREATED);
