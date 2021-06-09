@@ -118,6 +118,10 @@ public final class FogOfWar implements Serializable {
 		boolean addRef;
 	}
 
+	public static class WaitFoWTask implements FoWTask {
+
+	}
+
 	/**
 	 * Gets the visible status of a map pint
 	 *
@@ -170,6 +174,7 @@ public final class FogOfWar implements Serializable {
 		FoWRefThread() {
 			super("FOW-reference-updater");
 			framerate = CommonConstants.FOG_OF_WAR_REF_UPDATE_FRAMERATE;
+			nextTasks.add(new WaitFoWTask());
 		}
 
 		@Override
@@ -181,12 +186,15 @@ public final class FogOfWar implements Serializable {
 		@Override
 		public void taskProcessor() {
 			if (enabled) {
-				Iterator<FoWTask> it = nextTasks.iterator();
-				while(it.hasNext()) {
-					if(runTask(it.next())) {
-						it.remove();
+				while(true) {
+					FoWTask task = nextTasks.poll();
+					if(task == null) return;
+
+					if(!runTask(task)) {
+						nextTasks.add(task);
 					}
 
+					if(task instanceof WaitFoWTask) return;
 				}
 			}
 		}
@@ -213,6 +221,8 @@ public final class FogOfWar implements Serializable {
 					if(oldPos != null) circleDrawer.drawCircleToBuffer(oldPos, vd, CIRCLE_REMOVE|CIRCLE_DIM);
 					mFOW.setOldFoWPosition(currentPos);
 				}
+				return false;
+			} else if(task instanceof WaitFoWTask) {
 				return false;
 			} else {
 				System.err.println("unknown FoWTask: " + task);
@@ -344,7 +354,7 @@ public final class FogOfWar implements Serializable {
 
 			while (!canceled) {
 				try {
-					if (!MatchConstants.clock().isPausing()) taskProcessor();
+					taskProcessor();
 				} catch(Throwable ex) {
 					ex.printStackTrace();
 				}
