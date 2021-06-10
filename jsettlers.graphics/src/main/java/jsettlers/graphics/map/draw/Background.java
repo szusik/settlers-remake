@@ -1222,7 +1222,7 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private synchronized void invalidateShapePoint(int x, int y) {
-		if(x > bufferWidth || y > bufferHeight || x < 0 || y < 0) return;
+		if(x >= bufferWidth || y >= bufferHeight || x < 0 || y < 0) return;
 		if(asyncBufferBuilding) {
 			synchronized (shape_bfr2) {
 				shape_cache2.gotoLine(y, x, 1);
