@@ -910,11 +910,21 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 		decoupleMovable();
 
-		if (state != EMovableState.ON_FERRY) { // position of the movable on a ferry is the position it loaded into the ferry => not correct => don't show ghost
-			grid.addSelfDeletingMapObject(position, EMapObjectType.GHOST, Constants.GHOST_PLAY_DURATION, player);
-		}
+		spawnGhost();
 
 		killMovable();
+	}
+
+	private void spawnGhost() {
+		ShortPoint2D ghostPosition = getGhostPosition();
+		if(ghostPosition != null) {
+			grid.addSelfDeletingMapObject(position, EMapObjectType.GHOST, Constants.GHOST_PLAY_DURATION, player);
+		}
+	}
+
+	protected ShortPoint2D getGhostPosition() {
+		// position of the movable on a ferry is the position it loaded into the ferry => not correct => don't show ghost
+		return isOnFerry()? null : position;
 	}
 
 	protected void decoupleMovable() {

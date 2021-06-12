@@ -275,6 +275,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 		playerControlled = false;
 
 		abortGoTo(); // this prevents that the soldiers goes to the last target after he leaves the tower.
+		nextTarget = null;
 		return true;
 	}
 

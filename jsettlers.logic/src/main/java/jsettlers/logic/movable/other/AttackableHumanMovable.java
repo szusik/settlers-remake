@@ -40,6 +40,8 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 
 	@Override
 	public void stopOrStartWorking(boolean stop) {
+		if(!playerControlled) return;
+
 		nextTarget = position;
 		nextMoveToType = stop? EMoveToType.FORCED : EMoveToType.DEFAULT;
 		goingToHealer = false;
