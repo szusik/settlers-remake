@@ -55,7 +55,9 @@ public class HealerMovable extends BuildingWorkerMovable implements IHealerMovab
 
 	private boolean canHeal(ShortPoint2D pos, boolean leave) {
 		ILogicMovable movable = grid.getMovableAt(pos.x, pos.y);
-		if (movable instanceof IAttackableHumanMovable && ((IAttackableHumanMovable) movable).needsTreatment()) {
+		if (movable instanceof IAttackableHumanMovable &&
+				((IAttackableHumanMovable) movable).needsTreatment() &&
+				movable.getPlayer().getTeamId() == player.getTeamId()) {
 			nextPatient = (IAttackableHumanMovable) movable;
 			return true;
 		} else {
@@ -68,7 +70,7 @@ public class HealerMovable extends BuildingWorkerMovable implements IHealerMovab
 	private boolean canHeal() {
 		ShortPoint2D healSpot = getHealSpot();
 
-		// TODO use an more reasonable way of searching for potential patients
+		// TODO use a more reasonable way of searching for potential patients
 
 		if(patient != null && patient.getPosition().getOnGridDistTo(healSpot) <= 5 &&
 				canHeal(patient.getPosition(), false)) return true;
