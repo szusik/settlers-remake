@@ -42,13 +42,21 @@ allprojects {
 subprojects {
 
     plugins.withType(JavaPlugin).whenPluginAdded {
+        // we don't support older versions, so equals to java 8 means before java 9.
+        boolean isJava8 = JavaVersion.current() == JavaVersion.VERSION_1_8;
         compileJava {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
+            if(!isJava8) {
+                options.release = 8
+            }
         }
         compileTestJava {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
+            if(!isJava8) {
+                options.release = 8
+            }
         }
 
         task copyMainResources(type: Copy) {
