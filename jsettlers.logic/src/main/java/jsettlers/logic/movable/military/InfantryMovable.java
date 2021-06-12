@@ -3,6 +3,7 @@ package jsettlers.logic.movable.military;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
@@ -18,7 +19,16 @@ public class InfantryMovable extends SoldierMovable {
 	protected boolean isEnemyAttackable() {
 		if(!enemy.isAlive()) return false;
 		int maxDistance = position.getOnGridDistTo(enemy.getPosition());
-		return (maxDistance == 1 || (!enemy.isTower() && getMovableType().isPikeman() && maxDistance <= 2)) || (defending && maxDistance <= 3);
+
+		return maxDistance <= getMaxAttackDistance();
+	}
+
+	private short getMaxAttackDistance() {
+		if(defending) return Constants.TOWER_DEFEND_ATTACK_RADIUS;
+
+		if(getMovableType().isPikeman() && !enemy.isTower()) return Constants.PIKEMAN_ATTACK_RADIUS;
+
+		return Constants.DEFAULT_ATTACK_RADIUS;
 	}
 
 	@Override
@@ -32,6 +42,13 @@ public class InfantryMovable extends SoldierMovable {
 	@Override
 	protected short getMinSearchDistance() {
 		return 0;
+	}
+
+	@Override
+	protected short getMaxSearchDistance() {
+		if(defending) return getMaxAttackDistance();
+
+		return Constants.SOLDIER_SEARCH_RADIUS;
 	}
 
 	@Override

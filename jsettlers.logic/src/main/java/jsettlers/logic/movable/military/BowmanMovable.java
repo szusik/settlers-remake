@@ -47,6 +47,13 @@ public class BowmanMovable extends SoldierMovable implements IBowmanMovable {
 	}
 
 	@Override
+	protected short getMaxSearchDistance() {
+		if(defending) return Constants.BOWMAN_ATTACK_RADIUS;
+
+		return isInTower ? Constants.BOWMAN_IN_TOWER_ATTACK_RADIUS : Constants.SOLDIER_SEARCH_RADIUS;
+	}
+
+	@Override
 	protected void startAttack() {
 		if(!hasEffect(EEffectType.NO_ARROWS)) {
 			grid.addArrowObject(enemy.getPosition(), position, player.playerId,

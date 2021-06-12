@@ -208,7 +208,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 	private static Node<SoldierMovable> findEnemy() {
 		return condition(mov -> {
-			mov.enemy = mov.grid.getEnemyInSearchArea(mov.getAttackPosition(), mov, mov.getMinSearchDistance(), Constants.SOLDIER_SEARCH_RADIUS, !mov.defending);
+			mov.enemy = mov.grid.getEnemyInSearchArea(mov.getAttackPosition(), mov, mov.getMinSearchDistance(), mov.getMaxSearchDistance(), !mov.defending);
 			if(mov.enemy instanceof IThiefMovable) ((IThiefMovable)mov.enemy).uncoveredBy(mov.player.getTeamId());
 			return mov.enemy != null;
 		});
@@ -267,6 +267,8 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 	protected abstract short getMinSearchDistance();
 
+	protected abstract short getMaxSearchDistance();
+
 	@Override
 	public boolean moveToTower(IOccupyableBuilding building) {
 		if(this.building != null || hasEffect(EEffectType.FROZEN)) return false;
@@ -307,7 +309,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 	@Override
 	public void defendTowerAt() {
-		setPosition(building.getPosition());
+		setPosition(building.getDoor());
 		defending = true;
 	}
 

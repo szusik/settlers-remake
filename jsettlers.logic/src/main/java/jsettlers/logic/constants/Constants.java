@@ -56,6 +56,15 @@ public final class Constants {
 	 */
 	public static final short SOLDIER_SEARCH_RADIUS = 30;
 
+	public static final short DEFAULT_ATTACK_RADIUS = 1;
+
+	public static final short PIKEMAN_ATTACK_RADIUS = 2;
+
+	/**
+	 * Swordsman should be able to reach pikeman, otherwise the fight would be very one sided.
+	 */
+	public static final short TOWER_DEFEND_ATTACK_RADIUS = 2;
+
 	/**
 	 * The radius within a a tower informs enemies
 	 */
