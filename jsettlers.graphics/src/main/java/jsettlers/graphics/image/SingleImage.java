@@ -18,10 +18,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 
-import go.graphics.AbstractColor;
 import go.graphics.EPrimitiveType;
 import go.graphics.GLDrawContext;
-import go.graphics.IllegalBufferException;
 import go.graphics.ManagedUnifiedDrawHandle;
 
 import java.awt.image.BufferedImage;
@@ -33,7 +31,7 @@ import jsettlers.graphics.image.reader.ImageMetadata;
 /**
  * This is the base for all images that are directly loaded from the image file.
  * <p>
- * This class interprets the image data in 5-5-5-1-Format. To change the interpretation, it is possible to subclass this class.
+ * This class interprets the image data in 4-4-4-4-Format. To change the interpretation, it is possible to subclass this class.
  *
  * @author Michael Zangl
  */

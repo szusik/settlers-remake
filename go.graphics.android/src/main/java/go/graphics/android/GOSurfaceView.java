@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -39,7 +40,6 @@ import go.graphics.event.GOEvent;
 import go.graphics.event.GOEventHandlerProvider;
 import go.graphics.event.command.EModifier;
 import go.graphics.event.interpreter.AbstractEventConverter;
-import java8.util.function.Supplier;
 
 public class GOSurfaceView extends GLSurfaceView implements RedrawListener, GOEventHandlerProvider {
 

@@ -15,14 +15,12 @@
 
 package jsettlers.main.android.core.controls;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import java.util.LinkedList;
+import java.util.Objects;
 
 import android.content.Context;
 
 import go.graphics.android.AndroidSoundPlayer;
-import java8.util.Objects;
 import jsettlers.common.action.Action;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.action.IAction;
@@ -111,14 +109,14 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 
 	public void onDraw() {
 		synchronized (drawListeners) {
-			stream(drawListeners).forEach(DrawListener::draw);
+			drawListeners.forEach(DrawListener::draw);
 		}
 
 		fireDrawListenerCounter = (fireDrawListenerCounter + 1) % fireDrawListenerFrequency;
 
 		if (fireDrawListenerCounter == 0) {
 			synchronized (infrequentDrawListeners) {
-				stream(infrequentDrawListeners).forEach(DrawListener::draw);
+				infrequentDrawListeners.forEach(DrawListener::draw);
 			}
 		}
 	}
@@ -127,7 +125,7 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 		this.displayCenter = displayCenter;
 
 		synchronized (positionChangedListeners) {
-			stream(positionChangedListeners).forEach(PositionChangedListener::positionChanged);
+			positionChangedListeners.forEach(PositionChangedListener::positionChanged);
 		}
 	}
 

@@ -1,15 +1,13 @@
 package jsettlers.main.android.mainmenu.gamesetup;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import android.app.Activity;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
-import java8.util.Optional;
 import jsettlers.common.ai.EPlayerType;
 import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.logic.player.PlayerSetting;
@@ -49,7 +47,7 @@ public class NewSinglePlayerSetupViewModel extends MapSetupViewModel {
 		for (int i = 0; i < maxPlayers; i++) {
 			final int position = i;
 
-			Optional<PlayerSlotPresenter> player = stream(playerSlotPresenters)
+			Optional<PlayerSlotPresenter> player = playerSlotPresenters.stream()
 					.filter(playerSlotPresenter -> playerSlotPresenter.getStartPosition().asByte() == position)
 					.findFirst();
 

@@ -26,6 +26,8 @@ public class UnifiedDrawHandle extends GLResourceIndex {
 
 	public static final int CACHE_START_AT_BIAS = 100;
 	public static final int MAX_CACHE_ENTRIES = 100;
+	private static final int MIN_BIAS = -1000;
+	private static final int MAX_BIAS = 1000;
 
 	public void forceNoCache() {
 		forceNoCache = true;
@@ -63,6 +65,14 @@ public class UnifiedDrawHandle extends GLResourceIndex {
 				disableCaching();
 				modified = true;
 			}
+		}
+
+		if(cache_start_bias < MIN_BIAS) {
+			cache_start_bias = MIN_BIAS;
+		}
+
+		if(cache_start_bias > MAX_BIAS) {
+			cache_start_bias = MAX_BIAS;
 		}
 
 		frame_drawcalls = 0;

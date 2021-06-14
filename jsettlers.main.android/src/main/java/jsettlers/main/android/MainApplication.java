@@ -19,6 +19,7 @@ import org.androidannotations.annotations.EApplication;
 
 import android.app.Application;
 import android.arch.lifecycle.Observer;
+import android.support.multidex.MultiDexApplication;
 
 import java.io.IOException;
 
@@ -43,7 +44,7 @@ import jsettlers.network.client.IClientConnection;
 import jsettlers.network.server.GameServerThread;
 
 @EApplication
-public class MainApplication extends Application implements GameStarter, GameManager {
+public class MainApplication extends MultiDexApplication implements GameStarter, GameManager {
 	static { // configure game to be better usable on Android
 		Constants.BUILDING_PLACEMENT_MAX_SEARCH_RADIUS = 10;
 	}

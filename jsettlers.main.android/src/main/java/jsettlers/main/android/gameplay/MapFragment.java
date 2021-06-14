@@ -15,7 +15,9 @@
 
 package jsettlers.main.android.gameplay;
 
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -128,7 +130,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 
 		GOSurfaceView goView = new GOSurfaceView(getActivity(), goArea, () -> {
 			if(currentSelectionManager != null) return currentSelectionManager.getModifiers();
-			return Sets2.of();
+			return new HashSet<>();
 		});
 		goView.setContextDestroyedListener(() -> ImageProvider.getInstance().invalidateAll());
 		frameLayout.addView(goView);
@@ -239,12 +241,12 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 	 */
 	@Override
 	public boolean isMenuOpen() {
-		return bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED;
+		return bottomSheetBehavior.getState() == ViewPagerBottomSheetBehavior.STATE_EXPANDED;
 	}
 
 	@Override
 	public void dismissMenu() {
-		bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+		bottomSheetBehavior.setState(ViewPagerBottomSheetBehavior.STATE_COLLAPSED);
 	}
 
 	@Override
@@ -309,7 +311,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 	}
 
 	private void showMenu() {
-		bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+		bottomSheetBehavior.setState(ViewPagerBottomSheetBehavior.STATE_EXPANDED);
 	}
 
 	private void dismissGameMenu() {
