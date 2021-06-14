@@ -190,17 +190,19 @@ public final class ImageProvider {
 	 * @return the image matching the specified indexes.
 	 */
 	private Image getSequencedImage(OriginalImageLink link, int sequenceNumber) {
+		Image image;
 		if (link.getType() == EImageLinkType.SETTLER) {
-			Image image = getSettlerSequence(link.getFile(), link.getSequence()).getImageSafe(link.getImage() + sequenceNumber, link::getHumanName);
-			if(image != NullImage.getInstance()) return image;
-
-			OriginalImageLink fallbackLink = link.getFallback();
-			if(fallbackLink == null) return image;
-
-			return getSequencedImage(fallbackLink, sequenceNumber);
+			image = getSettlerSequence(link.getFile(), link.getSequence()).getImageSafe(link.getImage() + sequenceNumber, link::getHumanName);
 		} else {
-			return getGuiImage(link.getFile(), link.getSequence() + sequenceNumber, link::getHumanName);
+			image = getGuiImage(link.getFile(), link.getSequence() + sequenceNumber, link::getHumanName);
 		}
+
+		if(image != NullImage.getInstance()) return image;
+
+		OriginalImageLink fallbackLink = link.getFallback();
+		if(fallbackLink == null) return image;
+
+		return getSequencedImage(fallbackLink, sequenceNumber);
 	}
 
 	private Image getDirectImage(DirectImageLink link) {
