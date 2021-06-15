@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -178,6 +179,10 @@ public class AiStatistics {
 			playerStatistic.wineGrowerWorkAreas.add(((WorkAreaBuilding) building).getWorkAreaCenter());
 		} else if (type == EBuildingType.FARM) {
 			playerStatistic.farmWorkAreas.add(((WorkAreaBuilding) building).getWorkAreaCenter());
+		} else if(type == EBuildingType.HOSPITAL) {
+			if(building.getStateProgress() == 1f) {
+				playerStatistic.activeHospitals.add(building.getPosition());
+			}
 		}
 	}
 
@@ -591,6 +596,10 @@ public class AiStatistics {
 		return buildingPositions;
 	}
 
+	public Set<ShortPoint2D> getActiveHospitalsForPlayer(byte playerId) {
+		return Collections.unmodifiableSet(playerStatistics[playerId].activeHospitals);
+	}
+
 	public AiPositions getStonesForPlayer(byte playerId) {
 		return playerStatistics[playerId].stones;
 	}
@@ -807,6 +816,7 @@ public class AiStatistics {
 		final Map<EBuildingType, List<ShortPoint2D>> buildingPositions = new HashMap<>();
 		final List<ShortPoint2D> farmWorkAreas = new Vector<>();
 		final List<ShortPoint2D> wineGrowerWorkAreas = new Vector<>();
+		final Set<ShortPoint2D> activeHospitals = new HashSet<>();
 		short partitionIdToBuildOn;
 		short blockedPartitionId;
 		IPartitionData materials;
@@ -847,6 +857,7 @@ public class AiStatistics {
 			joblessBearerPositions.clear();
 			farmWorkAreas.clear();
 			wineGrowerWorkAreas.clear();
+			activeHospitals.clear();
 			threatenedBorder = null;
 			clearIntegers();
 		}

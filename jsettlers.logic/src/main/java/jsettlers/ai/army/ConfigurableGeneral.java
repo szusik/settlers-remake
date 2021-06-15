@@ -16,6 +16,7 @@ package jsettlers.ai.army;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -67,8 +68,9 @@ public class ConfigurableGeneral implements ArmyGeneral {
 			EBuildingType.BARRACK };
 	private static final ESoldierType[] SOLDIER_UPGRADE_ORDER = new ESoldierType[] { ESoldierType.BOWMAN, ESoldierType.PIKEMAN, ESoldierType.SWORDSMAN };
 
-	private static final int MAX_SOLDIERS_PER_HOSPITAL = 30;
 	private static final float SOLDIERS_MIN_HEALTH = 0.6f;
+	private static final float HEALING_DISTANCE_WEIGHT = -1;
+	private static final float HEALING_USAGE_WEIGHT = -10;
 
 	private final AiStatistics aiStatistics;
 	private final Player player;
@@ -76,7 +78,9 @@ public class ConfigurableGeneral implements ArmyGeneral {
 	private final MovableGrid movableGrid;
 	private final float attackerCountFactor;
 	private final float healPropFactor;
-	private final Map<Integer, ShortPoint2D> woundedSoldiers = new HashMap<>();
+	private final Set<Integer> woundedSoldiers = new HashSet<>();
+	private final Map<ILogicMovable, ShortPoint2D> assignedPatients = new HashMap<>();
+	private final Map<ShortPoint2D, Integer> usedHospitalCapacity = new HashMap<>();
 
 	private final int hospitalWorkRadius;
 
@@ -101,7 +105,7 @@ public class ConfigurableGeneral implements ArmyGeneral {
 
 	@Override
 	public void commandTroops(Set<Integer> soldiersWithOrders) {
-		soldiersWithOrders.addAll(woundedSoldiers.keySet());
+		soldiersWithOrders.addAll(woundedSoldiers);
 		ensureAllTowersFullyMounted();
 
 		SoldierPositions soldierPositions = calculateSituation(player.playerId);
@@ -219,86 +223,117 @@ public class ConfigurableGeneral implements ArmyGeneral {
 	}
 
 	private void doHealTroops(boolean commit) {
+		woundedSoldiers.clear();
 		if(healPropFactor == 0) return;
 
-		// we use the hospitals from the statistics because their positions should not change that often
-		ShortPoint2D[] myHospitals = aiStatistics.getBuildingPositionsOfTypeForPlayer(EBuildingType.HOSPITAL, player.playerId).toArray(new ShortPoint2D[0]);
-		int hospitalCount = myHospitals.length;
-		if(hospitalCount == 0) {
-			woundedSoldiers.clear();
-			return;
-		}
+		// this list is at most a couple of seconds old
+		Set<ShortPoint2D> hospitals = aiStatistics.getActiveHospitalsForPlayer(player.playerId);
+		if(hospitals.isEmpty()) return;
 
-		List<List<Integer>> soldiersForHospitals = new ArrayList<>(hospitalCount);
-		int[] assignedPerHospital = new int[hospitalCount];
-		for(int i = 0; i < hospitalCount; i++) {
-			soldiersForHospitals.add(new Vector<>());
-		}
+		Iterator<Map.Entry<ILogicMovable, ShortPoint2D>> woundedIter = assignedPatients.entrySet().iterator();
 
-		Iterator<Map.Entry<Integer, ShortPoint2D>> woundedIter = woundedSoldiers.entrySet().iterator();
+		// remove dead and healed movables from the patients list
+		// regenerate the usedHospitalCapacity
+		// unassigned patients that are going to destroyed hospitals
+
+		usedHospitalCapacity.clear();
+		hospitals.forEach(pt -> usedHospitalCapacity.put(pt, 0));
+
 		while(woundedIter.hasNext()) {
-			Map.Entry<Integer, ShortPoint2D> wounded = woundedIter.next();
-
-			ILogicMovable mov = MovableManager.getMovableByID(wounded.getKey());
-			// remove healed soldiers from woundedSoldiers
-			if(mov == null || mov.getHealth() == mov.getMovableType().getHealth()) {
+			Map.Entry<ILogicMovable, ShortPoint2D> next = woundedIter.next();
+			ShortPoint2D hospital = next.getValue();
+			if(!hospitals.contains(hospital)) {
 				woundedIter.remove();
-			} else {
-				// remove soldiers that are going to destroyed hospitals from wounded list
-				// they are going to be reassigned like newly wounded
-				ShortPoint2D targetingHospital = wounded.getValue();
-				int hospitalIndex = -1;
-				for (int i = 0; i < hospitalCount; i++) {
-					if (myHospitals[i].equals(targetingHospital)) {
-						hospitalIndex = i;
-						break;
-					}
-				}
-
-				if(hospitalIndex != -1 && assignedPerHospital[hospitalIndex] < MAX_SOLDIERS_PER_HOSPITAL) {
-					if(targetingHospital.getOnGridDistTo(mov.getPosition())  >= hospitalWorkRadius) {
-						soldiersForHospitals.get(hospitalIndex).add(wounded.getKey());
-					}
-				} else {
-					woundedIter.remove();
-				}
+				continue;
 			}
+
+			ILogicMovable movable = next.getKey();
+
+			if(!isWounded(movable) || !movable.isAlive()) {
+				woundedIter.remove();
+				continue;
+			}
+
+			increaseHospitalUse(hospital);
 		}
 
-		for(ILogicMovable mov : MovableManager.getAllMovables()) {
-			if(mov.getPlayer() != player) continue;
+		// assign newly wounded soldiers to hospitals
 
-			EMovableType type = mov.getMovableType();
-			if(!EMovableType.SOLDIERS.contains(type)) continue;
-			if(mov.getHealth() >= type.getHealth() * SOLDIERS_MIN_HEALTH) continue;
-			if(woundedSoldiers.containsKey(mov.getID())) continue;
-			// only heal some wounded soldiers (based on ai difficulty)
-			if(healPropFactor != 1 && MatchConstants.aiRandom().nextFloat() > healPropFactor) continue;
+		Map<ShortPoint2D, List<Integer>> newOrders = new HashMap<>();
+		hospitals.forEach(hospital -> newOrders.put(hospital, new ArrayList<>()));
 
-			ShortPoint2D pos = mov.getPosition();
-			int shortestDistance = Integer.MAX_VALUE;
-			int hospital = -1;
+		MovableManager.getAllMovables().stream()
+				.filter(this::isWounded)
+				.filter(mov -> mov.getPlayer().equals(player))
+				.filter(mov -> EMovableType.PLAYER_CONTROLLED_HUMAN_MOVABLE_TYPES
+						.contains(mov.getMovableType()))
+				// only wounded movables that we actually can heal should be considered
+				.forEach(mov -> {
+					ShortPoint2D assignedHospital = assignedPatients.get(mov);
 
-			for(int i = 0; i < hospitalCount; i++) {
-				int hDistance = myHospitals[i].getOnGridDistTo(pos);
-				if(hDistance < shortestDistance && assignedPerHospital[i] < MAX_SOLDIERS_PER_HOSPITAL) {
-					shortestDistance = hDistance;
-					hospital = i;
-				}
-			}
+					// not all wounded soldiers should be send
+					if(assignedHospital != null || randomHealChance()) {
+						if (assignedHospital == null) {
+							assignedHospital = getBestHospital(mov, hospitals);
+							increaseHospitalUse(assignedHospital);
+							assignedPatients.put(mov, assignedHospital);
+						}
 
-			if(hospital != -1 && shortestDistance >= hospitalWorkRadius) {
-				soldiersForHospitals.get(hospital).add(mov.getID());
-				woundedSoldiers.put(mov.getID(), myHospitals[hospital]);
-				assignedPerHospital[hospital]++;
-			}
-		}
+						woundedSoldiers.add(mov.getID());
+
+						if(mov.getPosition().getOnGridDistTo(assignedHospital) >= hospitalWorkRadius) {
+							newOrders.get(assignedHospital).add(mov.getID());
+						}
+					}
+				});
 
 		if(commit) {
-			for (int i = 0; i < hospitalCount; i++) {
-				sendTroopsToById(soldiersForHospitals.get(i), myHospitals[i], null, EMoveToType.FORCED);
+			newOrders.entrySet().forEach(newOrder -> {
+				sendTroopsToById(newOrder.getValue(), newOrder.getKey(), null, EMoveToType.FORCED);
+			});
+		}
+	}
+
+	private boolean randomHealChance() {
+		if(healPropFactor == 1) return true;
+
+		return MatchConstants.aiRandom().nextFloat() >= 1-healPropFactor;
+	}
+
+	private boolean isWounded(ILogicMovable mov) {
+		return mov.getHealth() <= SOLDIERS_MIN_HEALTH * mov.getMovableType().getHealth();
+	}
+
+	private void increaseHospitalUse(ShortPoint2D hospital) {
+		usedHospitalCapacity.compute(hospital, (pos, oldValue) -> oldValue+1);
+	}
+
+	private ShortPoint2D getBestHospital(ILogicMovable movable, Set<ShortPoint2D> hospitals) {
+		float maxScore = Float.NEGATIVE_INFINITY;
+		ShortPoint2D bestHospital = null;
+
+		for (ShortPoint2D hospital : hospitals) {
+			float localScore = getHospitalScore(hospital, movable.getPosition());
+
+			if (localScore > maxScore) {
+				maxScore = localScore;
+				bestHospital = hospital;
 			}
 		}
+
+		return bestHospital;
+	}
+
+	private float getHospitalScore(ShortPoint2D hospital, ShortPoint2D from) {
+		int distance = hospital.getOnGridDistTo(from);
+		int usage = usedHospitalCapacity.get(hospital);
+
+		float score = 0;
+
+		score += distance * HEALING_DISTANCE_WEIGHT;
+		score += usage * HEALING_USAGE_WEIGHT;
+
+		return score;
 	}
 
 	private void defend(SoldierPositions soldierPositions, Set<Integer> soldiersWithOrders) {
