@@ -17,7 +17,6 @@ package jsettlers.graphics.map.draw;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.BitSet;
 
 import go.graphics.AdvancedUpdateBufferCache;
 import go.graphics.BackgroundDrawHandle;
@@ -851,8 +850,6 @@ public class Background implements IGraphicsBackgroundListener {
 
 	private boolean hasdgp;
 	private IDirectGridProvider dgp;
-	private byte[][] dgpVisibleStatus;
-	private byte[][] dgpHeightGrid;
 	private boolean fowEnabled;
 
 	private int mapWidth, mapHeight;
@@ -987,12 +984,8 @@ public class Background implements IGraphicsBackgroundListener {
 		mapWidth = context.getMap().getWidth();
 		mapHeight = context.getMap().getHeight();
 
-		dgp = context.getFow();
+		dgp = context.getDGP();
 		hasdgp = dgp != null;
-		if(hasdgp) {
-			dgpVisibleStatus = dgp.getVisibleStatusArray();
-			dgpHeightGrid = dgp.getHeightArray();
-		}
 
 		color_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_COLOR*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
 		shape_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
@@ -1167,8 +1160,15 @@ public class Background implements IGraphicsBackgroundListener {
 				for (int y = miny; y < maxy; y++) {
 					int lineStartX = linestart + (y / 2);
 
-					int linewidth = (width + lineStartX) < bufferWidth ? width + lineStartX : bufferWidth;
-					int linex = lineStartX < 0 ? 0 : lineStartX;
+					int linewidth = (width + lineStartX);
+					if(linewidth >= bufferWidth) {
+						linewidth = bufferWidth;
+					}
+
+					int linex = lineStartX;
+					if(linex < 0) {
+						linex = 0;
+					}
 
 					synchronized (color_bfr2) {
 						color_cache2.clearCacheRegion(y, linex, linewidth);
@@ -1301,14 +1301,14 @@ public class Background implements IGraphicsBackgroundListener {
 	private void addPointToGeometry(MapDrawContext context, ByteBuffer buffer, int x, int y, float u, float v) {
 		buffer.putFloat(x);
 		buffer.putFloat(y);
-		buffer.putFloat(hasdgp ? dgpHeightGrid[x][y] : context.getHeight(x, y));
+		buffer.putFloat(context.getHeight(x, y));
 		buffer.putFloat(u);
 		buffer.putFloat(v);
 	}
 
 	private void addColorPointToGeometry(MapDrawContext context, ByteBuffer buffer, int x, int y) {
 		float fColor;
-		if((x <= 0 || x >= mapWidth - 2 || y <= 0 || y >= mapHeight - 2 || ((hasdgp ? dgpVisibleStatus[x][y] : context.getVisibleStatus(x, y)) <= 0) && fowEnabled)) {
+		if((x <= 0 || x >= mapWidth - 2 || y <= 0 || y >= mapHeight - 2 || (context.getVisibleStatus(x, y) <= 0) && fowEnabled)) {
 			fColor = 0;
 		} else {
 			int dHeight = context.getHeight(x, y-1) - context.getHeight(x, y);
@@ -1317,7 +1317,7 @@ public class Background implements IGraphicsBackgroundListener {
 			if (fColor < 0.4f) {
 				fColor = 0.4f;
 			}
-			if(fowEnabled) fColor *= dgpVisibleStatus[x][y] / (float)CommonConstants.FOG_OF_WAR_VISIBLE;
+			if(fowEnabled) fColor *= context.getVisibleStatus(x, y) / (float)CommonConstants.FOG_OF_WAR_VISIBLE;
 		}
 
 		buffer.putFloat(fColor);

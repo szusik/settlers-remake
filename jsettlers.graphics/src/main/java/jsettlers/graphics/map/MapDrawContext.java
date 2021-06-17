@@ -462,7 +462,7 @@ public final class MapDrawContext implements IGLProvider {
 		return map.getVisibleStatus(x, y);
 	}
 
-	public IDirectGridProvider getFow() {
+	public IDirectGridProvider getDGP() {
 		if(map instanceof IDirectGridProvider) {
 			return ((IDirectGridProvider)map);
 		}
