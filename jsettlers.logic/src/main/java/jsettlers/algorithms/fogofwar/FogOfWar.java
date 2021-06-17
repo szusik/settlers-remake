@@ -221,7 +221,7 @@ public final class FogOfWar implements Serializable {
 					if(oldPos != null) circleDrawer.drawCircleToBuffer(oldPos, vd, CIRCLE_REMOVE|CIRCLE_DIM);
 					mFOW.setOldFoWPosition(currentPos);
 				}
-				return false;
+				return !mFOW.continueFoW();
 			} else if(task instanceof WaitFoWTask) {
 				return false;
 			} else {

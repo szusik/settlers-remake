@@ -11,4 +11,6 @@ public interface MovableFoWTask extends FoWTask {
 	ShortPoint2D getOldFoWPosition();
 
 	void setOldFoWPosition(ShortPoint2D position);
+
+	boolean continueFoW();
 }
