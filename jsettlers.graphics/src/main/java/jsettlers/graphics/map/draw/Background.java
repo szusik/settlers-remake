@@ -840,8 +840,6 @@ public class Background implements IGraphicsBackgroundListener {
 			// ...
 	};
 
-	private static boolean asyncBufferBuilding = true;
-
 	private static final Object preloadMutex = new Object();
 
 	private int bufferWidth; // in map points.
@@ -855,10 +853,8 @@ public class Background implements IGraphicsBackgroundListener {
 	private IDirectGridProvider dgp;
 	private byte[][] dgpVisibleStatus;
 	private byte[][] dgpHeightGrid;
-	private BitSet fowWritten;
 	private boolean fowEnabled;
 
-	private BitSet mapInvalid;
 	private int mapWidth, mapHeight;
 
 	private static short[] preloadedTexture = null;
@@ -998,18 +994,11 @@ public class Background implements IGraphicsBackgroundListener {
 			dgpHeightGrid = dgp.getHeightArray();
 		}
 
-		if(asyncBufferBuilding) {
-			color_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_COLOR*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
-			shape_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
-			color_cache2 = new AdvancedUpdateBufferCache(color_bfr2, BYTES_PER_FIELD_COLOR, context::getGl, () -> backgroundHandle.colors, bufferWidth);
-			shape_cache2 = new AdvancedUpdateBufferCache(shape_bfr2, BYTES_PER_FIELD_SHAPE, context::getGl, () -> backgroundHandle.vertices, bufferWidth);
-			asyncAccessContext = context;
-		} else {
-			color_bfr2 = null;
-			shape_bfr2 = null;
-			fowWritten = new BitSet(mapWidth*mapHeight);
-			mapInvalid = new BitSet(bufferWidth*bufferHeight);
-		}
+		color_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_COLOR*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
+		shape_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
+		color_cache2 = new AdvancedUpdateBufferCache(color_bfr2, BYTES_PER_FIELD_COLOR, context::getGl, () -> backgroundHandle.colors, bufferWidth);
+		shape_cache2 = new AdvancedUpdateBufferCache(shape_bfr2, BYTES_PER_FIELD_SHAPE, context::getGl, () -> backgroundHandle.vertices, bufferWidth);
+		asyncAccessContext = context;
 	}
 
 	private MapDrawContext asyncAccessContext;
@@ -1141,9 +1130,6 @@ public class Background implements IGraphicsBackgroundListener {
 
 		shape_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE).order(ByteOrder.nativeOrder());
 
-		if (!asyncBufferBuilding) {
-			color_cache = new UpdateBufferCache(color_bfr, BYTES_PER_FIELD_COLOR, context::getGl, () -> backgroundHandle.colors);
-		}
 		context.getMap().setBackgroundListener(this);
 	}
 
@@ -1170,7 +1156,7 @@ public class Background implements IGraphicsBackgroundListener {
 			int linestart = minx - (miny / 2);
 
 
-			if(asyncBufferBuilding && context.getGl() instanceof VkDrawContext) {
+			if(context.getGl() instanceof VkDrawContext) {
 				synchronized (color_bfr2) {
 					color_cache2.clearCache();
 				}
@@ -1183,36 +1169,12 @@ public class Background implements IGraphicsBackgroundListener {
 
 					int linewidth = (width + lineStartX) < bufferWidth ? width + lineStartX : bufferWidth;
 					int linex = lineStartX < 0 ? 0 : lineStartX;
-					int bfr_pos = y * bufferWidth + linex;
 
-					if (asyncBufferBuilding) {
-						synchronized (color_bfr2) {
-							color_cache2.clearCacheRegion(y, linex, linewidth);
-						}
-						synchronized (shape_bfr2) {
-							shape_cache2.clearCacheRegion(y, linex, linewidth);
-						}
-					} else {
-						boolean color_changes = false;
-
-						for (int x = linex; x < linewidth; x++) {
-							if (fowWritten.get(y * mapWidth + x)) {
-								fowWritten.clear(y * mapWidth + x);
-								color_cache.gotoPos(bfr_pos);
-								color_changes = true;
-								addColorTrianglesToGeometry(context, color_bfr, x, y);
-							}
-
-							if(mapInvalid.get(bfr_pos)) {
-								mapInvalid.clear(bfr_pos);
-								shape_bfr.rewind();
-								addTrianglesToGeometry(context, shape_bfr, x, y);
-								shape_bfr.rewind();
-								context.getGl().updateBufferAt(backgroundHandle.vertices, bfr_pos * BYTES_PER_FIELD_SHAPE, shape_bfr);
-							}
-							bfr_pos++;
-						}
-						if (color_changes) color_cache.clearCache();
+					synchronized (color_bfr2) {
+						color_cache2.clearCacheRegion(y, linex, linewidth);
+					}
+					synchronized (shape_bfr2) {
+						shape_cache2.clearCacheRegion(y, linex, linewidth);
 					}
 				}
 			}
@@ -1223,13 +1185,9 @@ public class Background implements IGraphicsBackgroundListener {
 
 	private synchronized void invalidateShapePoint(int x, int y) {
 		if(x >= bufferWidth || y >= bufferHeight || x < 0 || y < 0) return;
-		if(asyncBufferBuilding) {
-			synchronized (shape_bfr2) {
-				shape_cache2.gotoLine(y, x, 1);
-				addTrianglesToGeometry(asyncAccessContext, shape_bfr2, x, y);
-			}
-		} else {
-			mapInvalid.set(y * bufferWidth + x);
+		synchronized (shape_bfr2) {
+			shape_cache2.gotoLine(y, x, 1);
+			addTrianglesToGeometry(asyncAccessContext, shape_bfr2, x, y);
 		}
 	}
 
@@ -1353,12 +1311,8 @@ public class Background implements IGraphicsBackgroundListener {
 		if((x <= 0 || x >= mapWidth - 2 || y <= 0 || y >= mapHeight - 2 || ((hasdgp ? dgpVisibleStatus[x][y] : context.getVisibleStatus(x, y)) <= 0) && fowEnabled)) {
 			fColor = 0;
 		} else {
-			int dHeight;
-			if(hasdgp) {
-				dHeight = dgpHeightGrid[x][y-1] - dgpHeightGrid[x][y];
-			} else {
-				dHeight = context.getHeight(x, y-1) - context.getHeight(x, y);
-			}
+			int dHeight = context.getHeight(x, y-1) - context.getHeight(x, y);
+
 			fColor = 0.875f + dHeight * .125f;
 			if (fColor < 0.4f) {
 				fColor = 0.4f;
@@ -1387,15 +1341,11 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private void updateLine(int y, int x1, int x2) {
-		if(asyncBufferBuilding) {
-			synchronized (color_bfr2) {
-				color_cache2.gotoLine(y,x1, x2 - x1);
-				for (int i = x1; i != x2; i++) {
-					addColorTrianglesToGeometry(asyncAccessContext, color_bfr2, i, y);
-				}
+		synchronized (color_bfr2) {
+			color_cache2.gotoLine(y,x1, x2 - x1);
+			for (int i = x1; i != x2; i++) {
+				addColorTrianglesToGeometry(asyncAccessContext, color_bfr2, i, y);
 			}
-		} else {
-			fowWritten.set(y*mapWidth+x1, y*mapWidth+x2);
 		}
 	}
 
