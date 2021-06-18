@@ -25,7 +25,7 @@ import org.lwjgl.system.windows.PIXELFORMATDESCRIPTOR;
 import go.graphics.swing.ContextContainer;
 
 public class WGLContextCreator extends JAWTContextCreator {
-	private long context;
+	private long context = 0;
 
 	public WGLContextCreator(ContextContainer container, boolean debug) {
 		super(container, debug);
@@ -97,6 +97,9 @@ public class WGLContextCreator extends JAWTContextCreator {
 
 		pfd.free();
 
+		if(context != 0) {
+			WGL.wglDeleteContext(context);
+		}
 
 		context = WGL.wglCreateContext(windowDrawable);
 		WGL.wglMakeCurrent(windowDrawable, context);
