@@ -91,7 +91,7 @@ public class MapGraphics implements IGraphicsGrid {
 	}
 
 	@Override
-	public ELandscapeType getLandscapeTypeAt(int x, int y) {
+	public ELandscapeType getVisibleLandscapeTypeAt(int x, int y) {
 		return data.getLandscape(x, y);
 	}
 

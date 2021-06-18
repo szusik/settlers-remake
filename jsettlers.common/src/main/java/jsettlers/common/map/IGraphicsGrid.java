@@ -75,7 +75,7 @@ public interface IGraphicsGrid {
 	 *            y coordinate
 	 * @return {@link ELandscapeType} at the given position.
 	 */
-	ELandscapeType getLandscapeTypeAt(int x, int y);
+	ELandscapeType getVisibleLandscapeTypeAt(int x, int y);
 
 	/**
 	 * @param x

@@ -1130,7 +1130,6 @@ public class Background implements IGraphicsBackgroundListener {
 	private AdvancedUpdateBufferCache shape_cache2;
 	private final ByteBuffer color_bfr2;
 	private final ByteBuffer shape_bfr2;
-	private UpdateBufferCache color_cache;
 	private ByteBuffer shape_bfr;
 	private ByteBuffer color_bfr;
 
@@ -1157,24 +1156,25 @@ public class Background implements IGraphicsBackgroundListener {
 					shape_cache2.clearCache();
 				}
 			} else {
-				for (int y = miny; y < maxy; y++) {
-					int lineStartX = linestart + (y / 2);
-
-					int linewidth = (width + lineStartX);
-					if(linewidth >= bufferWidth) {
-						linewidth = bufferWidth;
-					}
-
-					int linex = lineStartX;
-					if(linex < 0) {
-						linex = 0;
-					}
-
-					synchronized (color_bfr2) {
-						color_cache2.clearCacheRegion(y, linex, linewidth);
-					}
+				synchronized (color_bfr2) {
 					synchronized (shape_bfr2) {
-						shape_cache2.clearCacheRegion(y, linex, linewidth);
+						for (int y = miny; y < maxy; y++) {
+							int lineStartX = linestart + (y / 2);
+
+							int linewidth = (width + lineStartX);
+							if (linewidth >= bufferWidth) {
+								linewidth = bufferWidth;
+							}
+
+							int linex = lineStartX;
+							if (linex < 0) {
+								linex = 0;
+							}
+
+							color_cache2.clearCacheRegion(y, linex, linewidth);
+							shape_cache2.clearCacheRegion(y, linex, linewidth);
+						}
+
 					}
 				}
 			}
@@ -1331,15 +1331,6 @@ public class Background implements IGraphicsBackgroundListener {
 		}
 	}
 
-	@Override
-	public void backgroundShapeChangedAt(int x, int y) {
-		backgroundColorLineChangedAt(x, y, 1);
-		invalidateShapePoint(x, y);
-		invalidateShapePoint(x - 1, y);
-		invalidateShapePoint(x - 1, y - 1);
-		invalidateShapePoint(x, y - 1);
-	}
-
 	private void updateLine(int y, int x1, int x2) {
 		synchronized (color_bfr2) {
 			color_cache2.gotoLine(y,x1, x2 - x1);
@@ -1347,10 +1338,17 @@ public class Background implements IGraphicsBackgroundListener {
 				addColorTrianglesToGeometry(asyncAccessContext, color_bfr2, i, y);
 			}
 		}
+
+		synchronized (shape_bfr2) {
+			shape_cache2.gotoLine(y, x1, x2 - x1);
+			for(int i = x1; i != x2; i++) {
+				addTrianglesToGeometry(asyncAccessContext, shape_bfr2, i, y);
+			}
+		}
 	}
 
 	@Override
-	public void backgroundColorLineChangedAt(int x, int y, int length) {
+	public void backgroundLineChangedAt(int x, int y, int length) {
 		if(y == bufferHeight) return;
 
 		int x2 = x + length;

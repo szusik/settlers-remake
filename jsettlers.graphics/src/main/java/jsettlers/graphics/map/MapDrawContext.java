@@ -447,7 +447,7 @@ public final class MapDrawContext implements IGLProvider {
 	 * @return The landscape type.
 	 */
 	public ELandscapeType getLandscape(int x, int y) {
-		return map.getLandscapeTypeAt(x, y);
+		return map.getVisibleLandscapeTypeAt(x, y);
 	}
 
 	public int getHeight(int x, int y) {

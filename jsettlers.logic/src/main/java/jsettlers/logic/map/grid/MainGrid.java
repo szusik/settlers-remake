@@ -226,7 +226,7 @@ public final class MainGrid implements Serializable {
 		if (fogOfWar != null) {
 			this.fogOfWar = fogOfWar;
 		} else {
-			this.fogOfWar = new FogOfWar(width, height, partitionsGrid.getPlayer(playerId).getTeamId());
+			this.fogOfWar = new FogOfWar(this, partitionsGrid.getPlayer(playerId).getTeamId());
 		}
 	}
 
@@ -822,6 +822,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public final byte getHeightAt(int x, int y) {
+			if(fogOfWar.hiddenLandscape[x][y] != null) return fogOfWar.hiddenHeight[x][y];
 			return landscapeGrid.getHeightAt(x, y);
 		}
 
@@ -831,7 +832,10 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final ELandscapeType getLandscapeTypeAt(int x, int y) {
+		public final ELandscapeType getVisibleLandscapeTypeAt(int x, int y) {
+			ELandscapeType fowLandscape = fogOfWar.getLandscapeTypeAt(x, y);
+			if(fowLandscape != null) return fowLandscape;
+
 			return landscapeGrid.getLandscapeTypeAt(x, y);
 		}
 
@@ -2213,9 +2217,7 @@ public final class MainGrid implements Serializable {
 		private static final long serialVersionUID = -332117701485179252L;
 
 		@Override
-		public void backgroundShapeChangedAt(int x, int y) {}
-		@Override
-		public void backgroundColorLineChangedAt(int x, int y, int length) {}
+		public void backgroundLineChangedAt(int x, int y, int length) {}
 
 		@Override
 		public void fogOfWarEnabledStatusChanged(boolean enabled) {}

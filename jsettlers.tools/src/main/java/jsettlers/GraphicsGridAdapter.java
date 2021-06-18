@@ -60,7 +60,7 @@ public class GraphicsGridAdapter implements IGraphicsGrid {
 	}
 
 	@Override
-	public ELandscapeType getLandscapeTypeAt(int x, int y) {
+	public ELandscapeType getVisibleLandscapeTypeAt(int x, int y) {
 		return ELandscapeType.GRASS;
 	}
 

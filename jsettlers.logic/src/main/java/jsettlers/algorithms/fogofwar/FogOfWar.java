@@ -17,11 +17,11 @@ package jsettlers.algorithms.fogofwar;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.BitSet;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jsettlers.common.CommonConstants;
+import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.map.IGraphicsBackgroundListener;
 import jsettlers.common.position.ShortPoint2D;
 import go.graphics.FramerateComputer;
@@ -29,6 +29,7 @@ import jsettlers.logic.buildings.Building;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.MainGrid;
+import jsettlers.logic.map.grid.landscape.LandscapeGrid;
 import jsettlers.logic.movable.MovableManager;
 
 /**
@@ -37,7 +38,7 @@ import jsettlers.logic.movable.MovableManager;
  * @author Andreas Eberle
  */
 public final class FogOfWar implements Serializable {
-	private static final long serialVersionUID = 1877994785778678510L;
+	private static final long serialVersionUID = 1877994785778678511L;
 	/**
 	 * Longest distance any unit may look
 	 */
@@ -48,22 +49,28 @@ public final class FogOfWar implements Serializable {
 
 	public final short width;
 	public final short height;
-	public byte[][] sight;
-	public short[][][] visibleRefs;
+	public final byte[][] sight;
+	public final ELandscapeType[][] hiddenLandscape;
+	public final byte[][] hiddenHeight;
+	public final short[][][] visibleRefs;
 	public transient FowDimThread dimThread;
 	public transient FoWRefThread refThread;
+	private final LandscapeGrid landscapeGrid;
 
 	public transient CircleDrawer circleDrawer;
 	private transient IGraphicsBackgroundListener backgroundListener;
 	public transient boolean enabled;
 	public transient boolean canceled;
 
-	public FogOfWar(short width, short height, byte teamId) {
-		this.width = width;
-		this.height = height;
+	public FogOfWar(MainGrid root, byte teamId) {
+		this.width = root.getWidth();
+		this.height = root.getHeight();
 		this.team = teamId;
 		this.sight = new byte[width][height];
+		this.hiddenLandscape = new ELandscapeType[width][height];
+		this.hiddenHeight = new byte[width][height];
 		this.visibleRefs = new short[width][height][0];
+		this.landscapeGrid = root.getLandscapeGrid();
 
 		readObject(null);
 	}
@@ -108,6 +115,10 @@ public final class FogOfWar implements Serializable {
 		backgroundListener = new MainGrid.NullBackgroundListener();
 	}
 
+	public ELandscapeType getLandscapeTypeAt(int x, int y) {
+		return hiddenLandscape[x][y];
+	}
+
 	public static class BuildingFoWTask implements FoWTask {
 		ShortPoint2D at;
 		short from;
@@ -149,7 +160,7 @@ public final class FogOfWar implements Serializable {
 		this.enabled = enabled;
 
 		backgroundListener.fogOfWarEnabledStatusChanged(enabled);
-		for(int y = 0; y != height;y++) backgroundListener.backgroundColorLineChangedAt(0, y, width);
+		for(int y = 0; y != height;y++) backgroundListener.backgroundLineChangedAt(0, y, width);
 	}
 
 	public void showMap() {
@@ -280,9 +291,23 @@ public final class FogOfWar implements Serializable {
 					int x = y == beginY ? beginX : 0;
 					int x2 = y == endY ? endX : width;
 					for(; x < x2; x++) {
-						byte dimTo = dimmedSight(x, y);
+						byte dimTo = targetSight(x, y);
+						final byte oldSight = sight[x][y];
+						if(oldSight>= CommonConstants.FOG_OF_WAR_EXPLORED && dimTo < CommonConstants.FOG_OF_WAR_EXPLORED) {
+							dimTo = CommonConstants.FOG_OF_WAR_EXPLORED;
+						}
 
-						if(dimTo != sight[x][y]) {
+						if(dimTo != oldSight) {
+							final byte newSight = dim(sight[x][y], dimTo, dim);
+
+							if(oldSight == CommonConstants.FOG_OF_WAR_EXPLORED && newSight > CommonConstants.FOG_OF_WAR_EXPLORED) {
+								clearHidden(x, y);
+							} else if(oldSight > CommonConstants.FOG_OF_WAR_EXPLORED && newSight <= CommonConstants.FOG_OF_WAR_EXPLORED) {
+								recordHidden(x, y);
+							}
+
+							sight[x][y] = newSight;
+
 							if(lastUpdate + 1 != x) {
 								if(firstUpdate != -1) update(y, firstUpdate, lastUpdate);
 								firstUpdate = lastUpdate = x;
@@ -290,8 +315,6 @@ public final class FogOfWar implements Serializable {
 								if(firstUpdate == -1) firstUpdate = x;
 								lastUpdate = x;
 							}
-
-							sight[x][y] = dim(sight[x][y], dimTo, dim);
 
 							if(sight[x][y] == dimTo) update.clear(y * width + x);
 						} else {
@@ -308,15 +331,22 @@ public final class FogOfWar implements Serializable {
 		}
 
 		private void update(int y, int from, int to) {
-			backgroundListener.backgroundColorLineChangedAt(from, y, to-from);
+			backgroundListener.backgroundLineChangedAt(from, y, to-from);
 		}
+	}
+
+	private void clearHidden(int x, int y) {
+		hiddenLandscape[x][y] = null;
+		hiddenHeight[x][y] = -1;
+	}
+
+	private void recordHidden(int x, int y) {
+		hiddenLandscape[x][y] = landscapeGrid.getLandscapeTypeAt(x, y);
+		hiddenHeight[x][y] = landscapeGrid.getHeightAt(x, y);
 	}
 
 
 	private static byte dim(byte value, byte dimTo, byte dim) {
-		if(value >= CommonConstants.FOG_OF_WAR_EXPLORED && dimTo < CommonConstants.FOG_OF_WAR_EXPLORED) dimTo = CommonConstants.FOG_OF_WAR_EXPLORED;
-		if(value < CommonConstants.FOG_OF_WAR_EXPLORED && dimTo < value) return value;
-
 		byte dV = (byte) (value-dimTo);
 		if(dV < 0) dV = (byte) -dV;
 
@@ -325,7 +355,23 @@ public final class FogOfWar implements Serializable {
 		else return (byte) (value-dim);
 	}
 
-	final byte dimmedSight(int x, int y) {
+	final byte targetSight(int x, int y) {
+		byte refValue = refSight(x, y);
+
+		byte currentValue = sight[x][y];
+
+		if(currentValue >= CommonConstants.FOG_OF_WAR_EXPLORED && refValue < CommonConstants.FOG_OF_WAR_EXPLORED) {
+			return CommonConstants.FOG_OF_WAR_EXPLORED;
+		}
+
+		if(currentValue <= CommonConstants.FOG_OF_WAR_EXPLORED && refValue < currentValue) {
+			return currentValue;
+		}
+
+		return refValue;
+	}
+
+	final byte refSight(int x, int y) {
 		short[] refs = instance.visibleRefs[x][y];
 		if(refs.length == 0) return 0;
 
@@ -468,7 +514,7 @@ public final class FogOfWar implements Serializable {
 						}
 					}
 
-					if((state&CIRCLE_DIM) > 0 && sight[x][y] != dimmedSight(x, y)) {
+					if((state&CIRCLE_DIM) > 0 && sight[x][y] != targetSight(x, y)) {
 						synchronized (instance.dimThread.nextUpdate) {
 							instance.dimThread.nextUpdate.set(y*width+x);
 						}

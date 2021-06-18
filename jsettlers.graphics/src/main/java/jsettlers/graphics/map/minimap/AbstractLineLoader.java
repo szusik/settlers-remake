@@ -195,7 +195,7 @@ public abstract class AbstractLineLoader implements Runnable {
 		int centerx = (mapmaxX + mapminX) / 2;
 		int centery = (mapmaxY + mapminY) / 2;
 
-		return map.getLandscapeTypeAt(centerx, centery).color;
+		return map.getVisibleLandscapeTypeAt(centerx, centery).color;
 	}
 
 	private short getSettlerForArea(IGraphicsGrid map, MapDrawContext context, int mapminX, int mapminY, int mapmaxX, int mapmaxY) {
@@ -240,7 +240,7 @@ public abstract class AbstractLineLoader implements Runnable {
 
 				} else if (visible && displayOccupied == OccupiedAreaMode.AREA) {
 					IPlayer player = map.getPlayerAt(x, y);
-					if (player != null && !map.getLandscapeTypeAt(x, y).isBlocking) {
+					if (player != null && !map.getVisibleLandscapeTypeAt(x, y).isBlocking) {
 						Color playerColor = MapDrawContext.getPlayerColor(player.getPlayerId());
 						// Now add a landscape below that....
 						Color landscape = getColorForArea(map, mapminX, mapminY, mapmaxX, mapmaxY);

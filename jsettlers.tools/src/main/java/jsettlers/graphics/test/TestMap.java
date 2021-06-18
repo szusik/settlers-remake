@@ -476,7 +476,7 @@ public class TestMap implements IGraphicsGrid {
 	}
 
 	@Override
-	public ELandscapeType getLandscapeTypeAt(int x, int y) {
+	public ELandscapeType getVisibleLandscapeTypeAt(int x, int y) {
 		return getTile(x, y).getLandscapeType();
 	}
 

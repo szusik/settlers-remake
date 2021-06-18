@@ -183,7 +183,7 @@ public class MapData implements IMapData {
 			int size = points.size();
 			for(int i = 0; i != size; i++) {
 				ShortPoint2D pt = points.get(i);
-				backgroundListener.backgroundShapeChangedAt(pt.x, pt.y);
+				backgroundListener.backgroundLineChangedAt(pt.x, pt.y, 1);
 			}
 		}
 	}
@@ -326,7 +326,7 @@ public class MapData implements IMapData {
 		heights[x][y] = safeHeight;
 
 		if (backgroundListener != null) {
-			backgroundListener.backgroundShapeChangedAt((short) x, (short) y);
+			backgroundListener.backgroundLineChangedAt((short) x, (short) y, 1);
 		}
 	}
 
@@ -395,7 +395,7 @@ public class MapData implements IMapData {
 		while (c != null) {
 			inverse.addHeightChange(c.x, c.y, heights[c.x][c.y]);
 			setHeight(c.x, c.y, c.height);
-			backgroundListener.backgroundShapeChangedAt(c.x, c.y);
+			backgroundListener.backgroundLineChangedAt(c.x, c.y, 1);
 			c = c.next;
 		}
 
@@ -404,7 +404,7 @@ public class MapData implements IMapData {
 		while (cl != null) {
 			inverse.addLandscapeChange(cl.x, cl.y, landscapes[cl.x][cl.y]);
 			landscapes[cl.x][cl.y] = cl.landscape;
-			backgroundListener.backgroundShapeChangedAt(cl.x, cl.y);
+			backgroundListener.backgroundLineChangedAt(cl.x, cl.y, 1);
 			cl = cl.next;
 		}
 
