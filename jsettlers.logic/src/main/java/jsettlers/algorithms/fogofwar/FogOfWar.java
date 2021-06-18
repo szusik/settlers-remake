@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.map.IGraphicsBackgroundListener;
+import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.position.ShortPoint2D;
 import go.graphics.FramerateComputer;
 import jsettlers.logic.buildings.Building;
@@ -30,6 +31,8 @@ import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.MainGrid;
 import jsettlers.logic.map.grid.landscape.LandscapeGrid;
+import jsettlers.logic.map.grid.objects.AbstractHexMapObject;
+import jsettlers.logic.map.grid.objects.ObjectsGrid;
 import jsettlers.logic.movable.MovableManager;
 
 /**
@@ -52,10 +55,12 @@ public final class FogOfWar implements Serializable {
 	public final byte[][] sight;
 	public final ELandscapeType[][] hiddenLandscape;
 	public final byte[][] hiddenHeight;
+	private final IMapObject[][] hiddenMapObjects;
 	public final short[][][] visibleRefs;
 	public transient FowDimThread dimThread;
 	public transient FoWRefThread refThread;
 	private final LandscapeGrid landscapeGrid;
+	private final ObjectsGrid objectsGrid;
 
 	public transient CircleDrawer circleDrawer;
 	private transient IGraphicsBackgroundListener backgroundListener;
@@ -69,8 +74,10 @@ public final class FogOfWar implements Serializable {
 		this.sight = new byte[width][height];
 		this.hiddenLandscape = new ELandscapeType[width][height];
 		this.hiddenHeight = new byte[width][height];
+		this.hiddenMapObjects = new IMapObject[width][height];
 		this.visibleRefs = new short[width][height][0];
 		this.landscapeGrid = root.getLandscapeGrid();
+		this.objectsGrid = root.getObjectsGrid();
 
 		readObject(null);
 	}
@@ -338,11 +345,40 @@ public final class FogOfWar implements Serializable {
 	private void clearHidden(int x, int y) {
 		hiddenLandscape[x][y] = null;
 		hiddenHeight[x][y] = -1;
+		hiddenMapObjects[x][y] = null;
 	}
 
 	private void recordHidden(int x, int y) {
 		hiddenLandscape[x][y] = landscapeGrid.getLandscapeTypeAt(x, y);
 		hiddenHeight[x][y] = landscapeGrid.getHeightAt(x, y);
+		hiddenMapObjects[x][y] = recordMapObjects(objectsGrid.getObjectsAt(x, y));
+	}
+
+	private IMapObject recordMapObjects(AbstractHexMapObject objects) {
+		HiddenMapObject outHead = null;
+		HiddenMapObject outTail = null;
+		AbstractHexMapObject inHead = objects;
+
+		while(inHead != null) {
+			HiddenMapObject localObject = recordMapObject(inHead);
+
+			if(localObject != null) {
+				if (outTail == null) {
+					outHead = localObject;
+					outTail = localObject;
+				} else {
+					outTail.setNextObject(localObject);
+					outTail = localObject;
+				}
+			}
+
+			inHead = objects.getNextObject();
+		}
+		return outHead;
+	}
+
+	private HiddenMapObject recordMapObject(AbstractHexMapObject inHead) {
+		return null;
 	}
 
 
