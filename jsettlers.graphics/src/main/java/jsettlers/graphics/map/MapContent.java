@@ -166,6 +166,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private final IGraphicsMovable[] movableGrid;
 	private final BitSet borderGrid;
 	private final byte[][] heightGrid;
+	private final byte[][] visibleGrid;
 	private final short width, height;
 	private final boolean isVisibleGridAvailable;
 
@@ -248,12 +249,14 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			movableGrid = dgp.getMovableArray();
 			borderGrid = dgp.getBorderArray();
 			heightGrid = dgp.getHeightArray();
+			visibleGrid = dgp.getVisibleStatusArray();
 			isVisibleGridAvailable = true;
 		} else {
 			objectsGrid = null;
 			movableGrid = null;
 			borderGrid = null;
 			heightGrid = null;
+			visibleGrid = null;
 			isVisibleGridAvailable = false;
 		}
 		width = map.getWidth();
@@ -550,7 +553,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		if(placementBuilding != null) {
 			ShortPoint2D underMouse = this.context.getPositionOnScreen((float) mousePosition.getX(), (float) mousePosition.getY());
 			if(0 <= underMouse.x && underMouse.x < width && 0 <= underMouse.y && underMouse.y < height) {
-				IMapObject mapObject = map.getMapObjectsAt(underMouse.x, underMouse.y);
+				IMapObject mapObject = map.getVisibleMapObjectsAt(underMouse.x, underMouse.y);
 
 				if (mapObject != null && mapObject.getMapObject(EMapObjectType.CONSTRUCTION_MARK) != null) { // if there is a construction mark
 					this.objectDrawer.drawMapObject(underMouse.x, underMouse.y, placementBuilding);
@@ -566,13 +569,13 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private void drawTile(int x, int y) {
 		int tileIndex = x+y*width;
 
-		IMapObject object = objectsGrid != null ? objectsGrid[tileIndex] : map.getMapObjectsAt(x, y);
+		IMapObject object = objectsGrid != null ? objectsGrid[tileIndex] : map.getVisibleMapObjectsAt(x, y);
 		if(object != null) {
 			this.objectDrawer.drawMapObject(x, y, object);
 		}
 
 		if(y < height - 3) {
-			object = objectsGrid != null ? objectsGrid[tileIndex+3*width] : map.getMapObjectsAt(x, y + 3);
+			object = objectsGrid != null ? objectsGrid[tileIndex+3*width] : map.getVisibleMapObjectsAt(x, y + 3);
 			if(object != null) {
 				EMapObjectType type = object.getObjectType();
 				if(type == EMapObjectType.DOCK) {

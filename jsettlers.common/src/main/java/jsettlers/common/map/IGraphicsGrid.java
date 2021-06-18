@@ -57,7 +57,7 @@ public interface IGraphicsGrid {
 	 *            y coordinate
 	 * @return an {@link IMapObject} that's at the given position or null if there is none.
 	 */
-	IMapObject getMapObjectsAt(int x, int y);
+	IMapObject getVisibleMapObjectsAt(int x, int y);
 
 	/**
 	 * @param x
@@ -66,7 +66,7 @@ public interface IGraphicsGrid {
 	 *            y coordinate
 	 * @return height at the given position.
 	 */
-	byte getHeightAt(int x, int y);
+	byte getVisibleHeightAt(int x, int y);
 
 	/**
 	 * @param x

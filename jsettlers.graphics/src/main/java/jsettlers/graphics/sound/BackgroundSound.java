@@ -148,7 +148,7 @@ public class BackgroundSound implements Runnable {
 	}
 
 	private boolean hasTreeObject(int x, int y) {
-		IMapObject o = map.getMap().getMapObjectsAt(x, y);
+		IMapObject o = map.getMap().getVisibleMapObjectsAt(x, y);
 		while (o != null) {
 			EMapObjectType type = o.getObjectType();
 			if (type == EMapObjectType.TREE_ADULT

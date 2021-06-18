@@ -64,7 +64,7 @@ public class BuildingtestMap implements IGraphicsGrid {
 	}
 
 	@Override
-	public IMapObject getMapObjectsAt(int x, int y) {
+	public IMapObject getVisibleMapObjectsAt(int x, int y) {
 		if (tiles[x][y].getBuilding() != null) {
 			return tiles[x][y].getBuilding();
 		}
@@ -73,7 +73,7 @@ public class BuildingtestMap implements IGraphicsGrid {
 	}
 
 	@Override
-	public byte getHeightAt(int x, int y) {
+	public byte getVisibleHeightAt(int x, int y) {
 		return 0;
 	}
 

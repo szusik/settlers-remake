@@ -93,7 +93,7 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 	}
 
 	@Override
-	public IMapObject getMapObjectsAt(int x, int y) {
+	public IMapObject getVisibleMapObjectsAt(int x, int y) {
 		if (materialTypeMap[x][y] != null && materialAmountMap[x][y] > 0) {
 			return new StackMapObject(materialTypeMap[x][y], materialAmountMap[x][y]);
 		} else {
@@ -102,7 +102,7 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 	}
 
 	@Override
-	public byte getHeightAt(int x, int y) {
+	public byte getVisibleHeightAt(int x, int y) {
 		return 0;
 	}
 

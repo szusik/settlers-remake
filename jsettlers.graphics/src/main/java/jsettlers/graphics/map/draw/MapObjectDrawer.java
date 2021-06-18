@@ -281,7 +281,7 @@ public class MapObjectDrawer {
 			return;
 		}
 
-		float height = context.getMap().getHeightAt(x, y);
+		float height = context.getMap().getVisibleHeightAt(x, y);
 		EDirection direction = ship.getDirection();
 		EMovableType shipType = ship.getMovableType();
 		float shade = getColor(fogOfWarVisibleStatus);

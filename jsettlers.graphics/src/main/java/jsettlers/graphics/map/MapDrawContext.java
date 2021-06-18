@@ -206,10 +206,10 @@ public final class MapDrawContext implements IGLProvider {
 			return new ShortPoint2D(mapX, mapY);
 		}
 
-		float height = map.getHeightAt(mapX, mapY);
+		float height = map.getVisibleHeightAt(mapX, mapY);
 		mapX = (int) (getConverter().getExactMapXwithHeight(screenX, screenY, height) + 0.5);
 		mapY = (int) (getConverter().getExactMapYwithHeight(screenX, screenY, height) + 0.5);
-		height = map.getHeightAt(mapX, mapY);
+		height = map.getVisibleHeightAt(mapX, mapY);
 		mapX = (int) (getConverter().getExactMapXwithHeight(screenX, screenY, height) + 0.5);
 		mapY = (int) (getConverter().getExactMapYwithHeight(screenX, screenY, height) + 0.5);
 
@@ -452,7 +452,7 @@ public final class MapDrawContext implements IGLProvider {
 
 	public int getHeight(int x, int y) {
 		if (x >= 0 && x < map.getWidth() && y >= 0 && y < map.getHeight()) {
-			return map.getHeightAt(x, y);
+			return map.getVisibleHeightAt(x, y);
 		} else {
 			return 0;
 		}

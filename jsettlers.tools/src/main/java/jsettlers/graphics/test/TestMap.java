@@ -462,7 +462,7 @@ public class TestMap implements IGraphicsGrid {
 	}
 
 	@Override
-	public IMapObject getMapObjectsAt(int x, int y) {
+	public IMapObject getVisibleMapObjectsAt(int x, int y) {
 		if (getTile(x, y).getBuilding() != null) {
 			return getTile(x, y).getBuilding();
 		} else {
@@ -471,7 +471,7 @@ public class TestMap implements IGraphicsGrid {
 	}
 
 	@Override
-	public byte getHeightAt(int x, int y) {
+	public byte getVisibleHeightAt(int x, int y) {
 		return getTile(x, y).getHeight();
 	}
 

@@ -70,7 +70,7 @@ public class MapGraphics implements IGraphicsGrid {
 	}
 
 	@Override
-	public IMapObject getMapObjectsAt(int x, int y) {
+	public IMapObject getVisibleMapObjectsAt(int x, int y) {
 		ObjectContainer container = data.getMapObjectContainer(x, y);
 		if (container instanceof IMapObject) {
 			return (IMapObject) container;
@@ -86,7 +86,7 @@ public class MapGraphics implements IGraphicsGrid {
 	}
 
 	@Override
-	public byte getHeightAt(int x, int y) {
+	public byte getVisibleHeightAt(int x, int y) {
 		return data.getLandscapeHeight(x, y);
 	}
 

@@ -50,12 +50,12 @@ public class GraphicsGridAdapter implements IGraphicsGrid {
 	}
 
 	@Override
-	public IMapObject getMapObjectsAt(int x, int y) {
+	public IMapObject getVisibleMapObjectsAt(int x, int y) {
 		return null;
 	}
 
 	@Override
-	public byte getHeightAt(int x, int y) {
+	public byte getVisibleHeightAt(int x, int y) {
 		return 0;
 	}
 

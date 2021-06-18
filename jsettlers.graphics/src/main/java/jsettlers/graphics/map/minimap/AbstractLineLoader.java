@@ -167,7 +167,7 @@ public abstract class AbstractLineLoader implements Runnable {
 
 			if (visibleStatus > CommonConstants.FOG_OF_WAR_EXPLORED || landscape[currentline][x] == TRANSPARENT) {
 				float basecolor = ((float) visibleStatus) / CommonConstants.FOG_OF_WAR_VISIBLE;
-				int dheight = map.getHeightAt(centerX, mapMinY) - map.getHeightAt(centerX, Math.min(mapMinY + mapLineHeight, mapHeight - 1));
+				int dheight = map.getVisibleHeightAt(centerX, mapMinY) - map.getVisibleHeightAt(centerX, Math.min(mapMinY + mapLineHeight, mapHeight - 1));
 				basecolor *= 1 + .15f * dheight;
 
 				short landscapeColor;
@@ -218,7 +218,7 @@ public abstract class AbstractLineLoader implements Runnable {
 						// don't search any more.
 						displaySettlers = SettlersMode.NONE;
 					} else if (displaySettlers != SettlersMode.NONE) {
-						IMapObject object = map.getMapObjectsAt(x, y);
+						IMapObject object = map.getVisibleMapObjectsAt(x, y);
 						IBuilding building = (object != null) ? (IBuilding) object.getMapObject(EMapObjectType.BUILDING) : null;
 
 						if (building instanceof IBuilding.IOccupied) {

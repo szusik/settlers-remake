@@ -812,7 +812,7 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final IMapObject getMapObjectsAt(int x, int y) {
+		public final IMapObject getVisibleMapObjectsAt(int x, int y) {
 			return objectsGrid.getObjectsAt(x, y);
 		}
 
@@ -821,7 +821,7 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final byte getHeightAt(int x, int y) {
+		public final byte getVisibleHeightAt(int x, int y) {
 			if(fogOfWar.hiddenLandscape[x][y] != null) return fogOfWar.hiddenHeight[x][y];
 			return landscapeGrid.getHeightAt(x, y);
 		}
