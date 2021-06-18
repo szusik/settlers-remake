@@ -569,13 +569,16 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private void drawTile(int x, int y) {
 		int tileIndex = x+y*width;
 
-		IMapObject object = objectsGrid != null ? objectsGrid[tileIndex] : map.getVisibleMapObjectsAt(x, y);
+		byte fow = visibleGrid != null ? visibleGrid[x][y] : map.getVisibleStatus(x, y);
+		boolean fogClear = fow > CommonConstants.FOG_OF_WAR_EXPLORED;
+
+		IMapObject object = objectsGrid != null && fogClear ? objectsGrid[tileIndex] : map.getVisibleMapObjectsAt(x, y);
 		if(object != null) {
 			this.objectDrawer.drawMapObject(x, y, object);
 		}
 
 		if(y < height - 3) {
-			object = objectsGrid != null ? objectsGrid[tileIndex+3*width] : map.getVisibleMapObjectsAt(x, y + 3);
+			object = objectsGrid != null && fogClear ? objectsGrid[tileIndex+3*width] : map.getVisibleMapObjectsAt(x, y + 3);
 			if(object != null) {
 				EMapObjectType type = object.getObjectType();
 				if(type == EMapObjectType.DOCK) {
@@ -584,14 +587,16 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			}
 		}
 
-		IGraphicsMovable movable = movableGrid != null ? movableGrid[tileIndex] : map.getMovableAt(x, y);
-		if(movable != null) {
-			this.objectDrawer.draw(movable);
-		}
+		if(fow > CommonConstants.FOG_OF_WAR_EXPLORED) {
+			IGraphicsMovable movable = movableGrid != null ? movableGrid[tileIndex] : map.getMovableAt(x, y);
+			if (movable != null) {
+				this.objectDrawer.draw(movable);
+			}
 
-		if(borderGrid != null ? borderGrid.get(tileIndex) : map.isBorder(x, y)) {
-			IPlayer player = map.getPlayerAt(x, y);
-			objectDrawer.drawPlayerBorderObject(x, y, player);
+			if (borderGrid != null ? borderGrid.get(tileIndex) : map.isBorder(x, y)) {
+				IPlayer player = map.getPlayerAt(x, y);
+				objectDrawer.drawPlayerBorderObject(x, y, player);
+			}
 		}
 	}
 
