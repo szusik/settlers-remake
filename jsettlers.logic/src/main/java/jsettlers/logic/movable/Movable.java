@@ -557,6 +557,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	@Override
+	public boolean continueFoW() {
+		return state != EMovableState.DEAD;
+	}
+
+	@Override
 	public ShortPoint2D getFoWPosition() {
 		return position;
 	}
