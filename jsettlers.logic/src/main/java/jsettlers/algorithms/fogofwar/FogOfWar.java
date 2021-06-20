@@ -302,23 +302,20 @@ public final class FogOfWar implements Serializable {
 					int x = y == beginY ? beginX : 0;
 					int x2 = y == endY ? endX : width;
 					for(; x < x2; x++) {
-						byte dimTo = targetSight(x, y);
+						final byte dimTo = targetSight(x, y);
 						final byte oldSight = sight[x][y];
-						if(oldSight>= CommonConstants.FOG_OF_WAR_EXPLORED && dimTo < CommonConstants.FOG_OF_WAR_EXPLORED) {
-							dimTo = CommonConstants.FOG_OF_WAR_EXPLORED;
+
+						final byte newSight = dim(sight[x][y], dimTo, dim);
+
+						if(oldSight <= CommonConstants.FOG_OF_WAR_EXPLORED && newSight > CommonConstants.FOG_OF_WAR_EXPLORED) {
+							clearHidden(x, y);
+						} else if(oldSight > CommonConstants.FOG_OF_WAR_EXPLORED && newSight <= CommonConstants.FOG_OF_WAR_EXPLORED) {
+							recordHidden(x, y);
 						}
 
+						sight[x][y] = newSight;
+
 						if(dimTo != oldSight) {
-							final byte newSight = dim(sight[x][y], dimTo, dim);
-
-							if(oldSight == CommonConstants.FOG_OF_WAR_EXPLORED && newSight > CommonConstants.FOG_OF_WAR_EXPLORED) {
-								clearHidden(x, y);
-							} else if(oldSight > CommonConstants.FOG_OF_WAR_EXPLORED && newSight <= CommonConstants.FOG_OF_WAR_EXPLORED) {
-								recordHidden(x, y);
-							}
-
-							sight[x][y] = newSight;
-
 							if(lastUpdate + 1 != x) {
 								if(firstUpdate != -1) update(y, firstUpdate, lastUpdate);
 								firstUpdate = lastUpdate = x;
