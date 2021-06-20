@@ -1,6 +1,7 @@
 package jsettlers.algorithms.fogofwar;
 
 import jsettlers.common.mapobject.EMapObjectType;
+import jsettlers.common.mapobject.IStackMapObject;
 import jsettlers.logic.map.grid.objects.AbstractHexMapObject;
 
 public class HiddenMapObjectCreator {
@@ -16,13 +17,14 @@ public class HiddenMapObjectCreator {
 			case PIG:
 			case DONKEY:
 			case GHOST:
-			case STACK_OBJECT: // TODO
 			case BUILDING_DECONSTRUCTION_SMOKE:
 			case ATTACKABLE_TOWER:
 			case INFORMABLE_MAP_OBJECT:
 			case EYE:
 			case SPELL_EFFECT:
 				return null;
+			case STACK_OBJECT:
+				return new HiddenMapObject.HiddenStackMapObject(object);
 		}
 
 		return new HiddenMapObject(object);
