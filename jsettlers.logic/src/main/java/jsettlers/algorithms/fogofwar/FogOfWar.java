@@ -302,14 +302,16 @@ public final class FogOfWar implements Serializable {
 					int x = y == beginY ? beginX : 0;
 					int x2 = y == endY ? endX : width;
 					for(; x < x2; x++) {
-						final byte dimTo = targetSight(x, y);
+						final byte refSight = refSight(x, y);
+						final byte dimTo = targetSight(x, y, refSight);
 						final byte oldSight = sight[x][y];
 
 						final byte newSight = dim(sight[x][y], dimTo, dim);
 
 						if(oldSight <= CommonConstants.FOG_OF_WAR_EXPLORED && newSight > CommonConstants.FOG_OF_WAR_EXPLORED) {
 							clearHidden(x, y);
-						} else if(oldSight > CommonConstants.FOG_OF_WAR_EXPLORED && newSight <= CommonConstants.FOG_OF_WAR_EXPLORED) {
+						} else if((oldSight > CommonConstants.FOG_OF_WAR_EXPLORED && newSight <= CommonConstants.FOG_OF_WAR_EXPLORED) ||
+								(oldSight <= CommonConstants.FOG_OF_WAR_EXPLORED && refSight < oldSight)) {
 							recordHidden(x, y);
 						}
 
@@ -392,8 +394,7 @@ public final class FogOfWar implements Serializable {
 		else return (byte) (value-dim);
 	}
 
-	final byte targetSight(int x, int y) {
-		byte refValue = refSight(x, y);
+	final byte targetSight(int x, int y, byte refValue) {
 
 		byte currentValue = sight[x][y];
 
@@ -551,7 +552,7 @@ public final class FogOfWar implements Serializable {
 						}
 					}
 
-					if((state&CIRCLE_DIM) > 0 && sight[x][y] != targetSight(x, y)) {
+					if((state&CIRCLE_DIM) > 0 && sight[x][y] != refSight(x, y)) {
 						synchronized (instance.dimThread.nextUpdate) {
 							instance.dimThread.nextUpdate.set(y*width+x);
 						}
