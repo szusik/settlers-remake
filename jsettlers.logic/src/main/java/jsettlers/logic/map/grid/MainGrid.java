@@ -21,7 +21,6 @@ import java.util.BitSet;
 import java.util.Date;
 import java.util.Set;
 
-import java8.util.Comparators;
 import java8.util.Objects;
 import java8.util.Optional;
 import jsettlers.algorithms.borders.BordersThread;
@@ -813,7 +812,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public final IMapObject getVisibleMapObjectsAt(int x, int y) {
-			if(fogOfWar.hiddenLandscape[x][y] != null) return fogOfWar.hiddenMapObjects[x][y];
+			if(fogOfWar.isHidden(x, y)) return fogOfWar.hiddenMapObjects[x][y];
 			return objectsGrid.getObjectsAt(x, y);
 		}
 
@@ -823,7 +822,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public final byte getVisibleHeightAt(int x, int y) {
-			if(fogOfWar.hiddenLandscape[x][y] != null) return fogOfWar.hiddenHeight[x][y];
+			if(fogOfWar.isHidden(x, y)) return fogOfWar.hiddenHeight[x][y];
 			return landscapeGrid.getHeightAt(x, y);
 		}
 
@@ -834,8 +833,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public final ELandscapeType getVisibleLandscapeTypeAt(int x, int y) {
-			ELandscapeType fowLandscape = fogOfWar.getLandscapeTypeAt(x, y);
-			if(fowLandscape != null) return fowLandscape;
+			if(fogOfWar.isHidden(x, y)) return fogOfWar.getLandscapeTypeAt(x, y);
 
 			return landscapeGrid.getLandscapeTypeAt(x, y);
 		}

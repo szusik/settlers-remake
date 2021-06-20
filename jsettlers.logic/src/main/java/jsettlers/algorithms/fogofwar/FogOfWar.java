@@ -122,6 +122,10 @@ public final class FogOfWar implements Serializable {
 		backgroundListener = new MainGrid.NullBackgroundListener();
 	}
 
+	public boolean isHidden(int x, int y) {
+		return enabled && hiddenLandscape[x][y] != null;
+	}
+
 	public ELandscapeType getLandscapeTypeAt(int x, int y) {
 		return hiddenLandscape[x][y];
 	}

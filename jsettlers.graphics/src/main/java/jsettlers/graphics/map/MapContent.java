@@ -569,7 +569,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private void drawTile(int x, int y) {
 		int tileIndex = x+y*width;
 
-		byte fow = visibleGrid != null ? visibleGrid[x][y] : map.getVisibleStatus(x, y);
+		byte fow = visibleGrid != null && ((IDirectGridProvider)map).isFoWEnabled() ? visibleGrid[x][y] : map.getVisibleStatus(x, y);
 		boolean fogClear = fow > CommonConstants.FOG_OF_WAR_EXPLORED;
 
 		IMapObject object = objectsGrid != null && fogClear ? objectsGrid[tileIndex] : map.getVisibleMapObjectsAt(x, y);
