@@ -55,7 +55,7 @@ public final class FogOfWar implements Serializable {
 	public final byte[][] sight;
 	public final ELandscapeType[][] hiddenLandscape;
 	public final byte[][] hiddenHeight;
-	private final IMapObject[][] hiddenMapObjects;
+	public final IMapObject[][] hiddenMapObjects;
 	public final short[][][] visibleRefs;
 	public transient FowDimThread dimThread;
 	public transient FoWRefThread refThread;

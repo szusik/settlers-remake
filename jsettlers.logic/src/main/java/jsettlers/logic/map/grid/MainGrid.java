@@ -813,6 +813,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public final IMapObject getVisibleMapObjectsAt(int x, int y) {
+			if(fogOfWar.hiddenLandscape[x][y] != null) return fogOfWar.hiddenMapObjects[x][y];
 			return objectsGrid.getObjectsAt(x, y);
 		}
 
