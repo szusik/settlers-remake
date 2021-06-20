@@ -2,6 +2,7 @@ package jsettlers.algorithms.fogofwar;
 
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IMapObject;
+import jsettlers.logic.map.grid.objects.AbstractHexMapObject;
 
 public class HiddenMapObject implements IMapObject {
 
@@ -10,9 +11,9 @@ public class HiddenMapObject implements IMapObject {
 
 	private IMapObject nextObject;
 
-	public HiddenMapObject(float progress, EMapObjectType type) {
-		this.progress = progress;
-		this.type = type;
+	public HiddenMapObject(AbstractHexMapObject original) {
+		this.progress = original.getStateProgress();
+		this.type = original.getObjectType();
 	}
 
 	@Override

@@ -363,7 +363,7 @@ public final class FogOfWar implements Serializable {
 		AbstractHexMapObject inHead = objects;
 
 		while(inHead != null) {
-			HiddenMapObject localObject = recordMapObject(inHead);
+			HiddenMapObject localObject = HiddenMapObjectCreator.create(inHead);
 
 			if(localObject != null) {
 				if (outTail == null) {
@@ -378,10 +378,6 @@ public final class FogOfWar implements Serializable {
 			inHead = objects.getNextObject();
 		}
 		return outHead;
-	}
-
-	private HiddenMapObject recordMapObject(AbstractHexMapObject inHead) {
-		return null;
 	}
 
 
