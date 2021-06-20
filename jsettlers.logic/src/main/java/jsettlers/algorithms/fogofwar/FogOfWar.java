@@ -375,7 +375,7 @@ public final class FogOfWar implements Serializable {
 				}
 			}
 
-			inHead = objects.getNextObject();
+			inHead = inHead.getNextObject();
 		}
 		return outHead;
 	}
