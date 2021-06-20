@@ -1,7 +1,6 @@
 package jsettlers.algorithms.fogofwar;
 
 import jsettlers.common.mapobject.EMapObjectType;
-import jsettlers.common.mapobject.IStackMapObject;
 import jsettlers.logic.map.grid.objects.AbstractHexMapObject;
 
 public class HiddenMapObjectCreator {

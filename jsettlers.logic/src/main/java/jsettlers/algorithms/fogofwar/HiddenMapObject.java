@@ -1,12 +1,16 @@
 package jsettlers.algorithms.fogofwar;
 
+import java.io.Serializable;
+
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.mapobject.IStackMapObject;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.logic.map.grid.objects.AbstractHexMapObject;
 
-public class HiddenMapObject implements IMapObject {
+public class HiddenMapObject implements IMapObject, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final float progress;
 	private final EMapObjectType type;
@@ -45,6 +49,8 @@ public class HiddenMapObject implements IMapObject {
 	}
 
 	static class HiddenStackMapObject extends HiddenMapObject implements IStackMapObject {
+
+		private static final long serialVersionUID = 1L;
 
 		private final EMaterialType type;
 		private final byte size;
