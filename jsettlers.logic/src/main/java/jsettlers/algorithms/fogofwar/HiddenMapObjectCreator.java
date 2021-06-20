@@ -9,7 +9,6 @@ public class HiddenMapObjectCreator {
 		if(!type.persistent) return null;
 
 		switch (type) {
-			case ARROW: // TODO
 			case BUILDING: // TODO
 			case PLACEMENT_BUILDING:
 			case SMOKE:
@@ -24,6 +23,8 @@ public class HiddenMapObjectCreator {
 				return null;
 			case STACK_OBJECT:
 				return new HiddenMapObject.HiddenStackMapObject(object);
+			case ARROW:
+				return new HiddenMapObject.HiddenArrowMapObject(object);
 		}
 
 		return new HiddenMapObject(object);
