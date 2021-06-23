@@ -191,6 +191,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	}
 
 	public Long hash() {
+		data.rewind();
 		long hashCode = 1L;
 		long multiplier = 1L;
 		while (data.hasRemaining()) {
