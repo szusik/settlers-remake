@@ -28,7 +28,13 @@ public class CharacterExtractor {
 		}
 
 
-		Object[] specialCharacters = IntStream.range(0, content.length()).mapToObj(content::charAt).filter(character -> character > 127).distinct().sorted().toArray();
-		for(Object specialCharacter : specialCharacters) System.out.print(specialCharacter);
+		Character[] specialCharacters = IntStream.range(0, content.length())
+				.mapToObj(content::charAt)
+				.filter(character -> character > 127)
+				.distinct()
+				.sorted()
+				.toArray(Character[]::new);
+
+		for(char specialCharacter : specialCharacters) System.out.print(specialCharacter);
 	}
 }

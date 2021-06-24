@@ -93,8 +93,8 @@ public class AndroidSoundPlayer implements SoundPlayer {
 	}
 
 	@Override
-	public SoundHandle openSound(File musicFile) {
-		return null;
+	public SoundHandle openSound(File soundFile) {
+		return new AndroidSoundHandle(musicPlayback, soundFile);
 	}
 
 	@Override

@@ -40,7 +40,7 @@ public class AndroidSoundHandle implements SoundHandle {
 		if(streamId != -1) {
 			pool.resume(streamId);
 		} else {
-			streamId = pool.play(audioId, volume, volume, 0, 1, 1);
+			streamId = pool.play(audioId, volume, volume, 0, 0, 1);
 		}
 	}
 
