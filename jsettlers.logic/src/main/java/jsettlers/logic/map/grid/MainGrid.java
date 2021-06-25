@@ -176,11 +176,6 @@ public final class MainGrid implements Serializable {
 
 		this.flagsGrid = new FlagsGrid(width, height);
 		this.movablePathfinderGrid = new MovablePathfinderGrid();
-		// prevents StackOverflowErrors
-		ArrowObject.class.getSimpleName();
-		IAttackableHumanMovable.class.getSimpleName();
-		AttackableHumanMovable.class.getSimpleName();
-		LegacyBuildingWorkerMovable.class.getSimpleName();
 
 		MapObjectsManagerGrid grid = new MapObjectsManagerGrid();
 		this.mapObjectsManager = new MapObjectsManager(grid);

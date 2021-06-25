@@ -59,9 +59,6 @@ public class SwingManagedJSettlers {
 	public static void main(String[] args) throws IOException, MapLoadException, JSettlersLookAndFeelExecption {
   		// removes screen flickering
 		System.setProperty("sun.awt.noerasebackground", "true");
-		// prevent stack overflow exceptions => load deep classes when stack is still low
-		AttackableHumanMovable.class.getSimpleName();
-		BuildingWorkerMovable.class.getSimpleName();
 
 		setupResources(true, args);
 
