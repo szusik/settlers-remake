@@ -48,14 +48,14 @@ subprojects {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
             if(!isJava8) {
-                options.release 8
+                options.release = 8
             }
         }
         compileTestJava {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
             if(!isJava8) {
-                options.release 8
+                options.release = 8
             }
         }
 
