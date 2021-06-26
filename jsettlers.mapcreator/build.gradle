@@ -1,5 +1,4 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'application'
 }
 
@@ -8,17 +7,6 @@ startScripts {
 }
 
 mainClassName = 'jsettlers.mapcreator.main.MapCreatorApp'
-
-jar {
-    manifest {
-        attributes 'Main-Class': mainClassName
-    }
-}
-
-shadowJar {
-    archiveBaseName = 'MapCreator'
-    classifier = ''
-}
 
 dependencies {
     implementation project(':go.graphics')
@@ -29,4 +17,12 @@ dependencies {
     implementation project(':jsettlers.logic')
     implementation project(':jsettlers.main.swing')
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
+}
+
+jar {
+    archiveBaseName = 'MapCreator'
+    manifest {
+        attributes 'Main-Class': mainClassName
+        attributes 'Class-Path' : 'JSettlers.jar'
+    }
 }

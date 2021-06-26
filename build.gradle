@@ -48,14 +48,14 @@ subprojects {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
             if(!isJava8) {
-                options.release = 8
+                options.release 8
             }
         }
         compileTestJava {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
             if(!isJava8) {
-                options.release = 8
+                options.release 8
             }
         }
 
@@ -90,7 +90,7 @@ subprojects {
     }
 
     tasks.withType(Jar) {
-        duplicatesStrategy 'exclude'
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
     }
 
     // Add streamsupport dependency
@@ -165,10 +165,14 @@ task releaseJSettlers(type: Zip) {
     into('JSettlers') {
         from { project.getRootProject().file('LICENSE.txt') }
         from tasks.getByPath(':jsettlers.main.swing:shadowJar')
-        from tasks.getByPath(':jsettlers.mapcreator:shadowJar')
+        from tasks.getByPath(':jsettlers.mapcreator:jar')
 
         into('maps') {
             from project.getRootProject().file('maps/release')
+        }
+
+        into('dependencies') {
+            from tasks.getByPath(':jsettlers.main.swing:copyDependencies')
         }
     }
 

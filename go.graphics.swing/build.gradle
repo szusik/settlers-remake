@@ -42,19 +42,6 @@ dependencies {
 	implementation "org.jogamp.jogl:jogl-all:2.3.2"
 	runtimeOnly "org.jogamp.gluegen:gluegen-rt:2.3.2:natives-macosx-universal"
 	runtimeOnly "org.jogamp.jogl:jogl-all:2.3.2:natives-macosx-universal"
-
-
-    /*add music dependencies
-     * ogg libraries: vorbisspi1.0.2.jar, tritonus_share.jar, jorbis-0.0.15.jar, jogg-0.0.7.jar
-     * mp3 libraries: jl1.0.1.jar, tritonus_share.jar, mp3spi1.9.5.jar
-     */
-	/* disabled for now
-	runtimeOnly "javazoom:jlayer:1.0.1"
-    runtimeOnly "com.googlecode.soundlibs:tritonus-share:0.3.7.4"
-	runtimeOnly "com.googlecode.soundlibs:mp3spi:1.9.5.4"
-	runtimeOnly "com.googlecode.soundlibs:vorbisspi:1.0.3.3"
-	runtimeOnly "org.jcraft:jorbis:0.0.17"
-	runtimeOnly "de.jarnbjo:j-ogg-all:1.0.0"*/
 }
 
 def shaderDefinitionDir = 'src/main/glsl/'
