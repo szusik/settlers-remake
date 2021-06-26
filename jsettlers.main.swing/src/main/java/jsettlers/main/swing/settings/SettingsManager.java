@@ -78,6 +78,7 @@ public class SettingsManager implements ISoundSettingsProvider {
 		manager = new SettingsManager(args);
 
 		CommonConstants.PLAYALL_MUSIC = manager::isMusicPlayAll;
+		CommonConstants.MUSIC_VOLUME = manager::getMusicVolume;
 	}
 
 	public static SettingsManager getInstance() {

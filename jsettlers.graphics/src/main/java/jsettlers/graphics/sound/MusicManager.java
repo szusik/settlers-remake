@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import go.graphics.sound.SoundHandle;
 import java8.util.Lists2;
@@ -39,9 +40,13 @@ public final class MusicManager implements Runnable {
 	private SoundHandle activeTrack = null;
 	private float volume;
 
+	private final Semaphore waitMutex = new Semaphore(1);
+
 	public MusicManager(SoundPlayer soundPlayer, ECivilisation civilisation) {
 		this.soundPlayer = soundPlayer;
 		this.civilisation = civilisation;
+
+		volume = CommonConstants.MUSIC_VOLUME.get();
 	}
 
 	public boolean isRunning() {
@@ -63,9 +68,7 @@ public final class MusicManager implements Runnable {
 			if(activeTrack != null) activeTrack.pause();
 			paused = true;
 
-			synchronized (this) {
-				notify();
-			}
+			waitMutex.release();
 
 			try {
 				musicThread.join();
@@ -83,7 +86,7 @@ public final class MusicManager implements Runnable {
 		}
 
 		if (isRunning() && activeTrack != null) {
-			activeTrack.setVolume(volume);
+			activeTrack.setVolume(this.volume);
 		}
 	}
 
@@ -95,7 +98,7 @@ public final class MusicManager implements Runnable {
 		List<File> list = new ArrayList<>();
 		// just take all mp3 and ogg files
 		if(playAll) {
-			list.addAll(Arrays.asList(lookupPath.listFiles((file, name) -> name.endsWith(".mp3") || name.endsWith(".ogg"))));
+			list.addAll(Arrays.asList(lookupPath.listFiles((file, name) -> name.endsWith(".mp3") || name.endsWith(".ogg") || name.endsWith(".wav"))));
 		} else if(lookupPath.getName().equals("Theme")) { // history edition
 			for(String fileName : HISTORY_EDITION_MUSIC_SET[civilisation.ordinal]) {
 				File file = new File(lookupPath, "Track" + fileName + ".mp3");
@@ -111,7 +114,7 @@ public final class MusicManager implements Runnable {
 
 		// this music folder is custom made
 		if(list.isEmpty()) {
-			list.addAll(Arrays.asList(lookupPath.listFiles((file, name) -> name.matches(civilisation.name() + ".\\d*.(mp3|ogg)"))));
+			list.addAll(Arrays.asList(lookupPath.listFiles((file, name) -> name.matches(civilisation.name() + ".\\d*.(mp3|ogg|wav)"))));
 		}
 
 		// shuffle list so we don't get bored :)
@@ -139,13 +142,9 @@ public final class MusicManager implements Runnable {
 
 			// wait until the track is completed or we are killed
 			try {
-				long until = activeTrack.getPlaybackDuration() + System.currentTimeMillis();
-				while(true) {
-					long delta = until - System.currentTimeMillis();
-					if(delta <= 0 || paused) break;
-
-					wait(delta);
-				}
+				waitMutex.tryAcquire();
+				waitMutex.tryAcquire(activeTrack.getPlaybackDuration(), TimeUnit.MILLISECONDS);
+				waitMutex.release();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

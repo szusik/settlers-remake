@@ -42,8 +42,21 @@ public class SwingSoundHandle implements SoundHandle {
 
 	@Override
 	public void setVolume(float volume) {
+		if(volume >= 1f) {
+			volume = 1;
+		} else if(volume <= 0.01f) {
+			volume = 0.01f;
+		}
+
 		FloatControl control = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-		control.setValue(volume);
+
+		float scale = (float)Math.log(5f);
+
+		float logVolume = (float)(Math.log(volume)/scale+1);
+
+		float newVolume = control.getMinimum()*(1-logVolume) + control.getMaximum()*logVolume;
+
+		control.setValue(newVolume);
 	}
 
 	@Override

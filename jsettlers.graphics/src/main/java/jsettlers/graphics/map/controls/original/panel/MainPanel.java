@@ -101,12 +101,7 @@ public class MainPanel extends UIPanel {
 		}
 	};
 
-	private final LabeledButton musicOnOff = new LabeledButton(Labels.getString("game-menu-music"), new Action(EActionType.MUSIC_ON_OFF)) {
-		@Override
-		public boolean isActive() {
-			return game.getGameTimeProvider().isGamePausing();
-		}
-	};
+	private final LabeledButton musicOnOff = new LabeledButton(Labels.getString("game-menu-music"), new Action(EActionType.MUSIC_ON_OFF));
 
 	private final CountArrows changeMusicVolumeArrows = new CountArrows(() -> new Action(EActionType.MUSIC_VOLUME_UP), () -> new Action(EActionType.MUSIC_VOLUME_DOWN));
 

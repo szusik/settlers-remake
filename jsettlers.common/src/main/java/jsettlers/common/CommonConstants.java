@@ -89,4 +89,6 @@ public abstract class CommonConstants {
 	public static boolean DISABLE_ORIGINAL_MAPS_CHECKSUM = false;
 
 	public static Supplier<Boolean> PLAYALL_MUSIC = () -> false;
+
+	public static Supplier<Float> MUSIC_VOLUME = () -> 1f;
 }

@@ -31,7 +31,6 @@ import go.graphics.sound.ForgettingQueue.Sound;
 import go.graphics.sound.ISoundDataRetriever;
 import go.graphics.sound.SoundHandle;
 import go.graphics.sound.SoundPlayer;
-import javazoom.jl.player.Player;
 
 public class SwingSoundPlayer implements SoundPlayer {
 	private static final int BUFFER_SIZE = 4048 * 4;
