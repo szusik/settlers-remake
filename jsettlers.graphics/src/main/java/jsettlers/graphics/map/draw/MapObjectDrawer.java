@@ -1250,11 +1250,11 @@ public class MapObjectDrawer {
 		float state = building.getStateProgress();
 
 		if (state >= 0.99) {
-			if (variant.isVariantOf(EBuildingType.SLAUGHTERHOUSE) && ((IBuilding.ISoundRequestable) building).isSoundRequested()) {
+			if (variant.isVariantOf(EBuildingType.SLAUGHTERHOUSE) && building instanceof IBuilding.ISoundRequestable && ((IBuilding.ISoundRequestable) building).isSoundRequested()) {
 				playSound(building, SOUND_SLAUGHTERHOUSE, x, y);
 			}
 
-			if (variant.isVariantOf(EBuildingType.MILL) && ((IBuilding.IMill) building).isRotating()) {
+			if (variant.isVariantOf(EBuildingType.MILL) && building instanceof IBuilding.IMill && ((IBuilding.IMill) building).isRotating()) {
 				Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(MILL_FILE, MILL_SEQ);
 
 				if (seq.length() > 0) {
