@@ -61,7 +61,7 @@ public class JSettlersFrame extends JFrame {
 	private final EndgameStatsPanel endgameStatsPanel = new EndgameStatsPanel(this);
 	private final StartingGamePanel startingGamePanel = new StartingGamePanel(this);
 	private final JoinGamePanel joinGamePanel = new JoinGamePanel(this);
-	private final SoundPlayer soundPlayer = new SwingSoundPlayer(SettingsManager.getInstance());
+	private final SwingSoundPlayer soundPlayer = new SwingSoundPlayer(SettingsManager.getInstance());
 
 	private Timer redrawTimer;
 	private boolean fullScreen = false;
@@ -141,6 +141,7 @@ public class JSettlersFrame extends JFrame {
 	}
 
 	public void exit() {
+		soundPlayer.close();
 		abortRedrawTimerIfPresent();
 		System.exit(0);
 	}

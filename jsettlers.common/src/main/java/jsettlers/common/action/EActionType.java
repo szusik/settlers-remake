@@ -376,6 +376,9 @@ public enum EActionType {
 	 * Increase or decrease the ratio a {@link EMovableType} should be recruited if possible.
 	 */
 	INCREASE_MOVABLE_RATIO,
-	DECREASE_MOVABLE_RATIO
-	;
+	DECREASE_MOVABLE_RATIO,
+
+	MUSIC_ON_OFF,
+	MUSIC_VOLUME_UP,
+	MUSIC_VOLUME_DOWN;
 }
