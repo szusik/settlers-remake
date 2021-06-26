@@ -144,17 +144,21 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 									// or roughly chase enemy
 									goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.position, mov.enemy.getPosition())),
 									// or go to his position
-									sequence(
-										action(mov -> {
-											mov.startPoint = mov.position;
-										}),
-										goToPos(mov -> mov.enemy.getPosition(), mov -> {
-											// hit him
-											if(mov.isEnemyAttackable()) return false;
-											// update behaviour (adjust target)
-											if(mov.startPoint.getOnGridDistTo(mov.position) > 2) return false;
-											return true;
-										})
+									resetAfter(mov -> {
+										mov.startPoint = null;
+									},
+										sequence(
+											action(mov -> {
+												mov.startPoint = mov.position;
+											}),
+											goToPos(mov -> mov.enemy.getPosition(), mov -> {
+												// hit him
+												if(mov.isEnemyAttackable()) return false;
+												// update behaviour (adjust target)
+												if(mov.startPoint.getOnGridDistTo(mov.position) > 2) return false;
+												return true;
+											})
+										)
 									)
 								)
 							)
@@ -315,7 +319,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 	@Override
 	public Path findWayAroundObstacle(ShortPoint2D position, Path path) {
-		if (building == null) {
+		if (building == null && startPoint != null) {
 			EDirection direction = EDirection.getDirection(position, path.getNextPos());
 
 			EDirection rightDir = direction.getNeighbor(-1);
