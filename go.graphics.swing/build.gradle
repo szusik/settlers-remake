@@ -12,6 +12,7 @@ String[] variants = new String[] {
 String[] modules = new String[] {
 		"lwjgl",
 		"lwjgl-opengl",
+		"lwjgl-openal",
 		"lwjgl-glfw",
 		"lwjgl-vma",
 }
