@@ -138,6 +138,7 @@ public class HiddenMapObject implements IMapObject, Serializable {
 
 	public static class HiddenBuilding extends HiddenMapObject implements IBuilding, IBuilding.IMill, IBuilding.ISoundRequestable {
 
+		private static final long serialVersionUID = 1L;
 
 		private final BuildingVariant variant;
 		private final boolean occupied;
@@ -171,7 +172,7 @@ public class HiddenMapObject implements IMapObject, Serializable {
 
 		@Override
 		public boolean isOccupied() {
-			return false;
+			return occupied;
 		}
 
 		@Override
