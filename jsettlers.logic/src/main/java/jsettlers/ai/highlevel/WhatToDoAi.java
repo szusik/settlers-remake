@@ -14,8 +14,10 @@
  *******************************************************************************/
 package jsettlers.ai.highlevel;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +36,7 @@ import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.movable.IGraphicsMovable;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.tasks.ConstructBuildingTask;
@@ -185,25 +187,45 @@ class WhatToDoAi implements IWhatToDoAi {
 		}
 	}
 
+	private List<EResourceType> getNeededResources() {
+		List<EResourceType> neededResources = new ArrayList<>();
+		neededResources.add(EResourceType.COAL);
+		neededResources.add(EResourceType.IRONORE);
+		neededResources.add(EResourceType.GOLDORE);
+
+		if(player.getCivilisation() == ECivilisation.EGYPTIAN) {
+			neededResources.add(EResourceType.GEMSTONE);
+		}
+
+		return neededResources;
+	}
+
 	private void sendGeologists() {
 		int geologistsCount = aiStatistics.getPositionsOfMovablesWithTypeForPlayer(playerId, EMovableType.GEOLOGIST).size();
 		List<ShortPoint2D> bearersPositions = aiStatistics.getPositionsOfMovablesWithTypeForPlayer(playerId, EMovableType.BEARER);
 		int bearersCount = bearersPositions.size();
 		int stoneCutterCount = aiStatistics.getNumberOfBuildingTypeForPlayer(STONECUTTER, playerId);
-		if (geologistsCount == 0 && stoneCutterCount >= 1 && bearersCount - 3 > MINIMUM_NUMBER_OF_BEARERS) {
-			ILogicMovable coalGeologist = getBearerAt(bearersPositions.get(0));
-			ILogicMovable ironGeologist = getBearerAt(bearersPositions.get(1));
-			ILogicMovable goldGeologist = getBearerAt(bearersPositions.get(2));
 
-			List<Integer> targetGeologists = new ArrayList<>();
-			targetGeologists.add(coalGeologist.getID());
-			targetGeologists.add(ironGeologist.getID());
-			targetGeologists.add(goldGeologist.getID());
-			taskScheduler.scheduleTask(new ConvertGuiTask(playerId, targetGeologists, EMovableType.GEOLOGIST));
+		List<EResourceType> neededResources = getNeededResources();
 
-			sendGeologistToNearest(coalGeologist, EResourceType.COAL);
-			sendGeologistToNearest(ironGeologist, EResourceType.IRONORE);
-			sendGeologistToNearest(goldGeologist, EResourceType.GOLDORE);
+		if (geologistsCount == 0 && stoneCutterCount >= 1 && bearersCount - neededResources.size() > MINIMUM_NUMBER_OF_BEARERS) {
+			Map<EResourceType, ILogicMovable> targetGeologists = new EnumMap<>(EResourceType.class);
+			List<Integer> convertBearers = new ArrayList<>();
+
+			int bearerIndex = 0;
+			for(EResourceType neededResource : neededResources) {
+				ILogicMovable targetBearer = getBearerAt(bearersPositions.get(bearerIndex));
+				targetGeologists.put(neededResource, targetBearer);
+
+				convertBearers.add(targetBearer.getID());
+				bearerIndex++;
+			}
+
+			taskScheduler.scheduleTask(new ConvertGuiTask(playerId, convertBearers, EMovableType.GEOLOGIST));
+
+			for(Map.Entry<EResourceType, ILogicMovable> targetGeologist : targetGeologists.entrySet()) {
+				sendGeologistToNearest(targetGeologist.getValue(), targetGeologist.getKey());
+			}
 
 		}
 	}
