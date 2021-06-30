@@ -136,7 +136,8 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 
 	private void updateCombatStrengths() {
 		int amountOfGold = getAmountOf(EMaterialType.GOLD);
-		this.combatStrengthInfo.updateGoldCombatStrength(numberOfPlayers, amountOfGold);
+		int amountOfGems = getAmountOf(EMaterialType.GEMS);
+		combatStrengthInfo.updateCombatStrength(numberOfPlayers, civilisation, amountOfGold, amountOfGems);
 	}
 
 	public byte getTeamId() {
