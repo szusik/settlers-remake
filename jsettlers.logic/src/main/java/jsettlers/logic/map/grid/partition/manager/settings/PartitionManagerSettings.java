@@ -35,6 +35,7 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 
 	private static final MaterialDistributionSettings[][] defaultSettings = new MaterialDistributionSettings[ECivilisation.VALUES.length][EMaterialType.NUMBER_OF_MATERIALS];
 	private static final boolean[] INITIAL_STOCK_SETTINGS = new boolean[EMaterialType.NUMBER_OF_DROPPABLE_MATERIALS];
+	private static final boolean[] INITIAL_STOCK_SETTINGS_EGYPTIAN = new boolean[EMaterialType.NUMBER_OF_DROPPABLE_MATERIALS];
 
 	static {
 		for(ECivilisation civilisation : ECivilisation.VALUES) {
@@ -43,7 +44,11 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 			}
 		}
 
-		INITIAL_STOCK_SETTINGS[EMaterialType.GOLD.ordinal] = true; // GOLD is active by default
+		// GOLD is active by default
+		INITIAL_STOCK_SETTINGS[EMaterialType.GOLD.ordinal] = true;
+		INITIAL_STOCK_SETTINGS_EGYPTIAN[EMaterialType.GOLD.ordinal] = true;
+		// GEMS are active by default but only for egyptians
+		INITIAL_STOCK_SETTINGS_EGYPTIAN[EMaterialType.GEMS.ordinal] = true;
 	}
 
 	private final EMaterialType[] materialTypeForPriorities;
@@ -70,7 +75,7 @@ public final class PartitionManagerSettings implements IPartitionSettings, Seria
 		}
 
 		materialProductionSettings = new MaterialProductionSettings();
-		stockSettings = new StockSettings(INITIAL_STOCK_SETTINGS);
+		stockSettings = new StockSettings(civilisation == ECivilisation.EGYPTIAN ? INITIAL_STOCK_SETTINGS_EGYPTIAN : INITIAL_STOCK_SETTINGS);
 		professionSettings = new ProfessionSettings();
 	}
 
