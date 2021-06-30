@@ -36,7 +36,6 @@ import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALC10;
 
 public class SwingSoundPlayer implements SoundPlayer {
-	private static final int BUFFER_SIZE = 4048 * 4;
 
 	private final ISoundSettingsProvider soundSettingsProvider;
 	private ISoundDataRetriever soundDataRetriever;
@@ -48,7 +47,21 @@ public class SwingSoundPlayer implements SoundPlayer {
 	public SwingSoundPlayer(ISoundSettingsProvider soundSettingsProvider) {
 		this.soundSettingsProvider = soundSettingsProvider;
 		device = ALC10.alcOpenDevice((String)null);
+
+		if(device == 0) {
+			context = 0;
+			System.err.println("Could not initialize OpenAL: Audio is not going to work!");
+			return;
+
+		}
+
 		context = ALC10.alcCreateContext(device, (IntBuffer)null);
+
+		if(context == 0) {
+			System.err.println("Could not initialize OpenAL: Audio is not going to work!");
+			return;
+		}
+
 		ALC10.alcMakeContextCurrent(context);
 		AL.createCapabilities(ALC.createCapabilities(device));
 	}
@@ -92,10 +105,14 @@ public class SwingSoundPlayer implements SoundPlayer {
 	}
 
 	public void close() {
-		sources.forEach(AL10::alDeleteSources);
-		sounds.values().forEach(AL10::alDeleteBuffers);
-		ALC10.alcDestroyContext(context);
-		ALC10.alcCloseDevice(device);
+		if(device != 0) {
+			if(context != 0) {
+				sources.forEach(AL10::alDeleteSources);
+				sounds.values().forEach(AL10::alDeleteBuffers);
+				ALC10.alcDestroyContext(context);
+			}
+			ALC10.alcCloseDevice(device);
+		}
 	}
 
 	@Override
