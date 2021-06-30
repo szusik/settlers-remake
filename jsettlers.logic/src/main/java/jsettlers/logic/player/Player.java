@@ -121,10 +121,13 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 	public void offersCountChanged(EMaterialType materialType, int delta) {
 		materialCounts.offersCountChanged(materialType, delta);
 
-		if (materialType == EMaterialType.GOLD) {
+		if (materialType == EMaterialType.GOLD || materialType == EMaterialType.GEMS) {
 			CombatStrengthInformation combatStrength = this.combatStrengthInfo;
 			updateCombatStrengths();
 			System.out.println("amount of gold of player: " + playerId + "   changed by: " + delta + "    to total: " + getAmountOf(EMaterialType.GOLD) + "    combat strength changed from\n\t" +
+					combatStrength + "   to \n\t" + this.combatStrengthInfo);
+
+			System.out.println("amount of gems of player: " + playerId + "   changed by: " + delta + "    to total: " + getAmountOf(EMaterialType.GEMS) + "    combat strength changed from\n\t" +
 					combatStrength + "   to \n\t" + this.combatStrengthInfo);
 		}
 	}
