@@ -996,7 +996,7 @@ public class Background implements IGraphicsBackgroundListener {
 
 	private MapDrawContext asyncAccessContext;
 
-	private TextureIntersections[] borderTextures = new TextureIntersections[] {
+	private final TextureIntersections[] borderTextures = new TextureIntersections[] {
 			new TextureIntersections(ELandscapeType.SAND, ELandscapeType.WATER1, 37),
 
 			// TODO find use for 41
@@ -1040,6 +1040,9 @@ public class Background implements IGraphicsBackgroundListener {
 			new TextureIntersections(ELandscapeType.MOUNTAIN, ELandscapeType.SNOWBORDEROUTER, 156),
 			new TextureIntersections(ELandscapeType.SNOWBORDEROUTER, ELandscapeType.SNOWBORDER, 160),
 			new TextureIntersections(ELandscapeType.SNOW, ELandscapeType.SNOWBORDER, 164),
+
+			// some original maps have this
+			new TextureIntersections(ELandscapeType.MOUNTAIN, ELandscapeType.SNOW, 156),
 
 			new TextureIntersections(ELandscapeType.GRASS, ELandscapeType.EARTH, 168),
 			new TextureIntersections(ELandscapeType.GRASS, ELandscapeType.FLATTENED, 172),
