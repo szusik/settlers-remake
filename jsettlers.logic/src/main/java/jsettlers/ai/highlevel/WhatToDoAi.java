@@ -73,6 +73,7 @@ import static jsettlers.common.buildings.EBuildingType.BIG_TEMPLE;
 import static jsettlers.common.buildings.EBuildingType.COALMINE;
 import static jsettlers.common.buildings.EBuildingType.FARM;
 import static jsettlers.common.buildings.EBuildingType.FORESTER;
+import static jsettlers.common.buildings.EBuildingType.GEMSMINE;
 import static jsettlers.common.buildings.EBuildingType.GOLDMELT;
 import static jsettlers.common.buildings.EBuildingType.IRONMELT;
 import static jsettlers.common.buildings.EBuildingType.IRONMINE;
@@ -90,6 +91,7 @@ import static jsettlers.common.buildings.EBuildingType.TOWER;
 import static jsettlers.common.buildings.EBuildingType.WATERWORKS;
 import static jsettlers.common.buildings.EBuildingType.WEAPONSMITH;
 import static jsettlers.common.buildings.EBuildingType.WINEGROWER;
+import static jsettlers.common.material.EMaterialType.GEMS;
 import static jsettlers.common.material.EMaterialType.GOLD;
 import static jsettlers.logic.constants.Constants.TOWER_SEARCH_SOLDIERS_RADIUS;
 import jsettlers.common.action.EMoveToType;
@@ -393,13 +395,22 @@ class WhatToDoAi implements IWhatToDoAi {
 	}
 
 	private boolean buildStock() {
-		if (aiStatistics.getTotalNumberOfBuildingTypeForPlayer(GOLDMELT, playerId) < 1) {
+		int goldProducers = 0;
+		goldProducers += aiStatistics.getTotalNumberOfBuildingTypeForPlayer(GOLDMELT, playerId);
+		goldProducers += aiStatistics.getTotalNumberOfBuildingTypeForPlayer(GEMSMINE, playerId);
+		if (goldProducers < 1) {
 			return false;
 		}
+
 		int stockCount = aiStatistics.getTotalNumberOfBuildingTypeForPlayer(STOCK, playerId);
 		int goldCount = aiStatistics.getNumberOfMaterialTypeForPlayer(GOLD, playerId);
+		int gemsCount = aiStatistics.getNumberOfMaterialTypeForPlayer(GEMS, playerId);
+		int totalStore = goldCount;
+		if(player.getCivilisation() == ECivilisation.EGYPTIAN) {
+			totalStore += gemsCount;
+		}
 
-		return stockCount * 6 * 8 - 32 < goldCount && construct(STOCK);
+		return stockCount * 6 * 8 - 32 < totalStore && construct(STOCK);
 	}
 
 	private void buildEconomy() {

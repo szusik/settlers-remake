@@ -59,6 +59,7 @@ public class PioneerAi {
 				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.IRONORE, EBuildingType.IRONMINE.getVariant(playerCivilisation)),
 				new RiverTargetFinder(aiStatistics, playerId, searchDistance),
 				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.GOLDORE, EBuildingType.GOLDMINE.getVariant(playerCivilisation)),
+				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.GEMSTONE, EBuildingType.GEMSMINE.getVariant(playerCivilisation)),
 				new FishTargetFinder(aiStatistics, playerId, searchDistance)
 		};
 	}

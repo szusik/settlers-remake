@@ -25,6 +25,7 @@ import jsettlers.ai.highlevel.AiStatistics;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.logic.player.Player;
 
@@ -400,6 +401,13 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 			weaponsBuildings.add(GOLDMINE);
 			for (int ii = 0; ii < mapBuildingCounts[GOLDMELT.ordinal]; ii++) {
 				weaponsBuildings.add(GOLDMELT);
+				weaponsBuildings.add(STOCK);
+			}
+		}
+
+		if(player.getCivilisation() == ECivilisation.EGYPTIAN) {
+			for (int i = 0; i < mapBuildingCounts[GEMSMINE.ordinal]; i++) {
+				weaponsBuildings.add(GEMSMINE);
 				weaponsBuildings.add(STOCK);
 			}
 		}

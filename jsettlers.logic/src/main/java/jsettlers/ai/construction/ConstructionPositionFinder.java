@@ -25,6 +25,7 @@ import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 
 import static jsettlers.common.buildings.EBuildingType.FARM;
+import static jsettlers.common.buildings.EBuildingType.GEMSMINE;
 import static jsettlers.common.buildings.EBuildingType.GOLDMELT;
 import static jsettlers.common.buildings.EBuildingType.GOLDMINE;
 import static jsettlers.common.buildings.EBuildingType.IRONMELT;
@@ -34,6 +35,7 @@ import static jsettlers.common.buildings.EBuildingType.MILL;
 import static jsettlers.common.buildings.EBuildingType.PIG_FARM;
 import static jsettlers.common.buildings.EBuildingType.WEAPONSMITH;
 import static jsettlers.common.landscape.EResourceType.COAL;
+import static jsettlers.common.landscape.EResourceType.GEMSTONE;
 import static jsettlers.common.landscape.EResourceType.GOLDORE;
 import static jsettlers.common.landscape.EResourceType.IRONORE;
 
@@ -108,6 +110,8 @@ public abstract class ConstructionPositionFinder {
 				return new MineConstructionPositionFinder(this, type, IRONORE);
 			case GOLDMINE:
 				return new MineConstructionPositionFinder(this, type, GOLDORE);
+			case GEMSMINE:
+				return new MineConstructionPositionFinder(this, type, GEMSTONE);
 			case WATERWORKS:
 				return new WaterWorksConstructionPositionFinder(this);
 			case IRONMELT:
