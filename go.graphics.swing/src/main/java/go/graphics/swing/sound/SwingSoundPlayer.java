@@ -58,7 +58,7 @@ public class SwingSoundPlayer implements SoundPlayer {
 		context = ALC10.alcCreateContext(device, (IntBuffer)null);
 
 		if(context == 0) {
-			System.err.println("Could not initialize OpenAL: Audio is not going to work!");
+			System.err.println("Could not create an OpenAL context: Audio is not going to work!");
 			return;
 		}
 
@@ -89,6 +89,8 @@ public class SwingSoundPlayer implements SoundPlayer {
 
 	@Override
 	public void playSound(int soundStart, float leftVolume, float rightVolume) {
+		if(context == 0) return;
+
 		float gameVolume = soundSettingsProvider.getVolume();
 
 		int source = getAvailableSource();
