@@ -232,26 +232,6 @@ public enum EBuildingJobType {
 	SMOKE_OFF,
 
 	/**
-	 * Places a pig at (dx, dy)
-	 */
-	PIG_PLACE,
-
-	/**
-	 * Removes a pig at (dx, dy)
-	 */
-	PIG_REMOVE,
-
-	/**
-	 * Succeeds only if there is an adult pig at (dx, dy)
-	 */
-	PIG_IS_ADULT,
-
-	/**
-	 * Succeeds if there is a pig at (dx, dy)
-	 */
-	PIG_IS_THERE,
-
-	/**
 	 * Pops a tool from the list of tools that should be produced.
 	 * <p>
 	 * fails if there is noting to do.

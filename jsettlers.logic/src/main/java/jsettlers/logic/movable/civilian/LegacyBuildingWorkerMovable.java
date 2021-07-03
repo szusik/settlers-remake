@@ -158,30 +158,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							jobFinishedNode()
 						),
 						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_IS_ADULT),
-							nodeToJob(condition(mov -> mov.grid.isPigAdult(mov.getCurrentJobPos())))
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_IS_THERE),
-							nodeToJob(condition(mov -> mov.grid.hasPigAt(mov.getCurrentJobPos())))
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_PLACE),
-							action(mov -> {
-								mov.grid.placePigAt(mov.getCurrentJobPos(), true);
-								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.PIG);
-							}),
-							jobFinishedNode()
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PIG_REMOVE),
-							action(mov -> {
-								mov.grid.placePigAt(mov.getCurrentJobPos(), false);
-								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.PIG);
-							}),
-							jobFinishedNode()
-						),
-						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.POP_TOOL),
 							nodeToJob(condition(LegacyBuildingWorkerMovable::popToolRequestAction))
 						),
