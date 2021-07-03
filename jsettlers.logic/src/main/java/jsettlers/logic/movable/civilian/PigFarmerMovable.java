@@ -1,9 +1,8 @@
 package jsettlers.logic.movable.civilian;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Predicate;
 
+import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.mapobject.EMapObjectType;
@@ -27,22 +26,26 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 
 	private static final Root<PigFarmerMovable> tree = new Root<>(createPigFarmerBehaviour());
 
-	private ShortPoint2D targetPig;
+	private ShortPoint2D targetKillablePig;
+	private ShortPoint2D targetFreePig;
 
 	private static Node<PigFarmerMovable> createPigFarmerBehaviour() {
 		return defaultWorkCycle(
 				sequence(
 						sleep(3000),
 						waitFor(
-							selector(
-								sequence(
-									outputStackNotFull(EMaterialType.PIG),
-									condition(PigFarmerMovable::findKillablePig)
-								),
-								sequence(
-									inputStackNotEmpty(EMaterialType.CROP),
-									inputStackNotEmpty(EMaterialType.WATER),
-									condition(PigFarmerMovable::findFreePigPlace)
+							sequence(
+								isAllowedToWork(),
+								selector(
+									sequence(
+										outputStackNotFull(EMaterialType.PIG),
+										condition(PigFarmerMovable::findKillablePig)
+									),
+									sequence(
+										inputStackNotEmpty(EMaterialType.CROP),
+										inputStackNotEmpty(EMaterialType.WATER),
+										condition(PigFarmerMovable::findFreePigPlace)
+									)
 								)
 							)
 						),
@@ -51,13 +54,13 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 						selector(
 							sequence(
 								outputStackNotFull(EMaterialType.PIG),
-								condition(mov -> mov.targetPig != null),
+								condition(mov -> mov.targetKillablePig != null),
 								ignoreFailure(
 									sequence(
-										goToPos(mov -> mov.targetPig, BuildingWorkerMovable::tmpPathStep),
+										goToPos(mov -> mov.targetKillablePig, BuildingWorkerMovable::tmpPathStep),
 										setDirectionNode(EDirection.NORTH_EAST),
 										take(mov -> EMaterialType.PIG, mov -> false, mov -> {}),
-										setPigAtTarget(false),
+										setPigAtTarget(mov -> mov.targetKillablePig, false),
 										goToOutputStack(EMaterialType.PIG, BuildingWorkerMovable::tmpPathStep),
 										setDirectionNode(EDirection.NORTH_WEST),
 										dropProduced(mov -> EMaterialType.PIG)
@@ -67,7 +70,7 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 							sequence(
 								inputStackNotEmpty(EMaterialType.CROP),
 								inputStackNotEmpty(EMaterialType.WATER),
-								condition(mov -> mov.targetPig != null),
+								condition(mov -> mov.targetFreePig != null),
 								ignoreFailure(
 									sequence(
 										// take crops
@@ -91,9 +94,8 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 										sleep(1000),
 
 										// place new pig
-										condition(PigFarmerMovable::findFreePigPlace),
-										setPigAtTarget(true),
-										goToPos(mov -> mov.targetPig, BuildingWorkerMovable::tmpPathStep),
+										setPigAtTarget(mov -> mov.targetFreePig, true),
+										goToPos(mov -> mov.targetFreePig, BuildingWorkerMovable::tmpPathStep),
 										setMaterialNode(EMaterialType.BASKET),
 										setDirectionNode(EDirection.SOUTH_EAST),
 										show(),
@@ -110,11 +112,11 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 		);
 	}
 
-	private static <T extends PigFarmerMovable> Node<T> setPigAtTarget(boolean place) {
+	private static <T extends PigFarmerMovable> Node<T> setPigAtTarget(IShortPoint2DSupplier<T> position, boolean place) {
 		return action(mov -> {
-			PigFarmerMovable realMov = mov;
-			mov.grid.placePigAt(realMov.targetPig, place);
-			mov.building.addMapObjectCleanupPosition(realMov.targetPig, EMapObjectType.PIG);
+			ShortPoint2D pos = position.apply(mov);
+			mov.grid.placePigAt(pos, place);
+			mov.building.addMapObjectCleanupPosition(pos, EMapObjectType.PIG);
 		});
 	}
 
@@ -135,15 +137,15 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 	}
 
 	private boolean findKillablePig() {
-		targetPig = searchTargetPig(grid::isPigAdult);
+		targetKillablePig = searchTargetPig(grid::isPigAdult);
 
-		return targetPig != null;
+		return targetKillablePig != null;
 	}
 
 
 	private boolean findFreePigPlace() {
-		targetPig = searchTargetPig(pos -> !grid.hasPigAt(pos));
+		targetFreePig = searchTargetPig(pos -> !grid.hasPigAt(pos));
 
-		return targetPig != null;
+		return targetFreePig != null;
 	}
 }
