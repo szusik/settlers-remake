@@ -73,6 +73,10 @@ public class BuildingVariant {
 
 	private final RelativePoint healSpot;
 
+	private final RelativePoint pigFeedPosition;
+
+	private final RelativePoint[] pigPositions;
+
 	/**
 	 * Constructs an enum object.
 	 */
@@ -108,6 +112,10 @@ public class BuildingVariant {
 		viewDistance = file.getViewdistance();
 
 		healSpot = file.getHealSpot();
+
+		pigFeedPosition = file.getPigFeedPosition();
+
+		pigPositions = file.getPigPositions();
 
 		this.numberOfConstructionMaterials = calculateNumberOfConstructionMaterials();
 
@@ -411,6 +419,14 @@ public class BuildingVariant {
 	 */
 	public RelativePoint getHealSpot() {
 		return healSpot;
+	}
+
+	public RelativePoint getPigFeedPosition() {
+		return pigFeedPosition;
+	}
+
+	public RelativePoint[] getPigPositions() {
+		return pigPositions;
 	}
 
 	public Set<ELandscapeType> getRequiredGroundTypeAt(int relativeX, int relativeY) {

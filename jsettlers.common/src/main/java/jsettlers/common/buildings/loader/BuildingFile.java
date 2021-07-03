@@ -72,6 +72,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_BRICKLAYER = "bricklayer";
 	private static final String ATTR_DIRECTION = "direction";
 	private static final String TAG_BUILDMARK = "buildmark";
+	private static final String TAG_PIG_FEED_POSITION = "pigFeedPosition";
+	private static final String TAG_PIG_POSITION = "pigPosition";
 	private static final String TAG_HEALSPOT = "healspot";
 	private static final String TAG_IMAGE = "image";
 	private static final String TAG_GROUNDTYE = "ground";
@@ -86,6 +88,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private RelativePoint door = new RelativePoint(0, 0);
 	private IBuildingJob startJob = null;
 	private RelativePoint healSpot = new RelativePoint(0, 0);
+	private RelativePoint pigFeedPosition = new RelativePoint(0, 0);
+	private ArrayList<RelativePoint> pigPositions = new ArrayList<>();
 
 	private EMovableType workerType;
 
@@ -169,7 +173,11 @@ public class BuildingFile implements BuildingJobDataProvider {
 				readImageLink(attributes);
 			} else if (TAG_BUILDMARK.equals(tagName)) {
 				buildmarks.add(readRelativeTile(attributes));
-			} else if(TAG_HEALSPOT.equals(tagName)) {
+			} else if(TAG_PIG_FEED_POSITION.equals(tagName)) {
+				pigFeedPosition = readRelativeTile(attributes);
+			}  else if(TAG_PIG_POSITION.equals(tagName)) {
+				pigPositions.add(readRelativeTile(attributes));
+			}  else if(TAG_HEALSPOT.equals(tagName)) {
 				healSpot = readRelativeTile(attributes);
 			} else if (TAG_GROUNDTYE.equals(tagName)) {
 				groundtypes.add(ELandscapeType.valueOf(attributes.getValue("groundtype")));
@@ -433,6 +441,14 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativePoint getHealSpot() {
 		return healSpot;
+	}
+
+	public RelativePoint getPigFeedPosition() {
+		return pigFeedPosition;
+	}
+
+	public RelativePoint[] getPigPositions() {
+		return pigPositions.toArray(new RelativePoint[0]);
 	}
 
 	public List<ELandscapeType> getGroundtypes() {

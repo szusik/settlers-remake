@@ -118,23 +118,12 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 		});
 	}
 
-	private List<RelativePoint> getPigPositions() {
-		List<RelativePoint> pigPositions = new ArrayList<>();
-
-		pigPositions.add(new RelativePoint(2, 2));
-		pigPositions.add(new RelativePoint(2, 1));
-		pigPositions.add(new RelativePoint(3, 2));
-		pigPositions.add(new RelativePoint(3, 3));
-
-		return pigPositions;
-	}
-
 	private ShortPoint2D getPigPlacePosition() {
-		return new RelativePoint(2, 3).calculatePoint(building.getPosition());
+		return building.getBuildingVariant().getPigFeedPosition().calculatePoint(building.getPosition());
 	}
 
 	private ShortPoint2D searchTargetPig(Predicate<ShortPoint2D> validFunction) {
-		for(RelativePoint pigPosition : getPigPositions()) {
+		for(RelativePoint pigPosition : building.getBuildingVariant().getPigPositions()) {
 			ShortPoint2D realPosition = pigPosition.calculatePoint(building.getPosition());
 
 			if(!validFunction.test(realPosition)) continue;

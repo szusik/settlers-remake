@@ -115,7 +115,7 @@
 )">
 <!ENTITY % boolean "(true|false)">
 
-<!ELEMENT building (ground+, blocked+, door, constructionStack+, requestStack*, offerStack*, bricklayer+, flag, buildmark*, workcenter?, healspot?, image*, occupyer*, startjob?, job*) >
+<!ELEMENT building (ground+, blocked+, door, constructionStack+, requestStack*, offerStack*, bricklayer+, flag, buildmark*, workcenter?, healspot?, pigFeedPosition?, pigPosition*, image*, occupyer*, startjob?, job*) >
 
 <!ATTLIST building
    	worker CDATA #REQUIRED
@@ -235,6 +235,18 @@
 
 <!ELEMENT healspot EMPTY>
 <!ATTLIST healspot
+   dx CDATA #REQUIRED
+   dy CDATA #REQUIRED
+>
+
+<!ELEMENT pigPosition EMPTY>
+<!ATTLIST pigPosition
+   dx CDATA #REQUIRED
+   dy CDATA #REQUIRED
+>
+
+<!ELEMENT pigFeedPosition EMPTY>
+<!ATTLIST pigFeedPosition
    dx CDATA #REQUIRED
    dy CDATA #REQUIRED
 >
