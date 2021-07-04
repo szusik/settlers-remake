@@ -369,7 +369,7 @@ public class DatFileViewer extends JFrame implements ListSelectionListener {
 		ImageSet currentSet;
 
 		Surface() {
-			super(EBackendType.DEFAULT, new GridBagLayout(), false);
+			super(SettingsManager.getInstance().getBackend(), new GridBagLayout(), false);
 			currentSet = ImageSet.SETTLERS;
 			resetOffset();
 		}
@@ -414,7 +414,7 @@ public class DatFileViewer extends JFrame implements ListSelectionListener {
 			txtRenderer.drawString(0.0f, height - 30.f, String.format(Locale.ENGLISH, "Offset: %d, %d", offsetX, offsetY));
 			txtRenderer.drawString(0.0f, height - 45.f, String.format(Locale.ENGLISH, "Zoom: %f", zoom));
 
-			gl2.setGlobalAttributes(width/2f+(-width/2f+offsetX)*zoom, height/2f+(-height/2f+offsetY)*zoom, 0, zoom, zoom, 0);
+			gl2.setGlobalAttributes(width/2f+offsetX+(-width/2f)*zoom, height/2f+offsetY+(-height/2f)*zoom, 0, zoom, zoom, 0);
 
 			// Render
 			int yPos = height - 100;
