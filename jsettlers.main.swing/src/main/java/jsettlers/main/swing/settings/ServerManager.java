@@ -18,6 +18,7 @@ package jsettlers.main.swing.settings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import go.graphics.swing.util.SimpleListModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -89,7 +90,7 @@ public class ServerManager {
 		servers = new ArrayList<>();
 	}
 
-	private List<ServerEntry> servers;
+	private final List<ServerEntry> servers;
 
 	public void addServer(ServerEntry server) {
 		servers.add(server);
@@ -115,19 +116,6 @@ public class ServerManager {
 	}
 
 	public ListModel<ServerEntry> createListModel() {
-		return new ServerListModel();
-	}
-
-	private class ServerListModel extends AbstractListModel<ServerEntry> {
-
-		@Override
-		public int getSize() {
-			return servers.size();
-		}
-
-		@Override
-		public ServerEntry getElementAt(int i) {
-			return servers.get(i);
-		}
+		return new SimpleListModel<>(servers);
 	}
 }
