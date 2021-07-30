@@ -49,7 +49,7 @@ public class MultiplayerConnector implements IMultiplayerConnector, IClientConne
 	public MultiplayerConnector(final String serverAddress, final String userId, final String userName, Logger log) {
 		this.userId = userId;
 		this.userName = userName;
-		networkClientFactory = new AsyncNetworkClientConnector(serverAddress, userId, userName, generateMatchesReceiver());
+		networkClientFactory = new AsyncNetworkClientConnector(serverAddress, userId, userName, generateMatchesReceiver(), log);
 	}
 
 	private IPacketReceiver<ArrayOfMatchInfosPacket> generateMatchesReceiver() {
