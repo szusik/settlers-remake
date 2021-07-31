@@ -239,8 +239,6 @@ public class MapObjectDrawer {
 	 * 		The object (tree, ...) to draw.
 	 */
 	public void drawMapObject(int x, int y, IMapObject object) {
-		forceSetup();
-
 		byte fogStatus = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
 		if (fogStatus == 0) {
 			return; // break
@@ -255,7 +253,6 @@ public class MapObjectDrawer {
 	}
 
 	public void drawDock(int x, int y, IMapObject object) {
-		forceSetup();
 		byte fogStatus = context.getVisibleStatus(x, y);
 		if (fogStatus == 0) {
 			return;
@@ -274,8 +271,6 @@ public class MapObjectDrawer {
 	}
 
 	private void drawShip(IGraphicsMovable ship, int x, int y) {
-		forceSetup();
-
 		byte fogOfWarVisibleStatus = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
 		if (fogOfWarVisibleStatus == 0) {
 			return;
@@ -664,23 +659,6 @@ public class MapObjectDrawer {
 		}
 	}
 
-	private void forceSetup() {
-		if (imageProvider == null) {
-			imageProvider = ImageProvider.getInstance();
-			imageMap = SettlerImageMap.getInstance();
-
-			playerBorderObjectImage = imageProvider.getSettlerSequence(FILE_BORDER_POST, 65).getImageSafe(0, () -> "border-indicator");
-		}
-
-		if(context.getGl() != lastDC) {
-			lastDC = context.getGl();
-
-			context.getGl().setShadowDepthOffset(shadow_offset);
-			SettlerImage.shadow_offset = shadow_offset;
-
-		}
-	}
-
 	private GLDrawContext lastDC = null;
 
 	/**
@@ -690,8 +668,6 @@ public class MapObjectDrawer {
 	 * 		The movable.
 	 */
 	public void draw(IGraphicsMovable movable) {
-		forceSetup();
-
 		final ShortPoint2D pos = movable.getPosition();
 		if (movable.getMovableType().isShip()) {
 			drawShip(movable, pos.x, pos.y);
@@ -1155,8 +1131,6 @@ public class MapObjectDrawer {
 	 * 		The player.
 	 */
 	public void drawPlayerBorderObject(int x, int y, IPlayer player) {
-		forceSetup();
-
 		byte fogStatus = visibleGrid != null ? visibleGrid[x][y] : CommonConstants.FOG_OF_WAR_VISIBLE;
 		if (fogStatus <= CommonConstants.FOG_OF_WAR_EXPLORED) {
 			return; // break
@@ -1177,8 +1151,21 @@ public class MapObjectDrawer {
 	/**
 	 * Increases the animation step for trees and other stuff.
 	 */
-	public void increaseAnimationStep() {
+	public void nextFrame() {
 		this.animationStep = ((int) System.currentTimeMillis() / 100) & 0x7fffffff;
+
+		imageMap = SettlerImageMap.getInstance();
+		imageProvider = ImageProvider.getInstance();
+
+		playerBorderObjectImage = imageProvider.getSettlerSequence(FILE_BORDER_POST, 65).getImageSafe(0, () -> "border-indicator");
+
+		if(context.getGl() != lastDC) {
+			lastDC = context.getGl();
+
+			context.getGl().setShadowDepthOffset(shadow_offset);
+			SettlerImage.shadow_offset = shadow_offset;
+
+		}
 	}
 
 	/**
@@ -1194,8 +1181,6 @@ public class MapObjectDrawer {
 	 * 		Color to be drawn
 	 */
 	private void drawStack(int x, int y, IStackMapObject object, float color) {
-		forceSetup();
-
 		byte elements = object.getSize();
 		if (elements > 0) {
 			drawStackAtScreen(x, y, object.getMaterialType(), elements, color);
@@ -1483,7 +1468,6 @@ public class MapObjectDrawer {
 	}
 
 	public void drawMoveToMarker(ShortPoint2D moveToMarker, float progress) {
-		forceSetup();
 		drawByProgress(moveToMarker.x, moveToMarker.y, 0, MARKER_FILE, MOVE_TO_MARKER_SEQUENCE, progress, 1);
 	}
 

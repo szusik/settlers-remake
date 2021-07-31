@@ -320,7 +320,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			}
 
 			adaptScreenSize();
-			this.objectDrawer.increaseAnimationStep();
+			this.objectDrawer.nextFrame();
 
 			this.context.begin(gl);
 			long start = System.nanoTime();
