@@ -50,6 +50,11 @@ public abstract class CommonConstants {
 	public static final boolean DEBUG_BEHAVIOR_TREES = false;
 
 	/**
+	 * Only enable this to allow reloading the movables.txt files.
+	 */
+	public static boolean MUTABLE_MOVABLES_TXT = false;
+
+	/**
 	 * If true, all players of a map will always be positioned on startup.
 	 */
 	public static boolean ACTIVATE_ALL_PLAYERS = false;

@@ -14,10 +14,14 @@
  *******************************************************************************/
 package jsettlers.graphics.map.draw.settlerimages;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jsettlers.common.CommonConstants;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
@@ -63,8 +67,9 @@ public final class SettlerImageMap {
 
 	/**
 	 * Creates a new settler image map.
+	 * @param directory the directory where the files are located or null if the files are in the jar
 	 */
-	private SettlerImageMap() {
+	private SettlerImageMap(File directory) {
 		this.civilisations = ECivilisation.values().length;
 		this.types = EMovableType.NUMBER_OF_MOVABLETYPES;
 		this.actions = EMovableAction.values().length;
@@ -72,7 +77,14 @@ public final class SettlerImageMap {
 		this.directions = EDirection.VALUES.length;
 		this.map = new SettlerImageMapItem[this.civilisations][this.types][this.actions][this.materials][this.directions];
 
-		MovableParser parser = new MovableParser();
+
+		MovableParser parser;
+
+		if(directory != null) {
+			parser = new MovableParser(str -> new FileReader(new File(directory, str)));
+		} else {
+			parser = new MovableParser(str -> new InputStreamReader(getClass().getResourceAsStream(str)));
+		}
 
 		int[][][][][] priorities = new int[this.civilisations][this.types][this.actions][this.materials][this.directions];
 		// add pseudo entry.
@@ -372,8 +384,19 @@ public final class SettlerImageMap {
 
 	public static SettlerImageMap getInstance() {
 		if (instance == null) {
-			instance = new SettlerImageMap();
+			instance = new SettlerImageMap(null);
 		}
 		return instance;
+	}
+
+	/**
+	 * Reloads the movables.txt files from the project directory instead of the jar file. Allows editing the movables files without restarting the game.
+	 */
+	public static void reloadFromDirectory() {
+		if(!CommonConstants.MUTABLE_MOVABLES_TXT) {
+			throw new IllegalAccessError("reloading movables.txt is not supported!");
+		}
+
+		instance = new SettlerImageMap(new File("jsettlers.graphics/src/main/resources/jsettlers/graphics/map/draw/settlerimages"));
 	}
 }
