@@ -1,0 +1,153 @@
+package jsettlers.logic.movable.modelmap;
+
+import java.util.function.Supplier;
+import jsettlers.common.material.EMaterialType;
+import jsettlers.common.movable.EDirection;
+import jsettlers.common.movable.EEffectType;
+import jsettlers.common.movable.EMovableAction;
+import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.IGraphicsMovable;
+import jsettlers.common.position.ShortPoint2D;
+import jsettlers.common.selectable.ESelectionType;
+
+public class FakeMovable implements IGraphicsMovable {
+
+	private EMovableType movableType;
+	private EMovableAction movableAction;
+	private EDirection direction;
+	private EMaterialType materialType;
+	private final Supplier<Long> currentTime;
+	private final FakePlayer player;
+	private final MovableModelMap map;
+	private ShortPoint2D position;
+
+	public FakeMovable(Supplier<Long> currentTime, MovableModelMap map, ShortPoint2D position) {
+		movableType = EMovableType.BEARER;
+		movableAction = EMovableAction.NO_ACTION;
+		direction = EDirection.NORTH_WEST;
+		materialType = EMaterialType.NO_MATERIAL;
+		this.currentTime = currentTime;
+		player = new FakePlayer();
+		this.map = map;
+		setPosition(position);
+	}
+
+	@Override
+	public EMovableType getMovableType() {
+		return movableType;
+	}
+
+	public void setMovableType(EMovableType movableType) {
+		this.movableType = movableType;
+	}
+
+	@Override
+	public EMovableAction getAction() {
+		return movableAction;
+	}
+
+	public void setMovableAction(EMovableAction movableAction) {
+		this.movableAction = movableAction;
+	}
+
+	@Override
+	public EDirection getDirection() {
+		return direction;
+	}
+
+	public void setDirection(EDirection direction) {
+		this.direction = direction;
+	}
+
+	@Override
+	public float getMoveProgress() {
+		// (currentTime.get() % 1000000f)/1000000f
+		return (float) (Math.sin((currentTime.get())/1000000f)+1)/2f;
+	}
+
+	@Override
+	public EMaterialType getMaterial() {
+		return materialType;
+	}
+
+	public void setMaterialType(EMaterialType materialType) {
+		this.materialType = materialType;
+	}
+
+	@Override
+	public float getHealth() {
+		return 100;
+	}
+
+	@Override
+	public boolean isAlive() {
+		return true;
+	}
+
+	@Override
+	public boolean isRightstep() {
+		return false;
+	}
+
+	@Override
+	public boolean hasEffect(EEffectType effect) {
+		return false;
+	}
+
+	@Override
+	public int getID() {
+		return 0;
+	}
+
+	@Override
+	public FakePlayer getPlayer() {
+		return player;
+	}
+
+	@Override
+	public ShortPoint2D getPosition() {
+		return position;
+	}
+
+	public void setPosition(ShortPoint2D position) {
+		if(this.position != null) {
+			map.setMovableAt(this.position.x, this.position.y, null);
+		}
+
+		if(position != null) {
+			map.setMovableAt(position.x, position.y, this);
+		}
+
+		this.position = position;
+	}
+
+	@Override
+	public boolean isSelected() {
+		return false;
+	}
+
+	@Override
+	public void setSelected(boolean selected) {
+
+	}
+
+	@Override
+	public ESelectionType getSelectionType() {
+		return null;
+	}
+
+	@Override
+	public boolean isWounded() {
+		return false;
+	}
+
+	@Override
+	public void setSoundPlayed() {
+
+	}
+
+	@Override
+	public boolean isSoundPlayed() {
+		return false;
+	}
+}
