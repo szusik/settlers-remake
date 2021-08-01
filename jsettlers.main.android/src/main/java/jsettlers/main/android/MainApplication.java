@@ -15,6 +15,7 @@
 
 package jsettlers.main.android;
 
+import jsettlers.network.infrastructure.log.ConsoleLogger;
 import org.androidannotations.annotations.EApplication;
 
 import android.app.Application;
@@ -104,7 +105,7 @@ public class MainApplication extends MultiDexApplication implements GameStarter,
 			AndroidPreferences androidPreferences = new AndroidPreferences(this);
 			String server = androidPreferences.getServer();
 			if(serverHandle != null) server = "localhost";
-			multiplayerConnector = new MultiplayerConnector(server, androidPreferences.getPlayerId(), androidPreferences.getPlayerName(), null);
+			multiplayerConnector = new MultiplayerConnector(server, androidPreferences.getPlayerId(), androidPreferences.getPlayerName(), new ConsoleLogger("jsettlers.main.android-network"));
 		}
 		return multiplayerConnector;
 	}
