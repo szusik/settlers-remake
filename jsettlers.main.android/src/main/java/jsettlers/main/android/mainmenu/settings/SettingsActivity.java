@@ -15,7 +15,9 @@
 
 package jsettlers.main.android.mainmenu.settings;
 
+import android.widget.Switch;
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OptionsItem;
@@ -40,6 +42,9 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 
 	@ViewById(R.id.text_view_server_address)
 	TextView textViewServerAddress;
+
+	@ViewById(R.id.switch_play_all_music)
+	Switch switchPlayAllMusic;
 
 	@ViewById(R.id.toolbar)
 	Toolbar toolbar;
@@ -76,6 +81,11 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 		EditTextDialog.create(REQUEST_CODE_SERVER_ADDRESS, R.string.settings_server_address, R.string.settings_address, textViewServerAddress.getText()).show(getSupportFragmentManager(), null);
 	}
 
+	@CheckedChange(R.id.switch_play_all_music)
+	void onCheckedChangedPlayAllMusicLayout() {
+		presenter.playAllMusicEdited(switchPlayAllMusic.isChecked());
+	}
+
 	@OptionsItem(android.R.id.home)
 	void homeSelected() {
 		finish();
@@ -89,6 +99,11 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 	@Override
 	public void setServerAddress(String serverAddress) {
 		textViewServerAddress.setText(serverAddress);
+	}
+
+	@Override
+	public void setPlayAllMusic(boolean playAll) {
+		switchPlayAllMusic.setChecked(playAll);
 	}
 
 	@Override

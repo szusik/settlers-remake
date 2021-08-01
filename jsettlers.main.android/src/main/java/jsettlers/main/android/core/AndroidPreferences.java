@@ -70,7 +70,7 @@ public class AndroidPreferences {
 		return preferences.getBoolean(PREF_PLAYALL_MUSIC, false);
 	}
 
-	public void setPlayyAllMusic(boolean playAll) {
+	public void setPlayAllMusic(boolean playAll) {
 		preferences.edit().putBoolean(PREF_PLAYALL_MUSIC, playAll).apply();
 	}
 }

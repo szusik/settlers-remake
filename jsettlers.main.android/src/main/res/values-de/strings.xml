@@ -127,4 +127,5 @@
 	<string name="ask_dock">Stegposition auswählen</string>
 	<string name="ask_spell">Zauberstelle auswählen</string>
 	<string name="force_move">Zielpunkt erzwingen</string>
+	<string name="settings_play_all_music">Alle Musikdateien abspielen</string>
 </resources>

@@ -33,6 +33,7 @@ public class SettingsPresenter {
 	public void bindView() {
 		view.setPlayerName(androidPreferences.getPlayerName());
 		view.setServerAddress(androidPreferences.getServer());
+		view.setPlayAllMusic(androidPreferences.isPlayAllMusic());
 	}
 
 	public void playerNameEdited(String playerName) {
@@ -43,5 +44,10 @@ public class SettingsPresenter {
 	public void serverAddressEdited(String serverAddress) {
 		androidPreferences.setServer(serverAddress);
 		view.setServerAddress(serverAddress);
+	}
+
+	public void playAllMusicEdited(boolean playAll) {
+		androidPreferences.setPlayAllMusic(playAll);
+		view.setPlayAllMusic(playAll);
 	}
 }

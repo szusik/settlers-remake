@@ -22,4 +22,6 @@ public interface SettingsView {
 	void setPlayerName(String playerName);
 
 	void setServerAddress(String serverAddress);
+
+	void setPlayAllMusic(boolean playAll);
 }
