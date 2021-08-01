@@ -44,7 +44,7 @@ public class MovableTestWindow {
 		new MovableTestWindow();
 	}
 
-	private MovableTestWindow() throws InterruptedException, JSettlersLookAndFeelExecption, IOException, SwingResourceLoader.ResourceSetupException {
+	private MovableTestWindow() throws InterruptedException, JSettlersLookAndFeelExecption, IOException {
 		MatchConstants.init(new NetworkTimer(true), 1000);
 		MatchConstants.clock().startExecution();
 		RescheduleTimer.schedule(MatchConstants.clock());

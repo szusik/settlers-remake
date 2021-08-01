@@ -51,7 +51,6 @@ public class SettingsManager implements ISoundSettingsProvider {
 
 	private static final String SETTING_USERNAME = "name";
 	private static final String SETTING_LOCALE = "locale";
-	private static final String SETTING_SERVER = "server";
 	private static final String SETTING_VOLUME = "volume";
 	private static final String SETTING_VOLUME_MUSIC = "volume-music";
 	private static final String SETTING_MUSIC_PLAYALL = "music-playall";
@@ -158,10 +157,6 @@ public class SettingsManager implements ISoundSettingsProvider {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public String getServer() {
-		return getOrDefault(SETTING_SERVER, () -> CommonConstants.DEFAULT_SERVER_ADDRESS);
 	}
 
 	public String getUserName() {

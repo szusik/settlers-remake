@@ -25,7 +25,9 @@ import jsettlers.common.landscape.ELandscapeType;
  * @author codingberlin
  */
 public class OriginalLandscape {
+
 	private static final Map<Integer, ELandscapeType> originalLandscapeType = new HashMap<>();
+
 	static {
 		originalLandscapeType.put(0, ELandscapeType.WATER1);
 		originalLandscapeType.put(1, ELandscapeType.WATER2);
