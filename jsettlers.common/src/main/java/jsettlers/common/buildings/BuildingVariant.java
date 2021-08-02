@@ -47,7 +47,7 @@ public class BuildingVariant {
 
 	private final RelativePoint flag;
 
-	private final RelativeBricklayer[] bricklayers;
+	private final RelativeDirectionPoint[] bricklayers;
 
 	private final byte numberOfConstructionMaterials;
 
@@ -279,9 +279,9 @@ public class BuildingVariant {
 	 * Gets the positions where the bricklayers should stand to build the house.
 	 *
 	 * @return The positions.
-	 * @see RelativeBricklayer
+	 * @see RelativeDirectionPoint
 	 */
-	public final RelativeBricklayer[] getBricklayers() {
+	public final RelativeDirectionPoint[] getBricklayers() {
 		return bricklayers;
 	}
 

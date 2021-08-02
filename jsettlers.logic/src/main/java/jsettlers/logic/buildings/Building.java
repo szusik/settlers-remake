@@ -30,7 +30,7 @@ import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuildingMaterial;
-import jsettlers.common.buildings.RelativeBricklayer;
+import jsettlers.common.buildings.RelativeDirectionPoint;
 import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.map.shapes.FreeMapArea;
@@ -300,7 +300,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 	}
 
 	private void requestBricklayers() {
-		for (RelativeBricklayer curr : getBuildingVariant().getBricklayers()) {
+		for (RelativeDirectionPoint curr : getBuildingVariant().getBricklayers()) {
 			grid.requestBricklayer(this, curr.calculatePoint(pos), curr.getDirection());
 		}
 	}

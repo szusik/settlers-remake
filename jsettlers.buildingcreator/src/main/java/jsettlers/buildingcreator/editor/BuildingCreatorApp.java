@@ -25,7 +25,7 @@ import jsettlers.common.action.IAction;
 import jsettlers.common.action.PointAction;
 import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
-import jsettlers.common.buildings.RelativeBricklayer;
+import jsettlers.common.buildings.RelativeDirectionPoint;
 import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.material.EMaterialType;
@@ -439,7 +439,7 @@ public class BuildingCreatorApp implements IMapInterfaceListener, Runnable {
 		}
 		builder.append("\n");
 
-		for (RelativeBricklayer bricklayer : definition.getBricklayers()) {
+		for (RelativeDirectionPoint bricklayer : definition.getBricklayers()) {
 			builder.append("\t<bricklayer dx=\"");
 			builder.append(bricklayer.getDx());
 			builder.append("\" dy=\"");

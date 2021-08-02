@@ -21,7 +21,7 @@ import java.util.Set;
 
 import jsettlers.buildingcreator.editor.jobeditor.BuildingPersonJobProperties;
 import jsettlers.common.buildings.BuildingVariant;
-import jsettlers.common.buildings.RelativeBricklayer;
+import jsettlers.common.buildings.RelativeDirectionPoint;
 import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.material.EMaterialType;
@@ -45,7 +45,7 @@ public class BuildingDefinition {
 	private final LinkedList<RelativeStack> requestStacks = new LinkedList<>();
 	private final LinkedList<RelativeStack> offerStacks = new LinkedList<>();
 
-	private final LinkedList<RelativeBricklayer> bricklayers = new LinkedList<>();
+	private final LinkedList<RelativeDirectionPoint> bricklayers = new LinkedList<>();
 
 	private final LinkedList<RelativePoint> blocked = new LinkedList<>();
 	private final LinkedList<RelativePoint> justProtected = new LinkedList<>();
@@ -132,11 +132,11 @@ public class BuildingDefinition {
 	}
 
 	public void toggleBrickayer(RelativePoint relative, EDirection direction) {
-		RelativeBricklayer bricklayer = getBricklayerAt(relative);
+		RelativeDirectionPoint bricklayer = getBricklayerAt(relative);
 		if (bricklayer != null) {
 			bricklayers.remove(bricklayer);
 		} else {
-			bricklayers.add(new RelativeBricklayer(relative.getDx(), relative
+			bricklayers.add(new RelativeDirectionPoint(relative.getDx(), relative
 					.getDy(), direction));
 		}
 	}
@@ -145,8 +145,8 @@ public class BuildingDefinition {
 		return null != getBricklayerAt(relative);
 	}
 
-	private RelativeBricklayer getBricklayerAt(RelativePoint relative) {
-		for (RelativeBricklayer bricklayer : bricklayers) {
+	private RelativeDirectionPoint getBricklayerAt(RelativePoint relative) {
+		for (RelativeDirectionPoint bricklayer : bricklayers) {
 			if (relative.equals(bricklayer)) {
 				return bricklayer;
 			}
@@ -219,7 +219,7 @@ public class BuildingDefinition {
 		return buildmarks;
 	}
 
-	public LinkedList<RelativeBricklayer> getBricklayers() {
+	public LinkedList<RelativeDirectionPoint> getBricklayers() {
 		return bricklayers;
 	}
 }

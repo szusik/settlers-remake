@@ -30,7 +30,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.OccupierPlace;
-import jsettlers.common.buildings.RelativeBricklayer;
+import jsettlers.common.buildings.RelativeDirectionPoint;
 import jsettlers.common.buildings.jobs.IBuildingJob;
 import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
@@ -97,7 +97,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private ArrayList<RelativeStack> requestStacks = new ArrayList<>();
 	private ArrayList<RelativeStack> offerStacks = new ArrayList<>();
 
-	private ArrayList<RelativeBricklayer> bricklayers = new ArrayList<>();
+	private ArrayList<RelativeDirectionPoint> bricklayers = new ArrayList<>();
 
 	private int workradius;
 	private boolean mine;
@@ -168,14 +168,14 @@ public class BuildingFile implements BuildingJobDataProvider {
 			} else if (TAG_OFFER_STACK.equals(tagName)) {
 				readAndAddRelativeStack(attributes, offerStacks);
 			} else if (TAG_BRICKLAYER.equals(tagName)) {
-				readRelativeBricklayer(attributes);
+				readRelativeDirectionPoint(attributes);
 			} else if (TAG_IMAGE.equals(tagName)) {
 				readImageLink(attributes);
 			} else if (TAG_BUILDMARK.equals(tagName)) {
 				buildmarks.add(readRelativeTile(attributes));
 			} else if(TAG_PIG_FEED_POSITION.equals(tagName)) {
 				pigFeedPosition = readRelativeTile(attributes);
-			}  else if(TAG_ANIMAL_POSITION.equals(tagName)) {
+			} else if(TAG_ANIMAL_POSITION.equals(tagName)) {
 				animalPositions.add(readRelativeTile(attributes));
 			}  else if(TAG_HEALSPOT.equals(tagName)) {
 				healSpot = readRelativeTile(attributes);
@@ -263,13 +263,13 @@ public class BuildingFile implements BuildingJobDataProvider {
 		return new OriginalImageLink(type, file, sequence, image);
 	}
 
-	private void readRelativeBricklayer(Attributes attributes) {
+	private void readRelativeDirectionPoint(Attributes attributes) {
 		try {
 			int dx = Integer.parseInt(attributes.getValue(ATTR_DX));
 			int dy = Integer.parseInt(attributes.getValue(ATTR_DY));
 			EDirection direction = EDirection.valueOf(attributes.getValue(ATTR_DIRECTION));
 
-			bricklayers.add(new RelativeBricklayer(dx, dy, direction));
+			bricklayers.add(new RelativeDirectionPoint(dx, dy, direction));
 
 		} catch (NumberFormatException e) {
 			System.err.println("Warning: illegal number for stack attribute, in definiton for " + buildingName);
@@ -403,8 +403,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 		return offerStacks.toArray(new RelativeStack[offerStacks.size()]);
 	}
 
-	public RelativeBricklayer[] getBricklayers() {
-		return bricklayers.toArray(new RelativeBricklayer[bricklayers.size()]);
+	public RelativeDirectionPoint[] getBricklayers() {
+		return bricklayers.toArray(new RelativeDirectionPoint[bricklayers.size()]);
 	}
 
 	public short getWorkradius() {

@@ -18,16 +18,16 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.position.RelativePoint;
 
 /**
- * This is the bricklayer position for building a building.
- * 
+ * This is the relative point that also has a direction associated with it
+ *
  * @author michael
  */
-public class RelativeBricklayer extends RelativePoint {
+public class RelativeDirectionPoint extends RelativePoint {
 	private static final long serialVersionUID = 8474598621080781081L;
 
 	private final EDirection direction;
 
-	public RelativeBricklayer(int dx, int dy, EDirection direction) {
+	public RelativeDirectionPoint(int dx, int dy, EDirection direction) {
 		super(dx, dy);
 		this.direction = direction;
 	}
