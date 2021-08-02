@@ -103,7 +103,7 @@ public class ServerEntry implements Cloneable {
 		this.address = address;
 	}
 
-	public void setusername(String username) {
+	public void setUsername(String username) {
 		this.username = username;
 	}
 

@@ -132,6 +132,7 @@ public class EditServerEntryPanel extends JPanel {
 
 		usernameField = new JTextField();
 		usernameField.putClientProperty(ELFStyle.KEY, ELFStyle.TEXT_DEFAULT);
+		usernameField.getDocument().addDocumentListener((SimpleDocumentListener) () -> edit.setUsername(usernameField.getText()));
 		jsettlersOptions.add(usernameField);
 
 		// http
