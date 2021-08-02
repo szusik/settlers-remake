@@ -15,17 +15,17 @@ import jsettlers.logic.player.Player;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
-public class DonkeyFarmer extends BuildingWorkerMovable {
+public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 
 	private int feedIndex;
 
-	public DonkeyFarmer(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
+	public DonkeyFarmerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
 		super(grid, EMovableType.DONKEY_FARMER, position, player, replace, tree);
 	}
 
-	private static final Root<DonkeyFarmer> tree = new Root<>(createDonkeyBehaviour());
+	private static final Root<DonkeyFarmerMovable> tree = new Root<>(createDonkeyBehaviour());
 
-	private static Node<DonkeyFarmer> createDonkeyBehaviour() {
+	private static Node<DonkeyFarmerMovable> createDonkeyBehaviour() {
 		return defaultWorkCycle(
 			sequence(
 				sleep(3000),
@@ -62,15 +62,15 @@ public class DonkeyFarmer extends BuildingWorkerMovable {
 						waitFor(
 							sequence(
 								isAllowedToWork(),
-								condition(DonkeyFarmer::growDonkeys)
+								condition(DonkeyFarmerMovable::growDonkeys)
 							)
 						),
 						action(mov -> mov.feedIndex = 0),
 						show(),
-						repeatLoop(DonkeyFarmer::getFeedPositionCount,
+						repeatLoop(DonkeyFarmerMovable::getFeedPositionCount,
 							sequence(
-								goToPos(DonkeyFarmer::getFeedPosition, BuildingWorkerMovable::tmpPathStep),
-								setDirectionNode(DonkeyFarmer::getFeedDirection),
+								goToPos(DonkeyFarmerMovable::getFeedPosition, BuildingWorkerMovable::tmpPathStep),
+								setDirectionNode(DonkeyFarmerMovable::getFeedDirection),
 								playAction(EMovableAction.ACTION1, mov -> (short)900),
 								action(mov -> mov.feedIndex++)
 							)

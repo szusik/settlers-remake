@@ -44,7 +44,7 @@ import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
-import jsettlers.logic.movable.civilian.DonkeyFarmer;
+import jsettlers.logic.movable.civilian.DonkeyFarmerMovable;
 import jsettlers.logic.movable.civilian.PigFarmerMovable;
 import jsettlers.logic.movable.civilian.SimpleBuildingWorkerMovable;
 import jsettlers.logic.movable.civilian.HealerMovable;
@@ -1183,7 +1183,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
 
 			case DONKEY_FARMER:
-				return new DonkeyFarmer(grid, position, player, movable);
+				return new DonkeyFarmerMovable(grid, position, player, movable);
 
 			case PIG_FARMER:
 				return new PigFarmerMovable(grid, position, player, movable);
