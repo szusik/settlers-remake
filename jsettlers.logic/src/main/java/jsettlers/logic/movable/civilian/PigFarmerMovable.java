@@ -125,8 +125,8 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 	}
 
 	private ShortPoint2D searchTargetPig(Predicate<ShortPoint2D> validFunction) {
-		for(RelativePoint pigPosition : building.getBuildingVariant().getPigPositions()) {
-			ShortPoint2D realPosition = pigPosition.calculatePoint(building.getPosition());
+		for(RelativePoint animalPosition : building.getBuildingVariant().getAnimalPositions()) {
+			ShortPoint2D realPosition = animalPosition.calculatePoint(building.getPosition());
 
 			if(!validFunction.test(realPosition)) continue;
 

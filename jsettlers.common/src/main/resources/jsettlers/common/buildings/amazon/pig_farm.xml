@@ -140,10 +140,10 @@
 
 	<pigFeedPosition dx="2" dy="3"/>
 
-	<pigPosition dx="2" dy="2"/>
-	<pigPosition dx="2" dy="1"/>
-	<pigPosition dx="3" dy="2"/>
-	<pigPosition dx="3" dy="3"/>
+	<animalPosition dx="2" dy="2"/>
+	<animalPosition dx="2" dy="1"/>
+	<animalPosition dx="3" dy="2"/>
+	<animalPosition dx="3" dy="3"/>
 
 	<image file="14" type="GUI" for="GUI" image="0" sequence="66" />
 	<image file="13" type="SETTLER" for="FINAL" image="0" sequence="20" />

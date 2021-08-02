@@ -75,7 +75,7 @@ public class BuildingVariant {
 
 	private final RelativePoint pigFeedPosition;
 
-	private final RelativePoint[] pigPositions;
+	private final RelativePoint[] animalPositions;
 
 	/**
 	 * Constructs an enum object.
@@ -115,7 +115,7 @@ public class BuildingVariant {
 
 		pigFeedPosition = file.getPigFeedPosition();
 
-		pigPositions = file.getPigPositions();
+		animalPositions = file.getAnimalPositions();
 
 		this.numberOfConstructionMaterials = calculateNumberOfConstructionMaterials();
 
@@ -425,8 +425,8 @@ public class BuildingVariant {
 		return pigFeedPosition;
 	}
 
-	public RelativePoint[] getPigPositions() {
-		return pigPositions;
+	public RelativePoint[] getAnimalPositions() {
+		return animalPositions;
 	}
 
 	public Set<ELandscapeType> getRequiredGroundTypeAt(int relativeX, int relativeY) {
