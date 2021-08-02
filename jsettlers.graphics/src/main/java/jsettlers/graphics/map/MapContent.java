@@ -76,6 +76,7 @@ import go.graphics.FramerateComputer;
 import jsettlers.common.statistics.IGameTimeProvider;
 import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.player.EWinState;
+import jsettlers.common.statistics.IntervalTimeRateCalculator;
 import jsettlers.graphics.action.ActionFireable;
 import jsettlers.graphics.action.ActionHandler;
 import jsettlers.graphics.action.ActionThreadBlockingListener;
@@ -225,8 +226,11 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private UIPoint currentSelectionAreaStart;
 	private IInGamePlayer localPlayer;
 
-	private long lastGametimeUpdate;
-	private int lastGametime;
+	private final IntervalTimeRateCalculator gamespeedCalculator;
+
+	private long getGameTimeNS() {
+		return gameTimeProvider.getGameTime()*1000L*1000L;
+	}
 
 	public MapContent(IStartedGame game, SoundPlayer soundPlayer, ETextDrawPosition textDrawPosition) {
 		this(game, soundPlayer, textDrawPosition,null);
@@ -265,6 +269,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		height = map.getHeight();
 		this.localPlayer = game.getInGamePlayer();
 		this.gameTimeProvider = game.getGameTimeProvider();
+		this.gamespeedCalculator = new IntervalTimeRateCalculator(50*1000*1000L, 20, this::getGameTimeNS);
 		this.textDrawPosition = textDrawPosition;
 		this.messenger = new Messenger(this.gameTimeProvider);
 		this.textDrawer = new ReplaceableTextDrawer();
@@ -287,9 +292,6 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 
 		this.connector = new MapInterfaceConnector(this);
 		this.connector.addListener(this);
-
-		lastGametimeUpdate = System.nanoTime();
-		lastGametime = gameTimeProvider.getGameTime();
 	}
 
 	private void resizeTo(int newWindowWidth, int newWindowHeight) {
@@ -307,6 +309,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	public void drawContent(GLDrawContext gl, int newWidth, int newHeight) {
 		try {
 			framerate.nextFrame();
+			gamespeedCalculator.tick();
 
 			// TODO: Do only check once.
 			if (textDrawer.getTextDrawer(gl, EFontSize.NORMAL).getWidth("a") == 0) {
@@ -460,20 +463,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			return;
 		}
 
-		long currentRealtime = System.nanoTime();
-		int currentGametime = gameTimeProvider.getGameTime();
-
-		// both are in ms
-		float deltaRealtime = (currentRealtime - lastGametimeUpdate)/1000.f/1000.f;
-		float deltaGametime = currentGametime - lastGametime;
-
-		// update reference only once a second. TODO remove the noise even further
-		if(deltaRealtime >= 1000) {
-			lastGametime = currentGametime;
-			lastGametimeUpdate = currentRealtime;
-		}
-
-		String fps = Labels.getString("map-fps", framerate.getRate(), deltaGametime/deltaRealtime);
+		String fps = Labels.getString("map-fps", framerate.getRate(), gamespeedCalculator.getRate());
 		long gameTime = gameTimeProvider.getGameTime() / 1000;
 		String timeString = Labels.getString("map-time", gameTime / 60 / 60, (gameTime / 60) % 60, (gameTime) % 60);
 
