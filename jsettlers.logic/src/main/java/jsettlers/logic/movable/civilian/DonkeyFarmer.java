@@ -101,10 +101,7 @@ public class DonkeyFarmer extends BuildingWorkerMovable {
 	}
 
 	private RelativePoint[] getDonkeyPositions() {
-		return new RelativePoint[] {
-				new RelativePoint(2, 2),
-				new RelativePoint(4, 4)
-		};
+		return building.getBuildingVariant().getAnimalPositions();
 	}
 
 	private boolean growDonkeys() {
