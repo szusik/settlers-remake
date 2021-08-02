@@ -14,7 +14,7 @@ public class FakeMovable implements IGraphicsMovable {
 
 	private EMovableType movableType;
 	private EMovableAction movableAction;
-	private EDirection direction;
+	private EMovingDirection direction;
 	private EMaterialType materialType;
 	private final Supplier<Long> currentTime;
 	private final FakePlayer player;
@@ -24,7 +24,7 @@ public class FakeMovable implements IGraphicsMovable {
 	public FakeMovable(Supplier<Long> currentTime, MovableModelMap map, ShortPoint2D position) {
 		movableType = EMovableType.BEARER;
 		movableAction = EMovableAction.NO_ACTION;
-		direction = EDirection.NORTH_WEST;
+		direction = EMovingDirection.NORTH_WEST;
 		materialType = EMaterialType.NO_MATERIAL;
 		this.currentTime = currentTime;
 		player = new FakePlayer();
@@ -50,12 +50,7 @@ public class FakeMovable implements IGraphicsMovable {
 		this.movableAction = movableAction;
 	}
 
-	@Override
-	public EDirection getDirection() {
-		return direction;
-	}
-
-	public void setDirection(EDirection direction) {
+	public void setDirection(EMovingDirection direction) {
 		this.direction = direction;
 	}
 
@@ -66,6 +61,15 @@ public class FakeMovable implements IGraphicsMovable {
 	}
 
 	@Override
+	public EDirection getDirection() {
+		EDirection realDirection = direction.getRealDirection();
+
+		if (realDirection != null) return realDirection;
+
+		return EDirection.VALUES[(int)((currentTime.get())/1000000f/Math.PI/4) % EDirection.VALUES.length];
+	}
+
+		@Override
 	public EMaterialType getMaterial() {
 		return materialType;
 	}
@@ -148,6 +152,6 @@ public class FakeMovable implements IGraphicsMovable {
 
 	@Override
 	public boolean isSoundPlayed() {
-		return false;
+		return true;
 	}
 }

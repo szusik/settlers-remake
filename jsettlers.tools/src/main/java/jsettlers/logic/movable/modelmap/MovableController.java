@@ -7,11 +7,9 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import jsettlers.common.material.EMaterialType;
-import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ECivilisation;
@@ -27,7 +25,7 @@ public class MovableController extends JPanel implements Cloneable {
 
 	private final JComboBox<EMovableType> typeBox;
 	private final JComboBox<EMovableAction> actionBox;
-	private final JComboBox<EDirection> directionBox;
+	private final JComboBox<EMovingDirection> directionBox;
 	private final JComboBox<EMaterialType> materialBox;
 
 	public MovableController(MovableModelWindow parent) {
@@ -56,7 +54,7 @@ public class MovableController extends JPanel implements Cloneable {
 		actionBox.addActionListener(e -> updateSettlers());
 		topRow.add(actionBox);
 
-		directionBox = new JComboBox<>(EDirection.VALUES);
+		directionBox = new JComboBox<>(EMovingDirection.values());
 		directionBox.addActionListener(e -> updateSettlers());
 		topRow.add(directionBox);
 
@@ -102,7 +100,7 @@ public class MovableController extends JPanel implements Cloneable {
 		for(FakeMovable movable : movables) {
 			movable.setMovableAction((EMovableAction) actionBox.getSelectedItem());
 			movable.setMovableType((EMovableType) typeBox.getSelectedItem());
-			movable.setDirection((EDirection) directionBox.getSelectedItem());
+			movable.setDirection((EMovingDirection) directionBox.getSelectedItem());
 			movable.setMaterialType((EMaterialType) materialBox.getSelectedItem());
 		}
 	}
