@@ -1,22 +1,22 @@
-package go.graphics.android;
+package go.graphics.android.sound;
 
 import android.media.MediaMetadataRetriever;
-import android.media.SoundPool;
+import android.media.MediaPlayer;
 
 import java.io.File;
 
 import go.graphics.sound.SoundHandle;
+import java.io.IOException;
 
 public class AndroidSoundHandle implements SoundHandle {
 
-	private final SoundPool pool;
-	private final int audioId;
-	private int streamId = -1;
-	private float volume;
-	private int length;
+	private MediaPlayer player;
+	private final File source;
+	private final int length;
+	private float volume = 1;
 
-	public AndroidSoundHandle(SoundPool pool, File source) {
-		this.pool = pool;
+	public AndroidSoundHandle(File source) {
+		this.source = source;
 
 		MediaMetadataRetriever mdr  = new MediaMetadataRetriever();
 		mdr.setDataSource(source.getPath());
@@ -26,44 +26,62 @@ public class AndroidSoundHandle implements SoundHandle {
 		// something went wrong
 		if(lengthString == null) {
 			length = -1;
-			audioId = -1;
 			return;
 		}
 
 		length = Integer.parseInt(lengthString);
+	}
 
-		audioId = pool.load(source.getPath(), 0);
+	private void create() {
+		try {
+			if(player != null) return;
+
+			player = new MediaPlayer();
+			player.setDataSource(source.toString());
+			player.prepare();
+		} catch (IOException e) {
+			e.printStackTrace();
+			player = null;
+		}
+	}
+
+	private void release() {
+		if(player == null) return;
+
+		player.release();
+		player = null;
 	}
 
 	@Override
 	public void start() {
-		if(streamId != -1) {
-			pool.resume(streamId);
-		} else {
-			streamId = pool.play(audioId, volume, volume, 0, 0, 1);
-		}
+		create();
+		player.start();
+		setVolume(volume);
 	}
 
 	@Override
 	public void pause() {
-		pool.pause(streamId);
+		player.pause();
 	}
 
 	@Override
 	public void stop() {
-		pool.stop(streamId);
-		streamId = -1;
+		player.stop();
+		release();
 	}
 
 	@Override
 	public void dismiss() {
-		pool.unload(audioId);
+		release();
 	}
 
 	@Override
 	public void setVolume(float volume) {
 		this.volume = volume;
-		if(streamId != -1) pool.setVolume(streamId, volume, volume);
+
+		if(player != null) {
+			player.setVolume(volume, volume);
+		}
 	}
 
 	@Override

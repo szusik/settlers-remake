@@ -23,7 +23,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.widget.Toast;
 
-import go.graphics.android.AndroidSoundPlayer;
+import go.graphics.android.sound.AndroidSoundPlayer;
 import java8.util.function.Consumer;
 import jsettlers.common.action.Action;
 import jsettlers.common.action.EActionType;

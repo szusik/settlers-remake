@@ -12,7 +12,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package go.graphics.android;
+package go.graphics.android.sound;
 
 import go.graphics.sound.ForgettingQueue;
 import go.graphics.sound.ForgettingQueue.Sound;
@@ -22,12 +22,10 @@ import go.graphics.sound.SoundPlayer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
 
 public class AndroidSoundPlayer implements SoundPlayer {
@@ -39,15 +37,11 @@ public class AndroidSoundPlayer implements SoundPlayer {
 
 	private boolean paused;
 
-	private final SoundPool musicPlayback;
-
 	public AndroidSoundPlayer(int parallelSounds) {
 		ThreadGroup soundgroup = new ThreadGroup("soundplayer");
 		for (int i = 0; i < parallelSounds; i++) {
 			new Thread(soundgroup, new PlaySoundTask(), "soundplayer" + i).start();
 		}
-
-		musicPlayback = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 	}
 
 	@Override
@@ -94,7 +88,7 @@ public class AndroidSoundPlayer implements SoundPlayer {
 
 	@Override
 	public SoundHandle openSound(File soundFile) {
-		return new AndroidSoundHandle(musicPlayback, soundFile);
+		return new AndroidSoundHandle(soundFile);
 	}
 
 	@Override
@@ -104,10 +98,5 @@ public class AndroidSoundPlayer implements SoundPlayer {
 
 	public void setPaused(boolean paused) {
 		this.paused = paused;
-		if(paused) {
-			musicPlayback.autoPause();
-		} else {
-			musicPlayback.autoResume();
-		}
 	}
 }

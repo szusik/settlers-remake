@@ -20,7 +20,7 @@ import java.util.Objects;
 
 import android.content.Context;
 
-import go.graphics.android.AndroidSoundPlayer;
+import go.graphics.android.sound.AndroidSoundPlayer;
 import jsettlers.common.action.Action;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.action.IAction;
