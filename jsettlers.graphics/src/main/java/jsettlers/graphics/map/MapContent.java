@@ -983,7 +983,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			BuildingVariant buildingVariant = buildingType == null ? null : buildingType.getVariant(localPlayer.getCivilisation());
 			placementBuilding = buildingVariant == null ? null : new PlacementBuilding(buildingVariant);
 			break;
-		case MUSIC_ON_OFF:
+		case TOGGLE_MUSIC:
 			if (musicManager.isRunning()) {
 				musicManager.stopMusic();
 			} else {
@@ -1069,5 +1069,9 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	protected UIState getUIState() {
 		ScreenPosition screen = context.getScreen();
 		return new UIState(screen.getScreenCenterX(), screen.getScreenCenterY(), screen.getZoom());
+	}
+
+	public MusicManager getMusicManager() {
+		return musicManager;
 	}
 }

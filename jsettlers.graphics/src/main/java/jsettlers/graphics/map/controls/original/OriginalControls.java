@@ -36,6 +36,7 @@ import jsettlers.graphics.action.ActionFireable;
 import jsettlers.graphics.action.ChangePanelAction;
 import jsettlers.graphics.action.ExecutableAction;
 import jsettlers.common.action.PointAction;
+import jsettlers.graphics.map.MapContent;
 import jsettlers.graphics.map.MapDrawContext;
 import jsettlers.graphics.map.controls.IControls;
 import jsettlers.graphics.map.controls.original.panel.MainPanel;
@@ -74,14 +75,14 @@ public class OriginalControls implements IControls {
 
 	/**
 	 * Creates a new {@link OriginalControls} overlay.
-	 *  @param actionFireable
-	 *            The {@link ActionFireable} to send actions from the user to.
+	 *  @param parentMapContent
+	 *            The {@link MapContent} this controls belongs to
 	 * @param game
 	 */
-	public OriginalControls(ActionFireable actionFireable, IStartedGame game) {
+	public OriginalControls(MapContent parentMapContent, IStartedGame game) {
 		layoutProperties = ControlPanelLayoutProperties.getLayoutPropertiesFor(DEFAULT_LAYOUT_SIZE);
 		final MiniMapLayoutProperties miniMap = layoutProperties.miniMap;
-		mainPanel = new MainPanel(actionFireable, game);
+		mainPanel = new MainPanel(parentMapContent, game);
 		player = game.getInGamePlayer();
 
 		chatButton = new Button(

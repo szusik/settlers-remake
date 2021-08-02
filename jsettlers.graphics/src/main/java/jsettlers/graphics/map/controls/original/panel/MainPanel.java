@@ -31,10 +31,10 @@ import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.shapes.MapRectangle;
 import jsettlers.common.menu.IStartedGame;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.graphics.action.ActionFireable;
 import jsettlers.graphics.action.AskSetTradingWaypointAction;
 import jsettlers.graphics.action.ExecutableAction;
 import jsettlers.graphics.localization.Labels;
+import jsettlers.graphics.map.MapContent;
 import jsettlers.graphics.map.controls.original.ControlPanelLayoutProperties;
 import jsettlers.graphics.map.controls.original.panel.content.AbstractContentProvider;
 import jsettlers.graphics.map.controls.original.panel.content.ContentType;
@@ -101,7 +101,12 @@ public class MainPanel extends UIPanel {
 		}
 	};
 
-	private final LabeledButton musicOnOff = new LabeledButton(Labels.getString("game-menu-music"), new Action(EActionType.MUSIC_ON_OFF));
+	private final LabeledButton musicOnOff = new LabeledButton(Labels.getString("game-menu-music"), new Action(EActionType.TOGGLE_MUSIC)) {
+		@Override
+		public boolean isActive() {
+			return parentMapContent.getMusicManager().isRunning();
+		}
+	};
 
 	private final CountArrows changeMusicVolumeArrows = new CountArrows(() -> new Action(EActionType.MUSIC_VOLUME_UP), () -> new Action(EActionType.MUSIC_VOLUME_DOWN));
 
@@ -162,10 +167,10 @@ public class MainPanel extends UIPanel {
 	/**
 	 * Somewhere to fire actions to.
 	 */
-	private final ActionFireable actionFireable;
+	private final MapContent parentMapContent;
 
-	public MainPanel(ActionFireable actionFireable, IStartedGame game) {
-		this.actionFireable = actionFireable;
+	public MainPanel(MapContent parentMapContent, IStartedGame game) {
+		this.parentMapContent = parentMapContent;
 		this.game = game;
 		ContentType.setPlayer(game.getInGamePlayer());
 
@@ -179,7 +184,7 @@ public class MainPanel extends UIPanel {
 	 *            The content to change to.
 	 */
 	public synchronized void setContent(AbstractContentProvider content) {
-		activeContent.contentHiding(actionFireable, content);
+		activeContent.contentHiding(parentMapContent, content);
 
 		ESecondaryTabType tabs = content.getTabs();
 		showSecondaryTabs(tabs);
@@ -207,7 +212,7 @@ public class MainPanel extends UIPanel {
 
 		sendMapPositionChange();
 
-		activeContent.contentShowing(actionFireable);
+		activeContent.contentShowing(parentMapContent);
 	}
 
 	private void setButtonsActive(TabButton[] buttons, AbstractContentProvider type) {
