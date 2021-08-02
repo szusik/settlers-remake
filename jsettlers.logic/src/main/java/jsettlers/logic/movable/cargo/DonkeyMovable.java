@@ -21,6 +21,8 @@ public class DonkeyMovable extends CargoMovable {
 
 	public DonkeyMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, movableType, position, player, movable);
+
+		attackable = false;
 	}
 
 	private void setCargo(int index, EMaterialType material) {
