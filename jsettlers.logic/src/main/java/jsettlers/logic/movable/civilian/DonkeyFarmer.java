@@ -87,17 +87,11 @@ public class DonkeyFarmer extends BuildingWorkerMovable {
 	}
 
 	private ShortPoint2D getFeedPosition() {
-		if(feedIndex == 0) {
-			return new RelativePoint(2, 3).calculatePoint(building.getPosition());
-		}
-		return new RelativePoint(3, 4).calculatePoint(building.getPosition());
+		return building.getBuildingVariant().getDonkeyFeedPosition()[feedIndex].calculatePoint(building.getPosition());
 	}
 
 	private EDirection getFeedDirection() {
-		if(feedIndex == 0) {
-			return EDirection.NORTH_EAST;
-		}
-		return EDirection.SOUTH_EAST;
+		return building.getBuildingVariant().getDonkeyFeedPosition()[feedIndex].getDirection();
 	}
 
 	private RelativePoint[] getDonkeyPositions() {

@@ -73,6 +73,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String ATTR_DIRECTION = "direction";
 	private static final String TAG_BUILDMARK = "buildmark";
 	private static final String TAG_PIG_FEED_POSITION = "pigFeedPosition";
+	private static final String TAG_DONKEY_FEED_POSITION = "donkeyFeedPosition";
 	private static final String TAG_ANIMAL_POSITION = "animalPosition";
 	private static final String TAG_HEALSPOT = "healspot";
 	private static final String TAG_IMAGE = "image";
@@ -91,13 +92,15 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private RelativePoint pigFeedPosition = new RelativePoint(0, 0);
 	private ArrayList<RelativePoint> animalPositions = new ArrayList<>();
 
+	private ArrayList<RelativeDirectionPoint> donkeyFeedPositions = new ArrayList<>();
+
 	private EMovableType workerType;
 
 	private ArrayList<ConstructionStack> constructionStacks = new ArrayList<>();
 	private ArrayList<RelativeStack> requestStacks = new ArrayList<>();
 	private ArrayList<RelativeStack> offerStacks = new ArrayList<>();
 
-	private ArrayList<RelativeDirectionPoint> bricklayers = new ArrayList<>();
+	private List<RelativeDirectionPoint> bricklayers = new ArrayList<>();
 
 	private int workradius;
 	private boolean mine;
@@ -168,13 +171,15 @@ public class BuildingFile implements BuildingJobDataProvider {
 			} else if (TAG_OFFER_STACK.equals(tagName)) {
 				readAndAddRelativeStack(attributes, offerStacks);
 			} else if (TAG_BRICKLAYER.equals(tagName)) {
-				readRelativeDirectionPoint(attributes);
+				bricklayers.add(readRelativeDirectionPoint(attributes));
 			} else if (TAG_IMAGE.equals(tagName)) {
 				readImageLink(attributes);
 			} else if (TAG_BUILDMARK.equals(tagName)) {
 				buildmarks.add(readRelativeTile(attributes));
 			} else if(TAG_PIG_FEED_POSITION.equals(tagName)) {
 				pigFeedPosition = readRelativeTile(attributes);
+			} else if(TAG_DONKEY_FEED_POSITION.equals(tagName)) {
+				donkeyFeedPositions.add(readRelativeDirectionPoint(attributes));
 			} else if(TAG_ANIMAL_POSITION.equals(tagName)) {
 				animalPositions.add(readRelativeTile(attributes));
 			}  else if(TAG_HEALSPOT.equals(tagName)) {
@@ -263,19 +268,20 @@ public class BuildingFile implements BuildingJobDataProvider {
 		return new OriginalImageLink(type, file, sequence, image);
 	}
 
-	private void readRelativeDirectionPoint(Attributes attributes) {
+	private RelativeDirectionPoint readRelativeDirectionPoint(Attributes attributes) {
 		try {
 			int dx = Integer.parseInt(attributes.getValue(ATTR_DX));
 			int dy = Integer.parseInt(attributes.getValue(ATTR_DY));
 			EDirection direction = EDirection.valueOf(attributes.getValue(ATTR_DIRECTION));
 
-			bricklayers.add(new RelativeDirectionPoint(dx, dy, direction));
+			return new RelativeDirectionPoint(dx, dy, direction);
 
 		} catch (NumberFormatException e) {
 			System.err.println("Warning: illegal number for stack attribute, in definiton for " + buildingName);
 		} catch (IllegalArgumentException e) {
 			System.err.println("Illegal direction name in " + buildingName);
 		}
+		return new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
 	}
 
 	private RelativePoint readRelativeTile(Attributes attributes) {
@@ -445,6 +451,10 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativePoint getPigFeedPosition() {
 		return pigFeedPosition;
+	}
+
+	public RelativeDirectionPoint[] getDonkeyFeedPositions() {
+		return donkeyFeedPositions.toArray(new RelativeDirectionPoint[0]);
 	}
 
 	public RelativePoint[] getAnimalPositions() {

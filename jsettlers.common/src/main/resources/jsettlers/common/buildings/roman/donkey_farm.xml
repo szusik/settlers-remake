@@ -143,6 +143,9 @@
 	<buildmark dx="6" dy="2" />
 	<buildmark dx="-2" dy="-4" />
 
+	<donkeyFeedPosition dx="2" dy="3" direction="NORTH_EAST"/>
+	<donkeyFeedPosition dx="3" dy="4" direction="SOUTH_WEST"/>
+
 	<animalPosition dx="2" dy="2"/>
 	<animalPosition dx="4" dy="4"/>
 

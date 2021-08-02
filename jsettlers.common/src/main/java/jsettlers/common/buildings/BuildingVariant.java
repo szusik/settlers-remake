@@ -75,6 +75,8 @@ public class BuildingVariant {
 
 	private final RelativePoint pigFeedPosition;
 
+	private final RelativeDirectionPoint[] donkeyFeedPosition;
+
 	private final RelativePoint[] animalPositions;
 
 	/**
@@ -114,6 +116,8 @@ public class BuildingVariant {
 		healSpot = file.getHealSpot();
 
 		pigFeedPosition = file.getPigFeedPosition();
+
+		donkeyFeedPosition = file.getDonkeyFeedPositions();
 
 		animalPositions = file.getAnimalPositions();
 
@@ -423,6 +427,10 @@ public class BuildingVariant {
 
 	public RelativePoint getPigFeedPosition() {
 		return pigFeedPosition;
+	}
+
+	public RelativeDirectionPoint[] getDonkeyFeedPosition() {
+		return donkeyFeedPosition;
 	}
 
 	public RelativePoint[] getAnimalPositions() {
