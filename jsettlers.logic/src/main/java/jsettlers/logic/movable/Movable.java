@@ -44,6 +44,7 @@ import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
 import jsettlers.logic.movable.civilian.DiggerMovable;
+import jsettlers.logic.movable.civilian.DonkeyFarmer;
 import jsettlers.logic.movable.civilian.PigFarmerMovable;
 import jsettlers.logic.movable.civilian.SimpleBuildingWorkerMovable;
 import jsettlers.logic.movable.civilian.HealerMovable;
@@ -1165,7 +1166,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case CHARCOAL_BURNER:
 			case MELTER:
 			case MINER:
-			case DONKEY_FARMER:
 			case SAWMILLER:
 			case SMITH:
 				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
@@ -1181,6 +1181,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case MILLER:
 			case SLAUGHTERER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
+
+			case DONKEY_FARMER:
+				return new DonkeyFarmer(grid, position, player, movable);
 
 			case PIG_FARMER:
 				return new PigFarmerMovable(grid, position, player, movable);
