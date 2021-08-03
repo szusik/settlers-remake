@@ -87,7 +87,7 @@ public class ServerConnectionPanel extends JPanel {
 		boolean conMatch = connection.isConnected() && connection instanceof IMultiplayerConnector;
 		if(!conMatch && newMatch != null) {
 			root.removeTabAt(i);
-			root.removeTabAt(i+1);
+			root.removeTabAt(i);
 			newMatch = null;
 			joinMatch = null;
 		} else if(conMatch && newMatch == null){
