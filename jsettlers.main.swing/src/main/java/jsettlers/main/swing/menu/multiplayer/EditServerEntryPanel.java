@@ -190,12 +190,16 @@ public class EditServerEntryPanel extends JPanel {
 		updateContent();
 	}
 
+	private boolean isValid(String str) {
+		return str == null || str.isEmpty();
+	}
+
 	private boolean checkValues() {
-		if(edit.getAlias().isEmpty()) return false;
+		if(isValid(edit.getAlias())) return false;
 		switch (edit.getType()) {
 			case JSETTLERS:
-				if(edit.getAddress().isEmpty()) return false;
-				if(edit.getUsername().isEmpty()) return false;
+				if(isValid(edit.getAddress())) return false;
+				if(isValid(edit.getUsername())) return false;
 				break;
 			case HTTP:
 				if(edit.getURL().isEmpty()) return false;
