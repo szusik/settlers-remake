@@ -41,16 +41,9 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
-import jsettlers.logic.movable.civilian.BearerMovable;
-import jsettlers.logic.movable.civilian.BricklayerMovable;
-import jsettlers.logic.movable.civilian.DiggerMovable;
-import jsettlers.logic.movable.civilian.DonkeyFarmerMovable;
-import jsettlers.logic.movable.civilian.PigFarmerMovable;
-import jsettlers.logic.movable.civilian.SimpleBuildingWorkerMovable;
-import jsettlers.logic.movable.civilian.HealerMovable;
+import jsettlers.logic.movable.civilian.*;
 import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.cargo.DonkeyMovable;
-import jsettlers.logic.movable.civilian.LegacyBuildingWorkerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
@@ -1166,7 +1159,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case CHARCOAL_BURNER:
 			case MELTER:
 			case MINER:
-			case SAWMILLER:
 			case SMITH:
 				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
 
@@ -1181,6 +1173,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case MILLER:
 			case SLAUGHTERER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
+
+			case SAWMILLER:
+				return new SawMillerMovable(grid, position, player, movable);
 
 			case DONKEY_FARMER:
 				return new DonkeyFarmerMovable(grid, position, player, movable);
