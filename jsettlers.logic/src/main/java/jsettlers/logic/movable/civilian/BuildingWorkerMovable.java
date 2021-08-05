@@ -3,12 +3,14 @@ package jsettlers.logic.movable.civilian;
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
+import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.landscape.EResourceType;
+import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
 import jsettlers.common.material.ESearchType;
@@ -143,6 +145,14 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 				registerMovableGuard(),
 				doingNothingGuard()
 		);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> setSmoke(IShortPoint2DSupplier<T> at, boolean on) {
+		return action(mov -> {
+			ShortPoint2D pos = at.apply(mov);
+			mov.grid.placeSmoke(pos, on);
+			mov.building.addMapObjectCleanupPosition(pos, EMapObjectType.SMOKE);
+		});
 	}
 
 	@Override

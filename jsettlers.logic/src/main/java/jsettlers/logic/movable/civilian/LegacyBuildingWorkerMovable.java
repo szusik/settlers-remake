@@ -143,18 +143,12 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SMOKE_ON),
-							action(mov -> {
-								mov.grid.placeSmoke(mov.getCurrentJobPos(), true);
-								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.SMOKE);
-							}),
+							setSmoke(LegacyBuildingWorkerMovable::getCurrentJobPos, true),
 							jobFinishedNode()
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SMOKE_OFF),
-							action(mov -> {
-								mov.grid.placeSmoke(mov.getCurrentJobPos(), false);
-								mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.SMOKE);
-							}),
+							setSmoke(LegacyBuildingWorkerMovable::getCurrentJobPos, false),
 							jobFinishedNode()
 						),
 						sequence(
