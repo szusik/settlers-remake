@@ -6,7 +6,6 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -22,10 +21,10 @@ public class SawMillerMovable extends BuildingWorkerMovable {
 
 	private static final Root<SawMillerMovable> tree = new Root<>(createSawMillerBehaviour());
 
-    private static Node<SawMillerMovable> createSawMillerBehaviour() {
-        return defaultWorkCycle(
-                sequence(
-                	sleep(1000),
+	private static Node<SawMillerMovable> createSawMillerBehaviour() {
+		return defaultWorkCycle(
+				sequence(
+					sleep(1000),
 					waitFor(
 						sequence(
 							isAllowedToWork(),
@@ -50,15 +49,15 @@ public class SawMillerMovable extends BuildingWorkerMovable {
 						)
 					),
 					enterHome()
-                )
-        );
-    }
+				)
+		);
+	}
 
-    private ShortPoint2D getWorkPosition() {
-    	return new RelativePoint(0, 4).calculatePoint(building.getPosition());
+	private ShortPoint2D getWorkPosition() {
+		return building.getBuildingVariant().getSawmillerWorkPosition().calculatePoint(building.getPosition());
 	}
 
 	private EDirection getWorkDirection() {
-    	return EDirection.NORTH_WEST;
+		return building.getBuildingVariant().getSawmillerWorkPosition().getDirection();
 	}
 }
