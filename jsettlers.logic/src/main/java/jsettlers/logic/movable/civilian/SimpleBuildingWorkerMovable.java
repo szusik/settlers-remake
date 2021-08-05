@@ -11,6 +11,7 @@ import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.workers.DockyardBuilding;
 import jsettlers.logic.buildings.workers.MillBuilding;
@@ -41,6 +42,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		trees.put(EMovableType.DOCKWORKER, new Root<>(createDockworkerBehaviour()));
 		trees.put(EMovableType.MILLER, new Root<>(createMillerBehaviour()));
 		trees.put(EMovableType.SLAUGHTERER, new Root<>(createSlaughtererBehaviour()));
+		trees.put(EMovableType.CHARCOAL_BURNER, new Root<>(createCharcoalBurnerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -450,6 +452,59 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					goToOutputStack(EMaterialType.MEAT, BuildingWorkerMovable::tmpPathStep),
 					setDirectionNode(EDirection.NORTH_WEST),
 					dropProduced(mov -> EMaterialType.MEAT),
+					enterHome()
+				)
+		);
+	}
+
+
+	private static Node<SimpleBuildingWorkerMovable> createCharcoalBurnerBehaviour() {
+		return defaultWorkCycle(
+				sequence(
+					sleep(1000),
+					ignoreFailure(
+						sequence(
+							waitFor(
+								sequence(
+									isAllowedToWork(),
+									outputStackNotFull(EMaterialType.COAL)
+								)
+							),
+							repeatLoop(4,
+								sequence(
+									waitFor(
+										sequence(
+											isAllowedToWork(),
+											inputStackNotEmpty(EMaterialType.PLANK)
+										)
+									),
+									setMaterialNode(EMaterialType.NO_MATERIAL),
+									show(),
+									goToInputStack(EMaterialType.PLANK, BuildingWorkerMovable::tmpPathStep),
+									setDirectionNode(EDirection.EAST),
+									take(mov -> EMaterialType.PLANK, mov -> true, mov -> {}),
+									enterHome(),
+									sleep(500)
+								)
+							),
+							sleep(500),
+							setSmoke(mov -> new RelativePoint(0, 2).calculatePoint(mov.building.getPosition()), true),
+							sleep(5000),
+							playAction(EMovableAction.ACTION1, (short)500),
+							setSmoke(mov -> new RelativePoint(0, 2).calculatePoint(mov.building.getPosition()), false),
+							setMaterialNode(EMaterialType.COAL),
+							waitFor(
+								sequence(
+									isAllowedToWork(),
+									outputStackNotFull(EMaterialType.COAL)
+								)
+							),
+							show(),
+							goToOutputStack(EMaterialType.COAL, BuildingWorkerMovable::tmpPathStep),
+							setDirectionNode(EDirection.SOUTH_WEST),
+							dropProduced(mov -> EMaterialType.COAL)
+						)
+					),
 					enterHome()
 				)
 		);
