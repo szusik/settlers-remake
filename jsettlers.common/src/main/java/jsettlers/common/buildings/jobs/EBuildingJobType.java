@@ -218,20 +218,6 @@ public enum EBuildingJobType {
 	TRY_TAKING_FOOD,
 
 	/**
-	 * Puts a smoke thing at a given position.
-	 * <p>
-	 * Parameters: The position where smoke should be.
-	 */
-	SMOKE_ON,
-
-	/**
-	 * Removes the smoke.
-	 * <p>
-	 * Parameters: The position where smoke was.
-	 */
-	SMOKE_OFF,
-
-	/**
 	 * Pops a tool from the list of tools that should be produced.
 	 * <p>
 	 * fails if there is noting to do.

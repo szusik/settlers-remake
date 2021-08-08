@@ -142,16 +142,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							nodeToJob(condition(mov -> mov.grid.canPushMaterial(mov.getCurrentJobPos())))
 						),
 						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SMOKE_ON),
-							setSmoke(LegacyBuildingWorkerMovable::getCurrentJobPos, true),
-							jobFinishedNode()
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.SMOKE_OFF),
-							setSmoke(LegacyBuildingWorkerMovable::getCurrentJobPos, false),
-							jobFinishedNode()
-						),
-						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.POP_TOOL),
 							nodeToJob(condition(LegacyBuildingWorkerMovable::popToolRequestAction))
 						),
