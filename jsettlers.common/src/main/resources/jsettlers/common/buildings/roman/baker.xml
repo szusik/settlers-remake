@@ -82,6 +82,8 @@
 	<buildmark dx="-2" dy="0" />
 	<buildmark dx="-2" dy="-3" />
 
+	<smokePosition dx="0" dy="2"/>
+
 	<image file="14" for="GUI" type="GUI" sequence="39" image="0"/>
 	<image file="13" for="FINAL" type="SETTLER" sequence="23" image="0"/>
 	<image file="13" for="BUILD" type="SETTLER" sequence="23" image="1"/>

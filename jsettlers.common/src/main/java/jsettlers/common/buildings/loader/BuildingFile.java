@@ -76,6 +76,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_DONKEY_FEED_POSITION = "donkeyFeedPosition";
 	private static final String TAG_SAWMILLER_WORK_POSITION = "sawmillerWorkPosition";
 	private static final String TAG_ANIMAL_POSITION = "animalPosition";
+	private static final String TAG_SMOKE_POSITION = "smokePosition";
 	private static final String TAG_HEALSPOT = "healspot";
 	private static final String TAG_IMAGE = "image";
 	private static final String TAG_GROUNDTYE = "ground";
@@ -89,6 +90,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private String startJobName = "";
 	private RelativePoint door = new RelativePoint(0, 0);
 	private IBuildingJob startJob = null;
+	private RelativePoint smokePosition = new RelativePoint(0, 0);
 	private RelativePoint healSpot = new RelativePoint(0, 0);
 	private RelativePoint pigFeedPosition = new RelativePoint(0, 0);
 	private ArrayList<RelativePoint> animalPositions = new ArrayList<>();
@@ -186,7 +188,9 @@ public class BuildingFile implements BuildingJobDataProvider {
 				sawmillerWorkPosition = readRelativeDirectionPoint(attributes);
 			} else if(TAG_ANIMAL_POSITION.equals(tagName)) {
 				animalPositions.add(readRelativeTile(attributes));
-			}  else if(TAG_HEALSPOT.equals(tagName)) {
+			} else if(TAG_SMOKE_POSITION.equals(tagName)) {
+				smokePosition = readRelativeTile(attributes);
+			} else if(TAG_HEALSPOT.equals(tagName)) {
 				healSpot = readRelativeTile(attributes);
 			} else if (TAG_GROUNDTYE.equals(tagName)) {
 				groundtypes.add(ELandscapeType.valueOf(attributes.getValue("groundtype")));
@@ -447,6 +451,10 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativePoint[] getBuildmarks() {
 		return buildmarks.toArray(new RelativePoint[buildmarks.size()]);
+	}
+
+	public RelativePoint getSmokePosition() {
+		return smokePosition;
 	}
 
 	public RelativePoint getHealSpot() {

@@ -60,10 +60,10 @@ public class BakerMovable extends BuildingWorkerMovable {
 							setDirectionNode(EDirection.NORTH_EAST),
 							playAction(EMovableAction.ACTION1, (short)1000),
 							setMaterialNode(EMaterialType.BLADE),
-							setSmoke(BakerMovable::getSmokePosition, true),
+							setSmoke(true),
 							sleep(4000),
 							setMaterialNode(EMaterialType.BREAD),
-							setSmoke(BakerMovable::getSmokePosition, false),
+							setSmoke(false),
 							playAction(EMovableAction.ACTION1, (short)1000),
 
 							goToOutputStack(EMaterialType.BREAD, BuildingWorkerMovable::tmpPathStep),
@@ -75,10 +75,6 @@ public class BakerMovable extends BuildingWorkerMovable {
 					enterHome()
 				)
 		);
-	}
-
-	private ShortPoint2D getSmokePosition() {
-		return new RelativePoint(0, 2).calculatePoint(building.getPosition());
 	}
 
 	private ShortPoint2D getOvenPosition() {

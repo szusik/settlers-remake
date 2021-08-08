@@ -147,9 +147,12 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		);
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> setSmoke(IShortPoint2DSupplier<T> at, boolean on) {
+	protected static <T extends BuildingWorkerMovable> Node<T> setSmoke(boolean on) {
 		return action(mov -> {
-			ShortPoint2D pos = at.apply(mov);
+			ShortPoint2D pos = mov.building.getBuildingVariant()
+					.getSmokePosition()
+					.calculatePoint(mov.building.getPosition());
+
 			mov.grid.placeSmoke(pos, on);
 			mov.building.addMapObjectCleanupPosition(pos, EMapObjectType.SMOKE);
 		});

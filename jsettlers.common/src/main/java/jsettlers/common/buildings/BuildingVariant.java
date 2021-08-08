@@ -71,6 +71,8 @@ public class BuildingVariant {
 
 	private final BuildingAreaBitSet buildingAreaBitSet;
 
+	private final RelativePoint smokePosition;
+
 	private final RelativePoint healSpot;
 
 	private final RelativePoint pigFeedPosition;
@@ -114,6 +116,8 @@ public class BuildingVariant {
 		buildMarks = file.getBuildmarks();
 		groundTypes = EnumSet.copyOf(file.getGroundtypes());
 		viewDistance = file.getViewdistance();
+
+		smokePosition = file.getSmokePosition();
 
 		healSpot = file.getHealSpot();
 
@@ -417,6 +421,10 @@ public class BuildingVariant {
 
 	public boolean needsFlattenedGround() {
 		return !mine;
+	}
+
+	public RelativePoint getSmokePosition() {
+		return smokePosition;
 	}
 
 	/**
