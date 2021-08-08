@@ -75,6 +75,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_PIG_FEED_POSITION = "pigFeedPosition";
 	private static final String TAG_DONKEY_FEED_POSITION = "donkeyFeedPosition";
 	private static final String TAG_SAWMILLER_WORK_POSITION = "sawmillerWorkPosition";
+	private static final String TAG_OVEN_POSITION = "ovenPosition";
 	private static final String TAG_ANIMAL_POSITION = "animalPosition";
 	private static final String TAG_SMOKE_POSITION = "smokePosition";
 	private static final String TAG_HEALSPOT = "healspot";
@@ -97,6 +98,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	private ArrayList<RelativeDirectionPoint> donkeyFeedPositions = new ArrayList<>();
 	private RelativeDirectionPoint sawmillerWorkPosition = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
+	private RelativeDirectionPoint ovenPosition = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
 
 	private EMovableType workerType;
 
@@ -186,6 +188,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 				donkeyFeedPositions.add(readRelativeDirectionPoint(attributes));
 			} else if(TAG_SAWMILLER_WORK_POSITION.equals(tagName)) {
 				sawmillerWorkPosition = readRelativeDirectionPoint(attributes);
+			} else if(TAG_OVEN_POSITION.equals(tagName)) {
+				ovenPosition = readRelativeDirectionPoint(attributes);
 			} else if(TAG_ANIMAL_POSITION.equals(tagName)) {
 				animalPositions.add(readRelativeTile(attributes));
 			} else if(TAG_SMOKE_POSITION.equals(tagName)) {
@@ -471,6 +475,10 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativeDirectionPoint getSawmillerWorkPosition() {
 		return sawmillerWorkPosition;
+	}
+
+	public RelativeDirectionPoint getOvenPosition() {
+		return ovenPosition;
 	}
 
 	public RelativePoint[] getAnimalPositions() {

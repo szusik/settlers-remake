@@ -83,6 +83,8 @@
 	<buildmark dx="-2" dy="-3" />
 
 	<smokePosition dx="0" dy="2"/>
+	
+	<ovenPosition dx="0" dy="4" direction="NORTH_EAST"/>
 
 	<image file="14" for="GUI" type="GUI" sequence="39" image="0"/>
 	<image file="13" for="FINAL" type="SETTLER" sequence="23" image="0"/>

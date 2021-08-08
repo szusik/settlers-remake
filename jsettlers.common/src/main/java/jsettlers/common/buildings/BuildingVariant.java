@@ -81,6 +81,8 @@ public class BuildingVariant {
 
 	private final RelativeDirectionPoint sawmillerWorkPosition;
 
+	private final RelativeDirectionPoint ovenPosition;
+
 	private final RelativePoint[] animalPositions;
 
 	/**
@@ -126,6 +128,8 @@ public class BuildingVariant {
 		donkeyFeedPosition = file.getDonkeyFeedPositions();
 
 		sawmillerWorkPosition = file.getSawmillerWorkPosition();
+
+		ovenPosition = file.getOvenPosition();
 
 		animalPositions = file.getAnimalPositions();
 
@@ -447,6 +451,10 @@ public class BuildingVariant {
 
 	public RelativeDirectionPoint getSawmillerWorkPosition() {
 		return sawmillerWorkPosition;
+	}
+
+	public RelativeDirectionPoint getOvenPosition() {
+		return ovenPosition;
 	}
 
 	public RelativePoint[] getAnimalPositions() {
