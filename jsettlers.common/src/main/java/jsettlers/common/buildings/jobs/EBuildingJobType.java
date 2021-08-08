@@ -104,31 +104,6 @@ public enum EBuildingJobType {
 	DROP,
 
 	/**
-	 * Searches a given search type. The search center is given by the working center of the building.
-	 * <p>
-	 * Parameters: <br>
-	 * search (type to be searched @see {@link ESearchType}), <br>
-	 * dx, dy (position the movable will be showed later with SHOW)
-	 * <p>
-	 * This job always fails if the working radius is 0.
-	 * <p>
-	 * Success: A path to the searched thing has been found.
-	 * <p>
-	 * Fail: If the searched thing was not found.
-	 * <p>
-	 * XXX: what if an error occurs during walking there? (e.g. land ownership changed, object removed, ...)
-	 *
-	 * @see ESearchType
-	 * @see jsettlers.common.buildings.BuildingVariant#getWorkRadius()
-	 */
-	PRE_SEARCH,
-
-	/**
-	 * Follows the pre-calculated path that has been searched with {@link #PRE_SEARCH}
-	 */
-	FOLLOW_SEARCHED,
-
-	/**
 	 * Goes to the position relative to the building.
 	 * <p>
 	 * Success: The settler is at the position
@@ -170,17 +145,6 @@ public enum EBuildingJobType {
 	PLAY_ACTION3,
 
 	/**
-	 * executes a command specified by a search option
-	 * <p>
-	 * Parameters: type ({@link jsettlers.common.material.ESearchType})
-	 * <p>
-	 * Success: the given search type has been executed
-	 * <p>
-	 * Fail: the given search type couldn't be executed
-	 */
-	EXECUTE,
-
-	/**
 	 * Tests whether there is a material at the given position.
 	 * <p>
 	 * Parameters: dx, dy, material
@@ -201,11 +165,6 @@ public enum EBuildingJobType {
 	 * Fail: There is a full stack at that position, a wrong stack or it is blocked otherwise.
 	 */
 	NOT_FULL,
-
-	/**
-	 * Looks at the water/river that has been searched.
-	 */
-	LOOK_AT_SEARCHED,
 
 	/**
 	 * If the settler should be productive, this method succeeds, it fails otherwise.
@@ -235,10 +194,4 @@ public enum EBuildingJobType {
 	 * Drops a tool/weapon that was requested with {@link #POP_TOOL} or {@link #POP_WEAPON}
 	 */
 	DROP_POPPED,
-
-	/**
-	 * Let a donkey at the given position grow. This fails if the donkey cannot grow yet. A donkey can grow at a specific interval. After several grows, it will be converted to a movable. If there is
-	 * no donkey yet, one will appear.
-	 */
-	GROW_DONKEY,
 }

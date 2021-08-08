@@ -98,25 +98,9 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							nodeToJob(dropProduced(mov -> mov.poppedMaterial))
 						),
 						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PRE_SEARCH),
-							nodeToJob(condition(mov -> mov.preSearchPathAction(true)))
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.FOLLOW_SEARCHED),
-							nodeToJob(followPresearchedPathMarkTarget(LegacyBuildingWorkerMovable::pathStep))
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.LOOK_AT_SEARCHED),
-							nodeToJob(condition(LegacyBuildingWorkerMovable::lookAtSearched))
-						),
-						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.LOOK_AT),
 							action(mov -> {mov.setDirection(mov.currentJob.getDirection());}),
 							jobFinishedNode()
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.EXECUTE),
-							nodeToJob(condition(mov -> mov.grid.executeSearchType(mov, mov.position, mov.currentJob.getSearchType())))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.PLAY_ACTION1),
@@ -152,17 +136,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 									mov.poppedMaterial = mov.building.getMaterialProduction().getWeaponToProduce();
 									return mov.poppedMaterial != null;
 								})
-							)
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.GROW_DONKEY),
-							nodeToJob(
-								sequence(
-									condition(mov -> mov.grid.feedDonkeyAt(mov.getCurrentJobPos())),
-									action(mov -> {
-										mov.building.addMapObjectCleanupPosition(mov.getCurrentJobPos(), EMapObjectType.DONKEY);
-									})
-								)
 							)
 						),
 						// unknown job type
