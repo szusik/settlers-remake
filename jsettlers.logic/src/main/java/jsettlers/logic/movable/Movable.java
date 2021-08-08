@@ -1153,7 +1153,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				return new FerryMovable(grid, position, player, movable);
 
 			case DONKEY:
-				return new DonkeyMovable(grid, movableType, position, player, movable);
+				return new DonkeyMovable(grid, position, player, movable);
 
 			case BAKER:
 			case MELTER:
