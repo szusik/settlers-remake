@@ -76,19 +76,37 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(EMaterialType outputMaterial, IBooleanConditionFunction<T> pathStep) {
-		return goToPos(mov -> mov.getOutputStackPosition(outputMaterial), pathStep);
+		return goToOutputStack(mov -> outputMaterial, pathStep);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(IEMaterialTypeSupplier<T> outputMaterial, IBooleanConditionFunction<T> pathStep) {
+		return goToPos(mov -> mov.getOutputStackPosition(outputMaterial.apply(mov)), pathStep);
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(EMaterialType outputMaterial, IBooleanConditionFunction<T> pathStep) {
-		return goToPos(mov -> mov.getInputStackPosition(outputMaterial), pathStep);
+		return goToInputStack(mov -> outputMaterial, pathStep);
 	}
 
+	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(IEMaterialTypeSupplier<T> outputMaterial, IBooleanConditionFunction<T> pathStep) {
+		return goToPos(mov -> mov.getInputStackPosition(outputMaterial.apply(mov)), pathStep);
+	}
 	protected static <T extends BuildingWorkerMovable> Node<T> outputStackNotFull(EMaterialType outputMaterial) {
-		return condition(mov -> mov.grid.canPushMaterial(mov.getOutputStackPosition(outputMaterial)));
+		return outputStackNotFull(mov -> outputMaterial);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> outputStackNotFull(IEMaterialTypeSupplier<T> outputMaterial) {
+		return condition(mov -> mov.grid.canPushMaterial(mov.getOutputStackPosition(outputMaterial.apply(mov))));
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> inputStackNotEmpty(EMaterialType inputMaterial) {
-		return condition(mov -> mov.grid.canTakeMaterial(mov.getInputStackPosition(inputMaterial), inputMaterial));
+		return inputStackNotEmpty(mov -> inputMaterial);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> inputStackNotEmpty(IEMaterialTypeSupplier<T> inputMaterial) {
+		return condition(mov -> {
+			EMaterialType realInputMaterial = inputMaterial.apply(mov);
+			return mov.grid.canTakeMaterial(mov.getInputStackPosition(realInputMaterial), realInputMaterial);
+		});
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> isAllowedToWork() {
