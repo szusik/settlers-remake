@@ -48,7 +48,7 @@ task copyDependencies(type: Copy) {
 jar {
 	manifest {
 		attributes 'Main-Class': mainClassName
-		attributes 'Class-Path' : lgplDependencies.collect() {"dependencies/" + it}.join(' ');
+		attributes 'Class-Path' : configurations.lgplDeps.collect() {"dependencies/" + it.getName()}.join(' ');
 
 	}
 }
