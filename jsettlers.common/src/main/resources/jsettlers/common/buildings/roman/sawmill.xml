@@ -91,8 +91,10 @@
 
 	<door dx="5" dy="4" />
 
-	<constructionStack dx="3" dy="6" material="PLANK" buildrequired="4" />
-	<constructionStack dx="5" dy="6" material="STONE" buildrequired="3" />
+	<!-- materials DOUBLE checked with original for ROMAN -->	
+	<constructionStack dx="3" dy="6" material="PLANK" buildrequired="3" />
+	<constructionStack dx="5" dy="6" material="STONE" buildrequired="4" />
+	
 	<requestStack dx="2" dy="6" material="TRUNK" />
 	<offerStack dx="6" dy="2" material="PLANK" />
 

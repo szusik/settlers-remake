@@ -54,9 +54,10 @@
 	<blocked dx="-2" dy="-3" block="false" />
 
 	<door dx="0" dy="2" />
-
-	<constructionStack dx="0" dy="3" material="PLANK" buildrequired="4" />
-	<constructionStack dx="2" dy="4" material="STONE" buildrequired="1" />
+  
+    <!-- materials DOUBLE checked with original for EGYPTIAN -->
+	<constructionStack dx="0" dy="3" material="PLANK" buildrequired="3" />
+	<constructionStack dx="2" dy="4" material="STONE" buildrequired="2" />
 	
 	<requestStack dx="3" dy="4" material="BREAD" />
 	<requestStack dx="3" dy="2" material="MEAT" />

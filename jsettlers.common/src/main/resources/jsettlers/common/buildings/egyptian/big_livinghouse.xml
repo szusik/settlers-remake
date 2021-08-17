@@ -126,8 +126,9 @@
 
 	<door dx="-1" dy="2" />
 
-	<constructionStack dx="2" dy="6" material="PLANK" buildrequired="15" />
-	<constructionStack dx="-1" dy="3" material="STONE" buildrequired="24" />
+    <!-- materials DOUBLE checked with original for EGYPTIAN -->
+	<constructionStack dx="2" dy="6" material="PLANK" buildrequired="12" />
+	<constructionStack dx="-1" dy="3" material="STONE" buildrequired="27" />
 
 	<bricklayer dx="5" dy="5" direction="NORTH_WEST" />
 	<bricklayer dx="5" dy="3" direction="NORTH_WEST" />
