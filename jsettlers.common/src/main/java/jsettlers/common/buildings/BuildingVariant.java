@@ -11,10 +11,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jsettlers.common.buildings.jobs.IBuildingJob;
 import jsettlers.common.buildings.loader.BuildingFile;
+import jsettlers.common.buildings.loader.MineElementWrapper;
 import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.landscape.ELandscapeType;
+import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ECivilisation;
@@ -85,6 +87,8 @@ public class BuildingVariant {
 
 	private final RelativePoint[] animalPositions;
 
+	private final MineElementWrapper mineSettings;
+
 	/**
 	 * Constructs an enum object.
 	 */
@@ -132,6 +136,8 @@ public class BuildingVariant {
 		ovenPosition = file.getOvenPosition();
 
 		animalPositions = file.getAnimalPositions();
+
+		mineSettings = file.getMineEntry();
 
 		this.numberOfConstructionMaterials = calculateNumberOfConstructionMaterials();
 
@@ -459,6 +465,10 @@ public class BuildingVariant {
 
 	public RelativePoint[] getAnimalPositions() {
 		return animalPositions;
+	}
+
+	public MineElementWrapper getMineSettings() {
+		return mineSettings;
 	}
 
 	public Set<ELandscapeType> getRequiredGroundTypeAt(int relativeX, int relativeY) {

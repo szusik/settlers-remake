@@ -60,11 +60,11 @@ public class JobElementWrapper implements BuildingJobData {
 		time = getAttributeAsFloat(attributes, ATTR_TIME);
 		direction = getDirection(attributes);
 		takeMaterialFromMap = isTakeMaterialFromMap(attributes);
-		foodOrder = getMaterialTypeArray(attributes);
+		foodOrder = getMaterialTypeArray(attributes, FOOD_ORDER);
 	}
 
-	private EMaterialType[] getMaterialTypeArray(Attributes attributes) {
-		String foodOrderString = attributes.getValue(FOOD_ORDER);
+	public static EMaterialType[] getMaterialTypeArray(Attributes attributes, String attribute) {
+		String foodOrderString = attributes.getValue(attribute);
 		if (foodOrderString == null) {
 			return null;
 		}
@@ -195,7 +195,7 @@ public class JobElementWrapper implements BuildingJobData {
 		return time;
 	}
 
-	private static float getAttributeAsFloat(Attributes attributes, String attribute) {
+	public static float getAttributeAsFloat(Attributes attributes, String attribute) {
 		String string = attributes.getValue(attribute);
 		if (string == null) {
 			return 0f;

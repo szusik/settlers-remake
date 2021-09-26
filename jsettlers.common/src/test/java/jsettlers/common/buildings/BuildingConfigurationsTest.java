@@ -14,9 +14,9 @@
  */
 package jsettlers.common.buildings;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,6 +61,13 @@ public class BuildingConfigurationsTest {
 
 		assertFalse(isBlocked(building.getDoorTile()));
 		assertTrue(isProtected(building.getDoorTile()));
+	}
+
+	@Test
+	public void isMineValid() {
+		assumeTrue(building.isMine());
+		// mine may only have one offer stack
+		assertEquals(building.getOfferStacks().length, 1);
 	}
 
 	@Test
