@@ -83,6 +83,8 @@
     <buildmark dx="-2" dy="1" />
     <buildmark dx="-2" dy="-2" />
 
+    <mine dropDirection="SOUTH_WEST" miningInterval="3" foodOrder="FISH,BREAD,MEAT"/>
+
     <image file="14" for="GUI" type="GUI" sequence="48" image="0" />
     <image file="13" for="FINAL" type="SETTLER" sequence="5" image="0" />
     <image file="13" for="BUILD" type="SETTLER" sequence="5" image="1" />

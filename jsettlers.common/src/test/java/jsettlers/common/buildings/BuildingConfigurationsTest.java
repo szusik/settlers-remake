@@ -68,6 +68,7 @@ public class BuildingConfigurationsTest {
 		assumeTrue(building.isMine());
 		// mine may only have one offer stack
 		assertEquals(building.getOfferStacks().length, 1);
+		assertTrue(building.getMineSettings().getFoodOrder().length > 0);
 	}
 
 	@Test
