@@ -167,16 +167,6 @@ public enum EBuildingJobType {
 	NOT_FULL,
 
 	/**
-	 * If the settler should be productive, this method succeeds, it fails otherwise.
-	 */
-	TRY_TAKING_RESOURCE,
-
-	/**
-	 * Used for mines to check if they have food to use. Supplies parameter foodOrder.
-	 */
-	TRY_TAKING_FOOD,
-
-	/**
 	 * Pops a tool from the list of tools that should be produced.
 	 * <p>
 	 * fails if there is noting to do.
