@@ -51,7 +51,7 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.TRY_TAKING_FOOD),
-							nodeToJob(condition(mov -> mov.building.tryTakingFood(mov.currentJob.getFoodOrder())))
+							nodeToJob(condition(mov -> mov.building.tryTakingFood()))
 						),
 						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.WAIT),
