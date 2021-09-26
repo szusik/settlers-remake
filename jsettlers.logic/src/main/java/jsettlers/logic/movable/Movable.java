@@ -183,6 +183,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return action(mov -> {mov.setMaterial(material);});
 	}
 
+	protected static <T extends Movable> Node<T> setMaterial(IEMaterialTypeSupplier<T> material) {
+		return action(mov -> mov.setMaterial(material.apply(mov)));
+	}
+
 	protected static <T extends Movable> Node<T> hide() {
 		return action(mov -> {mov.setVisible(false);});
 	}
@@ -1157,7 +1161,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				return new DonkeyMovable(grid, movableType, position, player, movable);
 
 			case MELTER:
-			case MINER:
 			case SMITH:
 				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
 
@@ -1173,6 +1176,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case SLAUGHTERER:
 			case CHARCOAL_BURNER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
+
+			case MINER:
+				return new MinerMovable(grid, position, player, movable);
 
 			case BAKER:
 				return new BakerMovable(grid, position, player, movable);
