@@ -72,7 +72,7 @@ public enum ELandscapeType {
 	public static final Set<ELandscapeType> SNOW_TYPES = EnumSet.of(SNOW, SNOWBORDER, SNOWBORDEROUTER);
 	public static final Set<ELandscapeType> MOOR_TYPES = EnumSet.of(MOOR, MOORBORDER, MOORBORDEROUTER);
 	public static final Set<ELandscapeType> MOUNTAIN_TYPES = EnumSet.of(MOUNTAIN, MOUNTAINBORDER);
-	private static final Set<ELandscapeType> FLAT_TYPES = EnumSet.of(MOOR, MOORBORDER, WATER1, WATER2, WATER3, WATER4, WATER5, WATER6, WATER7, WATER8);
+	private static final Set<ELandscapeType> FLAT_TYPES = EnumSet.of(MOOR, MOORBORDER, MOORBORDEROUTER, WATER1, WATER2, WATER3, WATER4, WATER5, WATER6, WATER7, WATER8);
 
 	public final int image;
 	public final Color color;
