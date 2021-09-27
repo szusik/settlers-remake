@@ -34,7 +34,6 @@ import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
-import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
@@ -46,7 +45,6 @@ import jsettlers.logic.map.grid.partition.manager.manageables.IManageableWorker;
 import jsettlers.logic.map.grid.partition.manager.materials.interfaces.IMaterialOffer;
 import jsettlers.logic.map.grid.partition.manager.materials.interfaces.IMaterialRequest;
 import jsettlers.logic.map.grid.partition.manager.materials.offers.EOfferPriority;
-import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.IAttackableMovable;
@@ -304,7 +302,7 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
-		public void placeSmoke(ShortPoint2D position, boolean smokeOn) {
+		public void placeSmoke(ShortPoint2D position, short smokeDuration) {
 		}
 
 		@Override

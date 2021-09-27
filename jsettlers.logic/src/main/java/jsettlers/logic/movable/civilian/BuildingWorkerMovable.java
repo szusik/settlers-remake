@@ -4,10 +4,12 @@ import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
+import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
 import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.mapobject.EMapObjectType;
@@ -165,13 +167,17 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		);
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> setSmoke(boolean on) {
+	protected static <T extends BuildingWorkerMovable> Node<T> setSmoke(short duration) {
+		return setSmoke(mov -> duration);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> setSmoke(IShortSupplier<T> duration) {
 		return action(mov -> {
 			ShortPoint2D pos = mov.building.getBuildingVariant()
 					.getSmokePosition()
 					.calculatePoint(mov.building.getPosition());
 
-			mov.grid.placeSmoke(pos, on);
+			mov.grid.placeSmoke(pos, duration.apply(mov));
 			mov.building.addMapObjectCleanupPosition(pos, EMapObjectType.SMOKE);
 		});
 	}

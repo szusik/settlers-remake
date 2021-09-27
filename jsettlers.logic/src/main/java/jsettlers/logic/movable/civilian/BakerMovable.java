@@ -60,10 +60,10 @@ public class BakerMovable extends BuildingWorkerMovable {
 							setDirectionNode(BakerMovable::getOvenDirection),
 							playAction(EMovableAction.ACTION1, (short)1000),
 							setMaterialNode(EMaterialType.BLADE),
-							setSmoke(true),
+							setSmoke((short) 4000),
 							sleep(4000),
 							setMaterialNode(EMaterialType.BREAD),
-							setSmoke(false),
+							setSmoke((short) 0),
 							playAction(EMovableAction.ACTION1, (short)1000),
 
 							goToOutputStack(EMaterialType.BREAD, BuildingWorkerMovable::tmpPathStep),

@@ -95,6 +95,7 @@ import jsettlers.logic.map.grid.objects.AbstractHexMapObject;
 import jsettlers.logic.map.grid.objects.IMapObjectsManagerGrid;
 import jsettlers.logic.map.grid.objects.MapObjectsManager;
 import jsettlers.logic.map.grid.objects.ObjectsGrid;
+import jsettlers.logic.map.grid.objects.SmokeMapObject;
 import jsettlers.logic.map.grid.partition.IPlayerChangedListener;
 import jsettlers.logic.map.grid.partition.Partition;
 import jsettlers.logic.map.grid.partition.PartitionsGrid;
@@ -122,15 +123,12 @@ import jsettlers.logic.map.loading.list.MapList;
 import jsettlers.logic.map.loading.newmap.MapFileHeader;
 import jsettlers.logic.map.loading.newmap.MapFileHeader.MapType;
 import jsettlers.logic.movable.Movable;
-import jsettlers.logic.movable.civilian.LegacyBuildingWorkerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
-import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IAttackableMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.interfaces.ISoldierMovable;
-import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.objects.arrow.ArrowObject;
 import jsettlers.logic.objects.stack.StackMapObject;
 import jsettlers.logic.player.Player;
@@ -1241,9 +1239,9 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final void placeSmoke(ShortPoint2D pos, boolean place) {
-			if (place) {
-				mapObjectsManager.addSimpleMapObject(pos, EMapObjectType.SMOKE, false, null);
+		public final void placeSmoke(ShortPoint2D pos, short smokeDuration) {
+			if (smokeDuration > 0) {
+				mapObjectsManager.addMapObject(pos, new SmokeMapObject(pos, smokeDuration));
 			} else {
 				mapObjectsManager.removeMapObjectType(pos.x, pos.y, EMapObjectType.SMOKE);
 			}

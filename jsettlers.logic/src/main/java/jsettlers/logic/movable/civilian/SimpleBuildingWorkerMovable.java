@@ -488,10 +488,10 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 								)
 							),
 							sleep(500),
-							setSmoke(true),
+							setSmoke((short) 5500),
 							sleep(5000),
 							playAction(EMovableAction.ACTION1, (short)500),
-							setSmoke(false),
+							setSmoke((short) 0),
 							setMaterialNode(EMaterialType.COAL),
 							waitFor(
 								sequence(

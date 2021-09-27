@@ -143,14 +143,12 @@ public abstract class AbstractStrategyGrid implements Serializable {
 
 	/**
 	 * Show smoke or remove it at the given position.
-	 *
 	 * @param position
 	 *            position to let the smoke appear.
-	 * @param smokeOn
-	 *            if true, smoke will be turned on, <br>
-	 *            if false, it will be turned of.
+	 * @param smokeDuration
+	 *            if greater than zero, smoke will be turned on, <br>
 	 */
-	public abstract void placeSmoke(ShortPoint2D position, boolean smokeOn);
+	public abstract void placeSmoke(ShortPoint2D position, short smokeDuration);
 
 	/**
 	 * checks if there can be put any more materials on the given position.
