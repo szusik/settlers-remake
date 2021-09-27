@@ -130,7 +130,7 @@ public class WorkerBuilding extends WorkAreaBuilding implements IWorkerRequestBu
 	}
 
 	@Override
-	public boolean tryTakingFood(EMaterialType[] foodOrder) {
+	public boolean tryTakingFood() {
 		return false;
 	}
 

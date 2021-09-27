@@ -46,14 +46,6 @@ public class LegacyBuildingWorkerMovable extends BuildingWorkerMovable {
 							nodeToJob(goToPos(LegacyBuildingWorkerMovable::getCurrentJobPos, LegacyBuildingWorkerMovable::pathStep))
 						),
 						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.TRY_TAKING_RESOURCE),
-							nodeToJob(condition(LegacyBuildingWorkerMovable::tryTakingResource))
-						),
-						sequence(
-							condition(mov -> mov.currentJob.getType() == EBuildingJobType.TRY_TAKING_FOOD),
-							nodeToJob(condition(mov -> mov.building.tryTakingFood(mov.currentJob.getFoodOrder())))
-						),
-						sequence(
 							condition(mov -> mov.currentJob.getType() == EBuildingJobType.WAIT),
 							BehaviorTreeHelper.sleep(mov -> (int)(mov.currentJob.getTime()*1000)),
 							jobFinishedNode()

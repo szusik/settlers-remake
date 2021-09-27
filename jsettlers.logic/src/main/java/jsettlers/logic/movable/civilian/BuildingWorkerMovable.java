@@ -92,12 +92,16 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(IEMaterialTypeSupplier<T> outputMaterial, IBooleanConditionFunction<T> pathStep) {
 		return goToPos(mov -> mov.getInputStackPosition(outputMaterial.apply(mov)), pathStep);
 	}
+
 	protected static <T extends BuildingWorkerMovable> Node<T> outputStackNotFull(EMaterialType outputMaterial) {
 		return outputStackNotFull(mov -> outputMaterial);
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> outputStackNotFull(IEMaterialTypeSupplier<T> outputMaterial) {
-		return condition(mov -> mov.grid.canPushMaterial(mov.getOutputStackPosition(outputMaterial.apply(mov))));
+		return condition(mov -> {
+			EMaterialType mat = outputMaterial.apply(mov);
+			return mov.grid.canPushMaterial(mov.getOutputStackPosition(mat));
+		});
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> inputStackNotEmpty(EMaterialType inputMaterial) {

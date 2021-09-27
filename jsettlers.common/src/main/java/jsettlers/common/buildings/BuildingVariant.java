@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jsettlers.common.buildings.jobs.IBuildingJob;
 import jsettlers.common.buildings.loader.BuildingFile;
+import jsettlers.common.buildings.loader.MineElementWrapper;
 import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.images.ImageLink;
@@ -86,6 +87,8 @@ public class BuildingVariant {
 
 	private final RelativePoint[] animalPositions;
 
+	private final MineElementWrapper mineSettings;
+
 	private final RelativePoint moltenMetalPosition;
 
 	private final RelativeDirectionPoint meltInput;
@@ -149,6 +152,8 @@ public class BuildingVariant {
 		meltOutputMaterial = file.getMeltOutputMaterial();
 
 		moltenMetalPosition = file.getMoltenMetalPosition();
+
+		mineSettings = file.getMineEntry();
 
 		this.numberOfConstructionMaterials = calculateNumberOfConstructionMaterials();
 
@@ -476,6 +481,10 @@ public class BuildingVariant {
 
 	public RelativePoint[] getAnimalPositions() {
 		return animalPositions;
+	}
+
+	public MineElementWrapper getMineSettings() {
+		return mineSettings;
 	}
 
 	public RelativePoint getMoltenMetalPosition() {

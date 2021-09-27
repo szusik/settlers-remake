@@ -5,12 +5,8 @@ import java.util.List;
 
 import java8.util.stream.Collectors;
 import java8.util.stream.Stream;
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
-import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
-import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.common.action.EMoveToType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;

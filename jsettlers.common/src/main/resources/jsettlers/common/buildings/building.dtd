@@ -62,8 +62,6 @@
 	PLAY_ACTION3|
 	AVAILABLE|
 	NOT_FULL|
-	TRY_TAKING_RESOURCE|
-	TRY_TAKING_FOOD|
 	POP_TOOL|
 	POP_WEAPON|
 	DROP_POPPED)
@@ -102,7 +100,7 @@
 )">
 <!ENTITY % boolean "(true|false)">
 
-<!ELEMENT building (ground+, blocked+, door, constructionStack+, requestStack*, offerStack*, bricklayer+, flag, buildmark*, workcenter?, smokePosition?, healspot?, pigFeedPosition?, donkeyFeedPosition*, sawmillerWorkPosition?, ovenPosition?, animalPosition*, moltenMetal?, meltInput?, meltOutput?, image*, occupyer*, startjob?, job*) >
+<!ELEMENT building (ground+, blocked+, door, constructionStack+, requestStack*, offerStack*, bricklayer+, flag, buildmark*, workcenter?, smokePosition?, healspot?, pigFeedPosition?, donkeyFeedPosition*, sawmillerWorkPosition?, ovenPosition?, animalPosition*, mine?, moltenMetal?, meltInput?, meltOutput?, image*, occupyer*, startjob?, job*) >
 
 <!ATTLIST building
    	worker CDATA #REQUIRED
@@ -265,6 +263,13 @@
    dx CDATA #REQUIRED
    dy CDATA #REQUIRED
    direction %direction; #REQUIRED
+>
+
+<!ELEMENT mine EMPTY>
+<!ATTLIST mine
+	dropDirection %direction; #REQUIRED
+	miningInterval CDATA #REQUIRED
+	foodOrder CDATA #REQUIRED
 >
 
 <!ELEMENT moltenMetal EMPTY>

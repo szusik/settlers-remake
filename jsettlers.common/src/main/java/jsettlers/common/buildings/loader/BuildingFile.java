@@ -78,6 +78,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_OVEN_POSITION = "ovenPosition";
 	private static final String TAG_ANIMAL_POSITION = "animalPosition";
 	private static final String TAG_SMOKE_POSITION = "smokePosition";
+	private static final String TAG_MINE = "mine";
 	private static final String TAG_HEALSPOT = "healspot";
 	private static final String TAG_MOLTEN_METAL = "moltenMetal";
 	private static final String TAG_MELT_INPUT = "meltInput";
@@ -120,6 +121,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	private int workradius;
 	private boolean mine;
+	private MineElementWrapper mineEntry = new MineElementWrapper();
 	private RelativePoint workCenter = new RelativePoint(0, 0);
 	private RelativePoint flag = new RelativePoint(0, 0);
 	private ArrayList<RelativePoint> buildmarks = new ArrayList<>();
@@ -204,6 +206,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 				animalPositions.add(readRelativeTile(attributes));
 			} else if(TAG_SMOKE_POSITION.equals(tagName)) {
 				smokePosition = readRelativeTile(attributes);
+			} else if(TAG_MINE.equals(tagName)) {
+				mineEntry = new MineElementWrapper(attributes);
 			} else if(TAG_HEALSPOT.equals(tagName)) {
 				healSpot = readRelativeTile(attributes);
 			} else if(TAG_MOLTEN_METAL.equals(tagName)) {
@@ -481,6 +485,10 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativePoint getSmokePosition() {
 		return smokePosition;
+	}
+
+	public MineElementWrapper getMineEntry() {
+		return mineEntry;
 	}
 
 	public RelativePoint getHealSpot() {
