@@ -1160,9 +1160,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case DONKEY:
 				return new DonkeyMovable(grid, movableType, position, player, movable);
 
-			case SMITH:
-				return new LegacyBuildingWorkerMovable(grid, movableType, position, player, movable);
-
 			case FISHERMAN:
 			case STONECUTTER:
 			case WATERWORKER:
@@ -1175,6 +1172,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case SLAUGHTERER:
 			case CHARCOAL_BURNER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
+
+			case SMITH:
+				return new SmithMovable(grid, position, player, movable);
 
 			case MELTER:
 				return new MelterMovable(grid, position, player, movable);

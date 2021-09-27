@@ -222,6 +222,7 @@
 <!ATTLIST smokePosition
    dx CDATA #REQUIRED
    dy CDATA #REQUIRED
+   fire (true|false) "false"
 >
 
 

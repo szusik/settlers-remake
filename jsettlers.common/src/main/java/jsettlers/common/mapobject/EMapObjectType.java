@@ -114,6 +114,8 @@ public enum EMapObjectType {
 	 */
 	SMOKE,
 
+	SMOKE_WITH_FIRE,
+
 	/**
 	 * A pig. Progress is ignored.
 	 */

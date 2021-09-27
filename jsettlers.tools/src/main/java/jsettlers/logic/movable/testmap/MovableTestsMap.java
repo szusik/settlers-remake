@@ -302,7 +302,7 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
-		public void placeSmoke(ShortPoint2D position, short smokeDuration) {
+		public void placeSmoke(ShortPoint2D position, EMapObjectType type, short smokeDuration) {
 		}
 
 		@Override

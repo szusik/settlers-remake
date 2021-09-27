@@ -74,6 +74,7 @@ public class BuildingVariant {
 	private final BuildingAreaBitSet buildingAreaBitSet;
 
 	private final RelativePoint smokePosition;
+	private final boolean smokeWithFire;
 
 	private final RelativePoint healSpot;
 
@@ -132,6 +133,7 @@ public class BuildingVariant {
 		viewDistance = file.getViewdistance();
 
 		smokePosition = file.getSmokePosition();
+		smokeWithFire = file.isSmokeWithFire();
 
 		healSpot = file.getHealSpot();
 
@@ -451,6 +453,10 @@ public class BuildingVariant {
 
 	public RelativePoint getSmokePosition() {
 		return smokePosition;
+	}
+
+	public boolean isSmokeWithFire() {
+		return smokeWithFire;
 	}
 
 	/**

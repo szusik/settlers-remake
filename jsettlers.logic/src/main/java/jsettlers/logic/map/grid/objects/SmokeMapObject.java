@@ -6,14 +6,17 @@ import jsettlers.logic.objects.ProgressingObject;
 
 public class SmokeMapObject extends ProgressingObject {
 
-	public SmokeMapObject(ShortPoint2D pos, short duration) {
+	private final EMapObjectType type;
+
+	public SmokeMapObject(ShortPoint2D pos, EMapObjectType type, short duration) {
 		super(pos);
+		this.type = type;
 		setDuration(duration/1000f);
 	}
 
 	@Override
 	public EMapObjectType getObjectType() {
-		return EMapObjectType.SMOKE;
+		return type;
 	}
 
 	@Override

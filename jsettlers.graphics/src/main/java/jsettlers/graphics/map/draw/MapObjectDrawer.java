@@ -563,7 +563,8 @@ public class MapObjectDrawer {
 				break;
 
 			case SMOKE:
-				drawByProgressWithHeight(x, y, SMOKE_HEIGHT, progress, color);
+			case SMOKE_WITH_FIRE:
+				drawByProgressWithHeight(x, y, SMOKE_HEIGHT, object, color);
 				break;
 
 			case PLANT_DECORATION:
@@ -850,23 +851,7 @@ public class MapObjectDrawer {
 		float viewX;
 		float viewY;
 		int height = context.getHeight(x, y);
-
-		// smith action
 		EMovableType movableType = movable.getMovableType();
-		if (movableType == EMovableType.SMITH && movable.getAction() == EMovableAction.ACTION3) {
-			// draw smoke
-			ShortPoint2D smokePosition = movable.getDirection().getNextHexPoint(movable.getPosition(), 2);
-			int smokeX = smokePosition.x;
-			int smokeY = smokePosition.y;
-			if (movable.getDirection() == EDirection.NORTH_WEST) {
-				smokeY--;
-			}
-			viewX = context.getConverter().getViewX(smokeX, smokeY, height);
-			viewY = context.getConverter().getViewY(smokeX, smokeY, height);
-			ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, 13, 43, (int) (moveProgress * 40));
-			image = imageProvider.getImage(link);
-			image.drawAt(context.getGl(), viewX, viewY, getZ(0, smokeY), color, shade);
-		}
 
 		// melter action
 		if (movableType == EMovableType.MELTER && movable.getAction() == EMovableAction.ACTION1) {
@@ -1423,10 +1408,18 @@ public class MapObjectDrawer {
 
 	private static final int SMOKE_FILE = 13;
 	private static final int SMOKE_INDEX = 42;
+	private static final int SMOKE_WITH_FIRE_INDEX = 43;
 
-	private void drawByProgressWithHeight(int x, int y, int height, float progress, float color) {
-		Sequence<? extends Image> sequence = this.imageProvider.getSettlerSequence(SMOKE_FILE, SMOKE_INDEX);
-		int index = Math.min((int) (progress * sequence.length()), sequence.length() - 1);
+	private void drawByProgressWithHeight(int x, int y, int height, IMapObject object, float color) {
+		int sequenceIndex;
+		if(object.getObjectType() == EMapObjectType.SMOKE_WITH_FIRE) {
+			sequenceIndex = SMOKE_WITH_FIRE_INDEX;
+		} else {
+			sequenceIndex = SMOKE_INDEX;
+		}
+
+		Sequence<? extends Image> sequence = this.imageProvider.getSettlerSequence(SMOKE_FILE, sequenceIndex);
+		int index = Math.min((int) (object.getStateProgress() * sequence.length()), sequence.length() - 1);
 		drawWithHeight(sequence.getImageSafe(index, null), x, y, height, color);
 	}
 

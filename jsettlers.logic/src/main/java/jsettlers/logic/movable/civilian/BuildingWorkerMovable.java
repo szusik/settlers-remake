@@ -3,7 +3,6 @@ package jsettlers.logic.movable.civilian;
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
-import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
@@ -181,8 +180,9 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 					.getSmokePosition()
 					.calculatePoint(mov.building.getPosition());
 
-			mov.grid.placeSmoke(pos, duration.apply(mov));
-			mov.building.addMapObjectCleanupPosition(pos, EMapObjectType.SMOKE);
+			EMapObjectType type = mov.building.getBuildingVariant().isSmokeWithFire() ? EMapObjectType.SMOKE_WITH_FIRE : EMapObjectType.SMOKE;
+			mov.grid.placeSmoke(pos, type, duration.apply(mov));
+			mov.building.addMapObjectCleanupPosition(pos, type);
 		});
 	}
 

@@ -1239,11 +1239,11 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final void placeSmoke(ShortPoint2D pos, short smokeDuration) {
+		public final void placeSmoke(ShortPoint2D pos, EMapObjectType type, short smokeDuration) {
 			if (smokeDuration > 0) {
-				mapObjectsManager.addMapObject(pos, new SmokeMapObject(pos, smokeDuration));
+				mapObjectsManager.addMapObject(pos, new SmokeMapObject(pos, type, smokeDuration));
 			} else {
-				mapObjectsManager.removeMapObjectType(pos.x, pos.y, EMapObjectType.SMOKE);
+				mapObjectsManager.removeMapObjectType(pos.x, pos.y, type);
 			}
 		}
 

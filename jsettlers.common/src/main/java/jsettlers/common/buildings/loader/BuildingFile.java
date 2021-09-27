@@ -85,6 +85,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_MELT_OUTPUT = "meltOutput";
 	private static final String TAG_IMAGE = "image";
 	private static final String TAG_GROUNDTYE = "ground";
+	private static final String TAG_FIRE = "fire";
 
 	private final ArrayList<RelativePoint> blocked = new ArrayList<>();
 
@@ -96,6 +97,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private RelativePoint door = new RelativePoint(0, 0);
 	private IBuildingJob startJob = null;
 	private RelativePoint smokePosition = new RelativePoint(0, 0);
+	private boolean smokeWithFire = false;
+
 	private RelativePoint healSpot = new RelativePoint(0, 0);
 	private RelativePoint pigFeedPosition = new RelativePoint(0, 0);
 	private ArrayList<RelativePoint> animalPositions = new ArrayList<>();
@@ -206,6 +209,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 				animalPositions.add(readRelativeTile(attributes));
 			} else if(TAG_SMOKE_POSITION.equals(tagName)) {
 				smokePosition = readRelativeTile(attributes);
+				smokeWithFire = Boolean.parseBoolean(attributes.getValue(TAG_FIRE));
 			} else if(TAG_MINE.equals(tagName)) {
 				mineEntry = new MineElementWrapper(attributes);
 			} else if(TAG_HEALSPOT.equals(tagName)) {
@@ -485,6 +489,10 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativePoint getSmokePosition() {
 		return smokePosition;
+	}
+
+	public boolean isSmokeWithFire() {
+		return smokeWithFire;
 	}
 
 	public MineElementWrapper getMineEntry() {

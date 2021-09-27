@@ -98,6 +98,10 @@
     <buildmark dx="-1" dy="2" />
     <buildmark dx="-1" dy="0" />
 
+    <smokePosition dx="0" dy="5" fire="true"/>
+
+    <ovenPosition dx="-3" dy="1" direction="NORTH_EAST" />
+
     <image file="14" for="GUI" type="GUI" sequence="30" image="0" />
     <image file="13" type="SETTLER" for="FINAL" image="0" sequence="10" />
     <image file="13" type="SETTLER" for="BUILD" image="1" sequence="10" />
