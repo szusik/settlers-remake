@@ -79,6 +79,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_ANIMAL_POSITION = "animalPosition";
 	private static final String TAG_SMOKE_POSITION = "smokePosition";
 	private static final String TAG_HEALSPOT = "healspot";
+	private static final String TAG_MELT_INPUT = "meltInput";
+	private static final String TAG_MELT_OUTPUT = "meltOutput";
 	private static final String TAG_IMAGE = "image";
 	private static final String TAG_GROUNDTYE = "ground";
 
@@ -95,6 +97,11 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private RelativePoint healSpot = new RelativePoint(0, 0);
 	private RelativePoint pigFeedPosition = new RelativePoint(0, 0);
 	private ArrayList<RelativePoint> animalPositions = new ArrayList<>();
+
+	private RelativeDirectionPoint meltInput = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
+	private RelativeDirectionPoint meltOutput = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
+	private EMaterialType meltInputMaterial = EMaterialType.NO_MATERIAL;
+	private EMaterialType meltOutputMaterial = EMaterialType.NO_MATERIAL;
 
 	private ArrayList<RelativeDirectionPoint> donkeyFeedPositions = new ArrayList<>();
 	private RelativeDirectionPoint sawmillerWorkPosition = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
@@ -196,6 +203,12 @@ public class BuildingFile implements BuildingJobDataProvider {
 				smokePosition = readRelativeTile(attributes);
 			} else if(TAG_HEALSPOT.equals(tagName)) {
 				healSpot = readRelativeTile(attributes);
+			} else if(TAG_MELT_INPUT.equals(tagName)) {
+				meltInput = readRelativeDirectionPoint(attributes);
+				meltInputMaterial = readMaterial(attributes);
+			} else if(TAG_MELT_OUTPUT.equals(tagName)) {
+				meltOutput = readRelativeDirectionPoint(attributes);
+				meltOutputMaterial = readMaterial(attributes);
 			} else if (TAG_GROUNDTYE.equals(tagName)) {
 				groundtypes.add(ELandscapeType.valueOf(attributes.getValue("groundtype")));
 			} else if (TAG_OCCUPYER.equals(tagName)) {
@@ -309,11 +322,15 @@ public class BuildingFile implements BuildingJobDataProvider {
 		}
 	}
 
+	private EMaterialType readMaterial(Attributes attributes) {
+		return EMaterialType.valueOf(attributes.getValue(ATTR_MATERIAl));
+	}
+
 	private void readAndAddRelativeStack(Attributes attributes, ArrayList<RelativeStack> stacks) {
 		try {
 			int dx = Integer.parseInt(attributes.getValue(ATTR_DX));
 			int dy = Integer.parseInt(attributes.getValue(ATTR_DY));
-			EMaterialType type = EMaterialType.valueOf(attributes.getValue(ATTR_MATERIAl));
+			EMaterialType type = readMaterial(attributes);
 
 			stacks.add(new RelativeStack(dx, dy, type));
 		} catch (NumberFormatException e) {
@@ -327,7 +344,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 		try {
 			int dx = Integer.parseInt(attributes.getValue(ATTR_DX));
 			int dy = Integer.parseInt(attributes.getValue(ATTR_DY));
-			EMaterialType type = EMaterialType.valueOf(attributes.getValue(ATTR_MATERIAl));
+			EMaterialType type = readMaterial(attributes);
 			short requiredForBuild = Short.parseShort(attributes.getValue(ATTR_BUILDREQUIRED));
 
 			if (requiredForBuild <= 0) {
@@ -483,6 +500,22 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativePoint[] getAnimalPositions() {
 		return animalPositions.toArray(new RelativePoint[0]);
+	}
+
+	public RelativeDirectionPoint getMeltInput() {
+		return meltInput;
+	}
+
+	public EMaterialType getMeltInputMaterial() {
+		return meltInputMaterial;
+	}
+
+	public RelativeDirectionPoint getMeltOutput() {
+		return meltOutput;
+	}
+
+	public EMaterialType getMeltOutputMaterial() {
+		return meltOutputMaterial;
 	}
 
 	public List<ELandscapeType> getGroundtypes() {

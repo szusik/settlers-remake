@@ -80,31 +80,27 @@ public class MelterMovable extends BuildingWorkerMovable {
 	}
 
 	private EMaterialType getProducedMaterial() {
-		return building.getBuildingVariant().getType() == EBuildingType.IRONMELT ? EMaterialType.IRON : EMaterialType.GOLD;
+		return building.getBuildingVariant().getMeltOutputMaterial();
 	}
 
 	private EMaterialType getInputMaterial() {
-		return building.getBuildingVariant().getType() == EBuildingType.IRONMELT ? EMaterialType.IRONORE : EMaterialType.GOLDORE;
+		return building.getBuildingVariant().getMeltInputMaterial();
 	}
 
 	private ShortPoint2D getInputPoint() {
-		return (building.getBuildingVariant().getType() == EBuildingType.IRONMELT ?
-				new RelativePoint(-2, 2) : new RelativePoint(-2, 2))
-				.calculatePoint(building.getPosition());
+		return building.getBuildingVariant().getMeltInput().calculatePoint(building.getPosition());
 	}
 
 	private ShortPoint2D getOutputPosition() {
-		return (building.getBuildingVariant().getType() == EBuildingType.IRONMELT ?
-				new RelativePoint(2, 5) : new RelativePoint(0, 4))
-				.calculatePoint(building.getPosition());
+		return building.getBuildingVariant().getMeltOutput().calculatePoint(building.getPosition());
 	}
 
 	private EDirection getOutputDirection() {
-		return building.getBuildingVariant().getType() == EBuildingType.IRONMELT ? EDirection.NORTH_WEST : EDirection.NORTH_EAST;
+		return building.getBuildingVariant().getMeltOutput().getDirection();
 	}
 
 	private EDirection getInputDirection() {
-		return EDirection.NORTH_EAST;
+		return building.getBuildingVariant().getMeltInput().getDirection();
 	}
 
 	private short getMeltingTime() {
