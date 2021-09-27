@@ -83,6 +83,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_MOLTEN_METAL = "moltenMetal";
 	private static final String TAG_MELT_INPUT = "meltInput";
 	private static final String TAG_MELT_OUTPUT = "meltOutput";
+	private static final String TAG_ANVIL_POSITION = "anvilPosition";
+	private static final String TAG_SMITH_DROP_POSITION = "smithDropPosition";
 	private static final String TAG_IMAGE = "image";
 	private static final String TAG_GROUNDTYE = "ground";
 	private static final String TAG_FIRE = "fire";
@@ -107,6 +109,9 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private RelativeDirectionPoint meltOutput = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
 	private EMaterialType meltInputMaterial = EMaterialType.NO_MATERIAL;
 	private EMaterialType meltOutputMaterial = EMaterialType.NO_MATERIAL;
+
+	private RelativeDirectionPoint anvilPosition;
+	private RelativePoint smithDropPosition;
 
 	private RelativePoint moltenMetalPosition = new RelativePoint(0, 0);
 
@@ -222,6 +227,10 @@ public class BuildingFile implements BuildingJobDataProvider {
 			} else if(TAG_MELT_OUTPUT.equals(tagName)) {
 				meltOutput = readRelativeDirectionPoint(attributes);
 				meltOutputMaterial = readMaterial(attributes);
+			} else if (TAG_ANVIL_POSITION.equals(tagName)) {
+				anvilPosition = readRelativeDirectionPoint(attributes);
+			} else if (TAG_SMITH_DROP_POSITION.equals(tagName)) {
+				smithDropPosition = readRelativeTile(attributes);
 			} else if (TAG_GROUNDTYE.equals(tagName)) {
 				groundtypes.add(ELandscapeType.valueOf(attributes.getValue("groundtype")));
 			} else if (TAG_OCCUPYER.equals(tagName)) {
@@ -541,6 +550,14 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public EMaterialType getMeltOutputMaterial() {
 		return meltOutputMaterial;
+	}
+
+	public RelativeDirectionPoint getAnvilPosition() {
+		return anvilPosition;
+	}
+
+	public RelativePoint getSmithDropPosition() {
+		return smithDropPosition;
 	}
 
 	public List<ELandscapeType> getGroundtypes() {

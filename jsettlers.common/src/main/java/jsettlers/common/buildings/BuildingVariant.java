@@ -98,6 +98,9 @@ public class BuildingVariant {
 	private final EMaterialType meltInputMaterial;
 	private final EMaterialType meltOutputMaterial;
 
+	private final RelativeDirectionPoint anvilPosition;
+	private final RelativePoint smithDropPosition;
+
 	/**
 	 * Constructs an enum object.
 	 */
@@ -156,6 +159,9 @@ public class BuildingVariant {
 		moltenMetalPosition = file.getMoltenMetalPosition();
 
 		mineSettings = file.getMineEntry();
+
+		anvilPosition = file.getAnvilPosition();
+		smithDropPosition = file.getSmithDropPosition();
 
 		this.numberOfConstructionMaterials = calculateNumberOfConstructionMaterials();
 
@@ -491,6 +497,14 @@ public class BuildingVariant {
 
 	public MineElementWrapper getMineSettings() {
 		return mineSettings;
+	}
+
+	public RelativeDirectionPoint getAnvilPosition() {
+		return anvilPosition;
+	}
+
+	public RelativePoint getSmithDropPosition() {
+		return smithDropPosition;
 	}
 
 	public RelativePoint getMoltenMetalPosition() {

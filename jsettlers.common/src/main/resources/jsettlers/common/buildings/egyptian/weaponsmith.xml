@@ -103,6 +103,10 @@
 
 	<ovenPosition dx="0" dy="2" direction="NORTH_WEST" />
 
+	<anvilPosition dx="1" dy="3" direction="NORTH_EAST"/>
+
+	<smithDropPosition dx="5" dy="1"/>
+
 	<image file="14" for="GUI" type="GUI" sequence="27" image="0" />
 	<image file="13" type="SETTLER" for="FINAL" image="0" sequence="11" />
 	<image file="13" type="SETTLER" for="BUILD" image="1" sequence="11" />

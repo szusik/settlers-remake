@@ -100,7 +100,7 @@
 )">
 <!ENTITY % boolean "(true|false)">
 
-<!ELEMENT building (ground+, blocked+, door, constructionStack+, requestStack*, offerStack*, bricklayer+, flag, buildmark*, workcenter?, smokePosition?, healspot?, pigFeedPosition?, donkeyFeedPosition*, sawmillerWorkPosition?, ovenPosition?, animalPosition*, mine?, moltenMetal?, meltInput?, meltOutput?, image*, occupyer*, startjob?, job*) >
+<!ELEMENT building (ground+, blocked+, door, constructionStack+, requestStack*, offerStack*, bricklayer+, flag, buildmark*, workcenter?, smokePosition?, healspot?, pigFeedPosition?, donkeyFeedPosition*, sawmillerWorkPosition?, ovenPosition?, animalPosition*, mine?, moltenMetal?, meltInput?, meltOutput?, anvilPosition?, smithDropPosition?, image*, occupyer*, startjob?, job*) >
 
 <!ATTLIST building
    	worker CDATA #REQUIRED
@@ -293,4 +293,17 @@
 	dy CDATA #REQUIRED
 	direction %direction; #REQUIRED
 	material %material; #REQUIRED
+>
+
+<!ELEMENT anvilPosition EMPTY>
+<!ATTLIST anvilPosition
+		dx CDATA #REQUIRED
+		dy CDATA #REQUIRED
+		direction %direction; #REQUIRED
+>
+
+<!ELEMENT smithDropPosition EMPTY>
+<!ATTLIST smithDropPosition
+		dx CDATA #REQUIRED
+		dy CDATA #REQUIRED
 >

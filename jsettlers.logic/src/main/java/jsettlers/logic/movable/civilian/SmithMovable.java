@@ -28,6 +28,7 @@ public class SmithMovable extends BuildingWorkerMovable {
 	private static Node<SmithMovable> createSmithBehaviour() {
 		return defaultWorkCycle(
 				sequence(
+					sleep(1000),
 					waitFor(
 						sequence(
 							isAllowedToWork(),
@@ -94,14 +95,11 @@ public class SmithMovable extends BuildingWorkerMovable {
 	}
 
 	private ShortPoint2D getWorkPosition() {
-		return (building.getBuildingVariant().getType() == EBuildingType.TOOLSMITH ?
-				new RelativePoint(0, 4) : new RelativePoint( 1, 3))
-				.calculatePoint(building.getPosition());
+		return building.getBuildingVariant().getAnvilPosition().calculatePoint(building.getPosition());
 	}
 
 	private EDirection getWorkDirection() {
-		 return (building.getBuildingVariant().getType() == EBuildingType.TOOLSMITH) ?
-			EDirection.NORTH_WEST : EDirection.NORTH_EAST;
+		return building.getBuildingVariant().getAnvilPosition().getDirection();
 	}
 
 	private ShortPoint2D getOvenPosition() {
@@ -113,8 +111,6 @@ public class SmithMovable extends BuildingWorkerMovable {
 	}
 
 	private ShortPoint2D getDropPosition() {
-		return (building.getBuildingVariant().getType() == EBuildingType.TOOLSMITH ?
-				new RelativePoint(3, 4) : new RelativePoint(5, 1))
-				.calculatePoint(building.getPosition());
+		return building.getBuildingVariant().getSmithDropPosition().calculatePoint(building.getPosition());
 	}
 }
