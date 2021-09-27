@@ -115,6 +115,8 @@
 
 	<smokePosition dx="-4" dy="-3"/>
 
+	<moltenMetal dx="0" dy="0"/>
+
 	<meltInput dx="-2" dy="2" direction="NORTH_EAST" material="IRONORE"/>
 	<meltOutput dx="2" dy="5" direction="NORTH_WEST" material="IRON"/>
 

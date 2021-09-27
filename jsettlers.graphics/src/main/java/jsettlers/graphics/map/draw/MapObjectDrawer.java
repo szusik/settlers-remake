@@ -875,7 +875,7 @@ public class MapObjectDrawer {
 			IBuilding building = ((IGraphicsBuildingWorker)movable).getGarrisonedBuilding();
 
 			if(building != null) {
-				ShortPoint2D position = building.getPosition();
+				ShortPoint2D position = building.getBuildingVariant().getMoltenMetalPosition().calculatePoint(building.getPosition());
 				int metalHeight = context.getHeight(position.x, position.y);
 
 				viewX = context.getConverter().getViewX(position.x, position.y, metalHeight);

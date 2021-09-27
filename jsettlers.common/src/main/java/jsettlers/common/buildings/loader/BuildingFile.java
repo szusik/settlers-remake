@@ -79,6 +79,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_ANIMAL_POSITION = "animalPosition";
 	private static final String TAG_SMOKE_POSITION = "smokePosition";
 	private static final String TAG_HEALSPOT = "healspot";
+	private static final String TAG_MOLTEN_METAL = "moltenMetal";
 	private static final String TAG_MELT_INPUT = "meltInput";
 	private static final String TAG_MELT_OUTPUT = "meltOutput";
 	private static final String TAG_IMAGE = "image";
@@ -102,6 +103,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private RelativeDirectionPoint meltOutput = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
 	private EMaterialType meltInputMaterial = EMaterialType.NO_MATERIAL;
 	private EMaterialType meltOutputMaterial = EMaterialType.NO_MATERIAL;
+
+	private RelativePoint moltenMetalPosition = new RelativePoint(0, 0);
 
 	private ArrayList<RelativeDirectionPoint> donkeyFeedPositions = new ArrayList<>();
 	private RelativeDirectionPoint sawmillerWorkPosition = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
@@ -203,6 +206,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 				smokePosition = readRelativeTile(attributes);
 			} else if(TAG_HEALSPOT.equals(tagName)) {
 				healSpot = readRelativeTile(attributes);
+			} else if(TAG_MOLTEN_METAL.equals(tagName)) {
+				moltenMetalPosition = readRelativeTile(attributes);
 			} else if(TAG_MELT_INPUT.equals(tagName)) {
 				meltInput = readRelativeDirectionPoint(attributes);
 				meltInputMaterial = readMaterial(attributes);
@@ -500,6 +505,10 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativePoint[] getAnimalPositions() {
 		return animalPositions.toArray(new RelativePoint[0]);
+	}
+
+	public RelativePoint getMoltenMetalPosition() {
+		return moltenMetalPosition;
 	}
 
 	public RelativeDirectionPoint getMeltInput() {

@@ -106,6 +106,8 @@
 
 	<smokePosition dx="-7" dy="-5"/>
 
+	<moltenMetal dx="0" dy="0"/>
+
 	<meltInput dx="-2" dy="2" direction="NORTH_EAST" material="GOLDORE"/>
 	<meltOutput dx="2" dy="4" direction="NORTH_WEST" material="GOLD"/>
 

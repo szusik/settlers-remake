@@ -86,11 +86,13 @@ public class BuildingVariant {
 
 	private final RelativePoint[] animalPositions;
 
-	private RelativeDirectionPoint meltInput;
-	private RelativeDirectionPoint meltOutput;
+	private final RelativePoint moltenMetalPosition;
 
-	private EMaterialType meltInputMaterial;
-	private EMaterialType meltOutputMaterial;
+	private final RelativeDirectionPoint meltInput;
+	private final RelativeDirectionPoint meltOutput;
+
+	private final EMaterialType meltInputMaterial;
+	private final EMaterialType meltOutputMaterial;
 
 	/**
 	 * Constructs an enum object.
@@ -145,6 +147,8 @@ public class BuildingVariant {
 
 		meltInputMaterial = file.getMeltInputMaterial();
 		meltOutputMaterial = file.getMeltOutputMaterial();
+
+		moltenMetalPosition = file.getMoltenMetalPosition();
 
 		this.numberOfConstructionMaterials = calculateNumberOfConstructionMaterials();
 
@@ -472,6 +476,10 @@ public class BuildingVariant {
 
 	public RelativePoint[] getAnimalPositions() {
 		return animalPositions;
+	}
+
+	public RelativePoint getMoltenMetalPosition() {
+		return moltenMetalPosition;
 	}
 
 	public RelativeDirectionPoint getMeltInput() {
