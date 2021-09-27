@@ -113,6 +113,8 @@
 	<buildmark dx="3" dy="-1" />
 	<buildmark dx="-2" dy="-6" />
 
+	<smokePosition dx="-4" dy="-3"/>
+
 	<meltInput dx="-2" dy="2" direction="NORTH_EAST" material="IRONORE"/>
 	<meltOutput dx="2" dy="5" direction="NORTH_WEST" material="IRON"/>
 

@@ -46,7 +46,9 @@ public class MelterMovable extends BuildingWorkerMovable {
 
 						goToPos(MelterMovable::getOutputPosition, BuildingWorkerMovable::tmpPathStep),
 						setDirectionNode(MelterMovable::getOutputDirection),
+						setSmoke(MelterMovable::getMeltingTime),
 						playAction(EMovableAction.ACTION1, MelterMovable::getMeltingTime),
+						setSmoke((short) 0),
 						take(MelterMovable::getProducedMaterial, mov -> false, mov -> {}),
 
 						goToOutputStack(MelterMovable::getProducedMaterial, BuildingWorkerMovable::tmpPathStep),

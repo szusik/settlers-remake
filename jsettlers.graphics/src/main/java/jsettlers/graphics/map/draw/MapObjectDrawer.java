@@ -878,14 +878,6 @@ public class MapObjectDrawer {
 			ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, 13, metal, number > 24 ? 24 : number);
 			image = imageProvider.getImage(link);
 			image.drawAt(context.getGl(), viewX, viewY, getZ(0, metalY), color, shade);
-			// draw smoke
-			int smokeX = x - 9;
-			int smokeY = y - 14;
-			viewX = context.getConverter().getViewX(smokeX, smokeY, height);
-			viewY = context.getConverter().getViewY(smokeX, smokeY, height);
-			link = new OriginalImageLink(EImageLinkType.SETTLER, 13, 42, number > 35 ? 35 : number);
-			image = imageProvider.getImage(link);
-			image.drawAt(context.getGl(), viewX, viewY, SMOKE_Z, color, shade);
 		}
 
 		if (movable.getAction() == EMovableAction.WALKING) {

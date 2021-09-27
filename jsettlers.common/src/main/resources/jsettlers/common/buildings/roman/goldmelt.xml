@@ -104,8 +104,10 @@
 	<buildmark dx="2" dy="-1" />
 	<buildmark dx="1" dy="2" />
 
+	<smokePosition dx="-4" dy="-3"/>
+
 	<meltInput dx="-2" dy="2" direction="NORTH_EAST" material="GOLDORE"/>
-	<meltOutput dx="0" dy="4" direction="NORTH_EAST" material="GOLD"/>
+	<meltOutput dx="2" dy="4" direction="NORTH_WEST" material="GOLD"/>
 
 	<image file="14" for="GUI" type="GUI" sequence="21" image="0"/>
     <image file="13" type="SETTLER" for="FINAL" image="0" sequence="8"/>
