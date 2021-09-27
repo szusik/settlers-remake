@@ -22,8 +22,39 @@ public class MineElementWrapper {
 
 	public MineElementWrapper(Attributes attributes) {
 		dropDirection = EDirection.valueOf(attributes.getValue(ATTR_DROP_DIRECTION));
-		foodOrder = JobElementWrapper.getMaterialTypeArray(attributes, ATTR_FOOD_ORDER);
-		miningInterval = JobElementWrapper.getAttributeAsFloat(attributes, ATTR_MINING_INTERVAL);
+		foodOrder = getMaterialTypeArray(attributes, ATTR_FOOD_ORDER);
+		miningInterval = getAttributeAsFloat(attributes, ATTR_MINING_INTERVAL);
+	}
+
+	public static EMaterialType[] getMaterialTypeArray(Attributes attributes, String attribute) {
+		String foodOrderString = attributes.getValue(attribute);
+		if (foodOrderString == null) {
+			return null;
+		}
+
+		try {
+			String[] foodOrderStrings = foodOrderString.split(",");
+			EMaterialType[] foodOrder = new EMaterialType[foodOrderStrings.length];
+			for (int i = 0; i < foodOrderStrings.length; i++) {
+				foodOrder[i] = EMaterialType.valueOf(foodOrderStrings[i]);
+			}
+			return foodOrder;
+		} catch (IllegalArgumentException e) {
+			throw new IllegalAccessError("Food order may only contain EMaterialTypes: " + foodOrderString);
+		}
+	}
+
+	public static float getAttributeAsFloat(Attributes attributes, String attribute) {
+		String string = attributes.getValue(attribute);
+		if (string == null) {
+			return 0f;
+		} else {
+			try {
+				return Float.parseFloat(string);
+			} catch (NumberFormatException e) {
+				return 0f;
+			}
+		}
 	}
 
 	public EDirection getDropDirection() {

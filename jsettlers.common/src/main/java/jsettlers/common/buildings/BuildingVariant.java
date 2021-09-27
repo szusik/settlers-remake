@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import jsettlers.common.buildings.jobs.IBuildingJob;
 import jsettlers.common.buildings.loader.BuildingFile;
 import jsettlers.common.buildings.loader.MineElementWrapper;
 import jsettlers.common.buildings.stacks.ConstructionStack;
@@ -28,8 +27,6 @@ public class BuildingVariant {
 	private final EBuildingType type;
 
 	private final ECivilisation civilisation;
-
-	private final IBuildingJob startJob;
 
 	private final EMovableType workerType;
 
@@ -110,7 +107,6 @@ public class BuildingVariant {
 		this.type = type;
 
 		BuildingFile file = new BuildingFile(civilisation.toString() + "/" + type.toString());
-		startJob = file.getStartJob();
 		workerType = file.getWorkerType();
 		doorTile = file.getDoor();
 		blockedTiles = file.getBlockedTiles();
@@ -220,15 +216,6 @@ public class BuildingVariant {
 
 	public RelativePoint[] getBuildingAreaBorder() {
 		return buildingAreaBorder;
-	}
-
-	/**
-	 * Gets the job a worker for this building should start with.
-	 *
-	 * @return That {@link IBuildingJob}
-	 */
-	public final IBuildingJob getStartJob() {
-		return startJob;
 	}
 
 	/**
@@ -366,37 +353,6 @@ public class BuildingVariant {
 	 */
 	public final OccupierPlace[] getOccupierPlaces() {
 		return occupierPlaces;
-	}
-
-	/**
-	 * Queries a building job with the given name that needs to be accessible from the start job.
-	 *
-	 * @param jobname
-	 *            The name of the job.
-	 * @return The job if found.
-	 * @throws IllegalArgumentException
-	 *             If the name was not found.
-	 */
-	public final IBuildingJob getJobByName(String jobname) {
-		HashSet<String> visited = new HashSet<>();
-
-		ConcurrentLinkedQueue<IBuildingJob> queue = new ConcurrentLinkedQueue<>();
-		queue.add(startJob);
-
-		while (!queue.isEmpty()) {
-			IBuildingJob job = queue.poll();
-			if (visited.contains(job.getName())) {
-				continue;
-			}
-			if (job.getName().equals(jobname)) {
-				return job;
-			}
-			visited.add(job.getName());
-
-			queue.add(job.getNextFailJob());
-			queue.add(job.getNextSucessJob());
-		}
-		throw new IllegalArgumentException("This building has no job with name " + jobname);
 	}
 
 	/**

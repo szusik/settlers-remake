@@ -17,7 +17,6 @@ package jsettlers.common.buildings.loader;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
@@ -31,7 +30,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.OccupierPlace;
 import jsettlers.common.buildings.RelativeDirectionPoint;
-import jsettlers.common.buildings.jobs.IBuildingJob;
 import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.images.EImageLinkType;
@@ -49,13 +47,11 @@ import jsettlers.common.position.RelativePoint;
  * 
  * @author michael
  */
-public class BuildingFile implements BuildingJobDataProvider {
+public class BuildingFile {
 
 	private static final String BUILDING_DTD = "building.dtd";
 
 	private static final String TAG_BUILDING = "building";
-	private static final String TAG_JOB = "job";
-	private static final String TAG_STARTJOB = "startjob";
 	private static final String TAG_DOOR = "door";
 	private static final String TAG_BLOCKED = "blocked";
 	private static final String TAG_CONSTRUCTION_STACK = "constructionStack";
@@ -93,11 +89,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	private final ArrayList<RelativePoint> protectedTiles = new ArrayList<>();
 
-	private final Hashtable<String, JobElementWrapper> jobElements = new Hashtable<>();
-
-	private String startJobName = "";
 	private RelativePoint door = new RelativePoint(0, 0);
-	private IBuildingJob startJob = null;
 	private RelativePoint smokePosition = new RelativePoint(0, 0);
 	private boolean smokeWithFire = false;
 
@@ -172,11 +164,6 @@ public class BuildingFile implements BuildingJobDataProvider {
 		public void startElement(String uri, String localName, String tagName, Attributes attributes) throws SAXException {
 			if (TAG_BUILDING.equals(tagName)) {
 				readAttributes(attributes);
-			} else if (TAG_JOB.equals(tagName)) {
-				String name = attributes.getValue(ATTR_JOBNAME);
-				jobElements.put(name, new JobElementWrapper(attributes));
-			} else if (TAG_STARTJOB.equals(tagName)) {
-				startJobName = attributes.getValue(ATTR_JOBNAME);
 			} else if (TAG_DOOR.equals(tagName)) {
 				door = readRelativeTile(attributes);
 			} else if (TAG_WORKCENTER.equals(tagName)) {
@@ -410,30 +397,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 		this.mine = Boolean.valueOf(attributes.getValue("mine"));
 	}
 
-	public IBuildingJob getStartJob() {
-		if (startJob == null) {
-			try {
-				if (startJobName == null || startJobName.isEmpty()) {
-					startJob = SimpleBuildingJob.createFallback();
-				} else {
-					startJob = SimpleBuildingJob.createLinkedJobs(this, startJobName);
-				}
-			} catch (Exception e) {
-				System.err.println("Error while creating job list for " + buildingName + ", using fallback. Message: " + e);
-				e.printStackTrace();
-				startJob = SimpleBuildingJob.createFallback();
-			}
-		}
-		return startJob;
-	}
-
 	public RelativePoint getDoor() {
 		return door;
-	}
-
-	@Override
-	public BuildingJobData getJobData(String name) {
-		return jobElements.get(name);
 	}
 
 	public EMovableType getWorkerType() {
