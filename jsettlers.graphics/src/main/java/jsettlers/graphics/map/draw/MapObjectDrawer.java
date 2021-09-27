@@ -186,6 +186,7 @@ public class MapObjectDrawer {
 	private final float z_per_y;
 	private final float shadow_offset;
 	private final float construction_offset;
+	private final float molten_metal_offset;
 
 	private static final int SMOKE_HEIGHT = 30;
 
@@ -222,6 +223,7 @@ public class MapObjectDrawer {
 		z_per_y = 1f/(context.getMap().getHeight()*100);
 		shadow_offset = 10 * z_per_y;
 		construction_offset = z_per_y;
+		molten_metal_offset = z_per_y;
 	}
 
 	public void setVisibleGrid(byte[][] visibleGrid) {
@@ -869,15 +871,22 @@ public class MapObjectDrawer {
 		// melter action
 		if (movableType == EMovableType.MELTER && movable.getAction() == EMovableAction.ACTION1) {
 			int number = (int) (moveProgress * 36);
-			// draw molten metal
-			int metalX = x - 2;
-			int metalY = y - 5;
-			viewX = context.getConverter().getViewX(metalX, metalY, height);
-			viewY = context.getConverter().getViewY(metalX, metalY, height);
-			int metal = (((IGraphicsBuildingWorker)movable).getGarrisonedBuildingType() == EBuildingType.IRONMELT) ? 37 : 36;
-			ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, 13, metal, number > 24 ? 24 : number);
-			image = imageProvider.getImage(link);
-			image.drawAt(context.getGl(), viewX, viewY, getZ(0, metalY), color, shade);
+
+			IBuilding building = ((IGraphicsBuildingWorker)movable).getGarrisonedBuilding();
+
+			if(building != null) {
+				ShortPoint2D position = building.getPosition();
+				int metalHeight = context.getHeight(position.x, position.y);
+
+				viewX = context.getConverter().getViewX(position.x, position.y, metalHeight);
+				viewY = context.getConverter().getViewY(position.x, position.y, metalHeight);
+
+				int metal = building.getBuildingVariant().isVariantOf(EBuildingType.IRONMELT) ? 37 : 36;
+
+				ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, 13, metal, number > 24 ? 24 : number);
+				image = imageProvider.getImage(link);
+				image.drawAt(context.getGl(), viewX, viewY, getZ(molten_metal_offset, position.y), color, shade);
+			}
 		}
 
 		if (movable.getAction() == EMovableAction.WALKING) {

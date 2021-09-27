@@ -188,12 +188,8 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	}
 
 	@Override
-	public EBuildingType getGarrisonedBuildingType() {
-		if(building != null) {
-			return building.getBuildingVariant().getType();
-		} else {
-			return null;
-		}
+	public IBuilding getGarrisonedBuilding() {
+		return building;
 	}
 
 	@Override

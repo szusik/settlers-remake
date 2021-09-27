@@ -1,6 +1,6 @@
 package jsettlers.common.movable;
 
-import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.IBuilding;
 
 public interface IGraphicsBuildingWorker extends IGraphicsMovable {
 
@@ -9,5 +9,5 @@ public interface IGraphicsBuildingWorker extends IGraphicsMovable {
 	 *
 	 * @return EBuildingType of the building the worker is garrisoned in or null if the worker is not garrisoned.
 	 */
-	EBuildingType getGarrisonedBuildingType();
+	IBuilding getGarrisonedBuilding();
 }

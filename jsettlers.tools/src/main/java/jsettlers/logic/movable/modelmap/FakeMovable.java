@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
@@ -167,7 +167,7 @@ public class FakeMovable implements IGraphicsMovable, IGraphicsBuildingWorker, I
 	}
 
 	@Override
-	public EBuildingType getGarrisonedBuildingType() {
+	public IBuilding getGarrisonedBuilding() {
 		return null;
 	}
 
