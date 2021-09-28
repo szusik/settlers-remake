@@ -1,7 +1,6 @@
 package jsettlers.logic.movable.military;
 
 import jsettlers.algorithms.path.Path;
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.buildings.OccupierPlace;
@@ -11,7 +10,6 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
-import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
@@ -103,6 +101,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 					sequence(
 						ignoreFailure(goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null)), // TODO
 						action(mov -> {
+							mov.enterFerry();
 							mov.goToTarget = null;
 						})
 					)

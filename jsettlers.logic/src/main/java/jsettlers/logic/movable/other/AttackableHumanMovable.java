@@ -4,6 +4,7 @@ import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
@@ -16,6 +17,9 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 	protected EMoveToType nextMoveToType;
 	protected ShortPoint2D nextTarget = null;
 	protected boolean goingToHealer = false;
+
+	// the following data only for ship passengers
+	protected IFerryMovable ferryToEnter = null;
 
 	public AttackableHumanMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable, Root<? extends AttackableHumanMovable> behaviour) {
 		super(grid, movableType, position, player, movable, behaviour);
@@ -94,5 +98,18 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 		if(isOnFerry()) return null;
 
 		return position;
+	}
+
+	protected void enterFerry() {
+		if(ferryToEnter == null) return;
+
+		int distanceToFerry = position.getOnGridDistTo(ferryToEnter.getPosition());
+		if(distanceToFerry <= Constants.MAX_FERRY_ENTRANCE_DISTANCE) {
+			if (ferryToEnter.addPassenger(this)) {
+				grid.leavePosition(position, this);
+				setState(EMovableState.ON_FERRY);
+			}
+		}
+		ferryToEnter = null;
 	}
 }

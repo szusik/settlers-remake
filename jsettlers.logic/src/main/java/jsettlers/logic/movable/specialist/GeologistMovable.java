@@ -1,10 +1,8 @@
 package jsettlers.logic.movable.specialist;
 
 import jsettlers.algorithms.path.Path;
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.common.action.EMoveToType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableAction;
@@ -12,7 +10,6 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.MutablePoint2D;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.mutables.MutableDouble;
-import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -55,6 +52,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 					sequence(
 						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null), // TODO
 						action(mov -> {
+							mov.enterFerry();
 							mov.goToTarget = null;
 						})
 					)

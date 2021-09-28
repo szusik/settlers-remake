@@ -7,7 +7,6 @@ import java.util.Queue;
 
 import java8.util.Lists;
 import java8.util.function.Function;
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.terraform.LandscapeEditor;
@@ -86,6 +85,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 							)
 						),
 						action(mov -> {
+							mov.enterFerry();
 							mov.currentTarget = null;
 						})
 					)

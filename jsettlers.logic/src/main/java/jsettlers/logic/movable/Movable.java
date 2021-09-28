@@ -104,9 +104,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	private transient boolean selected    = false;
 	private transient boolean soundPlayed = false;
 
-	// the following data only for ship passengers
-	protected IFerryMovable ferryToEnter = null;
-
 	protected boolean playerControlled;
 
 	private boolean leavePosition = false;
@@ -469,14 +466,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	private void pathingAction() {
-		if (path == null || !path.hasNextStep() || ferryToEnter == null && !checkPathStepPreconditions()) {
+		if (path == null || !path.hasNextStep() || !checkPathStepPreconditions()) {
 			// if path is finished, or canceled by strategy return from here
 			setState(EMovableState.DOING_NOTHING);
 			movableAction = EMovableAction.NO_ACTION;
 			path = null;
-			if (ferryToEnter != null) {
-				enterFerry();
-			}
 			return;
 		}
 
@@ -516,17 +510,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		if (this.isShip()) { // ships need more space
 			pushShips();
 		}
-	}
-
-	private void enterFerry() {
-		int distanceToFerry = this.getPosition().getOnGridDistTo(ferryToEnter.getPosition());
-		if (distanceToFerry <= Constants.MAX_FERRY_ENTRANCE_DISTANCE) {
-			if (ferryToEnter.addPassenger((IAttackableHumanMovable)this)) {
-				grid.leavePosition(this.getPosition(), this);
-				setState(EMovableState.ON_FERRY);
-			}
-		}
-		ferryToEnter = null;
 	}
 
 	private void pushShips() {
