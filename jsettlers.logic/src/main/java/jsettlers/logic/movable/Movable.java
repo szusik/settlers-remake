@@ -281,15 +281,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> followPresearchedPath(IBooleanConditionFunction<T> pathStep) {
 		return sequence(
-
 				action(mov -> {
 					Movable realMov = mov;
 
-					mov.aborted = false;
 					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
 
 					assert mov.path != null : "path must be non-null to be able to followPresearchedPath()!";
-					realMov.followPath(mov.path);
+					realMov.followPath();
 				}),
 				waitFor(condition(mov -> mov.path == null)),
 				condition(mov -> !mov.aborted)
@@ -330,11 +328,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				condition(mov -> {
 					Movable realMov = mov;
 
-					mov.aborted = false;
 					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
-					Path path = mov.grid.calculatePathTo(mov, target.apply(mov));
+					mov.path = mov.grid.calculatePathTo(mov, target.apply(mov));
 
-					realMov.followPath(path);
+					realMov.followPath();
 					return mov.path != null;
 				}),
 				waitFor(condition(mov -> mov.path == null)),
@@ -805,9 +802,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 		switch (mode) {
 			case GO_IF_ALLOWED_WAIT_TILL_FREE: {
-				this.direction = direction;
-				setState(EMovableState.PATHING);
-				this.followPath(new Path(targetPosition));
+				setDirection(direction);
+				path = new Path(targetPosition);
+				followPath();
 				return true;
 			}
 			case GO_IF_ALLOWED_AND_FREE:
@@ -873,8 +870,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return grid.getPlayerAt(position) == player;
 	}
 
-	private void followPath(Path path) {
-		this.path = path;
+	private void followPath() {
+		aborted = false;
 		setState(EMovableState.PATHING);
 		this.movableAction = EMovableAction.NO_ACTION;
 		pathingAction();
