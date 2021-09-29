@@ -30,22 +30,31 @@ public class DynamicGuardSelector<T> extends Composite<T> {
 
 	@Override
 	protected NodeStatus onTick(Tick<T> tick) {
-		for(Node<T> child : children) {
-			Guard<T> guard = (Guard<T>)child;
+		Node<T> runningChild = null;
+		int runningChildIndex = tick.getProperty(getId());
+		if(runningChildIndex != -1) {
+			runningChild = children.get(runningChildIndex);
+		}
+
+		for (int i = 0; i < children.size(); i++) {
+			Node<T> child = children.get(i);
+
+			Guard<T> guard = (Guard<T>) child;
 
 			if(guard.checkGuardCondition(tick)) {
-				Node<T> runningChild = tick.getProperty(getId());
-				if(runningChild != null && runningChild != guard) runningChild.close(tick);
+				if(runningChild != null && runningChild != guard) {
+					runningChild.close(tick);
+				}
 
 				NodeStatus returnStatus = guard.execute(tick);
 
 				switch (returnStatus) {
 					case RUNNING:
-						tick.setProperty(getId(), guard);
+						tick.setProperty(getId(), i);
 						return RUNNING;
 					case SUCCESS:
 						return SUCCESS;
-						// continue with next node
+					// continue with next node
 					case FAILURE:
 						break;
 				}
@@ -57,12 +66,12 @@ public class DynamicGuardSelector<T> extends Composite<T> {
 
 	@Override
 	protected void onOpen(Tick<T> tick) {
-		tick.setProperty(getId(), null);
+		tick.setProperty(getId(), -1);
 	}
 
 	@Override
 	protected void onClose(Tick<T> tick) {
-		Node<T> runningChild = tick.getProperty(getId());
-		if(runningChild != null) runningChild.close(tick);
+		int runningChild = tick.getProperty(getId());
+		if(runningChild != -1) children.get(runningChild).close(tick);
 	}
 }
