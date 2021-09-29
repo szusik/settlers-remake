@@ -5,7 +5,9 @@ import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 
-public class Property<T, PropertyType> extends Decorator<T> {
+import java.io.Serializable;
+
+public class Property<T, PropertyType extends Serializable> extends Decorator<T> {
 	private static final long serialVersionUID = 6714370606784586530L;
 
 	private final PropertyType                          newValue;

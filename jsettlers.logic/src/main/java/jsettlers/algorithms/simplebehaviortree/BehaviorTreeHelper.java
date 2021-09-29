@@ -21,6 +21,8 @@ import jsettlers.algorithms.simplebehaviortree.nodes.Parallel;
 import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.algorithms.simplebehaviortree.nodes.Wait;
 
+import java.io.Serializable;
+
 public final class BehaviorTreeHelper {
 
 	/* --- Node Factory --- */
@@ -166,7 +168,7 @@ public final class BehaviorTreeHelper {
 		return new Debug<>(msg);
 	}
 
-	public static <T, I> Property<T, I> property(ISetPropertyConsumer<T, I> setter, IGetPropertyProducer<T, I> getter, I value, Node<T> child) {
+	public static <T, I extends Serializable> Property<T, I> property(ISetPropertyConsumer<T, I> setter, IGetPropertyProducer<T, I> getter, I value, Node<T> child) {
 		return new Property<>(setter, getter, value, child);
 	}
 }
