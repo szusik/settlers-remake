@@ -24,7 +24,7 @@ public class SettlersVersionMappingTest {
 
 	@Test
 	public void testGetAmazonDemoMapping() {
-		GfxFolderMapping mapping = SettlersVersionMapping.getMappingForVersionId(Long.toString(-139181943176809049L));
+		GfxFolderMapping mapping = SettlersVersionMapping.getMappingForVersionId(Long.toString(-7625624354234896191L));
 
 		assertNotNull(mapping);
 		assertTrue(mapping instanceof IndexingGfxFolderMapping);
