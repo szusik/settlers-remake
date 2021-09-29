@@ -221,7 +221,16 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> goInDirectionIfAllowedAndFreeNode(IEDirectionSupplier<T> direction) {
 		return sequence(
-				condition(mov -> mov.goInDirectionIfAllowedAndFreeNode(direction.apply(mov))),
+				condition(mov -> {
+					ShortPoint2D targetPosition = direction.apply(mov).getNextHexPoint(mov.getPosition());
+
+					if ((mov.grid.isValidPosition(mov, targetPosition.x, targetPosition.y) && mov.grid.hasNoMovableAt(targetPosition.x, targetPosition.y))) {
+						((Movable)mov).initGoingSingleStep(targetPosition);
+						mov.setState(EMovableState.GOING_SINGLE_STEP);
+						return true;
+					}
+					return false;
+				}),
 				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
 		);
 	}
@@ -249,7 +258,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	protected static <T extends Movable> Node<T> goInDirectionWaitFree(IEDirectionSupplier<T> direction, IBooleanConditionFunction<T> pathStep) {
 		return sequence(
 				action(mov -> {
-					mov.goInDirectionIfAllowedWaitTillFree(direction.apply(mov), pathStep);
+					EDirection realDirection = direction.apply(mov);
+					mov.setDirection(realDirection);
+					mov.path = new Path(realDirection.getNextHexPoint(mov.getPosition()));
+					((Movable)mov).followPath(pathStep);
 				}),
 				waitFor(condition(mov -> mov.path == null)),
 				condition(mov -> !mov.aborted)
@@ -741,7 +753,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			EDirection currDir = EDirection.VALUES[(i + offset) % EDirection.NUMBER_OF_DIRECTIONS];
 			if (currDir != pushedFromDir && currDir != pushedFromDir.rotateRight(1)
 				&& currDir != pushedFromDir.rotateRight(EDirection.NUMBER_OF_DIRECTIONS - 1)
-				&& goInDirectionIfAllowedAndFreeNode(currDir)) {
+				&& goInDirectionIfAllowedAndFree(currDir)) {
 				return true;
 			}
 		}
@@ -785,7 +797,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		followPath(pathStep);
 	}
 
-	public boolean goInDirectionIfAllowedAndFreeNode(EDirection direction) {
+	public boolean goInDirectionIfAllowedAndFree(EDirection direction) {
 		ShortPoint2D targetPosition = direction.getNextHexPoint(position);
 
 		if ((grid.isValidPosition(this, targetPosition.x, targetPosition.y) && grid.hasNoMovableAt(targetPosition.x, targetPosition.y))) {
