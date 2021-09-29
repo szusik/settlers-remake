@@ -317,7 +317,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	}
 
 	@Override
-	public Path findWayAroundObstacle(ShortPoint2D position, Path path) {
+	public void findWayAroundObstacle() {
 		if (building == null && startPoint != null) {
 			EDirection direction = EDirection.getDirection(position, path.getNextPos());
 
@@ -329,7 +329,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 			ShortPoint2D freePosition = getRandomFreePosition(rightPos, leftPos);
 
 			if (freePosition != null) {
-				return new Path(freePosition);
+				path = new Path(freePosition);
 
 			} else {
 				EDirection twoRightDir = direction.getNeighbor(-2);
@@ -340,13 +340,11 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				freePosition = getRandomFreePosition(twoRightPos, twoLeftPos);
 
 				if (freePosition != null) {
-					return new Path(freePosition);
-				} else {
-					return path;
+					path = new Path(freePosition);
 				}
 			}
 		} else {
-			return super.findWayAroundObstacle(position, path);
+			super.findWayAroundObstacle();
 		}
 	}
 

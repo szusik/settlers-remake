@@ -317,9 +317,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 
-	protected Path findWayAroundObstacle(ShortPoint2D position, Path path) {
+	protected void findWayAroundObstacle() {
 		if (!path.hasOverNextStep()) { // if path has no position left
-			return path;
+			return;
 		}
 
 		EDirection direction = EDirection.getApproxDirection(position, path.getOverNextPos());
@@ -377,11 +377,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			ILogicMovable movable = grid.getMovableAt(firstPosition.x, firstPosition.y);
 			if (movable == null) {
 				path.goToNextStep();
-				return new Path(path, pathPrefix);
+				path = new Path(path, pathPrefix);
 			}
 		}
-
-		return path;
 	}
 
 	@Override
@@ -704,7 +702,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 			switch (i) {
 				case 0:
-					path = findWayAroundObstacle(position, path);
+					findWayAroundObstacle();
 					break;
 				case 1:
 					blockingMovable.push(this);
