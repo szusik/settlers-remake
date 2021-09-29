@@ -225,8 +225,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					ShortPoint2D targetPosition = direction.apply(mov).getNextHexPoint(mov.getPosition());
 
 					if ((mov.grid.isValidPosition(mov, targetPosition.x, targetPosition.y) && mov.grid.hasNoMovableAt(targetPosition.x, targetPosition.y))) {
-						((Movable)mov).initGoingSingleStep(targetPosition);
-						mov.setState(EMovableState.GOING_SINGLE_STEP);
+						mov.path = new Path(targetPosition);
+						((Movable)mov).followPath(t -> true);
 						return true;
 					}
 					return false;
@@ -240,8 +240,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				condition(mov -> {
 					ShortPoint2D targetPosition = direction.apply(mov).getNextHexPoint(mov.position);
 					if(mov.grid.isFreePosition(targetPosition.x, targetPosition.y)) {
-						((Movable)mov).initGoingSingleStep(targetPosition);
-						mov.setState(EMovableState.GOING_SINGLE_STEP);
+						mov.path = new Path(targetPosition);
+						((Movable)mov).followPath(t -> true);
 						return true;
 					} else {
 						return false;
@@ -419,7 +419,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 
 		switch (state) { // ensure animation is finished, if not, reschedule
-			case GOING_SINGLE_STEP:
 			case PATHING:
 			case WAITING:
 				int remainingAnimationTime = animationStartTime + animationDuration - MatchConstants.clock().getTime();
@@ -433,7 +432,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 		switch (state) {
 			case WAITING:
-			case GOING_SINGLE_STEP:
 				setState(EMovableState.DOING_NOTHING); // the action is finished, as the time passed
 				movableAction = EMovableAction.NO_ACTION;
 
@@ -713,7 +711,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				}
 				return true;
 
-			case GOING_SINGLE_STEP:
 			case WAITING:
 				return false; // we can't do anything
 
@@ -801,8 +798,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		ShortPoint2D targetPosition = direction.getNextHexPoint(position);
 
 		if ((grid.isValidPosition(this, targetPosition.x, targetPosition.y) && grid.hasNoMovableAt(targetPosition.x, targetPosition.y))) {
-			initGoingSingleStep(targetPosition);
-			setState(EMovableState.GOING_SINGLE_STEP);
+			path = new Path(targetPosition);
+			followPath(mov -> true);
 			return true;
 		}
 		return false;
@@ -1030,7 +1027,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	protected enum EMovableState {
 		PATHING,
 		DOING_NOTHING,
-		GOING_SINGLE_STEP,
 		WAITING,
 		ON_FERRY,
 
