@@ -9,6 +9,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.workers.MineBuilding;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -17,11 +18,12 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 public class MinerMovable extends BuildingWorkerMovable {
 
 	public MinerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.MINER, position, player, replace, tree);
+		super(grid, EMovableType.MINER, position, player, replace);
 	}
 
-	private static final Root<MinerMovable> tree = new Root<>(createMinerBehaviour());
-
+	static {
+		MovableManager.registerBehaviour(EMovableType.MINER, new Root<>(createMinerBehaviour()));
+	}
 	private static Node<MinerMovable> createMinerBehaviour() {
 		return defaultWorkCycle(
 				sequence(

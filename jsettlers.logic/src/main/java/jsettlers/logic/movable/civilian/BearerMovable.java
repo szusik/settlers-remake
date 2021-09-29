@@ -13,6 +13,7 @@ import jsettlers.logic.map.grid.partition.manager.materials.interfaces.IMaterial
 import jsettlers.logic.map.grid.partition.manager.materials.offers.EOfferPriority;
 import jsettlers.logic.map.grid.partition.manager.objects.WorkerCreationRequest;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IBearerMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
@@ -33,10 +34,12 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 	private boolean registered = false;
 
 	public BearerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.BEARER, position, player, movable, tree);
+		super(grid, EMovableType.BEARER, position, player, movable);
 	}
 
-	private static final Root<BearerMovable> tree = new Root<>(createBearerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.BEARER, new Root<>(createBearerBehaviour()));
+	}
 
 	@Override
 	public ILogicMovable convertTo(EMovableType newMovableType) {

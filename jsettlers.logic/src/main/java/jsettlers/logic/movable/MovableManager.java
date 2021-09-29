@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jsettlers.algorithms.fogofwar.FogOfWar;
+import jsettlers.algorithms.simplebehaviortree.Root;
+import jsettlers.common.movable.EMovableType;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
@@ -21,6 +24,8 @@ public final class MovableManager {
 	static final ConcurrentLinkedQueue<ILogicMovable> allMovables  = new ConcurrentLinkedQueue<>();
 	static       int                                  nextID       = Integer.MIN_VALUE;
 	static byte fowTeam = -1;
+
+	private static final Map<EMovableType, Root<Movable>> BEHAVIOUR_TREES = new EnumMap<>(EMovableType.class);
 
 	public static void initFow(byte fow) {
 		fowTeam = fow;
@@ -99,5 +104,23 @@ public final class MovableManager {
 	static void remove(Movable movable) {
 		movablesByID.remove(movable.getID());
 		allMovables.remove(movable);
+	}
+
+	public static <T extends Movable> void registerBehaviour(EMovableType type, Root<T> tree) {
+		if(BEHAVIOUR_TREES.containsKey(type)) {
+			throw new Error(type + " already has a behaviour tree!");
+		}
+
+		BEHAVIOUR_TREES.put(type, (Root<Movable>)tree);
+	}
+
+	static Root<Movable> getBehaviourFor(EMovableType type) {
+		Root<Movable> behaviour = BEHAVIOUR_TREES.get(type);
+
+		if(behaviour == null) {
+			throw new Error(type + " is missing a behaviour tree!");
+		}
+
+		return behaviour;
 	}
 }

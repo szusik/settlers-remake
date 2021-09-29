@@ -26,8 +26,8 @@ public abstract class CivilianMovable extends Movable implements ICivilianMovabl
 	private ShortPoint2D lastCheckedPosition = null;
 	private byte pathStepCheckedCounter;
 
-	protected CivilianMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends CivilianMovable> behaviour) {
-		super(grid, movableType, position, player, replace, behaviour);
+	protected CivilianMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
+		super(grid, movableType, position, player, replace);
 	}
 
 	protected static <T extends CivilianMovable> Guard<T> fleeIfNecessary() {

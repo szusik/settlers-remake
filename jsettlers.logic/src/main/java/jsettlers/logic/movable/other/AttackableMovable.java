@@ -15,8 +15,8 @@ public class AttackableMovable extends Movable implements IAttackableMovable {
 
 	protected boolean attackable;
 
-	public AttackableMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable, Root<? extends AttackableMovable> behaviour) {
-		super(grid, movableType, position, player, movable, behaviour);
+	public AttackableMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
+		super(grid, movableType, position, player, movable);
 
 		attackable = movableType.attackable;
 	}

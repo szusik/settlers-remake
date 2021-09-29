@@ -26,6 +26,7 @@ import jsettlers.common.utils.coordinates.CoordinateStream;
 import jsettlers.common.utils.mutables.MutableInt;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IBowmanMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
@@ -51,10 +52,12 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 	private ESpellType currentSpell;
 
 	public MageMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.MAGE, position, player, movable, behaviour);
+		super(grid, EMovableType.MAGE, position, player, movable);
 	}
 
-	private static final Root<MageMovable> behaviour = new Root<>(createMageBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.MAGE, new Root<>(createMageBehaviour()));
+	}
 
 	private static Node<MageMovable> createMageBehaviour() {
 		return guardSelector(

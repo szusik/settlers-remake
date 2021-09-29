@@ -8,6 +8,7 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -16,10 +17,12 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 public class BakerMovable extends BuildingWorkerMovable {
 
 	public BakerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.BAKER, position, player, replace, tree);
+		super(grid, EMovableType.BAKER, position, player, replace);
 	}
 
-	private static final Root<BakerMovable> tree = new Root<>(createBakerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.BAKER, new Root<>(createBakerBehaviour()));
+	}
 
 	private static Node<BakerMovable> createBakerBehaviour() {
 		return defaultWorkCycle(

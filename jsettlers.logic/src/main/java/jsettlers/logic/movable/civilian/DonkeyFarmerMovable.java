@@ -10,6 +10,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -20,10 +21,12 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 	private int feedIndex;
 
 	public DonkeyFarmerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.DONKEY_FARMER, position, player, replace, tree);
+		super(grid, EMovableType.DONKEY_FARMER, position, player, replace);
 	}
 
-	private static final Root<DonkeyFarmerMovable> tree = new Root<>(createDonkeyBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.DONKEY_FARMER, new Root<>(createDonkeyBehaviour()));
+	}
 
 	private static Node<DonkeyFarmerMovable> createDonkeyBehaviour() {
 		return defaultWorkCycle(

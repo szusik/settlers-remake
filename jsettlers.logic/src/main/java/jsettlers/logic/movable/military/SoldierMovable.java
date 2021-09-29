@@ -11,6 +11,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
 import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
@@ -42,12 +43,18 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 
 	public SoldierMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, movableType, position, player, movable, behaviour);
+		super(grid, movableType, position, player, movable);
 
 		enemyNearby = true; // might not actually be true
 	}
-	
-	private static final Root<SoldierMovable> behaviour = new Root<>(createSoldierBehaviour());
+
+	static {
+		Root<SoldierMovable> behaviour = new Root<>(createSoldierBehaviour());
+
+		for(EMovableType type : EMovableType.SOLDIERS) {
+			MovableManager.registerBehaviour(type, behaviour);
+		}
+	}
 
 	private static Node<SoldierMovable> createSoldierBehaviour() {
 		return guardSelector(

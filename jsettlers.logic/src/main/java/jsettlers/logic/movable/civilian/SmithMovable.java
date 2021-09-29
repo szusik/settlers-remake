@@ -9,6 +9,7 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -19,10 +20,12 @@ public class SmithMovable extends BuildingWorkerMovable {
 	private EMaterialType outputMaterial;
 
 	public SmithMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.SMITH, position, player, replace, tree);
+		super(grid, EMovableType.SMITH, position, player, replace);
 	}
 
-	private static final Root<SmithMovable> tree = new Root<>(createSmithBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.SMITH, new Root<>(createSmithBehaviour()));
+	}
 
 	private static Node<SmithMovable> createSmithBehaviour() {
 		return defaultWorkCycle(

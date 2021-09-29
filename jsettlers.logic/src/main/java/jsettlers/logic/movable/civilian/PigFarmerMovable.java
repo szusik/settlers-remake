@@ -13,6 +13,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -21,10 +22,12 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 public class PigFarmerMovable extends BuildingWorkerMovable {
 
 	public PigFarmerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.PIG_FARMER, position, player, replace, tree);
+		super(grid, EMovableType.PIG_FARMER, position, player, replace);
 	}
 
-	private static final Root<PigFarmerMovable> tree = new Root<>(createPigFarmerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.PIG_FARMER, new Root<>(createPigFarmerBehaviour()));
+	}
 
 	private ShortPoint2D targetKillablePig;
 	private ShortPoint2D targetFreePig;

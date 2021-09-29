@@ -10,6 +10,7 @@ import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.Movable;
@@ -30,10 +31,12 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 	private ShortPoint2D returnPos = null;
 
 	public ThiefMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.THIEF, position, player, movable, behaviour);
+		super(grid, EMovableType.THIEF, position, player, movable);
 	}
 
-	private static final Root<ThiefMovable> behaviour = new Root<>(createThiefBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.THIEF, new Root<>(createThiefBehaviour()));
+	}
 
 	public static Node<ThiefMovable> createThiefBehaviour() {
 		return guardSelector(

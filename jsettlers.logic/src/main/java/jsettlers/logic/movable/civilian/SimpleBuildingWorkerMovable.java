@@ -17,6 +17,7 @@ import jsettlers.logic.buildings.workers.MillBuilding;
 import jsettlers.logic.buildings.workers.SlaughterhouseBuilding;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -25,23 +26,21 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 
 	public SimpleBuildingWorkerMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, movableType, position, player, replace, trees.get(movableType));
+		super(grid, movableType, position, player, replace);
 	}
 
-	private static final Map<EMovableType, Root<SimpleBuildingWorkerMovable>> trees = new EnumMap<>(EMovableType.class);
-
 	static {
-		trees.put(EMovableType.FORESTER, new Root<>(createForesterBehaviour()));
-		trees.put(EMovableType.LUMBERJACK, new Root<>(createLumberjackBehaviour()));
-		trees.put(EMovableType.WATERWORKER, new Root<>(createWaterworkerBehaviour()));
-		trees.put(EMovableType.FISHERMAN, new Root<>(createFishermanBehaviour()));
-		trees.put(EMovableType.STONECUTTER, new Root<>(createStonecutterBehaviour()));
-		trees.put(EMovableType.WINEGROWER, new Root<>(createWinegrowerBehaviour()));
-		trees.put(EMovableType.FARMER, new Root<>(createFarmerBehaviour()));
-		trees.put(EMovableType.DOCKWORKER, new Root<>(createDockworkerBehaviour()));
-		trees.put(EMovableType.MILLER, new Root<>(createMillerBehaviour()));
-		trees.put(EMovableType.SLAUGHTERER, new Root<>(createSlaughtererBehaviour()));
-		trees.put(EMovableType.CHARCOAL_BURNER, new Root<>(createCharcoalBurnerBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.FORESTER, new Root<>(createForesterBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.LUMBERJACK, new Root<>(createLumberjackBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.WATERWORKER, new Root<>(createWaterworkerBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.FISHERMAN, new Root<>(createFishermanBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.STONECUTTER, new Root<>(createStonecutterBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.WINEGROWER, new Root<>(createWinegrowerBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.FARMER, new Root<>(createFarmerBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.DOCKWORKER, new Root<>(createDockworkerBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.MILLER, new Root<>(createMillerBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.SLAUGHTERER, new Root<>(createSlaughtererBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.CHARCOAL_BURNER, new Root<>(createCharcoalBurnerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {

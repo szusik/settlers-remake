@@ -12,6 +12,7 @@ import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableDigger;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IDiggerRequester;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -24,10 +25,12 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 	private ShortPoint2D targetPosition;
 
 	public DiggerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.DIGGER, position, player, movable, tree);
+		super(grid, EMovableType.DIGGER, position, player, movable);
 	}
 
-	private static final Root<DiggerMovable> tree = new Root<>(createDiggerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.DIGGER, new Root<>(createDiggerBehaviour()));
+	}
 
 	private static Node<DiggerMovable> createDiggerBehaviour() {
 		return guardSelector(

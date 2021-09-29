@@ -12,6 +12,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
@@ -31,11 +32,13 @@ public class FerryMovable extends AttackableMovable implements IFerryMovable {
 	private ShortPoint2D nextTarget = null;
 
 	public FerryMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.FERRY, position, player, movable, behaviour);
+		super(grid, EMovableType.FERRY, position, player, movable);
 
 	}
 
-	private static final Root<FerryMovable> behaviour = new Root<>(createFerryBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.FERRY, new Root<>(createFerryBehaviour()));
+	}
 
 	private static Node<FerryMovable> createFerryBehaviour() {
 		return guardSelector(

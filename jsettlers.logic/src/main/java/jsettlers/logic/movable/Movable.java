@@ -54,6 +54,9 @@ import jsettlers.logic.movable.specialist.PioneerMovable;
 import jsettlers.logic.movable.specialist.ThiefMovable;
 import jsettlers.logic.player.Player;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -106,15 +109,15 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	private boolean leavePosition = false;
 
-	private Tick<? extends Movable> tick;//TODO fix behaviour tree serialisation
+	private transient Tick<? extends Movable> tick;
 
-	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends Movable> behaviour) {
+	protected Movable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
 		this.grid = grid;
 		this.position = position;
 		this.player = player;
 		this.movableType = movableType;
 
-		this.tick = behaviour != null? new Tick<>(this, (Root<Movable>)behaviour) : null;
+		this.tick = new Tick<>(this, MovableManager.getBehaviourFor(movableType));
 
 		if(replace != null) {
 			this.health = replace.getHealth()/replace.getMovableType().getHealth()*movableType.getHealth();
@@ -140,6 +143,20 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 */
 	@Override
 	public void moveTo(ShortPoint2D targetPosition, EMoveToType moveToType) {
+	}
+
+	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+		ois.defaultReadObject();
+
+		EMovableType type = (EMovableType) ois.readObject();
+		tick = Tick.deserialize(ois, this, MovableManager.getBehaviourFor(type));
+	}
+
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+
+		oos.writeObject(movableType);
+		tick.serialize(oos);
 	}
 
 	public void leavePosition() {

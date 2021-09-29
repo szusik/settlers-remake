@@ -8,6 +8,7 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -26,10 +27,12 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 	private EDirection workDirection = null;
 
 	public PioneerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.PIONEER, position, player, movable, behaviour);
+		super(grid, EMovableType.PIONEER, position, player, movable);
 	}
 
-	private static final Root<PioneerMovable> behaviour = new Root<>(createPioneerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.PIONEER, new Root<>(createPioneerBehaviour()));
+	}
 
 	private static Node<PioneerMovable> createPioneerBehaviour() {
 		return guardSelector(

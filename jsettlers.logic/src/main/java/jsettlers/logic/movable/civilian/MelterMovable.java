@@ -9,6 +9,7 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -17,10 +18,12 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 public class MelterMovable extends BuildingWorkerMovable {
 
 	public MelterMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.MELTER, position, player, replace, tree);
+		super(grid, EMovableType.MELTER, position, player, replace);
 	}
 
-	private static final Root<MelterMovable> tree = new Root<>(createMelterBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.MELTER, new Root<>(createMelterBehaviour()));
+	}
 
 	private static Node<MelterMovable> createMelterBehaviour() {
 		return defaultWorkCycle(

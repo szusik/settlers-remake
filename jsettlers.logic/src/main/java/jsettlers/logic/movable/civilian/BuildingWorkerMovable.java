@@ -34,8 +34,8 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	private boolean registered = false;
 	protected int searchFailedCtr = 0;
 
-	public BuildingWorkerMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends BuildingWorkerMovable> behaviour) {
-		super(grid, movableType, position, player, replace, behaviour);
+	public BuildingWorkerMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
+		super(grid, movableType, position, player, replace);
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> dropProduced(IEMaterialTypeSupplier<T> material) {
