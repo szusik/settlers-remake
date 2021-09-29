@@ -249,9 +249,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	protected static <T extends Movable> Node<T> goInDirectionWaitFree(IEDirectionSupplier<T> direction, IBooleanConditionFunction<T> pathStep) {
 		return sequence(
 				action(mov -> {
-					mov.aborted = false;
-					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
-					mov.goInDirectionIfAllowedWaitTillFree(direction.apply(mov));
+					mov.goInDirectionIfAllowedWaitTillFree(direction.apply(mov), pathStep);
 				}),
 				waitFor(condition(mov -> mov.path == null)),
 				condition(mov -> !mov.aborted)
@@ -282,10 +280,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				action(mov -> {
 					Movable realMov = mov;
 
-					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
-
 					assert mov.path != null : "path must be non-null to be able to followPresearchedPath()!";
-					realMov.followPath();
+					realMov.followPath(pathStep);
 				}),
 				waitFor(condition(mov -> mov.path == null)),
 				condition(mov -> !mov.aborted)
@@ -326,10 +322,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				condition(mov -> {
 					Movable realMov = mov;
 
-					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
 					mov.path = mov.grid.calculatePathTo(mov, target.apply(mov));
 
-					realMov.followPath();
+					realMov.followPath(pathStep);
 					return mov.path != null;
 				}),
 				waitFor(condition(mov -> mov.path == null)),
@@ -666,8 +661,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 						|| grid.isValidPosition(this, position.x, position.y)) { // exchange positions
 						EDirection directionToPushing = EDirection.getApproxDirection(this.position, pushingMovable.getPosition());
 						pushingMovable.goSinglePathStep(); // if no free direction found, exchange the positions of the movables
-						pathStep = null;
-						goInDirectionIfAllowedWaitTillFree(directionToPushing);
+						goInDirectionIfAllowedWaitTillFree(directionToPushing, mov -> true);
 						return true;
 
 					} else { // exchange not possible, as the location is not valid.
@@ -785,10 +779,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		this.direction = direction;
 	}
 
-	public void goInDirectionIfAllowedWaitTillFree(EDirection direction) {
+	public void goInDirectionIfAllowedWaitTillFree(EDirection direction, IBooleanConditionFunction<? extends Movable> pathStep) {
 		setDirection(direction);
 		path = new Path(direction.getNextHexPoint(position));
-		followPath();
+		followPath(pathStep);
 	}
 
 	public boolean goInDirectionIfAllowedAndFreeNode(EDirection direction) {
@@ -853,9 +847,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return grid.getPlayerAt(position) == player;
 	}
 
-	private void followPath() {
+	private void followPath(IBooleanConditionFunction<? extends Movable> pathStep) {
 		aborted = false;
 		setState(EMovableState.PATHING);
+		this.pathStep = (IBooleanConditionFunction<Movable>) pathStep;
 		this.movableAction = EMovableAction.NO_ACTION;
 		pathingAction();
 	}
