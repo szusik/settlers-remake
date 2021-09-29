@@ -152,15 +152,15 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected static <T extends Movable> Node<T> setDirectionNode(EDirection direction) {
-		return action(mov -> {mov.setDirection(direction);});
+		return action(mov -> mov.setDirection(direction));
 	}
 
 	protected static <T extends Movable> Node<T> setDirectionNode(IEDirectionSupplier<T> direction) {
-		return action(mov -> {mov.setDirection(direction.apply(mov));});
+		return action(mov -> mov.setDirection(direction.apply(mov)));
 	}
 
 	protected static <T extends Movable> Node<T> setMaterialNode(EMaterialType material) {
-		return action(mov -> {mov.setMaterial(material);});
+		return action(mov -> mov.setMaterial(material));
 	}
 
 	protected static <T extends Movable> Node<T> setMaterial(IEMaterialTypeSupplier<T> material) {
@@ -168,11 +168,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected static <T extends Movable> Node<T> hide() {
-		return action(mov -> {mov.setVisible(false);});
+		return action(mov -> mov.setVisible(false));
 	}
 
 	protected static <T extends Movable> Node<T> show() {
-		return action(mov -> {mov.setVisible(true);});
+		return action(mov -> mov.setVisible(true));
 	}
 
 	protected static <T extends Movable> Node<T> drop(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> offerMaterial) {
@@ -302,9 +302,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					realMov.soundPlayed = false;
 				}),
 				sleep(mov -> (int)((Movable)mov).animationDuration),
-				action(mov -> {
-					((Movable)mov).movableAction = EMovableAction.NO_ACTION;
-				})
+				action(mov -> ((Movable)mov).movableAction = EMovableAction.NO_ACTION)
 		);
 	}
 
@@ -630,12 +628,14 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	public final void setVisible(boolean visible) {
-		if (this.visible == visible) { // nothing to change
-		} else if (this.visible) { // is visible and gets invisible
-			grid.leavePosition(position, this);
-		} else {
-			grid.enterPosition(position, this, true);
-		}
+		if (this.visible != visible) {
+			if (this.visible) { // is visible and gets invisible
+				grid.leavePosition(position, this);
+			} else {
+				grid.enterPosition(position, this, true);
+			}
+		}  // nothing to change
+
 
 		this.visible = visible;
 	}
@@ -644,10 +644,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * @param dijkstra
 	 * 		if true, dijkstra algorithm is used<br>
 	 * 		if false, in area finder is used.
-	 * @param centerX
-	 * @param centerY
-	 * @param radius
-	 * @param searchType
+	 * @param centerX the x coordinate of the center of the search area
+	 * @param centerY the y coordinate of the center of the search area
+	 * @param radius the radius of the search area
+	 * @param searchType the type of search to conduct
 	 * @return true if a path has been found.
 	 */
 	public final boolean preSearchPath(boolean dijkstra, short centerX, short centerY, short radius, ESearchType searchType) {
@@ -669,9 +669,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	private static <T extends Movable> Node<T> followPath(IBooleanConditionFunction<T> pathStep) {
-		return resetAfter(mov -> {
-			mov.path = null;
-		},
+		return resetAfter(mov -> mov.path = null,
 				sequence(
 					condition(mov -> mov.path != null),
 
@@ -745,7 +743,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	/**
 	 * Sets the state to the given one and resets the movable to a clean start of this state.
 	 *
-	 * @param newState
+	 * @param newState the new state of the movable
 	 */
 	protected void setState(EMovableState newState) {
 		this.state = newState;
