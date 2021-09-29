@@ -63,4 +63,6 @@ public abstract class Node<T> implements Serializable {
 		return this.id = ++maxId;
 	}
 
+	public abstract Node<T> findNode(int id);
+
 }
