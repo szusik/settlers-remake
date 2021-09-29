@@ -28,7 +28,7 @@ public class AttackableHumanMovable extends AttackableMovable implements IAttack
 	@Override
 	public void leaveFerryAt(ShortPoint2D position) {
 		this.position = position;
-		setState(Movable.EMovableState.DOING_NOTHING);
+		setState(Movable.EMovableState.ACTIVE);
 
 		grid.enterPosition(position, this, true);
 	}

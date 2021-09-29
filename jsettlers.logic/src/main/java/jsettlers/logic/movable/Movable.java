@@ -70,12 +70,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	private static final long serialVersionUID = -705947810059935866L;
 
 	private static final int SHIP_PUSH_DISTANCE = 10;
+	private static final int BEHAVIOUR_RETRY_COUNT = 3;
 
 	protected final AbstractMovableGrid grid;
 	private final     int                 id;
 	protected final   Player              player;
 
-	private EMovableState state = EMovableState.DOING_NOTHING;
+	private EMovableState state = EMovableState.ACTIVE;
 
 	private final EMovableType    movableType;
 
@@ -297,11 +298,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					Movable realMov = mov;
 
 					realMov.playAnimation(action, duration.apply(mov));
-					realMov.setState(EMovableState.WAITING);
 
 					realMov.soundPlayed = false;
 				}),
-				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
+				sleep(mov -> (int)((Movable)mov).animationDuration),
+				action(mov -> {
+					((Movable)mov).movableAction = EMovableAction.NO_ACTION;
+				})
 		);
 	}
 
@@ -389,37 +392,22 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			return -1;
 		}
 
-		// ensure animation is finished, if not, reschedule
-		if (state == EMovableState.WAITING) {
-			int remainingAnimationTime = animationStartTime + animationDuration - MatchConstants.clock().getTime();
-			if (remainingAnimationTime > 0) {
-				return remainingAnimationTime;
-			}
-		}
+		NodeStatus status = NodeStatus.SUCCESS;
 
-		if (state == EMovableState.WAITING) {
-			setState(EMovableState.DOING_NOTHING); // the action is finished, as the time passed
-			movableAction = EMovableAction.NO_ACTION;
-		}
-
-		if (state == EMovableState.DOING_NOTHING) { // if movable is currently doing nothing
-			if(tick != null) {
-				NodeStatus status = NodeStatus.SUCCESS;
-
-				// continue behaviour if the previous run was successful
-				for(int i = 0; i < 2 && status == NodeStatus.SUCCESS && isAlive(); i++) {
-					status = tick.tick();
-				}
-			}
+		// continue behaviour if the previous run was successful
+		for(int i = 0; i < BEHAVIOUR_RETRY_COUNT && status == NodeStatus.SUCCESS && state == EMovableState.ACTIVE; i++) {
+			tick.root.setInvocationDelay(0);
+			status = tick.tick();
 		}
 
 		leavePosition = false;
 
-		if (state == EMovableState.DOING_NOTHING) {
+		int delay = tick.root.getInvocationDelay();
+		if(delay < Constants.MOVABLE_INTERRUPT_PERIOD) {
 			return Constants.MOVABLE_INTERRUPT_PERIOD;
 		}
 
-		return animationDuration;
+		return delay;
 	}
 
 	private void pushShips() {
@@ -663,8 +651,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * @return true if a path has been found.
 	 */
 	public final boolean preSearchPath(boolean dijkstra, short centerX, short centerY, short radius, ESearchType searchType) {
-		assert state == EMovableState.DOING_NOTHING : "this method can only be invoked in state DOING_NOTHING";
-
 		if (dijkstra) {
 			this.path = grid.searchDijkstra(this, centerX, centerY, radius, searchType);
 		} else {
@@ -675,7 +661,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected boolean isBusy() {
-		return state != EMovableState.DOING_NOTHING;
+		return state != EMovableState.ACTIVE;
 	}
 
 	public boolean isOnOwnGround() {
@@ -917,8 +903,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected enum EMovableState {
-		DOING_NOTHING,
-		WAITING,
+		ACTIVE,
 		ON_FERRY,
 
 		DEAD,

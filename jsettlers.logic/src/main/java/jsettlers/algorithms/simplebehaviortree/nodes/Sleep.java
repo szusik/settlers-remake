@@ -24,7 +24,7 @@ public final class Sleep<T> extends Leaf<T> {
 			return NodeStatus.SUCCESS;
 		} else {
 			// emit running
-			//tick.target.entity.setInvocationDelay(remaining);
+			tick.root.setInvocationDelay(remaining);
 			return NodeStatus.RUNNING;
 		}
 	}
