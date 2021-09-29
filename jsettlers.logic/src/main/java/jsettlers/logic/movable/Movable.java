@@ -94,7 +94,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected float         health;
 	private boolean       visible           = true;
-	private ILogicMovable pushedFrom;
+	private ShortPoint2D pushedFrom;
 
 	private boolean isRightstep = false;
 	protected int     flockDelay  = 700;
@@ -148,22 +148,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		}
 
 		leavePosition = true;
-	}
-
-	protected boolean checkPathStepPreconditions() {
-		if(pathStep != null && !pathStep.test(this)) {
-			aborted = true;
-			return false;
-		}
-
-		return true;
-	}
-
-	protected boolean aborted;
-	protected IBooleanConditionFunction<Movable> pathStep; //TODO remove so that tests will continue working in the future
-
-	protected void pathAborted(ShortPoint2D pathTarget) {
-		aborted = true;
 	}
 
 	protected static <T extends Movable> Node<T> setDirectionNode(EDirection direction) {
@@ -226,12 +210,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 					if ((mov.grid.isValidPosition(mov, targetPosition.x, targetPosition.y) && mov.grid.hasNoMovableAt(targetPosition.x, targetPosition.y))) {
 						mov.path = new Path(targetPosition);
-						((Movable)mov).followPath(t -> true);
 						return true;
 					}
 					return false;
 				}),
-				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
+				followPath(mov -> true)
 		);
 	}
 
@@ -241,13 +224,12 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					ShortPoint2D targetPosition = direction.apply(mov).getNextHexPoint(mov.position);
 					if(mov.grid.isFreePosition(targetPosition.x, targetPosition.y)) {
 						mov.path = new Path(targetPosition);
-						((Movable)mov).followPath(t -> true);
 						return true;
 					} else {
 						return false;
 					}
 				}),
-				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
+				followPath(mov -> true)
 		);
 	}
 
@@ -261,10 +243,8 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					EDirection realDirection = direction.apply(mov);
 					mov.setDirection(realDirection);
 					mov.path = new Path(realDirection.getNextHexPoint(mov.getPosition()));
-					((Movable)mov).followPath(pathStep);
 				}),
-				waitFor(condition(mov -> mov.path == null)),
-				condition(mov -> !mov.aborted)
+				followPath(pathStep)
 		);
 	}
 
@@ -290,13 +270,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	protected static <T extends Movable> Node<T> followPresearchedPath(IBooleanConditionFunction<T> pathStep) {
 		return sequence(
 				action(mov -> {
-					Movable realMov = mov;
-
 					assert mov.path != null : "path must be non-null to be able to followPresearchedPath()!";
-					realMov.followPath(pathStep);
 				}),
-				waitFor(condition(mov -> mov.path == null)),
-				condition(mov -> !mov.aborted)
+				followPath(pathStep)
 
 		);
 	}
@@ -332,15 +308,10 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	protected static <T extends Movable> Node<T> goToPos(IShortPoint2DSupplier<T> target, IBooleanConditionFunction<T> pathStep) {
 		return sequence(
 				condition(mov -> {
-					Movable realMov = mov;
-
 					mov.path = mov.grid.calculatePathTo(mov, target.apply(mov));
-
-					realMov.followPath(pathStep);
 					return mov.path != null;
 				}),
-				waitFor(condition(mov -> mov.path == null)),
-				condition(mov -> !mov.aborted)
+				followPath(pathStep)
 		);
 	}
 
@@ -403,7 +374,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		for (ShortPoint2D[] pathPrefix : possiblePaths) { // check if any of the paths is free of movables
 			ShortPoint2D firstPosition = pathPrefix[0];
 			ILogicMovable movable = grid.getMovableAt(firstPosition.x, firstPosition.y);
-			if (movable == null || movable.isProbablyPushable(this)) {
+			if (movable == null) {
 				path.goToNextStep();
 				return new Path(path, pathPrefix);
 			}
@@ -418,31 +389,17 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			return -1;
 		}
 
-		switch (state) { // ensure animation is finished, if not, reschedule
-			case PATHING:
-			case WAITING:
-				int remainingAnimationTime = animationStartTime + animationDuration - MatchConstants.clock().getTime();
-				if (remainingAnimationTime > 0) {
-					return remainingAnimationTime;
-				}
-				break;
-			default:
-				break;
+		// ensure animation is finished, if not, reschedule
+		if (state == EMovableState.WAITING) {
+			int remainingAnimationTime = animationStartTime + animationDuration - MatchConstants.clock().getTime();
+			if (remainingAnimationTime > 0) {
+				return remainingAnimationTime;
+			}
 		}
 
-		switch (state) {
-			case WAITING:
-				setState(EMovableState.DOING_NOTHING); // the action is finished, as the time passed
-				movableAction = EMovableAction.NO_ACTION;
-
-				break;
-
-			case PATHING:
-				pathingAction();
-				break;
-
-			default:
-				break;
+		if (state == EMovableState.WAITING) {
+			setState(EMovableState.DOING_NOTHING); // the action is finished, as the time passed
+			movableAction = EMovableAction.NO_ACTION;
 		}
 
 		if (state == EMovableState.DOING_NOTHING) { // if movable is currently doing nothing
@@ -465,68 +422,17 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return animationDuration;
 	}
 
-	private void pathingAction() {
-		if (path == null || !path.hasNextStep() || !checkPathStepPreconditions()) {
-			// if path is finished, or canceled by strategy return from here
-			setState(EMovableState.DOING_NOTHING);
-			movableAction = EMovableAction.NO_ACTION;
-			path = null;
-			return;
-		}
-
-		ILogicMovable blockingMovable = grid.getMovableAt(path.nextX(), path.nextY());
-		if (blockingMovable == null) { // if we can go on to the next step
-			if (grid.isValidNextPathPosition(this, path.getNextPos(), path.getTargetPosition())) { // next position is valid
-				goSinglePathStep();
-
-			} else { // next position is invalid
-				movableAction = EMovableAction.NO_ACTION;
-				animationDuration = Constants.MOVABLE_INTERRUPT_PERIOD; // recheck shortly
-				Path newPath = grid.calculatePathTo(this, path.getTargetPosition()); // try to find a new path
-
-				if (newPath == null) { // no path found
-					setState(EMovableState.DOING_NOTHING);
-
-					pathAborted(path.getTargetPosition()); // inform strategy
-					path = null;
-				} else {
-					this.path = newPath; // continue with new path
-					if (grid.hasNoMovableAt(path.nextX(), path.nextY())) { // path is valid, but maybe blocked (leaving blocked area)
-						goSinglePathStep();
-					}
-				}
-			}
-
-		} else { // step not possible, so try it next time
-			movableAction = EMovableAction.NO_ACTION;
-			boolean pushedSuccessfully = blockingMovable.push(this);
-			if (!pushedSuccessfully) {
-				path = findWayAroundObstacle(position, path);
-				animationDuration = Constants.MOVABLE_INTERRUPT_PERIOD; // recheck shortly
-			} else if (movableAction == EMovableAction.NO_ACTION) {
-				animationDuration = Constants.MOVABLE_INTERRUPT_PERIOD; // recheck shortly
-			} // else: push initiated our next step
-		}
-		if (this.isShip()) { // ships need more space
-			pushShips();
-		}
-	}
-
 	private void pushShips() {
+		if(!isShip()) return;
+
 		HexGridArea.stream(position.x, position.y, 1, SHIP_PUSH_DISTANCE)
 				   .filterBounds(grid.getWidth(), grid.getHeight())
 				   .forEach((x, y) -> {
 					   ILogicMovable blockingMovable = grid.getMovableAt(x, y);
 					   if (blockingMovable != null && blockingMovable.isShip()) {
-						   blockingMovable.push(this);
+						   //blockingMovable.push(this);
 					   }
 				   });
-	}
-
-	@Override
-	public void goSinglePathStep() {
-		initGoingSingleStep(path.getNextPos());
-		path.goToNextStep();
 	}
 
 	@Override
@@ -559,18 +465,21 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		oldFowPosition = position;
 	}
 
-	@Override
-	public ILogicMovable getPushedFrom() {
-		return pushedFrom;
-	}
+	private static <T extends Movable> Node<T> goSingleStep(IShortPoint2DSupplier<T> target) {
+		return sequence(
+			action(mov -> {
+				Movable realMov = mov;
+				ShortPoint2D targetPosition = target.apply(mov);
 
-	private void initGoingSingleStep(ShortPoint2D position) {
-		direction = EDirection.getDirection(this.position, position);
-		playAnimation(EMovableAction.WALKING, movableType.getStepDurationMs());
-		grid.leavePosition(this.position, this);
-		grid.enterPosition(position, this, false);
-		this.position = position;
-		isRightstep = !isRightstep;
+				mov.setDirection(EDirection.getApproxDirection(mov.position, targetPosition));
+				mov.grid.leavePosition(mov.position, mov);
+				mov.grid.enterPosition(targetPosition, mov, false);
+				realMov.position = targetPosition;
+				realMov.isRightstep = !realMov.isRightstep;
+
+			}),
+			playAction(EMovableAction.WALKING, mov -> mov.getMovableType().getStepDurationMs())
+		);
 	}
 
 	protected static <T extends Movable> Guard<T> doingNothingGuard() {
@@ -579,6 +488,20 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	protected static <T extends Movable> Node<T> doingNothingAction() {
 		return selector(
+				sequence(
+					condition(mov -> ((Movable) mov).pushedFrom != null),
+					selector(
+						// we should either move out of his way
+						sequence(
+							condition(Movable::setRandomFreeDirection),
+							goInDirectionIfAllowedAndFreeNode(Movable::getDirection)
+						),
+						// or switch positions
+						sequence(
+							goSingleStep(mov -> ((Movable)mov).pushedFrom)
+						)
+					)
+				),
 				sequence(
 					condition(mov -> ((Movable) mov).leavePosition),
 					selector(
@@ -638,6 +561,23 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		);
 	}
 
+	private boolean setRandomFreeDirection() {
+		int start = MatchConstants.random().nextInt(8);
+
+		for(int i = 0; i < EDirection.NUMBER_OF_DIRECTIONS; i++) {
+			EDirection dir = EDirection.VALUES[(start + i) % EDirection.NUMBER_OF_DIRECTIONS];
+
+			ShortPoint2D neighbor = dir.getNextHexPoint(position);
+
+			if(grid.isFreePosition(neighbor.x, neighbor.y)) {
+				setDirection(dir);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	protected EDirection flockDirection;
 
 	/**
@@ -645,117 +585,20 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 *
 	 * @param pushingMovable
 	 * 		The movable pushing at this movable. This should be the movable that want's to get the position!
-	 * @return true if this movable will move out of it's way in the near future <br>
-	 * false if this movable doesn't move.
 	 */
 	@Override
-	public boolean push(ILogicMovable pushingMovable) {
-		if (!isAlive()) {
-			return false;
-		}
+	public void push(ILogicMovable pushingMovable) {
+		if(!(pushingMovable instanceof Movable)) return;
 
-		switch (state) {
-			case DOING_NOTHING:
-				if (isBusy()) { // don't go to random direction if movable shouldn't do something in DOING_NOTHING
-					return false;
-				}
+		Movable realPushing = (Movable) pushingMovable;
 
-				if (goToRandomDirection(pushingMovable)) { // try to find free direction
-					return true; // if we found a free direction, go there and tell the pushing one we'll move
+		// other movable can actually push us
+		if(id <= realPushing.id) return;
 
-				} else { // if we didn't find a direction, check if it's possible to exchange positions
-					if (pushingMovable.getPath() == null || !pushingMovable.getPath().hasNextStep()) {
-						return false; // the other movable just pushed to get space, we can't do anything for it here.
-
-					} else if (pushingMovable.getMovableType().isPlayerControllable()
-						|| grid.isValidPosition(this, position.x, position.y)) { // exchange positions
-						EDirection directionToPushing = EDirection.getApproxDirection(this.position, pushingMovable.getPosition());
-						pushingMovable.goSinglePathStep(); // if no free direction found, exchange the positions of the movables
-						goInDirectionIfAllowedWaitTillFree(directionToPushing, mov -> true);
-						return true;
-
-					} else { // exchange not possible, as the location is not valid.
-						return false;
-					}
-				}
-
-			case PATHING:
-				if (path == null || pushingMovable.getPath() == null || !pushingMovable.getPath().hasNextStep()) {
-					return false; // the other movable just pushed to get space, so we can't do anything for it in this state.
-				}
-
-				if (animationStartTime + animationDuration <= MatchConstants.clock().getTime() && this.path.hasNextStep()) {
-					ShortPoint2D nextPos = path.getNextPos();
-					if (pushingMovable.getPosition() == nextPos) { // two movables going in opposite direction and wanting to exchange positions
-						pushingMovable.goSinglePathStep();
-						this.goSinglePathStep();
-
-					} else {
-						if (grid.hasNoMovableAt(nextPos.x, nextPos.y)) {
-							// this movable isn't blocked, so just let it's pathingAction() handle this
-						} else if (pushedFrom == null) {
-							try {
-								this.pushedFrom = pushingMovable;
-								return grid.getMovableAt(nextPos.x, nextPos.y).push(this);
-							} finally {
-								this.pushedFrom = null;
-							}
-						} else {
-							while (pushingMovable != this) {
-								pushingMovable.goSinglePathStep();
-								pushingMovable = pushingMovable.getPushedFrom();
-							}
-							this.goSinglePathStep();
-						}
-					}
-				}
-				return true;
-
-			case WAITING:
-				return false; // we can't do anything
-
-			case DEBUG_STATE:
-				return false;
-
-			default:
-				assert false : "got pushed in unhandled state: " + state;
-				return false;
-		}
-	}
-
-	@Override
-	public Path getPath() {
-		return path;
-	}
-
-	public boolean isProbablyPushable(ILogicMovable pushingMovable) {
-		switch (state) {
-			case DOING_NOTHING:
-				return true;
-			case PATHING:
-				return path != null && pushingMovable.getPath() != null && pushingMovable.getPath().hasNextStep();
-			default:
-				return false;
-		}
-	}
-
-	private boolean goToRandomDirection(ILogicMovable pushingMovable) {
-		int offset = MatchConstants.random().nextInt(EDirection.NUMBER_OF_DIRECTIONS);
-		EDirection pushedFromDir = EDirection.getApproxDirection(this.getPosition(), pushingMovable.getPosition());
-		if (pushedFromDir == null) {
-			return false;
-		}
-
-		for (int i = 0; i < EDirection.NUMBER_OF_DIRECTIONS; i++) {
-			EDirection currDir = EDirection.VALUES[(i + offset) % EDirection.NUMBER_OF_DIRECTIONS];
-			if (currDir != pushedFromDir && currDir != pushedFromDir.rotateRight(1)
-				&& currDir != pushedFromDir.rotateRight(EDirection.NUMBER_OF_DIRECTIONS - 1)
-				&& goInDirectionIfAllowedAndFree(currDir)) {
-				return true;
-			}
-		}
-
-		return false;
+		// ask behaviour how to react
+		pushedFrom = pushingMovable.getPosition();
+		tick.tick();
+		pushedFrom = null;
 	}
 
 	/**
@@ -786,23 +629,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 */
 	public final void lookInDirection(EDirection direction) {
 		this.direction = direction;
-	}
-
-	public void goInDirectionIfAllowedWaitTillFree(EDirection direction, IBooleanConditionFunction<? extends Movable> pathStep) {
-		setDirection(direction);
-		path = new Path(direction.getNextHexPoint(position));
-		followPath(pathStep);
-	}
-
-	public boolean goInDirectionIfAllowedAndFree(EDirection direction) {
-		ShortPoint2D targetPosition = direction.getNextHexPoint(position);
-
-		if ((grid.isValidPosition(this, targetPosition.x, targetPosition.y) && grid.hasNoMovableAt(targetPosition.x, targetPosition.y))) {
-			path = new Path(targetPosition);
-			followPath(mov -> true);
-			return true;
-		}
-		return false;
 	}
 
 	@Override
@@ -856,12 +682,78 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return grid.getPlayerAt(position) == player;
 	}
 
-	private void followPath(IBooleanConditionFunction<? extends Movable> pathStep) {
-		aborted = false;
-		setState(EMovableState.PATHING);
-		this.pathStep = (IBooleanConditionFunction<Movable>) pathStep;
-		this.movableAction = EMovableAction.NO_ACTION;
-		pathingAction();
+	private static <T extends Movable> Node<T> followPath(IBooleanConditionFunction<T> pathStep) {
+		return resetAfter(mov -> {
+			mov.path = null;
+		},
+				sequence(
+					condition(mov -> mov.path != null),
+
+					repeat(mov -> mov.path.hasNextStep(),
+						guard(pathStep,
+							sequence(
+								action2(Movable::setupNextStep),
+								goSingleStep(mov -> mov.path.getNextPos()),
+								action(mov -> mov.path.goToNextStep()),
+								action(Movable::pushShips)
+							)
+						)
+					)
+			)
+		);
+	}
+
+	private NodeStatus canGoNextStep() {
+		boolean valid = grid.isValidNextPathPosition(this, path.getNextPos(), path.getTargetPosition());
+		if(!valid) {
+			path = grid.calculatePathTo(this, path.getTargetPosition());
+
+			valid = (path != null);
+		}
+
+		if(!valid) return NodeStatus.FAILURE;
+
+		for(int i = 0; i < 3; i++) {
+			ILogicMovable blockingMovable = grid.getMovableAt(path.nextX(), path.nextY());
+
+			if(blockingMovable == null) break;
+
+			switch (i) {
+				case 0:
+					path = findWayAroundObstacle(position, path);
+					break;
+				case 1:
+					blockingMovable.push(this);
+					break;
+				case 2:
+					return NodeStatus.RUNNING;
+			}
+		}
+
+		return NodeStatus.SUCCESS;
+	}
+
+	private NodeStatus setupNextStep() {
+		NodeStatus pathStatus = canGoNextStep();
+
+		if(pathStatus != NodeStatus.RUNNING) {
+			return pathStatus;
+		}
+
+		if(pushedFrom != null) {
+			if(pushedFrom.equals(path.getNextPos())) return NodeStatus.SUCCESS;
+
+			if(!setRandomFreeDirection()) {
+				setDirection(EDirection.getApproxDirection(position, pushedFrom));
+			}
+
+			// swap positions and then continue to target
+			path = new Path(grid.calculatePathTo(this, path.getTargetPosition(), pushedFrom), pushedFrom);
+			return NodeStatus.SUCCESS;
+		} else {
+			setDirection(EDirection.getApproxDirection(position, path.getNextPos()));
+			return NodeStatus.RUNNING;
+		}
 	}
 
 	/**
@@ -1025,7 +917,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected enum EMovableState {
-		PATHING,
 		DOING_NOTHING,
 		WAITING,
 		ON_FERRY,

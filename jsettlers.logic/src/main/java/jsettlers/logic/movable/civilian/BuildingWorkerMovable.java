@@ -143,7 +143,6 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 					mov.dropCurrentMaterial();
 					mov.abortJob();
 					((BuildingWorkerMovable)mov).registered = true;
-					mov.pathStep = null;
 					mov.grid.addJobless(mov);
 				})
 		);

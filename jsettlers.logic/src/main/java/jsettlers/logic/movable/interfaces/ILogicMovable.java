@@ -18,7 +18,6 @@ import java.io.Serializable;
 
 import jsettlers.algorithms.fogofwar.MovableFoWTask;
 import jsettlers.algorithms.path.IPathCalculatable;
-import jsettlers.algorithms.path.Path;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.movable.IGraphicsMovable;
@@ -29,17 +28,9 @@ import jsettlers.logic.player.Player;
 import jsettlers.logic.timer.IScheduledTimerable;
 
 public interface ILogicMovable extends IScheduledTimerable, IPathCalculatable, IDebugable, Serializable, IGuiMovable, ILocatable, IGraphicsMovable, MovableFoWTask {
-	boolean push(ILogicMovable pushingMovable);
-
-	Path getPath();
-
-	void goSinglePathStep();
+	void push(ILogicMovable pushingMovable);
 
 	ShortPoint2D getPosition();
-
-	ILogicMovable getPushedFrom();
-
-	boolean isProbablyPushable(ILogicMovable pushingMovable);
 
 	void leavePosition();
 
