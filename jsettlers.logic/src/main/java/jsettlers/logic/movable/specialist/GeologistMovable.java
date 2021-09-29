@@ -50,7 +50,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 				),
 				guard(mov -> mov.goToTarget != null,
 					sequence(
-						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null), // TODO
+						goToPos(mov -> mov.goToTarget),
 						action(mov -> {
 							mov.enterFerry();
 							mov.goToTarget = null;
@@ -61,7 +61,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 					sequence(
 						selector(
 							condition(mov -> mov.position.equals(mov.currentTarget)),
-							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+							goToPos(mov -> mov.currentTarget)
 						),
 						action(mov -> {mov.centerPos = mov.currentTarget;}),
 						ignoreFailure(repeat(mov -> true,
@@ -71,7 +71,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 
 									sequence(
 										action(mov -> {mov.grid.setMarked(mov.currentTarget, true);}),
-										goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null), // TODO
+										goToPos(mov -> mov.currentTarget),
 										ignoreFailure(workOnPosition())
 									)
 								)

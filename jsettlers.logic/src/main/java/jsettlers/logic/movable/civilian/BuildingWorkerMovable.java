@@ -76,20 +76,20 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		throw new AssertionError("stack for " + inputMaterial + " not found in " + building.getBuildingVariant());
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(EMaterialType outputMaterial, IBooleanConditionFunction<T> pathStep) {
-		return goToOutputStack(mov -> outputMaterial, pathStep);
+	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(EMaterialType outputMaterial) {
+		return goToOutputStack(mov -> outputMaterial);
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(IEMaterialTypeSupplier<T> outputMaterial, IBooleanConditionFunction<T> pathStep) {
-		return goToPos(mov -> mov.getOutputStackPosition(outputMaterial.apply(mov)), pathStep);
+	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(IEMaterialTypeSupplier<T> outputMaterial) {
+		return goToPos(mov -> mov.getOutputStackPosition(outputMaterial.apply(mov)));
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(EMaterialType outputMaterial, IBooleanConditionFunction<T> pathStep) {
-		return goToInputStack(mov -> outputMaterial, pathStep);
+	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(EMaterialType outputMaterial) {
+		return goToInputStack(mov -> outputMaterial);
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(IEMaterialTypeSupplier<T> outputMaterial, IBooleanConditionFunction<T> pathStep) {
-		return goToPos(mov -> mov.getInputStackPosition(outputMaterial.apply(mov)), pathStep);
+	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(IEMaterialTypeSupplier<T> outputMaterial) {
+		return goToPos(mov -> mov.getInputStackPosition(outputMaterial.apply(mov)));
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> outputStackNotFull(EMaterialType outputMaterial) {
@@ -123,7 +123,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 				// I am not sure if the repeat structure is actually necessary but it won't hurt
 				repeat(mov -> !mov.building.getDoor().equals(mov.getPosition()),
 						selector(
-								goToPos(mov -> mov.building.getDoor(), BuildingWorkerMovable::tmpPathStep), // TODO
+								goToPos(mov -> mov.building.getDoor()),
 								sleep(1000)
 						)
 				),
@@ -294,9 +294,5 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 			grid.dropMaterial(position, material, true, false);
 		}
 		super.setMaterial(EMaterialType.NO_MATERIAL);
-	}
-
-	protected boolean tmpPathStep() {
-		return building != null;
 	}
 }

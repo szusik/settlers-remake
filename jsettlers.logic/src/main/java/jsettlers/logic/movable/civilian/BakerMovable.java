@@ -38,7 +38,7 @@ public class BakerMovable extends BuildingWorkerMovable {
 					ignoreFailure(
 						sequence(
 							setMaterialNode(EMaterialType.NO_MATERIAL),
-							goToInputStack(EMaterialType.FLOUR, BuildingWorkerMovable::tmpPathStep),
+							goToInputStack(EMaterialType.FLOUR),
 							setDirectionNode(EDirection.NORTH_WEST),
 							take(mov -> EMaterialType.FLOUR, mov -> true, mov -> {}),
 							enterHome(),
@@ -47,7 +47,7 @@ public class BakerMovable extends BuildingWorkerMovable {
 
 							setMaterialNode(EMaterialType.NO_MATERIAL),
 							show(),
-							goToInputStack(EMaterialType.WATER, BuildingWorkerMovable::tmpPathStep),
+							goToInputStack(EMaterialType.WATER),
 							setDirectionNode(EDirection.NORTH_EAST),
 							take(mov -> EMaterialType.WATER, mov -> true, mov -> {}),
 							enterHome(),
@@ -56,7 +56,7 @@ public class BakerMovable extends BuildingWorkerMovable {
 
 							setMaterialNode(EMaterialType.WHITE_BREAD),
 							show(),
-							goToPos(BakerMovable::getOvenPosition, BuildingWorkerMovable::tmpPathStep),
+							goToPos(BakerMovable::getOvenPosition),
 							setDirectionNode(BakerMovable::getOvenDirection),
 							playAction(EMovableAction.ACTION1, (short)1000),
 							setMaterialNode(EMaterialType.BLADE),
@@ -66,7 +66,7 @@ public class BakerMovable extends BuildingWorkerMovable {
 							setSmoke((short) 0),
 							playAction(EMovableAction.ACTION1, (short)1000),
 
-							goToOutputStack(EMaterialType.BREAD, BuildingWorkerMovable::tmpPathStep),
+							goToOutputStack(EMaterialType.BREAD),
 							setDirectionNode(EDirection.NORTH_WEST),
 							dropProduced(mov -> EMaterialType.BREAD),
 							setMaterialNode(EMaterialType.BLADE)

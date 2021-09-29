@@ -71,16 +71,16 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 					sequence(
 						selector(
 							guard(mov -> mov.currentSpell == null,
-								ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null)) // TODO
+								ignoreFailure(goToPos(mov -> mov.currentTarget))
 							),
 							guard(mov -> !mov.currentSpell.forcePresence(),
 								ignoreFailure(castSpellNode())
 							),
 							sequence(
-								ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null &&
-											mov.position.getOnGridDistTo(mov.currentTarget) > Constants.MAGE_CAST_DISTANCE &&
-											mov.player.getMannaInformation().canUseSpell(mov.currentSpell)
-								)), // TODO
+								ignoreFailure(goToPos(mov -> mov.currentTarget, mov ->
+										mov.position.getOnGridDistTo(mov.currentTarget) > Constants.MAGE_CAST_DISTANCE &&
+										mov.player.getMannaInformation().canUseSpell(mov.currentSpell)
+								)),
 								ignoreFailure(castSpellNode())
 							)
 						),

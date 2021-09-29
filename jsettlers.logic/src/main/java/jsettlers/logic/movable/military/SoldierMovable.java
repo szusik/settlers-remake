@@ -63,7 +63,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 						sequence(
 							selector(
 								condition(mov -> mov.building.getDoor().equals(mov.position)),
-								goToPos(mov -> mov.building.getDoor(), mov -> mov.building != null && !mov.building.isDestroyed() && mov.building.getPlayer() == mov.player) // TODO
+								goToPos(mov -> mov.building.getDoor(), mov -> mov.building.getPlayer() == mov.player)
 							),
 							hide(),
 							action(mov -> {
@@ -99,7 +99,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				),
 				guard(mov -> mov.goToTarget != null,
 					sequence(
-						ignoreFailure(goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null)), // TODO
+						ignoreFailure(goToPos(mov -> mov.goToTarget)),
 						action(mov -> {
 							mov.enterFerry();
 							mov.goToTarget = null;
@@ -178,7 +178,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				),
 				guard(mov -> mov.currentTarget != null,
 					sequence(
-						ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> !mov.enemyNearby && mov.nextTarget == null && mov.currentTarget != null)), // TODO
+						ignoreFailure(goToPos(mov -> mov.currentTarget)),
 						action(mov -> {
 							mov.currentTarget = null;
 						})
@@ -186,7 +186,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				),
 				guard(mov -> mov.patrolStep != -1,
 					sequence(
-						ignoreFailure(goToPos(mov -> mov.patrolPoints[mov.patrolStep], mov -> !mov.enemyNearby && mov.nextTarget == null && mov.patrolStep != -1)), // TODO
+						ignoreFailure(goToPos(mov -> mov.patrolPoints[mov.patrolStep])),
 						action(mov -> {
 							mov.patrolStep = (mov.patrolStep+1) % mov.patrolPoints.length;
 						})

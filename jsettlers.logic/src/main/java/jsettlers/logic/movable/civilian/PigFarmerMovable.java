@@ -57,11 +57,11 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 								condition(mov -> mov.targetKillablePig != null),
 								ignoreFailure(
 									sequence(
-										goToPos(mov -> mov.targetKillablePig, BuildingWorkerMovable::tmpPathStep),
+										goToPos(mov -> mov.targetKillablePig),
 										setDirectionNode(EDirection.NORTH_EAST),
 										take(mov -> EMaterialType.PIG, mov -> false, mov -> {}),
 										setPigAtTarget(mov -> mov.targetKillablePig, false),
-										goToOutputStack(EMaterialType.PIG, BuildingWorkerMovable::tmpPathStep),
+										goToOutputStack(EMaterialType.PIG),
 										setDirectionNode(EDirection.NORTH_WEST),
 										dropProduced(mov -> EMaterialType.PIG)
 									)
@@ -75,7 +75,7 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 									sequence(
 										// take crops
 										setDirectionNode(EDirection.SOUTH_EAST),
-										goToInputStack(EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep),
+										goToInputStack(EMaterialType.CROP),
 										setDirectionNode(EDirection.NORTH_WEST),
 										take(mov -> EMaterialType.CROP, mov -> true, mov -> {}),
 										// and go home
@@ -86,7 +86,7 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 										setMaterialNode(EMaterialType.NO_MATERIAL),
 										setDirectionNode(EDirection.SOUTH_EAST),
 										show(),
-										goToInputStack(EMaterialType.WATER, BuildingWorkerMovable::tmpPathStep),
+										goToInputStack(EMaterialType.WATER),
 										setDirectionNode(EDirection.NORTH_EAST),
 										take(mov -> EMaterialType.WATER, mov -> true, mov -> {}),
 										// and go home
@@ -95,11 +95,11 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 
 										// place new pig
 										setPigAtTarget(mov -> mov.targetFreePig, true),
-										goToPos(mov -> mov.targetFreePig, BuildingWorkerMovable::tmpPathStep),
+										goToPos(mov -> mov.targetFreePig),
 										setMaterialNode(EMaterialType.BASKET),
 										setDirectionNode(EDirection.SOUTH_EAST),
 										show(),
-										goToPos(PigFarmerMovable::getPigPlacePosition, BuildingWorkerMovable::tmpPathStep),
+										goToPos(PigFarmerMovable::getPigPlacePosition),
 										setDirectionNode(EDirection.NORTH_EAST),
 										playAction(EMovableAction.ACTION1, (short)2000)
 									)

@@ -234,22 +234,21 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		);
 	}
 
-	protected static <T extends Movable> Node<T> goInDirectionWaitFree(EDirection direction, IBooleanConditionFunction<T> pathStep) {
-		return goInDirectionWaitFree(mov -> direction, pathStep);
-	}
-
-	protected static <T extends Movable> Node<T> goInDirectionWaitFree(IEDirectionSupplier<T> direction, IBooleanConditionFunction<T> pathStep) {
+	protected static <T extends Movable> Node<T> goInDirectionWaitFree(EDirection direction) {
 		return sequence(
 				action(mov -> {
-					EDirection realDirection = direction.apply(mov);
-					mov.setDirection(realDirection);
-					mov.path = new Path(realDirection.getNextHexPoint(mov.getPosition()));
+					mov.setDirection(direction);
+					mov.path = new Path(direction.getNextHexPoint(mov.getPosition()));
 				}),
-				followPath(pathStep)
+				followPath(mov -> true)
 		);
 	}
 
 	private ShortPoint2D markedTarget = null;
+
+	protected static <T extends Movable> Node<T> followPresearchedPathMarkTarget() {
+		return followPresearchedPathMarkTarget(mov -> true);
+	}
 
 	protected static <T extends Movable> Node<T> followPresearchedPathMarkTarget(IBooleanConditionFunction<T> pathStep) {
 		return resetAfter(mov -> {
@@ -266,6 +265,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					followPresearchedPath(pathStep)
 				)
 		);
+	}
+	protected static <T extends Movable> Node<T> followPresearchedPath() {
+		return followPresearchedPath(mov -> true);
 	}
 
 	protected static <T extends Movable> Node<T> followPresearchedPath(IBooleanConditionFunction<T> pathStep) {
@@ -304,6 +306,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				sleep(mov -> (int)((Movable)mov).animationDuration),
 				action(mov -> ((Movable)mov).movableAction = EMovableAction.NO_ACTION)
 		);
+	}
+	protected static <T extends Movable> Node<T> goToPos(IShortPoint2DSupplier<T> target) {
+		return goToPos(target, mov -> true);
 	}
 
 	protected static <T extends Movable> Node<T> goToPos(IShortPoint2DSupplier<T> target, IBooleanConditionFunction<T> pathStep) {
@@ -507,7 +512,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					selector(
 						sequence(
 							condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, (short) 50, ESearchType.NON_BLOCKED_OR_PROTECTED)),
-							followPresearchedPath(mov -> true)
+							followPresearchedPath()
 						),
 						// just "succeed" after dying
 						action(Movable::kill)

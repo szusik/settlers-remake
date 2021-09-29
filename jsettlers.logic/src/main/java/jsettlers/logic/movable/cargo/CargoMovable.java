@@ -34,7 +34,7 @@ public abstract class CargoMovable extends AttackableMovable {
 		return sequence(
 				repeat(CargoMovable::hasTrader,
 					sequence(
-						goToPos(mov -> mov.tradeBuilding.getPickUpPosition(), mov -> true),
+						goToPos(mov -> mov.tradeBuilding.getPickUpPosition()),
 						condition(CargoMovable::loadUp),
 						action(mov -> {
 							mov.waypoints = mov.tradeBuilding.getWaypointsIterator();
@@ -46,7 +46,7 @@ public abstract class CargoMovable extends AttackableMovable {
 									ShortPoint2D nextPosition = mov.waypoints.next();
 									return mov.preSearchPath(true, nextPosition.x, nextPosition.y, mov.getWaypointSearchRadius(), ESearchType.VALID_FREE_POSITION);
 								}),
-								followPresearchedPath((mov2) -> !mov2.lostCargo)
+								followPresearchedPath(mov -> !mov.lostCargo)
 							)
 						)),
 						action(CargoMovable::dropMaterialIfPossible)

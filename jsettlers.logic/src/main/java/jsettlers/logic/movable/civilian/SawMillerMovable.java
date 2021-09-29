@@ -36,14 +36,14 @@ public class SawMillerMovable extends BuildingWorkerMovable {
 					show(),
 					ignoreFailure(
 						sequence(
-							goToInputStack(EMaterialType.TRUNK, BuildingWorkerMovable::tmpPathStep),
+							goToInputStack(EMaterialType.TRUNK),
 							setDirectionNode(EDirection.NORTH_EAST),
 							take(mov -> EMaterialType.TRUNK, mov -> true, mov -> {}),
-							goToPos(SawMillerMovable::getWorkPosition, BuildingWorkerMovable::tmpPathStep),
+							goToPos(SawMillerMovable::getWorkPosition),
 							setDirectionNode(SawMillerMovable::getWorkDirection),
 							repeatLoop(5, playAction(EMovableAction.ACTION1, (short)900)),
 							setMaterialNode(EMaterialType.PLANK),
-							goToOutputStack(EMaterialType.PLANK, BuildingWorkerMovable::tmpPathStep),
+							goToOutputStack(EMaterialType.PLANK),
 							setDirectionNode(EDirection.NORTH_EAST),
 							dropProduced(mov -> EMaterialType.PLANK)
 						)

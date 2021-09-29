@@ -50,7 +50,7 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 				guard(mov -> mov.barrack != null,
 					selector(
 						sequence(
-							goToPos(mov -> mov.barrack.getDoor(), mov -> true),
+							goToPos(mov -> mov.barrack.getDoor()),
 							condition(mov -> {
 								EMovableType soldierType = mov.barrack.popWeaponForBearer();
 								if(soldierType == null) return false;
@@ -100,7 +100,7 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 						selector(
 							sequence(
 								handleOffer(),
-								goToPos(mov -> mov.request.getPosition(), mov -> mov.request != null && mov.request.isActive()), //TODO
+								goToPos(mov -> mov.request.getPosition()),
 								drop(Movable::getMaterial, mov -> {
 									mov.request.deliveryFulfilled();
 									mov.request = null;
@@ -130,7 +130,6 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 	private static Node<BearerMovable> handleOffer() {
 		return sequence(
 				goToPos(mov -> mov.offer.getPosition(), mov -> {
-					if(mov.request != null && !mov.request.isActive()) return false; // TODO
 					EOfferPriority minimumAcceptedPriority = mov.request != null ? mov.request.getMinimumAcceptedOfferPriority() : EOfferPriority.LOWEST;
 					return mov.offer.isStillValid(minimumAcceptedPriority);
 				}),

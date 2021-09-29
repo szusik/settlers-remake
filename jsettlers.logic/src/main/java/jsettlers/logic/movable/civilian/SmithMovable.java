@@ -51,12 +51,12 @@ public class SmithMovable extends BuildingWorkerMovable {
 							setSmoke((short) 0),
 							take(mov -> EMaterialType.IRON, mov -> false, mov -> {}),
 
-							goToPos(SmithMovable::getWorkPosition, BuildingWorkerMovable::tmpPathStep),
+							goToPos(SmithMovable::getWorkPosition),
 							setDirectionNode(SmithMovable::getWorkDirection),
 							setMaterialNode(EMaterialType.NO_MATERIAL),
 							repeatLoop(5, playAction(EMovableAction.ACTION1, (short)700)),
 
-							goToPos(SmithMovable::getDropPosition, BuildingWorkerMovable::tmpPathStep),
+							goToPos(SmithMovable::getDropPosition),
 							setDirectionNode(EDirection.NORTH_EAST),
 							dropProduced(mov -> mov.outputMaterial)
 						)
@@ -68,11 +68,11 @@ public class SmithMovable extends BuildingWorkerMovable {
 
 	private static Node<SmithMovable> dropIntoOven(EMaterialType material, EDirection takeDirection) {
 		return sequence(
-				goToInputStack(material, BuildingWorkerMovable::tmpPathStep),
+				goToInputStack(material),
 				setDirectionNode(takeDirection),
 				take(mov -> material, mov -> true, mov -> {}),
 
-				goToPos(SmithMovable::getOvenPosition, BuildingWorkerMovable::tmpPathStep),
+				goToPos(SmithMovable::getOvenPosition),
 				setDirectionNode(SmithMovable::getOvenDirection),
 				drop(mov -> EMaterialType.NO_MATERIAL, mov -> false)
 		);

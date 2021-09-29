@@ -49,7 +49,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 				),
 				guard(mov -> mov.goToTarget != null,
 					sequence(
-						ignoreFailure(goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null)), // TODO
+						ignoreFailure(goToPos(mov -> mov.goToTarget)),
 						action(mov -> {
 							mov.enterFerry();
 							mov.goToTarget = null;
@@ -60,7 +60,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 					sequence(
 						selector(
 							condition(mov -> mov.position.equals(mov.currentTarget)),
-							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+							goToPos(mov -> mov.currentTarget)
 						),
 						ignoreFailure(repeat(mov -> true,
 							sequence(
@@ -109,7 +109,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 				),
 				sequence(
 					condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, (short) 30, ESearchType.UNENFORCED_FOREIGN_GROUND)),
-					followPresearchedPath(mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+					followPresearchedPath()
 				)
 		);
 	}

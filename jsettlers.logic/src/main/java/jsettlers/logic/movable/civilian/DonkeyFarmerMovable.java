@@ -41,7 +41,7 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 					sequence(
 						// take crops
 						setMaterialNode(EMaterialType.NO_MATERIAL),
-						goToInputStack(EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep),
+						goToInputStack(EMaterialType.CROP),
 						setDirectionNode(EDirection.NORTH_WEST),
 						take(mov -> EMaterialType.CROP, mov -> true, mov -> {}),
 						// and go home
@@ -51,7 +51,7 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 
 						// take water
 						show(),
-						goToInputStack(EMaterialType.WATER, BuildingWorkerMovable::tmpPathStep),
+						goToInputStack(EMaterialType.WATER),
 						setDirectionNode(EDirection.NORTH_WEST),
 						take(mov -> EMaterialType.WATER, mov -> true, mov -> {}),
 						// and go home
@@ -69,7 +69,7 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 						show(),
 						repeatLoop(DonkeyFarmerMovable::getFeedPositionCount,
 							sequence(
-								goToPos(DonkeyFarmerMovable::getFeedPosition, BuildingWorkerMovable::tmpPathStep),
+								goToPos(DonkeyFarmerMovable::getFeedPosition),
 								setDirectionNode(DonkeyFarmerMovable::getFeedDirection),
 								playAction(EMovableAction.ACTION1, mov -> (short)900),
 								action(mov -> mov.feedIndex++)

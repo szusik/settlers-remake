@@ -32,26 +32,26 @@ public class MelterMovable extends BuildingWorkerMovable {
 				repeat(mov -> true,
 					sequence(
 						melterWorkPreconditions(),
-						goToInputStack(MelterMovable::getInputMaterial, BuildingWorkerMovable::tmpPathStep),
+						goToInputStack(MelterMovable::getInputMaterial),
 						setDirectionNode(EDirection.NORTH_WEST),
 						take(MelterMovable::getInputMaterial, mov -> true, mov -> {}),
 
 						dropIntoMeltingPot(),
 
-						goToInputStack(EMaterialType.COAL, BuildingWorkerMovable::tmpPathStep),
+						goToInputStack(EMaterialType.COAL),
 						setDirectionNode(EDirection.NORTH_WEST),
 						take(mov -> EMaterialType.COAL, mov -> true, mov -> {}),
 
 						dropIntoMeltingPot(),
 
-						goToPos(MelterMovable::getOutputPosition, BuildingWorkerMovable::tmpPathStep),
+						goToPos(MelterMovable::getOutputPosition),
 						setDirectionNode(MelterMovable::getOutputDirection),
 						setSmoke(MelterMovable::getMeltingTime),
 						playAction(EMovableAction.ACTION1, MelterMovable::getMeltingTime),
 						setSmoke((short) 0),
 						take(MelterMovable::getProducedMaterial, mov -> false, mov -> {}),
 
-						goToOutputStack(MelterMovable::getProducedMaterial, BuildingWorkerMovable::tmpPathStep),
+						goToOutputStack(MelterMovable::getProducedMaterial),
 						setDirectionNode(EDirection.NORTH_EAST),
 						dropProduced(MelterMovable::getProducedMaterial)
 					)
@@ -63,7 +63,7 @@ public class MelterMovable extends BuildingWorkerMovable {
 
 	private static Node<MelterMovable> dropIntoMeltingPot() {
 		return sequence(
-				goToPos(MelterMovable::getInputPoint, BuildingWorkerMovable::tmpPathStep),
+				goToPos(MelterMovable::getInputPoint),
 				setDirectionNode(MelterMovable::getInputDirection),
 
 				playAction(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION),

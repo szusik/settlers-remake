@@ -59,7 +59,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					show(),
 					ignoreFailure(
 						sequence(
-							followPresearchedPath(BuildingWorkerMovable::tmpPathStep), // TODO
+							followPresearchedPath(),
 							setDirectionNode(mov -> EDirection.NORTH_WEST),
 							playAction(EMovableAction.ACTION1, (short)3000),
 							setMaterialNode(EMaterialType.NO_MATERIAL),
@@ -87,13 +87,13 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					show(),
 					ignoreFailure(
 						sequence(
-							followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+							followPresearchedPathMarkTarget(),
 							selector(
 								sequence(
-									goInDirectionWaitFree(EDirection.EAST, BuildingWorkerMovable::tmpPathStep),
+									goInDirectionWaitFree(EDirection.EAST),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
 									repeatLoop(6, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)),
-									goInDirectionWaitFree(EDirection.WEST, BuildingWorkerMovable::tmpPathStep)
+									goInDirectionWaitFree(EDirection.WEST)
 								),
 								sequence(
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
@@ -103,20 +103,20 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 							executeSearch(ESearchType.CUTTABLE_TREE),
 							ignoreFailure(
 								sequence(
-									goInDirectionWaitFree(EDirection.SOUTH_EAST, BuildingWorkerMovable::tmpPathStep),
-									goInDirectionWaitFree(EDirection.NORTH_EAST, BuildingWorkerMovable::tmpPathStep),
+									goInDirectionWaitFree(EDirection.SOUTH_EAST),
+									goInDirectionWaitFree(EDirection.NORTH_EAST),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
 									repeatLoop(3, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)),
-									goInDirectionWaitFree(EDirection.NORTH_EAST, BuildingWorkerMovable::tmpPathStep),
+									goInDirectionWaitFree(EDirection.NORTH_EAST),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
 									repeatLoop(3, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)),
-									goInDirectionWaitFree(EDirection.SOUTH_WEST, BuildingWorkerMovable::tmpPathStep),
+									goInDirectionWaitFree(EDirection.SOUTH_WEST),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
 									take(mov -> EMaterialType.TRUNK, mov -> false, mov -> {})
 								)
 							),
 							setMaterialNode(EMaterialType.TRUNK),
-							goToOutputStack(EMaterialType.TRUNK, BuildingWorkerMovable::tmpPathStep),
+							goToOutputStack(EMaterialType.TRUNK),
 							dropProduced(mov -> EMaterialType.TRUNK)
 						)
 					),
@@ -140,11 +140,11 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					show(),
 					ignoreFailure(
 						sequence(
-							followPresearchedPath(BuildingWorkerMovable::tmpPathStep),
+							followPresearchedPath(),
 							lookAtSearched(ESearchType.RIVER),
 							playAction(EMovableAction.ACTION1, (short)1000),
 							setMaterialNode(EMaterialType.WATER),
-							goToOutputStack(EMaterialType.WATER, BuildingWorkerMovable::tmpPathStep),
+							goToOutputStack(EMaterialType.WATER),
 							dropProduced(mov -> EMaterialType.WATER)
 						)
 					),
@@ -168,7 +168,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					show(),
 					ignoreFailure(
 						sequence(
-							followPresearchedPath(BuildingWorkerMovable::tmpPathStep),
+							followPresearchedPath(),
 							lookAtSearched(ESearchType.FISHABLE),
 							playAction(EMovableAction.ACTION1, (short)1500),
 							selector(
@@ -182,7 +182,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 							// fishing succeeded
 							playAction(EMovableAction.ACTION2, (short)1000),
 							setMaterialNode(EMaterialType.FISH),
-							goToOutputStack(EMaterialType.FISH, BuildingWorkerMovable::tmpPathStep),
+							goToOutputStack(EMaterialType.FISH),
 							setDirectionNode(mov -> EDirection.SOUTH_WEST),
 							dropProduced(mov -> EMaterialType.FISH)
 						)
@@ -210,12 +210,12 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					show(),
 					ignoreFailure(
 						sequence(
-							followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+							followPresearchedPathMarkTarget(),
 							setDirectionNode(mov -> EDirection.SOUTH_WEST),
 							repeatLoop(STONECUTTER_CUT_STONE_ITERATIONS, playAction(EMovableAction.ACTION1, STONECUTTER_ACTION1_DURATION)),
 							executeSearch(ESearchType.CUTTABLE_STONE),
 							take(mov -> EMaterialType.STONE, mov -> false, mov -> {}),
-							goToOutputStack(EMaterialType.STONE, BuildingWorkerMovable::tmpPathStep),
+							goToOutputStack(EMaterialType.STONE),
 							dropProduced(mov -> EMaterialType.STONE)
 						)
 					),
@@ -237,7 +237,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										setMaterialNode(EMaterialType.BASKET),
 										show(),
-										followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+										followPresearchedPathMarkTarget(),
 										setDirectionNode(mov -> EDirection.NORTH_WEST),
 										take(mov -> EMaterialType.BASKET, mov -> false, mov -> {}),
 										executeSearch(ESearchType.HARVESTABLE_WINE),
@@ -245,7 +245,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 										sleep(3000),
 										setMaterialNode(EMaterialType.WINE),
 										show(),
-										goToOutputStack(EMaterialType.WINE, BuildingWorkerMovable::tmpPathStep),
+										goToOutputStack(EMaterialType.WINE),
 										setDirectionNode(mov -> EDirection.NORTH_EAST),
 										dropProduced(mov -> EMaterialType.WINE)
 									)
@@ -257,7 +257,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										setMaterialNode(EMaterialType.PLANT),
 										show(),
-										followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+										followPresearchedPathMarkTarget(),
 										setDirectionNode(mov -> EDirection.SOUTH_WEST),
 										playAction(EMovableAction.ACTION1, (short)4000),
 										executeSearch(ESearchType.PLANTABLE_WINE),
@@ -290,7 +290,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										show(),
 										setMaterialNode(EMaterialType.SCYTHE),
-										followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+										followPresearchedPathMarkTarget(),
 
 										setDirectionNode(mov -> EDirection.SOUTH_WEST),
 										playAction(EMovableAction.ACTION1, (short)1000),
@@ -305,7 +305,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 										setDirectionNode(mov -> EDirection.NORTH_EAST),
 										setMaterialNode(EMaterialType.NO_MATERIAL),
 										take(mov -> EMaterialType.CROP, mov -> false, mov -> {}),
-										goToOutputStack(EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep),
+										goToOutputStack(EMaterialType.CROP),
 										setDirectionNode(mov -> EDirection.NORTH_EAST),
 										dropProduced(mov -> EMaterialType.CROP)
 									)
@@ -317,7 +317,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										show(),
 										setMaterialNode(EMaterialType.PLANT),
-										followPresearchedPathMarkTarget(BuildingWorkerMovable::tmpPathStep),
+										followPresearchedPathMarkTarget(),
 
 										setDirectionNode(mov -> EDirection.NORTH_EAST),
 										playAction(EMovableAction.ACTION2, (short)1400),
@@ -363,16 +363,16 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					selector(
 						sequence(
 							inputStackNotEmpty(EMaterialType.PLANK),
-							goToInputStack(EMaterialType.PLANK, BuildingWorkerMovable::tmpPathStep),
+							goToInputStack(EMaterialType.PLANK),
 							take(mov -> EMaterialType.PLANK, mov -> true, mov -> {})
 						),
 						sequence(
 							inputStackNotEmpty(EMaterialType.IRON),
-							goToInputStack(EMaterialType.IRON, BuildingWorkerMovable::tmpPathStep),
+							goToInputStack(EMaterialType.IRON),
 							take(mov -> EMaterialType.IRON, mov -> true, mov -> {})
 						)
 					),
-					goToPos(mov -> ((DockyardBuilding)mov.building).getDock().getPosition(), BuildingWorkerMovable::tmpPathStep),
+					goToPos(mov -> ((DockyardBuilding)mov.building).getDock().getPosition()),
 					setMaterialNode(EMaterialType.NO_MATERIAL),
 					repeatLoop(6, sequence(
 						playAction(EMovableAction.ACTION1, (short)750),
@@ -395,7 +395,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						)
 					),
 					show(),
-					goToInputStack(EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep),
+					goToInputStack(EMaterialType.CROP),
 					selector(
 						sequence(
 							condition(mov -> mov.getDirection().equals(EDirection.NORTH_WEST) ||
@@ -413,7 +413,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					sleep(1000),
 					setMaterialNode(EMaterialType.FLOUR),
 					show(),
-					goToOutputStack(EMaterialType.FLOUR, BuildingWorkerMovable::tmpPathStep),
+					goToOutputStack(EMaterialType.FLOUR),
 					selector(
 						sequence(
 							condition(mov -> mov.getDirection().equals(EDirection.NORTH_WEST) ||
@@ -440,7 +440,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						)
 					),
 					show(),
-					goToInputStack(EMaterialType.PIG, BuildingWorkerMovable::tmpPathStep),
+					goToInputStack(EMaterialType.PIG),
 					setDirectionNode(EDirection.NORTH_EAST),
 					take(mov -> EMaterialType.PIG, mov -> true, mov -> {}),
 					enterHome(),
@@ -449,7 +449,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					sleep(4700),
 					setMaterialNode(EMaterialType.MEAT),
 					show(),
-					goToOutputStack(EMaterialType.MEAT, BuildingWorkerMovable::tmpPathStep),
+					goToOutputStack(EMaterialType.MEAT),
 					setDirectionNode(EDirection.NORTH_WEST),
 					dropProduced(mov -> EMaterialType.MEAT),
 					enterHome()
@@ -480,7 +480,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									),
 									setMaterialNode(EMaterialType.NO_MATERIAL),
 									show(),
-									goToInputStack(EMaterialType.PLANK, BuildingWorkerMovable::tmpPathStep),
+									goToInputStack(EMaterialType.PLANK),
 									setDirectionNode(EDirection.EAST),
 									take(mov -> EMaterialType.PLANK, mov -> true, mov -> {}),
 									enterHome(),
@@ -500,7 +500,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 								)
 							),
 							show(),
-							goToOutputStack(EMaterialType.COAL, BuildingWorkerMovable::tmpPathStep),
+							goToOutputStack(EMaterialType.COAL),
 							setDirectionNode(EDirection.SOUTH_WEST),
 							dropProduced(mov -> EMaterialType.COAL)
 						)

@@ -40,14 +40,14 @@ public class MinerMovable extends BuildingWorkerMovable {
 								condition(mov -> mov.building.tryTakingResource()),
 								setMaterial(MinerMovable::getOutputMaterial),
 								show(),
-								goToOutputStack(MinerMovable::getOutputMaterial, BuildingWorkerMovable::tmpPathStep),
+								goToOutputStack(MinerMovable::getOutputMaterial),
 								setDirectionNode(MinerMovable::getDropDirection),
 								dropProduced(MinerMovable::getOutputMaterial)
 							),
 							sequence(
 								setMaterialNode(EMaterialType.BASKET),
 								show(),
-								goToOutputStack(MinerMovable::getOutputMaterial, BuildingWorkerMovable::tmpPathStep),
+								goToOutputStack(MinerMovable::getOutputMaterial),
 								setDirectionNode(MinerMovable::getDropDirection),
 								playAction(EMovableAction.ACTION1, (short)3000)
 							)

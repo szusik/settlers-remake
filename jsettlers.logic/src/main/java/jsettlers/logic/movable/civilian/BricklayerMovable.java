@@ -36,7 +36,7 @@ public class BricklayerMovable extends CivilianMovable implements IManageableBri
 				guard(mov -> mov.constructionSite != null && mov.constructionSite.isBricklayerRequestActive(),
 					sequence(
 						selector(
-							goToPos(mov -> mov.targetPosition, mov -> mov.constructionSite != null && mov.constructionSite.isBricklayerRequestActive()), // TODO
+							goToPos(mov -> mov.targetPosition),
 							sequence(
 								action(BricklayerMovable::abortJob),
 								alwaysFail()
