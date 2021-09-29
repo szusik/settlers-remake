@@ -141,7 +141,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 									condition(mov -> !mov.enemy.isAlive()), // enemy might die even if the attack fails
 
 									// or roughly chase enemy
-									goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.position, mov.enemy.getPosition())),
+									goInDirectionIfAllowedAndFreeNode(mov -> EDirection.getApproxDirection(mov.position, mov.enemy.getPosition())),
 									// or go to his position
 									resetAfter(mov -> {
 										mov.startPoint = null;
@@ -166,7 +166,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 							// handle nearby enemies (bowman only)
 							findTooCloseEnemy(),
 							// run in opposite direction
-							ignoreFailure(goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.toCloseEnemy.getPosition(), mov.position)))
+							ignoreFailure(goInDirectionIfAllowedAndFreeNode(mov -> EDirection.getApproxDirection(mov.toCloseEnemy.getPosition(), mov.position)))
 						),
 						sequence(
 							// no enemy in sight

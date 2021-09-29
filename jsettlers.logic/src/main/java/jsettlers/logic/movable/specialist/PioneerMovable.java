@@ -105,7 +105,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 								});
 						return mov.workDirection != null;
 					}),
-					goInDirectionIfAllowedAndFree(mov -> mov.workDirection)
+					goInDirectionIfAllowedAndFreeNode(mov -> mov.workDirection)
 				),
 				sequence(
 					condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, (short) 30, ESearchType.UNENFORCED_FOREIGN_GROUND)),

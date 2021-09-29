@@ -45,8 +45,6 @@ import jsettlers.logic.movable.civilian.*;
 import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.cargo.DonkeyMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
-import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
-import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.military.BowmanMovable;
 import jsettlers.logic.movable.military.InfantryMovable;
@@ -221,9 +219,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		);
 	}
 
-	protected static <T extends Movable> Node<T> goInDirectionIfAllowedAndFree(IEDirectionSupplier<T> direction) {
+	protected static <T extends Movable> Node<T> goInDirectionIfAllowedAndFreeNode(IEDirectionSupplier<T> direction) {
 		return sequence(
-				condition(mov -> mov.goInDirection(direction.apply(mov), EGoInDirectionMode.GO_IF_ALLOWED_AND_FREE)),
+				condition(mov -> mov.goInDirectionIfAllowedAndFreeNode(direction.apply(mov))),
 				waitFor(condition(mov -> ((Movable)mov).state == EMovableState.DOING_NOTHING))
 		);
 	}
@@ -253,7 +251,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				action(mov -> {
 					mov.aborted = false;
 					mov.pathStep = (IBooleanConditionFunction<Movable>)pathStep;
-					mov.goInDirection(direction.apply(mov), EGoInDirectionMode.GO_IF_ALLOWED_WAIT_TILL_FREE);
+					mov.goInDirectionIfAllowedWaitTillFree(direction.apply(mov));
 				}),
 				waitFor(condition(mov -> mov.path == null)),
 				condition(mov -> !mov.aborted)
@@ -579,12 +577,12 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 				sequence(
 					condition(mov -> ((Movable) mov).leavePosition),
 					selector(
-						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[0]),
-						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[1]),
-						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[2]),
-						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[3]),
-						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[4]),
-						goInDirectionIfAllowedAndFree(mov -> EDirection.VALUES[5])
+						goInDirectionIfAllowedAndFreeNode(mov -> EDirection.VALUES[0]),
+						goInDirectionIfAllowedAndFreeNode(mov -> EDirection.VALUES[1]),
+						goInDirectionIfAllowedAndFreeNode(mov -> EDirection.VALUES[2]),
+						goInDirectionIfAllowedAndFreeNode(mov -> EDirection.VALUES[3]),
+						goInDirectionIfAllowedAndFreeNode(mov -> EDirection.VALUES[4]),
+						goInDirectionIfAllowedAndFreeNode(mov -> EDirection.VALUES[5])
 					)
 				),
 				sequence(
@@ -621,7 +619,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 							return false;
 						}
 					}),
-					goInDirectionIfAllowedAndFree(mov -> mov.flockDirection)
+					goInDirectionIfAllowedAndFreeNode(mov -> mov.flockDirection)
 				),
 				sequence(
 					action(mov -> {
@@ -669,7 +667,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 						EDirection directionToPushing = EDirection.getApproxDirection(this.position, pushingMovable.getPosition());
 						pushingMovable.goSinglePathStep(); // if no free direction found, exchange the positions of the movables
 						pathStep = null;
-						goInDirection(directionToPushing, EGoInDirectionMode.GO_IF_ALLOWED_WAIT_TILL_FREE);
+						goInDirectionIfAllowedWaitTillFree(directionToPushing);
 						return true;
 
 					} else { // exchange not possible, as the location is not valid.
@@ -749,7 +747,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			EDirection currDir = EDirection.VALUES[(i + offset) % EDirection.NUMBER_OF_DIRECTIONS];
 			if (currDir != pushedFromDir && currDir != pushedFromDir.rotateRight(1)
 				&& currDir != pushedFromDir.rotateRight(EDirection.NUMBER_OF_DIRECTIONS - 1)
-				&& goInDirection(currDir, EGoInDirectionMode.GO_IF_ALLOWED_AND_FREE)) {
+				&& goInDirectionIfAllowedAndFreeNode(currDir)) {
 				return true;
 			}
 		}
@@ -787,34 +785,19 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		this.direction = direction;
 	}
 
-	/**
-	 * Tries to go a step in the given direction.
-	 *
-	 * @param direction
-	 * 		direction to go
-	 * @param mode
-	 * 		Use the given mode to go.<br>
-	 * @return true if the step can and will immediately be executed. <br>
-	 * false if the target position is generally blocked or a movable occupies that position.
-	 */
-	public final boolean goInDirection(EDirection direction, EGoInDirectionMode mode) {
+	public void goInDirectionIfAllowedWaitTillFree(EDirection direction) {
+		setDirection(direction);
+		path = new Path(direction.getNextHexPoint(position));
+		followPath();
+	}
+
+	public boolean goInDirectionIfAllowedAndFreeNode(EDirection direction) {
 		ShortPoint2D targetPosition = direction.getNextHexPoint(position);
 
-		switch (mode) {
-			case GO_IF_ALLOWED_WAIT_TILL_FREE: {
-				setDirection(direction);
-				path = new Path(targetPosition);
-				followPath();
-				return true;
-			}
-			case GO_IF_ALLOWED_AND_FREE:
-				if ((grid.isValidPosition(this, targetPosition.x, targetPosition.y) && grid.hasNoMovableAt(targetPosition.x, targetPosition.y))) {
-					initGoingSingleStep(targetPosition);
-					setState(EMovableState.GOING_SINGLE_STEP);
-					return true;
-				} else {
-					break;
-				}
+		if ((grid.isValidPosition(this, targetPosition.x, targetPosition.y) && grid.hasNoMovableAt(targetPosition.x, targetPosition.y))) {
+			initGoingSingleStep(targetPosition);
+			setState(EMovableState.GOING_SINGLE_STEP);
+			return true;
 		}
 		return false;
 	}
