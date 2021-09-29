@@ -164,6 +164,11 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
+		public Path calculatePathTo(IPathCalculatable pathCalculatable, ShortPoint2D targetPos, ShortPoint2D startPos) {
+			return aStar.findPath(pathCalculatable, targetPos, startPos);
+		}
+
+		@Override
 		public void addJobless(IManageableBearer bearer) {
 			if (!materials.isEmpty()) {
 				ShortPoint2D source = materials.pop();

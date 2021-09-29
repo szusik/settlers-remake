@@ -68,6 +68,11 @@ public final class BucketQueueAStar extends AbstractAStar {
 	}
 
 	@Override
+	public Path findPath(IPathCalculatable requester, ShortPoint2D target, ShortPoint2D start) {
+		return findPath(requester, start.x, start.y, target.x, target.y);
+	}
+
+	@Override
 	public final Path findPath(IPathCalculatable requester, final short sx, final short sy, final short tx, final short ty) {
 		final short blockedAtStartPartition;
 		if (!isInBounds(sx, sy)) {

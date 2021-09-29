@@ -61,6 +61,7 @@ public abstract class AbstractMovableGrid extends AbstractStrategyGrid {
 	public abstract void notifyAttackers(ShortPoint2D position, IAttackableMovable movable, boolean informFullArea);
 
 	public abstract Path calculatePathTo(IPathCalculatable pathCalculatable, ShortPoint2D targetPos);
+	public abstract Path calculatePathTo(IPathCalculatable pathCalculatable, ShortPoint2D targetPos, ShortPoint2D startPos);
 
 	public abstract Path searchDijkstra(IPathCalculatable pathCalculateable, short centerX, short centerY, short radius, ESearchType searchType);
 

@@ -1437,6 +1437,11 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
+		public Path calculatePathTo(IPathCalculatable pathRequester, ShortPoint2D targetPos, ShortPoint2D startPos) {
+			return aStar.findPath(pathRequester, targetPos, startPos);
+		}
+
+		@Override
 		public Path searchDijkstra(IPathCalculatable pathCalculateable, short centerX, short centerY, short radius, ESearchType searchType) {
 			return dijkstra.find(pathCalculateable, centerX, centerY, (short) 0, radius, searchType);
 		}
