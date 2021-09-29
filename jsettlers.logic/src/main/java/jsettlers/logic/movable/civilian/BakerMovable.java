@@ -6,7 +6,6 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -40,7 +39,7 @@ public class BakerMovable extends BuildingWorkerMovable {
 							setMaterialNode(EMaterialType.NO_MATERIAL),
 							goToInputStack(EMaterialType.FLOUR),
 							setDirectionNode(EDirection.NORTH_WEST),
-							take(mov -> EMaterialType.FLOUR, mov -> true, mov -> {}),
+							take(mov -> EMaterialType.FLOUR, true),
 							enterHome(),
 
 							sleep(1000),
@@ -49,7 +48,7 @@ public class BakerMovable extends BuildingWorkerMovable {
 							show(),
 							goToInputStack(EMaterialType.WATER),
 							setDirectionNode(EDirection.NORTH_EAST),
-							take(mov -> EMaterialType.WATER, mov -> true, mov -> {}),
+							take(mov -> EMaterialType.WATER, true),
 							enterHome(),
 
 							sleep(3000),

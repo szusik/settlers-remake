@@ -45,7 +45,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 						mov.getPlayer().getEndgameStatistic().incrementAmountOfProducedGold();
 					}
 				}),
-				drop(material, mov -> true)
+				drop(material, true)
 		);
 	}
 	protected static <T extends BuildingWorkerMovable> Node<T> lookAtSearched(ESearchType searchType) {

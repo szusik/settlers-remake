@@ -1,6 +1,5 @@
 package jsettlers.logic.movable.civilian;
 
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
@@ -101,10 +100,10 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 							sequence(
 								handleOffer(),
 								goToPos(mov -> mov.request.getPosition()),
-								drop(Movable::getMaterial, mov -> {
+								drop(Movable::getMaterial, false),
+								action(mov -> {
 									mov.request.deliveryFulfilled();
 									mov.request = null;
-									return false;
 								})
 							),
 							action(BearerMovable::abortJob)
@@ -133,11 +132,11 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 					EOfferPriority minimumAcceptedPriority = mov.request != null ? mov.request.getMinimumAcceptedOfferPriority() : EOfferPriority.LOWEST;
 					return mov.offer.isStillValid(minimumAcceptedPriority);
 				}),
-				take(mov -> mov.materialType, mov -> true, mov -> {
-						mov.offer.offerTaken();
-						mov.offer = null;
-					}
-				)
+				take(mov -> mov.materialType, true),
+				action(mov -> {
+					mov.offer.offerTaken();
+					mov.offer = null;
+				})
 		);
 	}
 

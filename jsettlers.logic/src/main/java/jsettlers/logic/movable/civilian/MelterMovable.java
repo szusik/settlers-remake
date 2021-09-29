@@ -7,9 +7,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
@@ -34,13 +32,13 @@ public class MelterMovable extends BuildingWorkerMovable {
 						melterWorkPreconditions(),
 						goToInputStack(MelterMovable::getInputMaterial),
 						setDirectionNode(EDirection.NORTH_WEST),
-						take(MelterMovable::getInputMaterial, mov -> true, mov -> {}),
+						take(MelterMovable::getInputMaterial, true),
 
 						dropIntoMeltingPot(),
 
 						goToInputStack(EMaterialType.COAL),
 						setDirectionNode(EDirection.NORTH_WEST),
-						take(mov -> EMaterialType.COAL, mov -> true, mov -> {}),
+						take(mov -> EMaterialType.COAL, true),
 
 						dropIntoMeltingPot(),
 
@@ -49,7 +47,7 @@ public class MelterMovable extends BuildingWorkerMovable {
 						setSmoke(MelterMovable::getMeltingTime),
 						playAction(EMovableAction.ACTION1, MelterMovable::getMeltingTime),
 						setSmoke((short) 0),
-						take(MelterMovable::getProducedMaterial, mov -> false, mov -> {}),
+						take(MelterMovable::getProducedMaterial, false),
 
 						goToOutputStack(MelterMovable::getProducedMaterial),
 						setDirectionNode(EDirection.NORTH_EAST),
@@ -66,9 +64,7 @@ public class MelterMovable extends BuildingWorkerMovable {
 				goToPos(MelterMovable::getInputPoint),
 				setDirectionNode(MelterMovable::getInputDirection),
 
-				playAction(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION),
-				setMaterialNode(EMaterialType.NO_MATERIAL),
-				playAction(EMovableAction.RAISE_UP, Constants.MOVABLE_BEND_DURATION)
+				crouchDown(setMaterialNode(EMaterialType.NO_MATERIAL))
 		);
 	}
 

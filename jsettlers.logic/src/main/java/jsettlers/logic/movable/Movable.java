@@ -20,7 +20,6 @@ import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IEDirectionSupplier;
 import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
-import jsettlers.algorithms.simplebehaviortree.INodeStatusActionConsumer;
 import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
@@ -175,32 +174,37 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 		return action(mov -> mov.setVisible(true));
 	}
 
-	protected static <T extends Movable> Node<T> drop(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> offerMaterial) {
+	protected static <T extends Movable> Node<T> crouchDown(Node<T> child) {
 		return sequence(
 				playAction(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION),
+				child,
+				playAction(EMovableAction.RAISE_UP, Constants.MOVABLE_BEND_DURATION)
+		);
+	}
+
+	protected static <T extends Movable> Node<T> drop(IEMaterialTypeSupplier<T> materialType, boolean offerMaterial) {
+		return crouchDown(
 				action(mov -> {
 					EMaterialType takeDropMaterial = materialType.apply(mov);
 
 					if (takeDropMaterial == null || !takeDropMaterial.isDroppable()) return;
 
 					mov.setMaterial(EMaterialType.NO_MATERIAL);
-					mov.grid.dropMaterial(mov.position, takeDropMaterial, offerMaterial.test(mov), false);
-				}),
-				playAction(EMovableAction.RAISE_UP, Constants.MOVABLE_BEND_DURATION)
+					mov.grid.dropMaterial(mov.position, takeDropMaterial, offerMaterial, false);
+				})
 		);
 	}
 
-	protected static <T extends Movable> Node<T> take(IEMaterialTypeSupplier<T> materialType, IBooleanConditionFunction<T> fromMap, INodeStatusActionConsumer<T> tookMaterial) {
+	protected static <T extends Movable> Node<T> take(IEMaterialTypeSupplier<T> materialType, boolean fromMap) {
 		return sequence(
-				condition(mov -> !fromMap.test(mov) || mov.grid.canTakeMaterial(mov.position, materialType.apply(mov))),
-				playAction(EMovableAction.BEND_DOWN, Constants.MOVABLE_BEND_DURATION),
-				action(mov -> {
-					EMaterialType material = materialType.apply(mov);
-					mov.grid.takeMaterial(mov.position, material);
-					mov.setMaterial(material);
-					tookMaterial.accept(mov);
-				}),
-				playAction(EMovableAction.RAISE_UP, Constants.MOVABLE_BEND_DURATION)
+				condition(mov -> !fromMap || mov.grid.canTakeMaterial(mov.position, materialType.apply(mov))),
+				crouchDown(
+					action(mov -> {
+						EMaterialType material = materialType.apply(mov);
+						mov.grid.takeMaterial(mov.position, material);
+						mov.setMaterial(material);
+					})
+				)
 		);
 	}
 

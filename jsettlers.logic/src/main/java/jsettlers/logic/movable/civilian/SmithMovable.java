@@ -7,7 +7,6 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -49,7 +48,7 @@ public class SmithMovable extends BuildingWorkerMovable {
 							//playAction(EMovableAction.ACTION3, (short)3000),
 							sleep(3000),
 							setSmoke((short) 0),
-							take(mov -> EMaterialType.IRON, mov -> false, mov -> {}),
+							take(mov -> EMaterialType.IRON, false),
 
 							goToPos(SmithMovable::getWorkPosition),
 							setDirectionNode(SmithMovable::getWorkDirection),
@@ -70,11 +69,11 @@ public class SmithMovable extends BuildingWorkerMovable {
 		return sequence(
 				goToInputStack(material),
 				setDirectionNode(takeDirection),
-				take(mov -> material, mov -> true, mov -> {}),
+				take(mov -> material, true),
 
 				goToPos(SmithMovable::getOvenPosition),
 				setDirectionNode(SmithMovable::getOvenDirection),
-				drop(mov -> EMaterialType.NO_MATERIAL, mov -> false)
+				crouchDown(setMaterialNode(EMaterialType.NO_MATERIAL))
 		);
 	}
 

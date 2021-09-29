@@ -59,7 +59,7 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 									sequence(
 										goToPos(mov -> mov.targetKillablePig),
 										setDirectionNode(EDirection.NORTH_EAST),
-										take(mov -> EMaterialType.PIG, mov -> false, mov -> {}),
+										take(mov -> EMaterialType.PIG, false),
 										setPigAtTarget(mov -> mov.targetKillablePig, false),
 										goToOutputStack(EMaterialType.PIG),
 										setDirectionNode(EDirection.NORTH_WEST),
@@ -77,7 +77,7 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 										setDirectionNode(EDirection.SOUTH_EAST),
 										goToInputStack(EMaterialType.CROP),
 										setDirectionNode(EDirection.NORTH_WEST),
-										take(mov -> EMaterialType.CROP, mov -> true, mov -> {}),
+										take(mov -> EMaterialType.CROP, true),
 										// and go home
 										enterHome(),
 										sleep(1000),
@@ -88,7 +88,7 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 										show(),
 										goToInputStack(EMaterialType.WATER),
 										setDirectionNode(EDirection.NORTH_EAST),
-										take(mov -> EMaterialType.WATER, mov -> true, mov -> {}),
+										take(mov -> EMaterialType.WATER, true),
 										// and go home
 										enterHome(),
 										sleep(1000),

@@ -11,7 +11,6 @@ import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
-import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.workers.DockyardBuilding;
 import jsettlers.logic.buildings.workers.MillBuilding;
@@ -112,7 +111,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									repeatLoop(3, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)),
 									goInDirectionWaitFree(EDirection.SOUTH_WEST),
 									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									take(mov -> EMaterialType.TRUNK, mov -> false, mov -> {})
+									take(mov -> EMaterialType.TRUNK, false)
 								)
 							),
 							setMaterialNode(EMaterialType.TRUNK),
@@ -214,7 +213,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 							setDirectionNode(mov -> EDirection.SOUTH_WEST),
 							repeatLoop(STONECUTTER_CUT_STONE_ITERATIONS, playAction(EMovableAction.ACTION1, STONECUTTER_ACTION1_DURATION)),
 							executeSearch(ESearchType.CUTTABLE_STONE),
-							take(mov -> EMaterialType.STONE, mov -> false, mov -> {}),
+							take(mov -> EMaterialType.STONE, false),
 							goToOutputStack(EMaterialType.STONE),
 							dropProduced(mov -> EMaterialType.STONE)
 						)
@@ -239,7 +238,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 										show(),
 										followPresearchedPathMarkTarget(),
 										setDirectionNode(mov -> EDirection.NORTH_WEST),
-										take(mov -> EMaterialType.BASKET, mov -> false, mov -> {}),
+										take(mov -> EMaterialType.BASKET, false),
 										executeSearch(ESearchType.HARVESTABLE_WINE),
 										enterHome(),
 										sleep(3000),
@@ -304,7 +303,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 										executeSearch(ESearchType.CUTTABLE_CORN),
 										setDirectionNode(mov -> EDirection.NORTH_EAST),
 										setMaterialNode(EMaterialType.NO_MATERIAL),
-										take(mov -> EMaterialType.CROP, mov -> false, mov -> {}),
+										take(mov -> EMaterialType.CROP, false),
 										goToOutputStack(EMaterialType.CROP),
 										setDirectionNode(mov -> EDirection.NORTH_EAST),
 										dropProduced(mov -> EMaterialType.CROP)
@@ -364,12 +363,12 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						sequence(
 							inputStackNotEmpty(EMaterialType.PLANK),
 							goToInputStack(EMaterialType.PLANK),
-							take(mov -> EMaterialType.PLANK, mov -> true, mov -> {})
+							take(mov -> EMaterialType.PLANK, true)
 						),
 						sequence(
 							inputStackNotEmpty(EMaterialType.IRON),
 							goToInputStack(EMaterialType.IRON),
-							take(mov -> EMaterialType.IRON, mov -> true, mov -> {})
+							take(mov -> EMaterialType.IRON, true)
 						)
 					),
 					goToPos(mov -> ((DockyardBuilding)mov.building).getDock().getPosition()),
@@ -404,7 +403,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						),
 						setDirectionNode(EDirection.NORTH_EAST)
 					),
-					take(mov -> EMaterialType.CROP, mov -> true, mov -> {}),
+					take(mov -> EMaterialType.CROP, true),
 					enterHome(),
 					sleep(1000),
 					action(mov -> ((MillBuilding) mov.building).setRotating(true)),
@@ -442,7 +441,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					show(),
 					goToInputStack(EMaterialType.PIG),
 					setDirectionNode(EDirection.NORTH_EAST),
-					take(mov -> EMaterialType.PIG, mov -> true, mov -> {}),
+					take(mov -> EMaterialType.PIG, true),
 					enterHome(),
 					sleep(1000),
 					action(mov -> ((SlaughterhouseBuilding) mov.building).requestSound()),
@@ -482,7 +481,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									show(),
 									goToInputStack(EMaterialType.PLANK),
 									setDirectionNode(EDirection.EAST),
-									take(mov -> EMaterialType.PLANK, mov -> true, mov -> {}),
+									take(mov -> EMaterialType.PLANK, true),
 									enterHome(),
 									sleep(500)
 								)

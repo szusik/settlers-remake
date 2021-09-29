@@ -43,7 +43,7 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 						setMaterialNode(EMaterialType.NO_MATERIAL),
 						goToInputStack(EMaterialType.CROP),
 						setDirectionNode(EDirection.NORTH_WEST),
-						take(mov -> EMaterialType.CROP, mov -> true, mov -> {}),
+						take(mov -> EMaterialType.CROP, true),
 						// and go home
 						enterHome(),
 						setMaterialNode(EMaterialType.NO_MATERIAL),
@@ -53,7 +53,7 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 						show(),
 						goToInputStack(EMaterialType.WATER),
 						setDirectionNode(EDirection.NORTH_WEST),
-						take(mov -> EMaterialType.WATER, mov -> true, mov -> {}),
+						take(mov -> EMaterialType.WATER, true),
 						// and go home
 						enterHome(),
 						setMaterialNode(EMaterialType.BASKET),

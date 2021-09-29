@@ -38,7 +38,7 @@ public class SawMillerMovable extends BuildingWorkerMovable {
 						sequence(
 							goToInputStack(EMaterialType.TRUNK),
 							setDirectionNode(EDirection.NORTH_EAST),
-							take(mov -> EMaterialType.TRUNK, mov -> true, mov -> {}),
+							take(mov -> EMaterialType.TRUNK, true),
 							goToPos(SawMillerMovable::getWorkPosition),
 							setDirectionNode(SawMillerMovable::getWorkDirection),
 							repeatLoop(5, playAction(EMovableAction.ACTION1, (short)900)),
