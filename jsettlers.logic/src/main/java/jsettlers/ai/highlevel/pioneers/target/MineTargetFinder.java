@@ -44,6 +44,8 @@ public class MineTargetFinder extends AbstractPioneerTargetFinder {
 
 	@Override
 	public ShortPoint2D findTarget(AiPositions playerBorder, ShortPoint2D center) {
+		if(mineBuilding == null) return null;
+
 		if (aiStatistics.resourceCountInDefaultPartition(resourceType) == 0)
 			return null;
 
