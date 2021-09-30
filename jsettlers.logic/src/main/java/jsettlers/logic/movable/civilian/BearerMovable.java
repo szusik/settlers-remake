@@ -89,7 +89,7 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 						action(BearerMovable::abortJob)
 					)
 				),
-				guard(mov -> mov.request != null && mov.request.isActive(),
+				guard(mov -> mov.request != null,
 					resetAfter(
 						mov -> {
 							EMaterialType carriedMaterial = mov.setMaterial(EMaterialType.NO_MATERIAL);
@@ -101,8 +101,12 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 						},
 						selector(
 							sequence(
-								handleOffer(),
-								goToPos(mov -> mov.request.getPosition()),
+								guard(mov -> mov.request.isActive(),
+									sequence(
+										handleOffer(),
+										goToPos(mov -> mov.request.getPosition())
+									)
+								),
 								drop(Movable::getMaterial, false),
 								action(mov -> {
 									mov.request.deliveryFulfilled();
