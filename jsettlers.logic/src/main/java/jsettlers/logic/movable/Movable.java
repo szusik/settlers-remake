@@ -757,7 +757,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			}
 
 			// swap positions and then continue to target
-			path = new Path(grid.calculatePathTo(this, path.getTargetPosition(), pushedFrom), pushedFrom);
+			if(pushedFrom.equals(path.getTargetPosition())) {
+				path = new Path(pushedFrom);
+			} else {
+				path = new Path(grid.calculatePathTo(this, path.getTargetPosition(), pushedFrom), pushedFrom);
+			}
 			return NodeStatus.SUCCESS;
 		} else {
 			setDirection(EDirection.getApproxDirection(position, path.getNextPos()));
