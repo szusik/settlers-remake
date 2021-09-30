@@ -316,16 +316,17 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	 * 			duration in milliseconds
 	 */
 	protected static <T extends Movable> Node<T> playAction(EMovableAction action, IShortSupplier<T> duration) {
-		return sequence(
-				action(mov -> {
-					Movable realMov = mov;
+		return resetAfter(mov -> ((Movable)mov).movableAction = EMovableAction.NO_ACTION,
+				sequence(
+					action(mov -> {
+						Movable realMov = mov;
 
-					realMov.playAnimation(action, duration.apply(mov));
+						realMov.playAnimation(action, duration.apply(mov));
 
-					realMov.soundPlayed = false;
-				}),
-				sleep(mov -> (int)((Movable)mov).animationDuration),
-				action(mov -> ((Movable)mov).movableAction = EMovableAction.NO_ACTION)
+						realMov.soundPlayed = false;
+					}),
+					sleep(mov -> (int)((Movable)mov).animationDuration)
+			)
 		);
 	}
 	protected static <T extends Movable> Node<T> goToPos(IShortPoint2DSupplier<T> target) {
