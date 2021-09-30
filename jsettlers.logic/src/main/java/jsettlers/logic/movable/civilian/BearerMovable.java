@@ -1,11 +1,14 @@
 package jsettlers.logic.movable.civilian;
 
+import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.constants.Constants;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBearer;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IBarrack;
 import jsettlers.logic.map.grid.partition.manager.materials.interfaces.IMaterialOffer;
@@ -101,17 +104,18 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 						},
 						selector(
 							sequence(
-								guard(mov -> mov.request.isActive(),
-									sequence(
-										handleOffer(),
-										goToPos(mov -> mov.request.getPosition())
-									)
-								),
-								drop(Movable::getMaterial, false),
-								action(mov -> {
-									mov.request.deliveryFulfilled();
-									mov.request = null;
-								})
+								handleOffer(),
+								goToPos(mov -> mov.request.getPosition()),
+								crouchDown(
+									action(mov -> {
+										EMaterialType takeDropMaterial = mov.getMaterial();
+
+										mov.setMaterial(EMaterialType.NO_MATERIAL);
+										mov.request.deliveryFulfilled();
+										mov.request = null;
+										mov.grid.dropMaterial(mov.position, takeDropMaterial, false, false);
+									})
+								)
 							),
 							action(BearerMovable::abortJob)
 						)
