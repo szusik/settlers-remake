@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jsettlers.common.buildings.BuildingVariant;
+import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuildingMaterial;
 import jsettlers.common.mapobject.EMapObjectType;
@@ -14,6 +15,7 @@ import jsettlers.common.mapobject.IStackMapObject;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
 import jsettlers.common.movable.EDirection;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
@@ -140,7 +142,8 @@ public class HiddenMapObject implements IMapObject, Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		private final BuildingVariant variant;
+		private final EBuildingType type;
+		private final ECivilisation civilisation;
 		private final boolean occupied;
 		private final IPlayer player;
 		private final ShortPoint2D position;
@@ -149,7 +152,8 @@ public class HiddenMapObject implements IMapObject, Serializable {
 			super(original);
 
 			IBuilding originalBuilding = (IBuilding) original;
-			variant = originalBuilding.getBuildingVariant();
+			type = originalBuilding.getBuildingVariant().getType();
+			civilisation = originalBuilding.getBuildingVariant().getCivilisation();
 			occupied = originalBuilding.isOccupied();
 			player = originalBuilding.getPlayer();
 			position = originalBuilding.getPosition();
@@ -157,7 +161,7 @@ public class HiddenMapObject implements IMapObject, Serializable {
 
 		@Override
 		public BuildingVariant getBuildingVariant() {
-			return variant;
+			return type.getVariant(civilisation);
 		}
 
 		@Override

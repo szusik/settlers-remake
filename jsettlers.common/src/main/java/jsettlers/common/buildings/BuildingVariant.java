@@ -3,11 +3,9 @@ package jsettlers.common.buildings;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jsettlers.common.buildings.loader.BuildingFile;
 import jsettlers.common.buildings.loader.MineElementWrapper;
