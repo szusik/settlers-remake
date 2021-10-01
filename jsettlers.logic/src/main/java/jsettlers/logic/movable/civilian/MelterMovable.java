@@ -30,31 +30,33 @@ public class MelterMovable extends BuildingWorkerMovable {
 			sequence(
 				waitFor(melterWorkPreconditions()),
 				show(),
-				repeat(mov -> true,
-					sequence(
-						melterWorkPreconditions(),
-						goToInputStack(MelterMovable::getInputMaterial),
-						setDirectionNode(EDirection.NORTH_WEST),
-						take(MelterMovable::getInputMaterial, true),
+				ignoreFailure(
+					repeat(mov -> true,
+						sequence(
+							melterWorkPreconditions(),
+							goToInputStack(MelterMovable::getInputMaterial),
+							setDirectionNode(EDirection.NORTH_WEST),
+							take(MelterMovable::getInputMaterial, true),
 
-						dropIntoMeltingPot(),
+							dropIntoMeltingPot(),
 
-						goToInputStack(EMaterialType.COAL),
-						setDirectionNode(EDirection.NORTH_WEST),
-						take(mov -> EMaterialType.COAL, true),
+							goToInputStack(EMaterialType.COAL),
+							setDirectionNode(EDirection.NORTH_WEST),
+							take(mov -> EMaterialType.COAL, true),
 
-						dropIntoMeltingPot(),
+							dropIntoMeltingPot(),
 
-						goToPos(MelterMovable::getOutputPosition),
-						setDirectionNode(MelterMovable::getOutputDirection),
-						setSmoke(MelterMovable::getMeltingTime),
-						playAction(EMovableAction.ACTION1, MelterMovable::getMeltingTime),
-						setSmoke((short) 0),
-						take(MelterMovable::getProducedMaterial, false),
+							goToPos(MelterMovable::getOutputPosition),
+							setDirectionNode(MelterMovable::getOutputDirection),
+							setSmoke(MelterMovable::getMeltingTime),
+							playAction(EMovableAction.ACTION1, MelterMovable::getMeltingTime),
+							setSmoke((short) 0),
+							take(MelterMovable::getProducedMaterial, false),
 
-						goToOutputStack(MelterMovable::getProducedMaterial),
-						setDirectionNode(EDirection.NORTH_EAST),
-						dropProduced(MelterMovable::getProducedMaterial)
+							goToOutputStack(MelterMovable::getProducedMaterial),
+							setDirectionNode(EDirection.NORTH_EAST),
+							dropProduced(MelterMovable::getProducedMaterial)
+						)
 					)
 				),
 				enterHome()
