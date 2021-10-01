@@ -96,26 +96,27 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 					resetAfter(
 						mov -> {
 							EMaterialType carriedMaterial = mov.setMaterial(EMaterialType.NO_MATERIAL);
-							boolean success = mov.request != null && mov.position.equals(mov.request.getPosition());
 
 							if (carriedMaterial != EMaterialType.NO_MATERIAL) {
-								mov.grid.dropMaterial(mov.position, carriedMaterial, !success, false);
+								mov.grid.dropMaterial(mov.position, carriedMaterial, true, false);
 							}
 						},
 						selector(
 							sequence(
 								handleOffer(),
-								goToPos(mov -> mov.request.getPosition()),
+								goToPos(mov -> mov.request.getPosition(), mov -> mov.request.isActive()),
 								crouchDown(
 									action(mov -> {
 										EMaterialType takeDropMaterial = mov.getMaterial();
 
 										mov.setMaterial(EMaterialType.NO_MATERIAL);
-										mov.request.deliveryFulfilled();
-										mov.request = null;
 										mov.grid.dropMaterial(mov.position, takeDropMaterial, false, false);
 									})
-								)
+								),
+								action(mov -> {
+									mov.request.deliveryFulfilled();
+									mov.request = null;
+								})
 							),
 							action(BearerMovable::abortJob)
 						)
