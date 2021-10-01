@@ -41,6 +41,7 @@ import jsettlers.algorithms.path.dijkstra.IDijkstraPathMap;
 import jsettlers.algorithms.previewimage.PreviewImageCreator;
 import jsettlers.algorithms.traversing.area.IAreaVisitor;
 import jsettlers.common.Color;
+import jsettlers.common.CommonConstants;
 import jsettlers.common.buildings.BuildingAreaBitSet;
 import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
@@ -549,7 +550,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public final float getCost(IPathCalculatable requester, int sx, int sy, int tx, int ty) {
-			if(requester.getPosition().getOnGridDistTo(sx, sy) <= 10) {
+			if(requester.getPosition().getOnGridDistTo(sx, sy) <= CommonConstants.MOVABLE_PATH_REPAIR_DISTANCE) {
 				if(!movableGrid.hasNoMovableAt(tx, ty)) return 1.5f;
 			}
 			return 1;

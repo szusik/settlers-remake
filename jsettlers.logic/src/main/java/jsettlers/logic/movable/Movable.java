@@ -27,6 +27,7 @@ import jsettlers.algorithms.simplebehaviortree.NodeStatus;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
+import jsettlers.common.CommonConstants;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.mapobject.EMapObjectType;
@@ -732,9 +733,24 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					findWayAroundObstacle();
 					break;
 				case 1:
-					blockingMovable.push(this);
+					int remainingSteps = path.getRemainingSteps();
+
+					if(remainingSteps > CommonConstants.MOVABLE_PATH_REPAIR_DISTANCE) {
+						ShortPoint2D prefixTarget = path.getNextPos(CommonConstants.MOVABLE_PATH_REPAIR_DISTANCE);
+						Path newPrefix = grid.calculatePathTo(this, prefixTarget);
+
+						if (newPrefix != null) {
+							path.goToNextStep(CommonConstants.MOVABLE_PATH_REPAIR_DISTANCE);
+							path = new Path(path, newPrefix);
+						}
+					} else {
+						path = grid.calculatePathTo(this, path.getTargetPosition());
+					}
 					break;
 				case 2:
+					blockingMovable.push(this);
+					break;
+				case 3:
 					return NodeStatus.RUNNING;
 			}
 		}

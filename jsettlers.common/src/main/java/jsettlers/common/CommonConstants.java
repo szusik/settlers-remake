@@ -39,6 +39,9 @@ public abstract class CommonConstants {
 	 * Radius of the area occupied by towers.
 	 */
 	public static final short TOWER_RADIUS = 40;
+
+	public static final short MOVABLE_PATH_REPAIR_DISTANCE = 10;
+
 	/**
 	 * Maximum number of players allowed to play. Should be 2..127.
 	 */
