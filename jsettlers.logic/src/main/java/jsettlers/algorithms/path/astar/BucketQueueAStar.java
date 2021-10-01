@@ -119,7 +119,7 @@ public final class BucketQueueAStar extends AbstractAStar {
 					final int flatNeighborIdx = getFlatIdx(neighborX, neighborY);
 
 					if (!closedBitSet.get(flatNeighborIdx)) {
-						final float newCosts = currPositionCosts + map.getCost(x, y, neighborX, neighborY);
+						final float newCosts = currPositionCosts + map.getCost(requester, x, y, neighborX, neighborY);
 
 						if (openBitSet.get(flatNeighborIdx)) {
 							final float oldCosts = costs[flatNeighborIdx];

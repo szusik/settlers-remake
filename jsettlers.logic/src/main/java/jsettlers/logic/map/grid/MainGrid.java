@@ -548,7 +548,10 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final float getCost(int sx, int sy, int tx, int ty) {
+		public final float getCost(IPathCalculatable requester, int sx, int sy, int tx, int ty) {
+			if(requester.getPosition().getOnGridDistTo(sx, sy) <= 10) {
+				if(!movableGrid.hasNoMovableAt(tx, ty)) return 1.5f;
+			}
 			return 1;
 		}
 

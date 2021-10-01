@@ -21,7 +21,7 @@ public interface IAStarPathMap {
 
 	boolean isBlocked(IPathCalculatable requester, int x, int y);
 
-	float getCost(int sx, int sy, int tx, int ty);
+	float getCost(IPathCalculatable requester, int sx, int sy, int tx, int ty);
 
 	/**
 	 * only for debugging
