@@ -559,7 +559,13 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 							return false;
 						}
 					}),
-					goInDirectionIfAllowedAndFreeNode(mov -> mov.flockDirection)
+					selector(
+						goInDirectionIfAllowedAndFreeNode(mov -> mov.flockDirection),
+						sequence(
+							condition(Movable::setRandomFreeDirection),
+							goInDirectionIfAllowedAndFreeNode(Movable::getDirection)
+						)
+					)
 				),
 				sequence(
 					action(mov -> {
