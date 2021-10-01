@@ -723,7 +723,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 		if(!valid) return NodeStatus.FAILURE;
 
-		for(int i = 0; i < 3; i++) {
+		for(int i = 0; i < 4; i++) {
 			ILogicMovable blockingMovable = grid.getMovableAt(path.nextX(), path.nextY());
 
 			if(blockingMovable == null) break;
@@ -745,6 +745,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 						}
 					} else {
 						path = grid.calculatePathTo(this, path.getTargetPosition());
+						if(path == null) return NodeStatus.FAILURE;
 					}
 					break;
 				case 2:
