@@ -130,7 +130,13 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				// attack enemies from the top of the tower
 				guard(mov -> mov.isBowman() && mov.isInTower && mov.enemyNearby,
 					sequence(
-						findEnemy(),
+						selector(
+							findEnemy(),
+							sequence(
+								sleep(100),
+								alwaysFail()
+							)
+						),
 						attackEnemy()
 					)
 				),
