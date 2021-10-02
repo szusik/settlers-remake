@@ -24,7 +24,6 @@ import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.NodeStatus;
-import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.Tick;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
 import jsettlers.common.CommonConstants;
@@ -756,6 +755,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					break;
 				case 2:
 					blockingMovable.push(this);
+					if(!isAlive()) return NodeStatus.RUNNING;
 					break;
 				case 3:
 					return NodeStatus.RUNNING;
@@ -787,7 +787,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			}
 			return NodeStatus.SUCCESS;
 		} else {
-			setDirection(EDirection.getApproxDirection(position, path.getNextPos()));
+			if(isAlive()) {
+				setDirection(EDirection.getApproxDirection(position, path.getNextPos()));
+			}
 			return NodeStatus.RUNNING;
 		}
 	}
