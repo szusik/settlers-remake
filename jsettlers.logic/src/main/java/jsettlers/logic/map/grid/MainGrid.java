@@ -1523,32 +1523,40 @@ public final class MainGrid implements Serializable {
 			return enemy;
 		}
 
-		private IAttackable searchEnemyInArea(ShortPoint2D position, IPlayer searchingPlayer, final short minSearchRadius, final short maxSearchRadius, boolean isBowman, boolean includeTowers) {
-			MutableInt minDistance = new MutableInt(Integer.MAX_VALUE);
-			Mutable<IAttackable> result = new Mutable<>();
+		private IAttackable searchEnemyInArea(final ShortPoint2D position, final IPlayer searchingPlayer, final short minSearchRadius, final short maxSearchRadius, boolean isBowman, boolean includeTowers) {
+			int minDistance = Integer.MAX_VALUE;
+			IAttackable result = null;
 
-			HexGridArea area = new HexGridArea(position.x, position.y, minSearchRadius, maxSearchRadius);
+			HexGridArea.HexGridAreaIterator area = new HexGridArea(position.x, position.y, minSearchRadius, maxSearchRadius).iterator();
 
-			area.stream().filterBounds(width, height)
-					.map((x, y) -> {
-						ILogicMovable currMovable = movableGrid.getMovableAt(x, y);
+			for(; area.hasNext(); area.nextPoint()) {
+				short x = area.currX();
+				short y = area.currY();
 
-						if(includeTowers && !isBowman && currMovable == null) {
-							return (IAttackable) objectsGrid.getMapObjectAt(x, y, EMapObjectType.ATTACKABLE_TOWER);
-						} else if(currMovable instanceof IAttackableMovable) {
-							return (IAttackable) currMovable;
-						}
-						return null;
-					}).filter(Objects::nonNull)
-					.filter(attackable -> MovableGrid.isEnemy(searchingPlayer, attackable))
-					.forEach(attackable -> {
-						int attackDistance = attackable.getPosition().getOnGridDistTo(position);
-						if(attackDistance < minDistance.value) {
-							minDistance.value = attackDistance;
-							result.object = attackable;
-						}
-					});
-			return result.object;
+				if(x == position.x && y == position.y || !isInBounds(x, y)) continue;
+
+				ILogicMovable currMovable = movableGrid.getMovableAt(x, y);
+				IAttackable attackable = null;
+
+				if(includeTowers && !isBowman && currMovable == null) {
+					attackable = (IAttackable) objectsGrid.getMapObjectAt(x, y, EMapObjectType.ATTACKABLE_TOWER);
+				} else if(currMovable instanceof IAttackableMovable) {
+					attackable = (IAttackable) currMovable;
+				}
+
+				if(attackable == null || !MovableGrid.isEnemy(searchingPlayer, attackable)) {
+					continue;
+				}
+
+
+				int attackDistance = attackable.getPosition().getOnGridDistTo(position);
+				if(attackDistance < minDistance) {
+					minDistance = attackDistance;
+					result = attackable;
+				}
+			}
+
+			return result;
 		}
 
 		@Override
