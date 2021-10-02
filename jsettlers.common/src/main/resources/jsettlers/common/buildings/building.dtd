@@ -86,7 +86,7 @@
 <!ATTLIST building
    	worker CDATA #REQUIRED
 	workradius CDATA #IMPLIED
-	viewdistance CDATA #IMPLIED
+	viewdistance CDATA "5"
 	mine (true|false) "false"
 >
 
