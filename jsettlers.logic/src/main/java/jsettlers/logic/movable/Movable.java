@@ -243,15 +243,17 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	protected static <T extends Movable> Node<T> goInDirectionIfFree(IEDirectionSupplier<T> direction) {
 		return sequence(
 				condition(mov -> {
-					ShortPoint2D targetPosition = direction.apply(mov).getNextHexPoint(mov.position);
+					EDirection realDirection = direction.apply(mov);
+
+					ShortPoint2D targetPosition = realDirection.getNextHexPoint(mov.position);
 					if(mov.grid.isFreePosition(targetPosition.x, targetPosition.y)) {
-						mov.path = new Path(targetPosition);
+						mov.setDirection(realDirection);
 						return true;
 					} else {
 						return false;
 					}
 				}),
-				followPath(mov -> true)
+				goSingleStep(mov -> mov.getDirection().getNextHexPoint(mov.position))
 		);
 	}
 
