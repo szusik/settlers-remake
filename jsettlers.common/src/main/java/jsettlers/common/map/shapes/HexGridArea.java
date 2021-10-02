@@ -114,10 +114,18 @@ public final class HexGridArea implements IMapArea {
 			return radius <= hexGridArea.maxRadius;
 		}
 
-		@Override
-		public ShortPoint2D next() {
-			ShortPoint2D result = new ShortPoint2D(x, y);
+		public short currX() {
+			return x;
+		}
 
+		public short currY() {
+			return y;
+		}
+
+		/**
+		 * Like {@link #next()} but without returning a point
+		 */
+		public void nextPoint() {
 			if (length >= radius) {
 				length = 0;
 				direction++;
@@ -129,14 +137,20 @@ public final class HexGridArea implements IMapArea {
 					direction = 0;
 					length = 1;
 					radius++;
-
-					return result;
 				}
-			}
-			length++;
+			} else {
+				length++;
 
-			x += DIRECTION_INCREASE_X[direction];
-			y += DIRECTION_INCREASE_Y[direction];
+				x += DIRECTION_INCREASE_X[direction];
+				y += DIRECTION_INCREASE_Y[direction];
+			}
+		}
+
+		@Override
+		public ShortPoint2D next() {
+			ShortPoint2D result = new ShortPoint2D(x, y);
+
+			nextPoint();
 
 			return result;
 		}

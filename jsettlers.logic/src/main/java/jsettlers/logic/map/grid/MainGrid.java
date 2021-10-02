@@ -1515,19 +1515,19 @@ public final class MainGrid implements Serializable {
 												final short maxSearchRadius, final boolean includeTowers) {
 			boolean isBowman = searchingAttackable.getMovableType().isBowman();
 
-			IAttackable enemy = searchEnemyInArea(position, searchingAttackable.getPlayer(), new HexGridArea(position.x, position.y, minSearchRadius,
-				maxSearchRadius
-			), isBowman, includeTowers);
+			IAttackable enemy = searchEnemyInArea(position, searchingAttackable.getPlayer(), minSearchRadius, maxSearchRadius, isBowman, includeTowers);
 			if (includeTowers && !isBowman && enemy == null) {
-				enemy = searchEnemyInArea(position, searchingAttackable.getPlayer(), new HexGridArea(position.x, position.y, maxSearchRadius, Constants.TOWER_ATTACKABLE_SEARCH_RADIUS), false, true);
+				enemy = searchEnemyInArea(position, searchingAttackable.getPlayer(), maxSearchRadius, Constants.TOWER_ATTACKABLE_SEARCH_RADIUS, false, true);
 			}
 
 			return enemy;
 		}
 
-		private IAttackable searchEnemyInArea(ShortPoint2D position, IPlayer searchingPlayer, HexGridArea area, boolean isBowman, boolean includeTowers) {
+		private IAttackable searchEnemyInArea(ShortPoint2D position, IPlayer searchingPlayer, final short minSearchRadius, final short maxSearchRadius, boolean isBowman, boolean includeTowers) {
 			MutableInt minDistance = new MutableInt(Integer.MAX_VALUE);
 			Mutable<IAttackable> result = new Mutable<>();
+
+			HexGridArea area = new HexGridArea(position.x, position.y, minSearchRadius, maxSearchRadius);
 
 			area.stream().filterBounds(width, height)
 					.map((x, y) -> {
