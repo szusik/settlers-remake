@@ -61,7 +61,7 @@ public enum EOriginalMapBuildingType {
 	HOSPITAL(EBuildingType.HOSPITAL),
 	Reisfarm(null),
 	GEMSMINE(EBuildingType.GEMSMINE),
-	Brauerei(null),
+	Brauerei(EBuildingType.BREWERY),
 	CHARCOAL_BURNER(EBuildingType.CHARCOAL_BURNER),
 	Pulvermacherei(null),
 	Pyramide(EBuildingType.BIG_TEMPLE),

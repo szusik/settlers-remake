@@ -82,6 +82,7 @@ public enum EBuildingType {
 
 	SULFURMINE,
 	GEMSMINE,
+	BREWERY,
 	;
 
 	/**
