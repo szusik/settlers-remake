@@ -1093,6 +1093,9 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case HEALER:
 				return new HealerMovable(grid, position, player, movable);
 
+			case BREWER:
+				return new BrewerMovable(grid, position, player, movable);
+
 			default:
 				throw new AssertionError("movable type " + movableType + " is not mapped to a movable class!");
 		}

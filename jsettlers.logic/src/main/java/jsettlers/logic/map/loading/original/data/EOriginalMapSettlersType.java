@@ -50,7 +50,7 @@ public enum EOriginalMapSettlersType {
 	THIEF(EMovableType.THIEF),
 	CHARCOAL_BURNER(EMovableType.CHARCOAL_BURNER),
 	Schnapsbrenner(null),
-	Brauer(null),
+	Brauer(EMovableType.BREWER),
 	Pulvermacher(null),
 	PIG_FARMER(EMovableType.PIG_FARMER),
 	WINEGROWER(EMovableType.WINEGROWER),
