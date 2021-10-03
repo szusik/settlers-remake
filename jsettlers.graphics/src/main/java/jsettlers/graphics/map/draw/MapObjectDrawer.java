@@ -34,6 +34,7 @@ import jsettlers.common.images.OriginalImageLink;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IArrowMapObject;
 import jsettlers.common.mapobject.IAttackableTowerMapObject;
+import jsettlers.common.mapobject.IMannaBowlObject;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.mapobject.ISpecializedMapObject;
 import jsettlers.common.mapobject.IStackMapObject;
@@ -467,8 +468,8 @@ public class MapObjectDrawer {
 				drawDeadWine(x, y, color);
 				break;
 
-			case WINE_BOWL:
-				drawWineBowl(x, y, object, color);
+			case MANNA_BOWL:
+				drawMannaBowl(x, y, (IMannaBowlObject) object, color);
 				break;
 
 			case WAVES:
@@ -1038,8 +1039,13 @@ public class MapObjectDrawer {
 		draw(seq.getImageSafe(WINE_DEAD_STEP, () -> "dead-wine"), x, y, 0, color);
 	}
 
-	private void drawWineBowl(int x, int y, IMapObject object, float color) {
-		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(BUILDINGS_FILE, WINE_BOWL_SEQUENCE);
+	private void drawMannaBowl(int x, int y, IMannaBowlObject object, float color) {
+
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(
+				imageProvider.getGfxBuildingFileIndex(object.getCivilisation()),
+				imageProvider.getMannaBowlSequence(object.getCivilisation())
+		);
+
 		int step = (int) (object.getStateProgress() * (WINE_BOWL_IMAGES - 1));
 		draw(seq.getImageSafe(step, () -> "wine-bowl"), x, y, 0, color);
 	}

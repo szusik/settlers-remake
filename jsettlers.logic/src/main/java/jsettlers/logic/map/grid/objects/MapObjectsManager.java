@@ -25,6 +25,7 @@ import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IAttackableTowerMapObject;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
@@ -39,7 +40,7 @@ import jsettlers.logic.objects.RessourceSignMapObject;
 import jsettlers.logic.objects.SelfDeletingMapObject;
 import jsettlers.logic.objects.SoundableSelfDeletingObject;
 import jsettlers.logic.objects.StandardMapObject;
-import jsettlers.logic.objects.WineBowlMapObject;
+import jsettlers.logic.objects.MannaBowlMapObject;
 import jsettlers.logic.objects.arrow.ArrowObject;
 import jsettlers.logic.objects.building.BuildingWorkAreaMarkObject;
 import jsettlers.logic.objects.building.ConstructionMarkObject;
@@ -321,8 +322,8 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		addMapObject(x, y, new BuildingWorkAreaMarkObject(radius));
 	}
 
-	public void addWineBowl(ShortPoint2D pos, IStackSizeSupplier wineStack) {
-		addMapObject(pos, new WineBowlMapObject(wineStack));
+	public void addMannaBowl(ShortPoint2D pos, IStackSizeSupplier wineStack, ECivilisation civilisation) {
+		addMapObject(pos, new MannaBowlMapObject(wineStack, civilisation));
 	}
 
 	public void addSelfDeletingMapObject(ShortPoint2D pos, EMapObjectType mapObjectType, float duration, IPlayer player) {

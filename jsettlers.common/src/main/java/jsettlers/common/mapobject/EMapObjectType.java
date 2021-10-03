@@ -30,7 +30,7 @@ public enum EMapObjectType {
 	WINE_GROWING,
 	WINE_HARVESTABLE,
 	WINE_DEAD,
-	WINE_BOWL,
+	MANNA_BOWL,
 
 	WAVES,
 	STONE,
