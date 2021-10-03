@@ -109,14 +109,13 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 									action(mov -> {
 										EMaterialType takeDropMaterial = mov.getMaterial();
 
+										mov.request.deliveryFulfilled();
+										mov.request = null;
+
 										mov.setMaterial(EMaterialType.NO_MATERIAL);
 										mov.grid.dropMaterial(mov.position, takeDropMaterial, false, false);
 									})
-								),
-								action(mov -> {
-									mov.request.deliveryFulfilled();
-									mov.request = null;
-								})
+								)
 							),
 							action(BearerMovable::abortJob)
 						)
