@@ -2,6 +2,8 @@ package jsettlers.logic.movable.civilian;
 
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
+import jsettlers.common.material.EMaterialType;
+import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
@@ -23,7 +25,32 @@ public class BrewerMovable extends BuildingWorkerMovable {
 
 	private static Node<BrewerMovable> createBrewerBehaviour() {
 		return defaultWorkCycle(
-				sleep(1000)
+				sequence(
+					sleep(1000),
+					waitFor(
+						sequence(
+							isAllowedToWork(),
+							inputStackNotEmpty(EMaterialType.CROP),
+							inputStackNotEmpty(EMaterialType.WATER),
+							outputStackNotFull(EMaterialType.KEG)
+						)
+					),
+					show(),
+					ignoreFailure(
+						sequence(
+							dropIntoOven(EMaterialType.WATER, EDirection.NORTH_EAST),
+							dropIntoOven(EMaterialType.CROP, EDirection.NORTH_EAST),
+							enterHome(),
+							sleep(5000),
+							setMaterialNode(EMaterialType.KEG),
+							show(),
+							goToOutputStack(EMaterialType.KEG),
+							setDirectionNode(EDirection.NORTH_WEST),
+							dropProduced(mov -> EMaterialType.KEG)
+						)
+					),
+					enterHome()
+				)
 		);
 	}
 }
