@@ -68,18 +68,6 @@ public class SmithMovable extends BuildingWorkerMovable {
 		);
 	}
 
-	private static Node<SmithMovable> dropIntoOven(EMaterialType material, EDirection takeDirection) {
-		return sequence(
-				goToInputStack(material),
-				setDirectionNode(takeDirection),
-				take(mov -> material, true),
-
-				goToPos(SmithMovable::getOvenPosition),
-				setDirectionNode(SmithMovable::getOvenDirection),
-				crouchDown(setMaterialNode(EMaterialType.NO_MATERIAL))
-		);
-	}
-
 	private boolean popMaterial() {
 		if(building.getBuildingVariant().getType() == EBuildingType.TOOLSMITH) {
 			outputMaterial = building.getMaterialProduction().drawRandomAbsolutelyRequestedTool(); // first priority: Absolutely set tool production requests of user
@@ -102,14 +90,6 @@ public class SmithMovable extends BuildingWorkerMovable {
 
 	private EDirection getWorkDirection() {
 		return building.getBuildingVariant().getAnvilPosition().getDirection();
-	}
-
-	private ShortPoint2D getOvenPosition() {
-		return building.getBuildingVariant().getOvenPosition().calculatePoint(building.getPosition());
-	}
-
-	private EDirection getOvenDirection() {
-		return building.getBuildingVariant().getOvenPosition().getDirection();
 	}
 
 	private ShortPoint2D getDropPosition() {

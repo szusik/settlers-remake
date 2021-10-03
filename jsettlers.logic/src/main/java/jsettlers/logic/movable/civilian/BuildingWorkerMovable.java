@@ -185,6 +185,18 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		});
 	}
 
+	protected static <T extends BuildingWorkerMovable> Node<T> dropIntoOven(EMaterialType material, EDirection takeDirection) {
+		return sequence(
+				goToInputStack(material),
+				setDirectionNode(takeDirection),
+				take(mov -> material, true),
+
+				goToPos(mov -> mov.building.getBuildingVariant().getOvenPosition().calculatePoint(mov.building.getPosition())),
+				setDirectionNode(mov -> mov.building.getBuildingVariant().getOvenPosition().getDirection()),
+				crouchDown(setMaterialNode(EMaterialType.NO_MATERIAL))
+		);
+	}
+
 	@Override
 	protected boolean isBusy() {
 		return super.isBusy() || !registered;

@@ -1,8 +1,5 @@
 package jsettlers.logic.movable.civilian;
 
-import java.util.EnumMap;
-import java.util.Map;
-
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.landscape.EResourceType;
