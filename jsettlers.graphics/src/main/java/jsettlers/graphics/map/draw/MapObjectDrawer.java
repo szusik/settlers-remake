@@ -868,7 +868,7 @@ public class MapObjectDrawer {
 
 				int metal = building.getBuildingVariant().isVariantOf(EBuildingType.IRONMELT) ? 37 : 36;
 
-				ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, 13, metal, number > 24 ? 24 : number);
+				ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, movable.getPlayer().getCivilisation().getFileIndex()*10 + 3, metal, number > 24 ? 24 : number);
 				image = imageProvider.getImage(link);
 				image.drawAt(context.getGl(), viewX, viewY, getZ(molten_metal_offset, position.y), color, shade);
 			}
