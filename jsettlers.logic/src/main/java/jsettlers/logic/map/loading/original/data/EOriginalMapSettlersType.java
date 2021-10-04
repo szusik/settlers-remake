@@ -62,7 +62,7 @@ public enum EOriginalMapSettlersType {
 	SWORDSMAN_L3(EMovableType.SWORDSMAN_L3),
 	MAGE(EMovableType.MAGE),
 	UNKNOWN_37(null),
-	Reisbauer(null),
+	Reisbauer(EMovableType.RICE_FARMER),
 	DONKEY(EMovableType.DONKEY),
 	PIONEER(EMovableType.PIONEER),
 	Katapult(null),

@@ -160,7 +160,8 @@ public class SettlersStatisticsPanel extends AbstractContentProvider implements 
 				EMovableType.MILLER, EMovableType.SMITH,
 				EMovableType.FORESTER, EMovableType.MELTER,
 				EMovableType.WINEGROWER, EMovableType.CHARCOAL_BURNER,
-				EMovableType.STONECUTTER, EMovableType.BREWER);
+				EMovableType.STONECUTTER, EMovableType.BREWER,
+				EMovableType.RICE_FARMER);
 	}
 
 	private int calculateMovableCount(ISettlerInformation settlerInformation, Set<EMovableType> movableTypes) {

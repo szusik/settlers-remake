@@ -75,7 +75,8 @@ public enum EMovableType {
 	FERRY(EMaterialType.NO_MATERIAL, ESelectionType.SHIPS, false, true, false),
 	CARGO_SHIP(EMaterialType.NO_MATERIAL, ESelectionType.SHIPS, false, false),
 
-	BREWER(EMaterialType.NO_MATERIAL, ESelectionType.PEOPLE, true, false);
+	BREWER(EMaterialType.NO_MATERIAL, ESelectionType.PEOPLE, true, false),
+	RICE_FARMER(EMaterialType.NO_MATERIAL, ESelectionType.PEOPLE, true, false);
 
 	/**
 	 * All step durations will be multiplied with this speedup factor.
