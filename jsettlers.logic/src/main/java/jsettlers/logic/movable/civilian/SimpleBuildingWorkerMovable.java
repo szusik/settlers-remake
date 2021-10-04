@@ -38,6 +38,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		MovableManager.registerBehaviour(EMovableType.MILLER, new Root<>(createMillerBehaviour()));
 		MovableManager.registerBehaviour(EMovableType.SLAUGHTERER, new Root<>(createSlaughtererBehaviour()));
 		MovableManager.registerBehaviour(EMovableType.CHARCOAL_BURNER, new Root<>(createCharcoalBurnerBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.BREWER, new Root<>(createBrewerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -501,6 +502,37 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						)
 					),
 					enterHome()
+				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createBrewerBehaviour() {
+		return defaultWorkCycle(
+				sequence(
+						sleep(1000),
+						waitFor(
+								sequence(
+										isAllowedToWork(),
+										inputStackNotEmpty(EMaterialType.CROP),
+										inputStackNotEmpty(EMaterialType.WATER),
+										outputStackNotFull(EMaterialType.KEG)
+								)
+						),
+						show(),
+						ignoreFailure(
+								sequence(
+										dropIntoOven(EMaterialType.WATER, EDirection.NORTH_EAST),
+										dropIntoOven(EMaterialType.CROP, EDirection.NORTH_EAST),
+										enterHome(),
+										sleep(5000),
+										setMaterialNode(EMaterialType.KEG),
+										show(),
+										goToOutputStack(EMaterialType.KEG),
+										setDirectionNode(EDirection.NORTH_WEST),
+										dropProduced(mov -> EMaterialType.KEG)
+								)
+						),
+						enterHome()
 				)
 		);
 	}
