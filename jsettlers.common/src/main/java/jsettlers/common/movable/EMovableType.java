@@ -24,6 +24,7 @@ import jsettlers.common.selectable.ESelectionType;
  * Defines all types of movables with the tool they need, their selection level and if they need their players ground.
  *
  * @author Andreas Eberle
+ * @author MarviMarv
  *
  */
 public enum EMovableType {

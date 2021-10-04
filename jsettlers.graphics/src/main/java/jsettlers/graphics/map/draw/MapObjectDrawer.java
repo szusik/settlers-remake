@@ -69,6 +69,7 @@ import jsettlers.graphics.sound.SoundManager;
  * This class handles drawing of objects on the map.
  *
  * @author michael
+ * @author MarviMarv
  */
 public class MapObjectDrawer {
 
@@ -157,6 +158,11 @@ public class MapObjectDrawer {
 
 	private static final int WINE_BOWL_SEQUENCE = 46;
 	private static final int WINE_BOWL_IMAGES   = 9;
+
+	private static final int RICE			 = 24;
+	private static final int RICE_GROW_STEPS = 5;
+	private static final int RICE_DEAD_STEP  = 0;
+
 
 	private static final int WAVES = 26;
 
@@ -470,6 +476,16 @@ public class MapObjectDrawer {
 
 			case MANNA_BOWL:
 				drawMannaBowl(x, y, (IMannaBowlObject) object, color);
+				break;
+
+			case RICE_GROWING:
+				drawGrowingRice(x, y, object, color);
+				break;
+			case RICE_HARVESTABLE:
+				drawHarvestableRice(x, y, color);
+				break;
+			case RICE_DEAD:
+				drawDeadRice(x, y, color);
 				break;
 
 			case WAVES:
@@ -1007,6 +1023,7 @@ public class MapObjectDrawer {
 		}
 	}
 
+	//Corn
 	private void drawGrowingCorn(int x, int y, IMapObject object, float color) {
 		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, CORN);
 		int step = (int) (object.getStateProgress() * CORN_GROW_STEPS);
@@ -1023,6 +1040,7 @@ public class MapObjectDrawer {
 		draw(seq.getImageSafe(CORN_DEAD_STEP, () -> "dead-corn"), x, y, 0, color);
 	}
 
+	//Wine
 	private void drawGrowingWine(int x, int y, IMapObject object, float color) {
 		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, WINE);
 		int step = (int) (object.getStateProgress() * WINE_GROW_STEPS);
@@ -1037,6 +1055,23 @@ public class MapObjectDrawer {
 	private void drawDeadWine(int x, int y, float color) {
 		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, WINE);
 		draw(seq.getImageSafe(WINE_DEAD_STEP, () -> "dead-wine"), x, y, 0, color);
+	}
+
+	//Rice
+	private void drawGrowingRice(int x, int y, IMapObject object, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, RICE);
+		int step = (int) (object.getStateProgress() * RICE_GROW_STEPS);
+		draw(seq.getImageSafe(step, () -> "growing-rice"), x, y, 0, color);
+	}
+
+	private void drawHarvestableRice(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, RICE);
+		draw(seq.getImageSafe(RICE_GROW_STEPS, () -> "grown-rice"), x, y, 0, color);
+	}
+
+	private void drawDeadRice(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, RICE);
+		draw(seq.getImageSafe(RICE_DEAD_STEP, () -> "dead-rice"), x, y, 0, color);
 	}
 
 	private void drawMannaBowl(int x, int y, IMannaBowlObject object, float color) {

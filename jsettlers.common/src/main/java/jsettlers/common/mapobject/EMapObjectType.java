@@ -153,7 +153,15 @@ public enum EMapObjectType {
 	SPELL_EFFECT,
 
 	FERRY,
-	CARGO_SHIP;
+	CARGO_SHIP,
+
+	RICE_GROWING,
+	RICE_HARVESTABLE,
+	RICE_DEAD,
+
+	HONEY_GROWING,
+	HONEY_HARVESTABLE,
+	HONEY_DEAD;
 
 	public static final EMapObjectType[] VALUES = EMapObjectType.values();
 	public final byte ordinal;
