@@ -540,7 +540,50 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 
 	private static Node<SimpleBuildingWorkerMovable> createRiceFarmerBehaviour() {
 		return defaultWorkCycle(
-				sleep(1000)
+				ignoreFailure(
+					sequence(
+						waitFor(isAllowedToWork()),
+						selector(
+							sequence(
+								outputStackNotFull(EMaterialType.RICE),
+								preSearchPath(true, ESearchType.HARVESTABLE_RICE),
+								ignoreFailure(
+									sequence(
+										condition(mov -> true),
+										setMaterialNode(EMaterialType.NO_MATERIAL),
+										show(),
+										followPresearchedPathMarkTarget(),
+										setMaterialNode(EMaterialType.RICE),
+										playAction(EMovableAction.ACTION1, (short)3000),
+										executeSearch(ESearchType.HARVESTABLE_RICE),
+										goToOutputStack(EMaterialType.RICE),
+										dropProduced(mov -> EMaterialType.RICE)
+									)
+								)
+							),
+							sequence(
+								preSearchPathNoWarning(true, ESearchType.PLANTABLE_RICE),
+								ignoreFailure(
+									sequence(
+										setMaterialNode(EMaterialType.PLANT),
+										show(),
+										followPresearchedPathMarkTarget(),
+										setDirectionNode(mov -> EDirection.NORTH_WEST),
+										playAction(EMovableAction.ACTION1, (short)3000),
+										executeSearch(ESearchType.PLANTABLE_RICE),
+										setMaterialNode(EMaterialType.NO_MATERIAL)
+									)
+								)
+							),
+							sequence(
+								sleep(1000),
+								alwaysFail()
+							)
+						),
+						enterHome(),
+						sleep(8000)
+					)
+				)
 		);
 	}
 }
