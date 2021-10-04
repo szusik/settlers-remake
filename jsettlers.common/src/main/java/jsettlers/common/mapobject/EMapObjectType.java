@@ -159,9 +159,9 @@ public enum EMapObjectType {
 	RICE_HARVESTABLE,
 	RICE_DEAD,
 
-	HONEY_GROWING,
-	HONEY_HARVESTABLE,
-	HONEY_DEAD;
+	HIVE_EMPTY,
+	HIVE_GROWING,
+	HIVE_HARVESTABLE;
 
 	public static final EMapObjectType[] VALUES = EMapObjectType.values();
 	public final byte ordinal;

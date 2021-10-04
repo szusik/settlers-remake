@@ -35,6 +35,7 @@ import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.interfaces.IInformable;
 import jsettlers.logic.objects.BurningTree;
 import jsettlers.logic.objects.DonkeyMapObject;
+import jsettlers.logic.objects.HiveObject;
 import jsettlers.logic.objects.PigObject;
 import jsettlers.logic.objects.RessourceSignMapObject;
 import jsettlers.logic.objects.SelfDeletingMapObject;
@@ -137,6 +138,11 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 			return plantRice(pos, timeMod);
 		case HARVESTABLE_RICE:
 			return harvestRice(pos);
+
+		case PLANTABLE_HIVE:
+			return plantHive(pos, timeMod);
+		case HARVESTABLE_HIVE:
+			return harvestHive(pos);
 
 		case RESOURCE_SIGNABLE:
 			return addRessourceSign(pos);
@@ -262,9 +268,9 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 	private boolean plantRice(ShortPoint2D pos, float mod) {
 		Rice rice = new Rice(pos);
 		addMapObject(pos, rice);
-		schedule(rice, Rice.GROWTH_DURATION*mod, false);
-		schedule(rice, Rice.GROWTH_DURATION*mod + Rice.DECOMPOSE_DURATION, false);
-		schedule(rice, Rice.GROWTH_DURATION*mod + Rice.DECOMPOSE_DURATION + Rice.REMOVE_DURATION, true);
+		schedule(rice, Rice.GROWTH_DURATION * mod, false);
+		schedule(rice, Rice.GROWTH_DURATION * mod + Rice.DECOMPOSE_DURATION, false);
+		schedule(rice, Rice.GROWTH_DURATION * mod + Rice.DECOMPOSE_DURATION + Rice.REMOVE_DURATION, true);
 		return true;
 	}
 
@@ -275,6 +281,28 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 			AbstractObjectsManagerObject rice = (AbstractObjectsManagerObject) grid.getMapObject(x, y, EMapObjectType.RICE_HARVESTABLE);
 			if (rice != null && rice.cutOff()) {
 				schedule(rice, Rice.REMOVE_DURATION, true);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean plantHive(ShortPoint2D pos, float mod) {
+		HiveObject hive = new HiveObject(pos);
+		addMapObject(pos, hive);
+		schedule(hive, hive.getEmptyDuration() * mod, false);
+		schedule(hive, hive.getEmptyDuration() * mod + hive.getGrowingDuration(), false);
+		return true;
+	}
+
+	private boolean harvestHive(ShortPoint2D pos) {
+		short x = pos.x;
+		short y = pos.y;
+		if (grid.isInBounds(x, y)) {
+			HiveObject hive = (HiveObject) grid.getMapObject(x, y, EMapObjectType.HIVE_HARVESTABLE);
+			if (hive != null && hive.cutOff()) {
+				schedule(hive, hive.getEmptyDuration(), false);
+				schedule(hive, hive.getEmptyDuration() + hive.getGrowingDuration(), false);
 				return true;
 			}
 		}

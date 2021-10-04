@@ -163,6 +163,11 @@ public class MapObjectDrawer {
 	private static final int RICE_GROW_STEPS = 5;
 	private static final int RICE_DEAD_STEP  = 0;
 
+	public static final int HIVE_EMPTY = 8;
+	public static final int HIVE_LAST = 14;
+	public static final int[] HIVE_GROW = {9, 10, 11, 12, 13, 14};
+	public static final int SOUND_BEES_INDEX = 117;
+
 
 	private static final int WAVES = 26;
 
@@ -462,6 +467,16 @@ public class MapObjectDrawer {
 				break;
 			case CORN_DEAD:
 				drawDeadCorn(x, y, color);
+				break;
+
+			case HIVE_EMPTY:
+				drawEmptyHive(x, y, color);
+				break;
+			case HIVE_GROWING:
+				drawGrowingHive(x, y, color);
+				break;
+			case HIVE_HARVESTABLE:
+				drawHarvestableHive(x, y, color);
 				break;
 
 			case WINE_GROWING:
@@ -1085,6 +1100,25 @@ public class MapObjectDrawer {
 		draw(seq.getImageSafe(step, () -> "wine-bowl"), x, y, 0, color);
 	}
 
+	//Hive
+	private void drawEmptyHive(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(ANIMALS_FILE, HIVE_EMPTY);
+		draw(seq.getImageSafe(0, () -> "empty-hive"), x, y, 0, color);
+	}
+
+	private void drawGrowingHive(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(ANIMALS_FILE, HIVE_GROW[0]);
+		int step = getAnimationStep(x, y) % seq.length();
+		draw(seq.getImageSafe(step, () -> "growing-hive"), x, y, 0, color);
+	}
+
+	private void drawHarvestableHive(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(ANIMALS_FILE, HIVE_LAST);
+		int step = getAnimationStep(x, y) % seq.length();
+		draw(seq.getImageSafe(step, () -> "grown-hive"), x, y, 0, color);
+	}
+
+	//Tree
 	private void drawGrowingTree(int x, int y, float progress, float color) {
 		Image image;
 		if (progress < 0.33) {
