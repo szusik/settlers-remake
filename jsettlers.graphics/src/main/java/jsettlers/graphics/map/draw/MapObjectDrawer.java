@@ -1042,7 +1042,7 @@ public class MapObjectDrawer {
 	private void drawMannaBowl(int x, int y, IMannaBowlObject object, float color) {
 
 		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(
-				imageProvider.getGfxBuildingFileIndex(object.getCivilisation()),
+				imageProvider.getGFXBuildingFileIndex(object.getCivilisation()),
 				imageProvider.getMannaBowlSequence(object.getCivilisation())
 		);
 
@@ -1229,7 +1229,7 @@ public class MapObjectDrawer {
 			}
 
 			if (variant.isVariantOf(EBuildingType.MILL) && building instanceof IBuilding.IMill && ((IBuilding.IMill) building).isRotating()) {
-				Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(this.imageProvider.getGfxBuildingFileIndex(variant.getCivilisation()), this.imageProvider.getGfxMillRotationIndex(variant.getCivilisation()));
+				Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(this.imageProvider.getGFXBuildingFileIndex(variant.getCivilisation()), this.imageProvider.getMillRotationIndex(variant.getCivilisation()));
 
 				if (seq.length() > 0) {
 					int i = getAnimationStep(x, y);

@@ -25,7 +25,6 @@ import jsettlers.graphics.image.Image;
 import jsettlers.graphics.image.ImageIndexFile;
 import jsettlers.graphics.image.SingleImage;
 import jsettlers.graphics.image.NullImage;
-import jsettlers.graphics.image.SingleImage;
 import jsettlers.graphics.image.reader.AdvancedDatFileReader;
 import jsettlers.graphics.image.reader.DatFileReader;
 import jsettlers.graphics.image.reader.DatFileSet;
@@ -351,19 +350,19 @@ public final class ImageProvider {
 	/**
 	 * lets make this class a real provider
 	 */
-	private int getGfxFileData(final int[] array, final ECivilisation civilisation) {
+	private int getOriginalFileData(final int[] array, final ECivilisation civilisation) {
 		return array[civilisation.getFileIndex() - 1];
 	}
 
-	public int getGfxBuildingFileIndex(final ECivilisation civilisation) {
-		return getGfxFileData(BUILDING_BUILD_GFX_FILE, civilisation);
+	public int getGFXBuildingFileIndex(final ECivilisation civilisation) {
+		return getOriginalFileData(BUILDING_BUILD_GFX_FILE, civilisation);
 	}
 
-	public int getGfxMillRotationIndex(final ECivilisation civilisation) {
-		return getGfxFileData(MILL_ROTATION_SEQUENCE, civilisation);
+	public int getMillRotationIndex(final ECivilisation civilisation) {
+		return getOriginalFileData(MILL_ROTATION_SEQUENCE, civilisation);
 	}
 
 	public int getMannaBowlSequence(final ECivilisation civilisation) {
-		return getGfxFileData(MANNA_BOWL_SEQUENCE, civilisation);
+		return getOriginalFileData(MANNA_BOWL_SEQUENCE, civilisation);
 	}
 }
