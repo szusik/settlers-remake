@@ -59,7 +59,7 @@ public enum EOriginalMapBuildingType {
 	HARBOR(EBuildingType.HARBOR),
 	Marktplatz(EBuildingType.MARKET_PLACE),
 	HOSPITAL(EBuildingType.HOSPITAL),
-	Reisfarm(null),
+	Reisfarm(EBuildingType.RICE_FARM),
 	GEMSMINE(EBuildingType.GEMSMINE),
 	Brauerei(EBuildingType.BREWERY),
 	CHARCOAL_BURNER(EBuildingType.CHARCOAL_BURNER),
