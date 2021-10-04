@@ -58,6 +58,8 @@ public class HiddenMapObject implements IMapObject, Serializable {
 	public IMapObject getMapObject(EMapObjectType type) {
 		if(this.type.equals(type)) return this;
 
+		if(nextObject == null) return null;
+
 		return nextObject.getMapObject(type);
 	}
 
