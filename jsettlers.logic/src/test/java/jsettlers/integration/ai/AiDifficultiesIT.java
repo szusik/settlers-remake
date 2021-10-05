@@ -79,7 +79,7 @@ public class AiDifficultiesIT {
 
 		MatchConstants.clock().fastForwardTo(90 * MINUTES);
 
-		short expectedMinimalProducedSoldiers = 800;
+		short expectedMinimalProducedSoldiers = 760;
 		short producedSoldiers = startingGame.getMainGrid().getPartitionsGrid().getPlayer(0).getEndgameStatistic().getAmountOfProducedSoldiers();
 		if (producedSoldiers < expectedMinimalProducedSoldiers) {
 			stopAndFail("AI_VERY_HARD was not able to produce " + expectedMinimalProducedSoldiers + " soldiers within 90 minutes.\nOnly " + producedSoldiers

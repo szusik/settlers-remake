@@ -137,13 +137,15 @@ public final class HexGridArea implements IMapArea {
 					direction = 0;
 					length = 1;
 					radius++;
-				}
-			} else {
-				length++;
 
-				x += DIRECTION_INCREASE_X[direction];
-				y += DIRECTION_INCREASE_Y[direction];
+					return;
+				}
 			}
+
+			length++;
+
+			x += DIRECTION_INCREASE_X[direction];
+			y += DIRECTION_INCREASE_Y[direction];
 		}
 
 		@Override
