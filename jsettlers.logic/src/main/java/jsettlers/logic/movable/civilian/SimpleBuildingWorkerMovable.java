@@ -40,6 +40,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		MovableManager.registerBehaviour(EMovableType.CHARCOAL_BURNER, new Root<>(createCharcoalBurnerBehaviour()));
 		MovableManager.registerBehaviour(EMovableType.BREWER, new Root<>(createBrewerBehaviour()));
 		MovableManager.registerBehaviour(EMovableType.RICE_FARMER, new Root<>(createRiceFarmerBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.BEEKEEPER, new Root<>(createBeekeeperBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -584,6 +585,12 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						sleep(8000)
 					)
 				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createBeekeeperBehaviour() {
+		return defaultWorkCycle(
+				sleep(1000)
 		);
 	}
 }
