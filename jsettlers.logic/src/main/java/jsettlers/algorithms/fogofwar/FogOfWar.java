@@ -17,6 +17,8 @@ package jsettlers.algorithms.fogofwar;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -57,6 +59,7 @@ public final class FogOfWar implements Serializable {
 	public final byte[][] hiddenHeight;
 	public final IMapObject[][] hiddenMapObjects;
 	public final short[][][] visibleRefs;
+	public final HashMap<Byte, LinkedList<Object>>[][] namedRefs;
 	public transient FowDimThread dimThread;
 	public transient FoWRefThread refThread;
 	private final LandscapeGrid landscapeGrid;
@@ -78,6 +81,17 @@ public final class FogOfWar implements Serializable {
 		this.visibleRefs = new short[width][height][0];
 		this.landscapeGrid = root.getLandscapeGrid();
 		this.objectsGrid = root.getObjectsGrid();
+
+		if(CommonConstants.FOG_OF_WAR_DEBUG_REFERENCES) {
+			this.namedRefs = new HashMap[width][height];
+			for (HashMap<Byte, LinkedList<Object>>[] a : namedRefs) {
+				for (int i = 0; i < a.length; i++) {
+					a[i] = new HashMap<>();
+				}
+			}
+		} else {
+			namedRefs = null;
+		}
 
 		readObject(null);
 	}
@@ -224,26 +238,31 @@ public final class FogOfWar implements Serializable {
 		boolean runTask(FoWTask task) {
 			if(task instanceof BuildingFoWTask) {
 				BuildingFoWTask bFOW = (BuildingFoWTask) task;
-				if (bFOW.to > 0) circleDrawer.drawCircleToBuffer(bFOW.at, bFOW.to, CIRCLE_ADD);
-				if (bFOW.from > 0) circleDrawer.drawCircleToBuffer(bFOW.at, bFOW.from, CIRCLE_REMOVE);
-				circleDrawer.drawCircleToBuffer(bFOW.at, bFOW.to>bFOW.from ? bFOW.to : bFOW.from, CIRCLE_DIM);
+				if (bFOW.to > 0) circleDrawer.drawCircleToBuffer(bFOW.at, bFOW.to, CIRCLE_ADD, bFOW.at);
+				if (bFOW.from > 0) circleDrawer.drawCircleToBuffer(bFOW.at, bFOW.from, CIRCLE_REMOVE, bFOW.at);
+				circleDrawer.drawCircleToBuffer(bFOW.at, bFOW.to>bFOW.from ? bFOW.to : bFOW.from, CIRCLE_DIM, bFOW.at);
 				return true;
 			} else if(task instanceof ShowHideFoWTask) {
 				ShowHideFoWTask shFOW = (ShowHideFoWTask) task;
-				circleDrawer.draw(new ShowHideMapIterator(), shFOW.addRef?CIRCLE_ADD|CIRCLE_DIM : CIRCLE_REMOVE|CIRCLE_DIM);
+				circleDrawer.draw(new ShowHideMapIterator(), shFOW.addRef?CIRCLE_ADD|CIRCLE_DIM : CIRCLE_REMOVE|CIRCLE_DIM, this);
 				return true;
 			} else if(task instanceof MovableFoWTask) {
 				MovableFoWTask mFOW = (MovableFoWTask) task;
 				ShortPoint2D currentPos = mFOW.getFoWPosition();
 				ShortPoint2D oldPos = mFOW.getOldFoWPosition();
+				boolean removeMovable = !mFOW.continueFoW();
+
+				if(removeMovable) {
+					currentPos = null;
+				}
 
 				int vd = mFOW.getViewDistance();
 				if(!Objects.equals(oldPos, currentPos)) {
-					if(currentPos != null) circleDrawer.drawCircleToBuffer(currentPos, vd, CIRCLE_ADD|CIRCLE_DIM);
-					if(oldPos != null) circleDrawer.drawCircleToBuffer(oldPos, vd, CIRCLE_REMOVE|CIRCLE_DIM);
+					if(currentPos != null) circleDrawer.drawCircleToBuffer(currentPos, vd, CIRCLE_ADD|CIRCLE_DIM, mFOW);
+					if(oldPos != null) circleDrawer.drawCircleToBuffer(oldPos, vd, CIRCLE_REMOVE|CIRCLE_DIM, mFOW);
 					mFOW.setOldFoWPosition(currentPos);
 				}
-				return !mFOW.continueFoW();
+				return removeMovable;
 			} else if(task instanceof WaitFoWTask) {
 				return false;
 			} else {
@@ -507,6 +526,10 @@ public final class FogOfWar implements Serializable {
 		}
 	}
 
+	private LinkedList<Object> getNamedRefList(int x, int y, byte index) {
+		return instance.namedRefs[x][y].computeIfAbsent(index, i -> new LinkedList<>());
+	}
+
 	final class CircleDrawer {
 
 		public final CachedViewCircle[] cachedCircles = new CachedViewCircle[MAX_VIEW_DISTANCE];
@@ -514,13 +537,13 @@ public final class FogOfWar implements Serializable {
 		/**
 		 * Draws a circle to the buffer line. Each point is only brightened and onlydrawn if its x coordinate is in [0, mapWidth - 1] and its computed y coordinate is bigger than 0.
 		 */
-		final void drawCircleToBuffer(ShortPoint2D at, int viewDistance, int state) {
+		final void drawCircleToBuffer(ShortPoint2D at, int viewDistance, int state, Object reference) {
 			CachedViewCircle circle = getCachedCircle(viewDistance);
 			CachedViewCircle.CachedViewCircleIterator iterator = circle.iterator(at.x, at.y);
-			draw(iterator, state);
+			draw(iterator, state, reference);
 		}
 
-		final void draw(ViewAreaIterator iterator, int state) {
+		final void draw(ViewAreaIterator iterator, int state, Object reference) {
 			while (iterator.hasNext()) {
 				final int x = iterator.getCurrX();
 				final int y = iterator.getCurrY();
@@ -535,9 +558,16 @@ public final class FogOfWar implements Serializable {
 							System.arraycopy(tmpRef, 0, instance.visibleRefs[x][y], 0, tmpRef.length);
 						}
 
+						if(CommonConstants.FOG_OF_WAR_DEBUG_REFERENCES) {
+							getNamedRefList(x, y, tmpIndex).add(reference);
+						}
 						instance.visibleRefs[x][y][tmpIndex]++;
 					}
 					if((state&CIRCLE_REMOVE) > 0) {
+						if(CommonConstants.FOG_OF_WAR_DEBUG_REFERENCES &&
+								!getNamedRefList(x, y, tmpIndex).removeLastOccurrence(reference)) {
+							System.err.println("Fog of war reference error on " + reference);
+						}
 						instance.visibleRefs[x][y][tmpIndex]--;
 						if(instance.visibleRefs[x][y][tmpIndex] == 0 && instance.visibleRefs[x][y].length == tmpIndex+1) { // minimize ref index array size
 							int newLength = maxIndex(x, y);

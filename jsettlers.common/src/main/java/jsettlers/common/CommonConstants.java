@@ -27,6 +27,11 @@ public abstract class CommonConstants {
 	public static final int FOG_OF_WAR_EXPLORED = 50;
 
 	/**
+	 * NOTE: this will consume high amounts of memory even for small maps
+	 */
+	public static final boolean FOG_OF_WAR_DEBUG_REFERENCES = false;
+
+	/**
 	 * How much the current fog of war status can be changed per second
 	 */
 	public static final int FOG_OF_WAR_DIM = 30;
