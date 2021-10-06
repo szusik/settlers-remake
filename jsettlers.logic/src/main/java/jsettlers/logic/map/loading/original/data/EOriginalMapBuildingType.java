@@ -74,7 +74,7 @@ public enum EOriginalMapBuildingType {
 	Kanonenwerkstatt(null),
 	DONKEY_FARM(EBuildingType.DONKEY_FARM),
 	grosser_Gong(null),
-	Impkerei(null),
+	BEEKEEPING(EBuildingType.BEEKEEPING),
 	Metwinzerei(null),
 	Labortorium(null),
 	kleiner_Tempel(EBuildingType.TEMPLE),

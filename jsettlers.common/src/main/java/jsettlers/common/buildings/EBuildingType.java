@@ -84,6 +84,8 @@ public enum EBuildingType {
 	GEMSMINE,
 	BREWERY,
 	RICE_FARM,
+
+	BEEKEEPING,
 	;
 
 	/**

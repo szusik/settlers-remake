@@ -49,7 +49,8 @@ public enum EBuildingsCategory {
 			EBuildingType.DONKEY_FARM,
 			EBuildingType.WINEGROWER,
 			EBuildingType.BREWERY,
-			EBuildingType.RICE_FARM),
+			EBuildingType.RICE_FARM,
+			EBuildingType.BEEKEEPING),
 	BUILDINGS_CATEGORY_MILITARY(
 			EBuildingType.TOWER,
 			EBuildingType.BIG_TOWER,
