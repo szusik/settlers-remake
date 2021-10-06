@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import jsettlers.algorithms.fogofwar.FogOfWar;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.logic.SerializationUtils;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
@@ -45,13 +46,13 @@ public final class MovableManager {
 		allMovables.clear();
 		fowTeam = -1;
 		allMovables.addAll((Collection<? extends ILogicMovable>) ois.readObject());
-		movablesByID.putAll((Map<? extends Integer, ? extends ILogicMovable>) ois.readObject());
+		movablesByID.putAll(SerializationUtils.readHashMap(ois));
 	}
 
 	public static void writeStaticState(ObjectOutputStream oos) throws IOException {
 		oos.writeInt(nextID);
 		oos.writeObject(allMovables);
-		oos.writeObject(movablesByID);
+		SerializationUtils.writeHashMap(oos, movablesByID);
 	}
 
 	/**
