@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 
+import jsettlers.logic.constants.Constants;
 import org.junit.Test;
 
 import jsettlers.ai.highlevel.AiStatistics;
@@ -49,6 +50,7 @@ public class AiDifficultiesIT {
 
 	static {
 		CommonConstants.ENABLE_CONSOLE_LOGGING = true;
+		Constants.FOG_OF_WAR_DEFAULT_ENABLED = false;
 
 		TestUtils.setupTempResourceManager();
 	}

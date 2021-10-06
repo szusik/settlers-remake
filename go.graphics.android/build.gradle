@@ -61,7 +61,7 @@ task compileShaders(type: ShaderCompilationTask) {
 }
 
 tasks.whenTaskAdded{ task ->
-    if(task.name == "generateDebugResources" || task.name == "processDebugJavaRes") {
+    if(task.name == "generateDebugResources" || task.name == "processDebugJavaRes" || task.name == "ProcessReleaseJavaRes") {
         task.dependsOn(compileShaders)
     }
 }
