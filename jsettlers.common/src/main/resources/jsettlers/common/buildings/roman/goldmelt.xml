@@ -82,7 +82,7 @@
 
 	<door dx="2" dy="1" />
 
-	<!-- materials DOUBLE checked with original for ROMAN -->	
+
 	<constructionStack dx="1" dy="5" material="PLANK" buildrequired="4" />
 	<constructionStack dx="3" dy="5" material="STONE" buildrequired="6" />
 

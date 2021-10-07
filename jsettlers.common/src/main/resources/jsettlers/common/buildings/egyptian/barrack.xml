@@ -86,7 +86,7 @@
 	<blocked dx="6" dy="3" block="false" />
 
 	<door dx="-1" dy="1" />
-    <!-- materials DOUBLE checked with original for EGYPTIAN -->
+
 	<constructionStack dx="0" dy="3" material="STONE" buildrequired="6" />
 	<constructionStack dx="3" dy="3" material="PLANK" buildrequired="3" />
 	<requestStack dx="6" dy="1" material="SWORD" />

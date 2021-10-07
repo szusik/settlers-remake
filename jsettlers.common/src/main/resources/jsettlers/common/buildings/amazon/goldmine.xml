@@ -60,7 +60,7 @@
     
     <door dx="-1" dy="2" />
    
-		<!-- materials DOUBLE checked with original for AMAZON -->	
+
     <constructionStack dx="0" dy="4" material="PLANK" buildrequired="5" />
     <constructionStack dx="2" dy="4" material="STONE" buildrequired="3" />
     

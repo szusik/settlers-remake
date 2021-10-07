@@ -82,7 +82,7 @@
 
 	<door dx="-2" dy="1" />
 
-    <!-- materials DOUBLE checked with original for EGYPTIAN -->
+
 	<constructionStack buildrequired="3" dx="0" dy="4" material="STONE"/>
 	<constructionStack buildrequired="1" dx="3" dy="5" material="PLANK"/>
 	<offerStack dx="-2" dy="2" material="TRUNK" />

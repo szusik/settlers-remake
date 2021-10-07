@@ -71,7 +71,6 @@
 	<blocked block="false" dx="-4" dy="1"/>
 
 	<door dx="-1" dy="1"/>
-    <!-- materials DOUBLE checked with original for ROMAN -->
 	<constructionStack buildrequired="2" dx="0" dy="4" material="STONE"/>
 	<constructionStack buildrequired="2" dx="3" dy="5" material="PLANK"/>
 	<offerStack dx="0" dy="3" material="TRUNK"/>

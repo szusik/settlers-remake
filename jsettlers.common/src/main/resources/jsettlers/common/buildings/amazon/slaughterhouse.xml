@@ -94,7 +94,7 @@
 	
 	<door dx="-1" dy="2" />
 	
-			<!-- materials DOUBLE checked with original for AMAZON -->	
+
 	<constructionStack dx="2" dy="5" material="PLANK" buildrequired="5" />
 	<constructionStack dx="4" dy="5" material="STONE" buildrequired="3" />
 	<requestStack dx="4" dy="3" material="PIG" />

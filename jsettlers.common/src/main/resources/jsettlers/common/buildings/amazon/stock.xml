@@ -95,7 +95,7 @@
 
 	<door dx="0" dy="4" />
 
-		<!-- materials DOUBLE checked with original for AMAZON -->	
+
 	<constructionStack dx="-1" dy="0" material="PLANK" buildrequired="2" />
 	<constructionStack dx="1" dy="0" material="STONE" buildrequired="2" />
 
