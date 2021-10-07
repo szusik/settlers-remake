@@ -1,5 +1,6 @@
 package jsettlers.logic.movable.civilian;
 
+import jsettlers.algorithms.path.Path;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.landscape.EResourceType;
@@ -590,7 +591,52 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 
 	private static Node<SimpleBuildingWorkerMovable> createBeekeeperBehaviour() {
 		return defaultWorkCycle(
-				sleep(1000)
+				ignoreFailure(
+					sequence(
+						waitFor(isAllowedToWork()),
+						selector(
+							sequence(
+								outputStackNotFull(EMaterialType.HONEY),
+								preSearchPath(true, ESearchType.HARVESTABLE_HIVE),
+								ignoreFailure(
+									sequence(
+										show(),
+										setMaterialNode(EMaterialType.EMPTY_BUCKET),
+										followPresearchedPathMarkTarget(),
+
+										playAction(EMovableAction.ACTION1, (short) 1400),
+										setMaterialNode(EMaterialType.HONEY),
+
+										executeSearch(ESearchType.HARVESTABLE_HIVE),
+										goToOutputStack(EMaterialType.HONEY),
+										dropProduced(mov -> EMaterialType.HONEY)
+									)
+								)
+							),
+							sequence(
+								preSearchPathNoWarning(true, ESearchType.PLANTABLE_HIVE),
+								ignoreFailure(
+									sequence(
+										show(),
+										setMaterialNode(EMaterialType.PLANT),
+										followPresearchedPathMarkTarget(),
+
+										playAction(EMovableAction.ACTION1, (short)1400),
+
+										executeSearch(ESearchType.PLANTABLE_HIVE),
+										setMaterialNode(EMaterialType.NO_MATERIAL)
+									)
+								)
+							),
+							sequence(
+								sleep(1000),
+								alwaysFail()
+							)
+						),
+						enterHome(),
+						sleep(8000)
+					)
+				)
 		);
 	}
 }

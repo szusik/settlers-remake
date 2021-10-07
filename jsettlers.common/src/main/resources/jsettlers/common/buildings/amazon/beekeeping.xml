@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE building SYSTEM "../building.dtd" >
-<building worker="BEEKEEPER" workradius="20">
+<building worker="BEEKEEPER" workradius="10">
 	<ground groundtype="GRASS" />
 	<ground groundtype="EARTH" />
 	<ground groundtype="FLATTENED" />
