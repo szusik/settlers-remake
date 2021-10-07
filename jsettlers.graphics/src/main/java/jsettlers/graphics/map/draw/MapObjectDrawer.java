@@ -166,7 +166,6 @@ public class MapObjectDrawer {
 	public static final int HIVE_EMPTY = 8;
 	public static final int HIVE_LAST = 14;
 	public static final int[] HIVE_GROW = {9, 10, 11, 12, 13, 14};
-	public static final int SOUND_BEES_INDEX = 117;
 
 
 	private static final int WAVES = 26;
