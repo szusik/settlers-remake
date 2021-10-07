@@ -40,6 +40,8 @@ public abstract class CommonConstants {
 	public static final int FOG_OF_WAR_DIM_MAX_FRAMERATE = 60;
 	public static final int FOG_OF_WAR_REF_UPDATE_FRAMERATE = 1;
 
+	public static final int FOG_OF_WAR_DIM_NO_CLOCK_FRAMERATE = 10;
+
 	/**
 	 * Radius of the area occupied by towers.
 	 */

@@ -358,8 +358,15 @@ public final class FogOfWar implements Serializable {
 					}
 				}
 			} while (last < size);
-			framerate = (int) (CommonConstants.FOG_OF_WAR_DIM_FRAMERATE*MatchConstants.clock().getGameSpeed());
-			if(framerate > CommonConstants.FOG_OF_WAR_DIM_MAX_FRAMERATE) framerate = CommonConstants.FOG_OF_WAR_DIM_MAX_FRAMERATE;
+			if(MatchConstants.clock() != null) {
+				framerate = (int) (CommonConstants.FOG_OF_WAR_DIM_FRAMERATE * MatchConstants.clock().getGameSpeed());
+
+				if(framerate > CommonConstants.FOG_OF_WAR_DIM_MAX_FRAMERATE) {
+					framerate = CommonConstants.FOG_OF_WAR_DIM_MAX_FRAMERATE;
+				}
+			} else {
+				framerate = CommonConstants.FOG_OF_WAR_DIM_NO_CLOCK_FRAMERATE;
+			}
 		}
 
 		private void update(int y, int from, int to) {
