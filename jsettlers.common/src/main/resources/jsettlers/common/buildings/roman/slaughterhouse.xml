@@ -94,8 +94,10 @@
 	
 	<door dx="-1" dy="2" />
 	
-	<constructionStack dx="2" dy="5" material="PLANK" buildrequired="1" />
-	<constructionStack dx="4" dy="5" material="STONE" buildrequired="1" />
+
+	<constructionStack dx="2" dy="5" material="PLANK" buildrequired="4" />
+	<constructionStack dx="4" dy="5" material="STONE" buildrequired="4" />
+	
 	<requestStack dx="4" dy="3" material="PIG" />
 	<offerStack dx="-2" dy="3" material="MEAT" />
 	
