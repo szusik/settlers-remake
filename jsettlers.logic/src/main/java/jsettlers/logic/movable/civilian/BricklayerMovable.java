@@ -11,6 +11,7 @@ import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBricklayer;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IConstructableBuilding;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -25,10 +26,12 @@ public class BricklayerMovable extends CivilianMovable implements IManageableBri
 	private EDirection lookDirection;
 
 	public BricklayerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.BRICKLAYER, position, player, movable, tree);
+		super(grid, EMovableType.BRICKLAYER, position, player, movable);
 	}
 
-	private static final Root<BricklayerMovable> tree = new Root<>(createBricklayerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.BRICKLAYER, new Root<>(createBricklayerBehaviour()));
+	}
 
 	private static Node<BricklayerMovable> createBricklayerBehaviour() {
 		return guardSelector(
@@ -36,7 +39,7 @@ public class BricklayerMovable extends CivilianMovable implements IManageableBri
 				guard(mov -> mov.constructionSite != null && mov.constructionSite.isBricklayerRequestActive(),
 					sequence(
 						selector(
-							goToPos(mov -> mov.targetPosition, mov -> mov.constructionSite != null && mov.constructionSite.isBricklayerRequestActive()), // TODO
+							goToPos(mov -> mov.targetPosition),
 							sequence(
 								action(BricklayerMovable::abortJob),
 								alwaysFail()

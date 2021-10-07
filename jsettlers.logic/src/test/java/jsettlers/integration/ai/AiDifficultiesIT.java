@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 
+import jsettlers.logic.constants.Constants;
 import org.junit.Test;
 
 import jsettlers.ai.highlevel.AiStatistics;
@@ -49,6 +50,7 @@ public class AiDifficultiesIT {
 
 	static {
 		CommonConstants.ENABLE_CONSOLE_LOGGING = true;
+		Constants.FOG_OF_WAR_DEFAULT_ENABLED = false;
 
 		TestUtils.setupTempResourceManager();
 	}
@@ -79,7 +81,7 @@ public class AiDifficultiesIT {
 
 		MatchConstants.clock().fastForwardTo(90 * MINUTES);
 
-		short expectedMinimalProducedSoldiers = 800;
+		short expectedMinimalProducedSoldiers = 760;
 		short producedSoldiers = startingGame.getMainGrid().getPartitionsGrid().getPlayer(0).getEndgameStatistic().getAmountOfProducedSoldiers();
 		if (producedSoldiers < expectedMinimalProducedSoldiers) {
 			stopAndFail("AI_VERY_HARD was not able to produce " + expectedMinimalProducedSoldiers + " soldiers within 90 minutes.\nOnly " + producedSoldiers

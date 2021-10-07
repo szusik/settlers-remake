@@ -48,18 +48,16 @@ public class PioneerAi {
 		this.searchDistance = aiStatistics.getMainGrid().getWidth() / 2;
 		this.lastResourceTarget = aiStatistics.getPositionOfPartition(playerId);
 
-		ECivilisation playerCivilisation = player.getCivilisation();
-
 		this.targetFinders = new AbstractPioneerTargetFinder[] {
 				new TreesForLumberJackTargetFinder(aiStatistics, playerId, searchDistance, 10),
 				new NearStonesTargetFinder(aiStatistics, playerId, searchDistance),
 				new StoneCutterTargetFinder(aiStatistics, playerId, searchDistance, 6),
 				new ConnectPartitionsTargetFinder(aiStatistics, playerId, searchDistance),
-				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.COAL, EBuildingType.COALMINE.getVariant(playerCivilisation)),
-				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.IRONORE, EBuildingType.IRONMINE.getVariant(playerCivilisation)),
+				new MineTargetFinder(aiStatistics, player, searchDistance, EResourceType.COAL, EBuildingType.COALMINE),
+				new MineTargetFinder(aiStatistics, player, searchDistance, EResourceType.IRONORE, EBuildingType.IRONMINE),
 				new RiverTargetFinder(aiStatistics, playerId, searchDistance),
-				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.GOLDORE, EBuildingType.GOLDMINE.getVariant(playerCivilisation)),
-				new MineTargetFinder(aiStatistics, playerId, searchDistance, EResourceType.GEMSTONE, EBuildingType.GEMSMINE.getVariant(playerCivilisation)),
+				new MineTargetFinder(aiStatistics, player, searchDistance, EResourceType.GOLDORE, EBuildingType.GOLDMINE),
+				new MineTargetFinder(aiStatistics, player, searchDistance, EResourceType.GEMSTONE, EBuildingType.GEMSMINE),
 				new FishTargetFinder(aiStatistics, playerId, searchDistance)
 		};
 	}

@@ -11,6 +11,7 @@ public class HiddenMapObjectCreator {
 		switch (type) {
 			case PLACEMENT_BUILDING:
 			case SMOKE:
+			case SMOKE_WITH_FIRE:
 			case PIG:
 			case DONKEY:
 			case GHOST:

@@ -19,6 +19,7 @@ import java.io.Serializable;
 import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
+import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
@@ -143,14 +144,13 @@ public abstract class AbstractStrategyGrid implements Serializable {
 
 	/**
 	 * Show smoke or remove it at the given position.
-	 *
 	 * @param position
 	 *            position to let the smoke appear.
-	 * @param smokeOn
-	 *            if true, smoke will be turned on, <br>
-	 *            if false, it will be turned of.
+	 * @param type
+	 * @param smokeDuration
 	 */
-	public abstract void placeSmoke(ShortPoint2D position, boolean smokeOn);
+	public abstract void placeSmoke(ShortPoint2D position, EMapObjectType type,
+									short smokeDuration);
 
 	/**
 	 * checks if there can be put any more materials on the given position.

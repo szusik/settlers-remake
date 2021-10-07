@@ -5,17 +5,14 @@ import java.util.List;
 
 import java8.util.stream.Collectors;
 import java8.util.stream.Stream;
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
-import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
-import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.common.action.EMoveToType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.ITradeBuilding;
 import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.other.AttackableMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -29,16 +26,20 @@ public abstract class CargoMovable extends AttackableMovable {
 	protected Iterator<ShortPoint2D> waypoints;
 
 	public CargoMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, movableType, position, player, movable, tree);
+		super(grid, movableType, position, player, movable);
 	}
 
-	private static final Root<CargoMovable> tree = new Root<>(createCargoBehaviour());
+	static {
+		Root<CargoMovable> cargoBehaviour = new Root<>(createCargoBehaviour());
+		MovableManager.registerBehaviour(EMovableType.CARGO_SHIP, cargoBehaviour);
+		MovableManager.registerBehaviour(EMovableType.DONKEY, cargoBehaviour);
+	}
 
 	private static Node<CargoMovable> createCargoBehaviour() {
 		return sequence(
 				repeat(CargoMovable::hasTrader,
 					sequence(
-						goToPos(mov -> mov.tradeBuilding.getPickUpPosition(), mov -> true),
+						goToPos(mov -> mov.tradeBuilding.getPickUpPosition()),
 						condition(CargoMovable::loadUp),
 						action(mov -> {
 							mov.waypoints = mov.tradeBuilding.getWaypointsIterator();
@@ -50,7 +51,7 @@ public abstract class CargoMovable extends AttackableMovable {
 									ShortPoint2D nextPosition = mov.waypoints.next();
 									return mov.preSearchPath(true, nextPosition.x, nextPosition.y, mov.getWaypointSearchRadius(), ESearchType.VALID_FREE_POSITION);
 								}),
-								followPresearchedPath((mov2) -> !mov2.lostCargo)
+								followPresearchedPath(mov -> !mov.lostCargo)
 							)
 						)),
 						action(CargoMovable::dropMaterialIfPossible)

@@ -5,8 +5,10 @@ import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.constants.Constants;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBearer;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IBarrack;
 import jsettlers.logic.map.grid.partition.manager.materials.interfaces.IMaterialOffer;
@@ -14,6 +16,7 @@ import jsettlers.logic.map.grid.partition.manager.materials.interfaces.IMaterial
 import jsettlers.logic.map.grid.partition.manager.materials.offers.EOfferPriority;
 import jsettlers.logic.map.grid.partition.manager.objects.WorkerCreationRequest;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IBearerMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
@@ -34,10 +37,12 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 	private boolean registered = false;
 
 	public BearerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.BEARER, position, player, movable, tree);
+		super(grid, EMovableType.BEARER, position, player, movable);
 	}
 
-	private static final Root<BearerMovable> tree = new Root<>(createBearerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.BEARER, new Root<>(createBearerBehaviour()));
+	}
 
 	@Override
 	public ILogicMovable convertTo(EMovableType newMovableType) {
@@ -50,7 +55,7 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 				guard(mov -> mov.barrack != null,
 					selector(
 						sequence(
-							goToPos(mov -> mov.barrack.getDoor(), mov -> true),
+							goToPos(mov -> mov.barrack.getDoor()),
 							condition(mov -> {
 								EMovableType soldierType = mov.barrack.popWeaponForBearer();
 								if(soldierType == null) return false;
@@ -87,25 +92,30 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 						action(BearerMovable::abortJob)
 					)
 				),
-				guard(mov -> mov.request != null && mov.request.isActive(),
+				guard(mov -> mov.request != null,
 					resetAfter(
 						mov -> {
 							EMaterialType carriedMaterial = mov.setMaterial(EMaterialType.NO_MATERIAL);
-							boolean success = mov.request != null && mov.position.equals(mov.request.getPosition());
 
 							if (carriedMaterial != EMaterialType.NO_MATERIAL) {
-								mov.grid.dropMaterial(mov.position, carriedMaterial, !success, false);
+								mov.grid.dropMaterial(mov.position, carriedMaterial, true, false);
 							}
 						},
 						selector(
 							sequence(
 								handleOffer(),
-								goToPos(mov -> mov.request.getPosition(), mov -> mov.request != null && mov.request.isActive()), //TODO
-								drop(Movable::getMaterial, mov -> {
-									mov.request.deliveryFulfilled();
-									mov.request = null;
-									return false;
-								})
+								goToPos(mov -> mov.request.getPosition(), mov -> mov.request.isActive()),
+								crouchDown(
+									action(mov -> {
+										EMaterialType takeDropMaterial = mov.getMaterial();
+
+										mov.request.deliveryFulfilled();
+										mov.request = null;
+
+										mov.setMaterial(EMaterialType.NO_MATERIAL);
+										mov.grid.dropMaterial(mov.position, takeDropMaterial, false, false);
+									})
+								)
 							),
 							action(BearerMovable::abortJob)
 						)
@@ -120,7 +130,6 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 						mov.workerRequester = null;
 						mov.workerCreationRequest = null;
 						mov.registered = true;
-						mov.pathStep = null;
 						mov.grid.addJobless(mov);
 					})
 				),
@@ -131,15 +140,14 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 	private static Node<BearerMovable> handleOffer() {
 		return sequence(
 				goToPos(mov -> mov.offer.getPosition(), mov -> {
-					if(mov.request != null && !mov.request.isActive()) return false; // TODO
 					EOfferPriority minimumAcceptedPriority = mov.request != null ? mov.request.getMinimumAcceptedOfferPriority() : EOfferPriority.LOWEST;
 					return mov.offer.isStillValid(minimumAcceptedPriority);
 				}),
-				take(mov -> mov.materialType, mov -> true, mov -> {
-						mov.offer.offerTaken();
-						mov.offer = null;
-					}
-				)
+				take(mov -> mov.materialType, true),
+				action(mov -> {
+					mov.offer.offerTaken();
+					mov.offer = null;
+				})
 		);
 	}
 

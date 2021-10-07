@@ -20,11 +20,11 @@ import jsettlers.common.images.EImageLinkType;
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.images.OriginalImageLink;
 import jsettlers.common.images.TextureMap;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.graphics.image.Image;
 import jsettlers.graphics.image.ImageIndexFile;
 import jsettlers.graphics.image.SingleImage;
 import jsettlers.graphics.image.NullImage;
-import jsettlers.graphics.image.SingleImage;
 import jsettlers.graphics.image.reader.AdvancedDatFileReader;
 import jsettlers.graphics.image.reader.DatFileReader;
 import jsettlers.graphics.image.reader.DatFileSet;
@@ -50,9 +50,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * <p>
  * Settlers supports two image modes, one rgb mode (555 bits) and one rgb mode (565 bits).
  *
- * @author michael
+ * @author michael, MarviMarv
  */
 public final class ImageProvider {
+	/**
+	 * lets make this class a real provider
+	 */
+	// private final static int[] CIVILISATION = {0, 1, 2, 3}; //roman, egyptian, asian, amazon
+	private final static int[] BUILDING_BUILD_GFX_FILE = {13, 23, 33, 43};
+
+	private final static int[] MILL_ROTATION_SEQUENCE = {15, 22, 21, 20}; //12 images
+
+	private static final int[] MANNA_BOWL_SEQUENCE = {46, 47, 49, 49}; // 8 images
+
 	private static final String FILE_PREFIX = "siedler3_";
 	private static final int LAST_SEQUENCE_NUMBER = 2;
 	private static final List<Integer> HIGHRES_IMAGE_FILE_NUMBERS = Arrays.asList(3, 14);
@@ -335,5 +345,24 @@ public final class ImageProvider {
 	 */
 	public void addPreloadTask(GLPreloadTask task) {
 		tasks.add(task);
+	}
+
+	/**
+	 * lets make this class a real provider
+	 */
+	private int getOriginalFileData(final int[] array, final ECivilisation civilisation) {
+		return array[civilisation.getFileIndex() - 1];
+	}
+
+	public int getGFXBuildingFileIndex(final ECivilisation civilisation) {
+		return getOriginalFileData(BUILDING_BUILD_GFX_FILE, civilisation);
+	}
+
+	public int getMillRotationIndex(final ECivilisation civilisation) {
+		return getOriginalFileData(MILL_ROTATION_SEQUENCE, civilisation);
+	}
+
+	public int getMannaBowlSequence(final ECivilisation civilisation) {
+		return getOriginalFileData(MANNA_BOWL_SEQUENCE, civilisation);
 	}
 }

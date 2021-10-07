@@ -41,6 +41,7 @@ import jsettlers.algorithms.path.dijkstra.IDijkstraPathMap;
 import jsettlers.algorithms.previewimage.PreviewImageCreator;
 import jsettlers.algorithms.traversing.area.IAreaVisitor;
 import jsettlers.common.Color;
+import jsettlers.common.CommonConstants;
 import jsettlers.common.buildings.BuildingAreaBitSet;
 import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
@@ -95,6 +96,7 @@ import jsettlers.logic.map.grid.objects.AbstractHexMapObject;
 import jsettlers.logic.map.grid.objects.IMapObjectsManagerGrid;
 import jsettlers.logic.map.grid.objects.MapObjectsManager;
 import jsettlers.logic.map.grid.objects.ObjectsGrid;
+import jsettlers.logic.map.grid.objects.SmokeMapObject;
 import jsettlers.logic.map.grid.partition.IPlayerChangedListener;
 import jsettlers.logic.map.grid.partition.Partition;
 import jsettlers.logic.map.grid.partition.PartitionsGrid;
@@ -122,15 +124,12 @@ import jsettlers.logic.map.loading.list.MapList;
 import jsettlers.logic.map.loading.newmap.MapFileHeader;
 import jsettlers.logic.map.loading.newmap.MapFileHeader.MapType;
 import jsettlers.logic.movable.Movable;
-import jsettlers.logic.movable.civilian.LegacyBuildingWorkerMovable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackable;
-import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IAttackableMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.interfaces.ISoldierMovable;
-import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.objects.arrow.ArrowObject;
 import jsettlers.logic.objects.stack.StackMapObject;
 import jsettlers.logic.player.Player;
@@ -188,6 +187,14 @@ public final class MainGrid implements Serializable {
 		this.buildingsGrid = new BuildingsGrid();
 
 		initAdditional();
+	}
+
+	public boolean isHivePlantable(ShortPoint2D point) {
+		return movablePathfinderGrid.pathfinderGrid.isHivePlantable(point.x, point.y);
+	}
+
+	public boolean isRicePlantable(ShortPoint2D point) {
+		return movablePathfinderGrid.pathfinderGrid.isRicePlantable(point.x, point.y);
 	}
 
 	public boolean isWinePlantable(ShortPoint2D point) {
@@ -550,7 +557,10 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final float getCost(int sx, int sy, int tx, int ty) {
+		public final float getCost(IPathCalculatable requester, int sx, int sy, int tx, int ty) {
+			if(requester.getPosition().getOnGridDistTo(sx, sy) <= CommonConstants.MOVABLE_PATH_REPAIR_DISTANCE) {
+				if(!movableGrid.hasNoMovableAt(tx, ty)) return 1.5f;
+			}
 			return 1;
 		}
 
@@ -599,6 +609,16 @@ public final class MainGrid implements Serializable {
 					return !isMarked(x, y) && hasSamePlayer(x, y, pathCalculable) && isWinePlantable(x, y);
 				case HARVESTABLE_WINE:
 					return isMapObjectCuttable(x, y, EMapObjectType.WINE_HARVESTABLE) && hasSamePlayer(x, y, pathCalculable) && !isMarked(x, y);
+
+				case PLANTABLE_RICE:
+					return !isMarked(x, y) && hasSamePlayer(x, y, pathCalculable) && isRicePlantable(x, y);
+				case HARVESTABLE_RICE:
+					return isMapObjectCuttable(x, y, EMapObjectType.RICE_HARVESTABLE) && hasSamePlayer(x, y, pathCalculable) && !isMarked(x, y);
+
+				case PLANTABLE_HIVE:
+					return !isMarked(x, y) && hasSamePlayer(x, y, pathCalculable) && isHivePlantable(x, y);
+				case HARVESTABLE_HIVE:
+					return isMapObjectCuttable(x, y, EMapObjectType.HIVE_HARVESTABLE) && hasSamePlayer(x, y, pathCalculable) && !isMarked(x, y);
 
 				case SUMMON_STONE:
 					return true; // not actually a search
@@ -757,6 +777,28 @@ public final class MainGrid implements Serializable {
 						&& !objectsGrid.hasMapObjectType(invDirPos.x, invDirPos.y, EMapObjectType.WINE_GROWING, EMapObjectType.WINE_HARVESTABLE, EMapObjectType.WINE_DEAD);
 				}
 			}
+			return false;
+		}
+
+		private boolean isRicePlantable(int x, int y) {
+			return !flagsGrid.isProtected(x, y)
+					&& !objectsGrid.hasMapObjectType(x, y, EMapObjectType.RICE_GROWING, EMapObjectType.RICE_HARVESTABLE, EMapObjectType.RICE_DEAD)
+					&& landscapeGrid.getLandscapeTypeAt(x, y).isMoor();
+		}
+
+		//TODO: we need a radius search here for other hives
+		private boolean isHivePlantable(int x, int y) {
+			if (!flagsGrid.isProtected(x, y)
+				&& !objectsGrid.hasMapObjectType(x, y, EMapObjectType.HIVE_EMPTY, EMapObjectType.HIVE_GROWING, EMapObjectType.HIVE_HARVESTABLE)
+				&& landscapeGrid.isHexAreaOfType(x, y, 1, ELandscapeType.GRASS)) {
+
+				ShortPoint2D treePoint = objectsGrid.getNeighboorObjectTypePoint(x, y, EMapObjectType.TREE_ADULT);
+				if (treePoint != null) {
+					//check around tree for other hives
+					return !objectsGrid.hasNeighborObjectType(treePoint.x, treePoint.y, EMapObjectType.HIVE_EMPTY, EMapObjectType.HIVE_GROWING, EMapObjectType.HIVE_HARVESTABLE);
+				}
+			}
+
 			return false;
 		}
 
@@ -1241,11 +1283,11 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final void placeSmoke(ShortPoint2D pos, boolean place) {
-			if (place) {
-				mapObjectsManager.addSimpleMapObject(pos, EMapObjectType.SMOKE, false, null);
+		public final void placeSmoke(ShortPoint2D pos, EMapObjectType type, short smokeDuration) {
+			if (smokeDuration > 0) {
+				mapObjectsManager.addMapObject(pos, new SmokeMapObject(pos, type, smokeDuration));
 			} else {
-				mapObjectsManager.removeMapObjectType(pos.x, pos.y, EMapObjectType.SMOKE);
+				mapObjectsManager.removeMapObjectType(pos.x, pos.y, type);
 			}
 		}
 
@@ -1439,6 +1481,11 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
+		public Path calculatePathTo(IPathCalculatable pathRequester, ShortPoint2D targetPos, ShortPoint2D startPos) {
+			return aStar.findPath(pathRequester, targetPos, startPos);
+		}
+
+		@Override
 		public Path searchDijkstra(IPathCalculatable pathCalculateable, short centerX, short centerY, short radius, ESearchType searchType) {
 			return dijkstra.find(pathCalculateable, centerX, centerY, (short) 0, radius, searchType);
 		}
@@ -1508,40 +1555,48 @@ public final class MainGrid implements Serializable {
 												final short maxSearchRadius, final boolean includeTowers) {
 			boolean isBowman = searchingAttackable.getMovableType().isBowman();
 
-			IAttackable enemy = searchEnemyInArea(position, searchingAttackable.getPlayer(), new HexGridArea(position.x, position.y, minSearchRadius,
-				maxSearchRadius
-			), isBowman, includeTowers);
+			IAttackable enemy = searchEnemyInArea(position, searchingAttackable.getPlayer(), minSearchRadius, maxSearchRadius, isBowman, includeTowers);
 			if (includeTowers && !isBowman && enemy == null) {
-				enemy = searchEnemyInArea(position, searchingAttackable.getPlayer(), new HexGridArea(position.x, position.y, maxSearchRadius, Constants.TOWER_ATTACKABLE_SEARCH_RADIUS), false, true);
+				enemy = searchEnemyInArea(position, searchingAttackable.getPlayer(), maxSearchRadius, Constants.TOWER_ATTACKABLE_SEARCH_RADIUS, false, true);
 			}
 
 			return enemy;
 		}
 
-		private IAttackable searchEnemyInArea(ShortPoint2D position, IPlayer searchingPlayer, HexGridArea area, boolean isBowman, boolean includeTowers) {
-			MutableInt minDistance = new MutableInt(Integer.MAX_VALUE);
-			Mutable<IAttackable> result = new Mutable<>();
+		private IAttackable searchEnemyInArea(final ShortPoint2D position, final IPlayer searchingPlayer, final short minSearchRadius, final short maxSearchRadius, boolean isBowman, boolean includeTowers) {
+			int minDistance = Integer.MAX_VALUE;
+			IAttackable result = null;
 
-			area.stream().filterBounds(width, height)
-					.map((x, y) -> {
-						ILogicMovable currMovable = movableGrid.getMovableAt(x, y);
+			HexGridArea.HexGridAreaIterator area = new HexGridArea(position.x, position.y, minSearchRadius, maxSearchRadius).iterator();
 
-						if(includeTowers && !isBowman && currMovable == null) {
-							return (IAttackable) objectsGrid.getMapObjectAt(x, y, EMapObjectType.ATTACKABLE_TOWER);
-						} else if(currMovable instanceof IAttackableMovable) {
-							return (IAttackable) currMovable;
-						}
-						return null;
-					}).filter(Objects::nonNull)
-					.filter(attackable -> MovableGrid.isEnemy(searchingPlayer, attackable))
-					.forEach(attackable -> {
-						int attackDistance = attackable.getPosition().getOnGridDistTo(position);
-						if(attackDistance < minDistance.value) {
-							minDistance.value = attackDistance;
-							result.object = attackable;
-						}
-					});
-			return result.object;
+			for(; area.hasNext(); area.nextPoint()) {
+				short x = area.currX();
+				short y = area.currY();
+
+				if(x == position.x && y == position.y || !isInBounds(x, y)) continue;
+
+				ILogicMovable currMovable = movableGrid.getMovableAt(x, y);
+				IAttackable attackable = null;
+
+				if(includeTowers && !isBowman && currMovable == null) {
+					attackable = (IAttackable) objectsGrid.getMapObjectAt(x, y, EMapObjectType.ATTACKABLE_TOWER);
+				} else if(currMovable instanceof IAttackableMovable) {
+					attackable = (IAttackable) currMovable;
+				}
+
+				if(attackable == null || !MovableGrid.isEnemy(searchingPlayer, attackable)) {
+					continue;
+				}
+
+
+				int attackDistance = attackable.getPosition().getOnGridDistTo(position);
+				if(attackDistance < minDistance) {
+					minDistance = attackDistance;
+					result = attackable;
+				}
+			}
+
+			return result;
 		}
 
 		@Override

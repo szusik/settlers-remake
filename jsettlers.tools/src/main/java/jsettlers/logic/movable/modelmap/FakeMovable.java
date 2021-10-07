@@ -1,16 +1,25 @@
 package jsettlers.logic.movable.modelmap;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
+
+import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.IGraphicsBuildingWorker;
+import jsettlers.common.movable.IGraphicsCargoShip;
+import jsettlers.common.movable.IGraphicsFerry;
 import jsettlers.common.movable.IGraphicsMovable;
+import jsettlers.common.movable.IGraphicsThief;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 
-public class FakeMovable implements IGraphicsMovable {
+public class FakeMovable implements IGraphicsMovable, IGraphicsBuildingWorker, IGraphicsThief, IGraphicsFerry,
+		IGraphicsCargoShip {
 
 	private EMovableType movableType;
 	private EMovableAction movableAction;
@@ -20,6 +29,8 @@ public class FakeMovable implements IGraphicsMovable {
 	private final FakePlayer player;
 	private final MovableModelMap map;
 	private ShortPoint2D position;
+
+	private final List<IGraphicsMovable> passengers = new ArrayList<>();
 
 	public FakeMovable(Supplier<Long> currentTime, MovableModelMap map, ShortPoint2D position) {
 		movableType = EMovableType.BEARER;
@@ -153,5 +164,35 @@ public class FakeMovable implements IGraphicsMovable {
 	@Override
 	public boolean isSoundPlayed() {
 		return true;
+	}
+
+	@Override
+	public IBuilding getGarrisonedBuilding() {
+		return null;
+	}
+
+	@Override
+	public List<? extends IGraphicsMovable> getPassengers() {
+		return passengers;
+	}
+
+	@Override
+	public boolean isUncoveredBy(byte teamId) {
+		return true;
+	}
+
+	@Override
+	public int getNumberOfCargoStacks() {
+		return 0;
+	}
+
+	@Override
+	public EMaterialType getCargoType(int stack) {
+		return EMaterialType.STONE;
+	}
+
+	@Override
+	public int getCargoCount(int stack) {
+		return 0;
 	}
 }

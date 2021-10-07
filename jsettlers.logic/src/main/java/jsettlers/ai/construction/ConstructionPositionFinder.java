@@ -125,11 +125,12 @@ public abstract class ConstructionPositionFinder {
 			case PIG_FARM:
 				return new NearRequiredBuildingConstructionPositionFinder(this, type, FARM);
 			case BAKER:
+			case BREWERY:
 				return new NearRequiredBuildingConstructionPositionFinder(this, type, MILL);
 			case SLAUGHTERHOUSE:
 				return new NearRequiredBuildingConstructionPositionFinder(this, type, PIG_FARM);
 			case TEMPLE:
-				return new TempleConstructionPositionFinder(this, civilisation.getMannaBuilding());
+				return new TempleConstructionPositionFinder(this);
 			case BIG_TEMPLE:
 				return new BigTempleConstructionPositionFinder(this);
 			case GOLDMELT:

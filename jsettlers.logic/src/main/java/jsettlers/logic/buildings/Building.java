@@ -638,7 +638,7 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 
 	public final short getVD() {
 		if (state == EBuildingState.CONSTRUCTED) {
-			if (isOccupied()) {
+			if (isOccupied() || getBuildingVariant().getWorkerType() == null) {
 				return getBuildingVariant().getViewDistance();
 			} else {
 				return UNOCCUPIED_VIEW_DISTANCE;
@@ -739,6 +739,9 @@ public abstract class Building extends AbstractHexMapObject implements IConstruc
 		case WATERWORKS:
 		case WINEGROWER:
 		case HOSPITAL:
+		case BREWERY:
+		case RICE_FARM:
+		case BEEKEEPING:
 			return new WorkerBuilding(type, player, position, buildingsGrid);
 
 		case DOCKYARD:

@@ -3,16 +3,14 @@ package jsettlers.logic.movable.specialist;
 import java.util.BitSet;
 
 import jsettlers.algorithms.path.Path;
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.common.action.EMoveToType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.movable.interfaces.IFerryMovable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.Movable;
@@ -33,10 +31,12 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 	private ShortPoint2D returnPos = null;
 
 	public ThiefMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.THIEF, position, player, movable, behaviour);
+		super(grid, EMovableType.THIEF, position, player, movable);
 	}
 
-	private static final Root<ThiefMovable> behaviour = new Root<>(createThiefBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.THIEF, new Root<>(createThiefBehaviour()));
+	}
 
 	public static Node<ThiefMovable> createThiefBehaviour() {
 		return guardSelector(
@@ -66,8 +66,9 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 				),
 				guard(mov -> mov.goToTarget != null,
 					sequence(
-						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null), // TODO
+						goToPos(mov -> mov.goToTarget),
 						action(mov -> {
+							mov.enterFerry();
 							mov.goToTarget = null;
 						})
 					)
@@ -79,7 +80,7 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 					sequence(
 						selector(
 							condition(mov -> mov.position.equals(mov.currentTarget)),
-							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && (mov.getMaterial() == EMaterialType.NO_MATERIAL || !mov.isOnOwnGround()) && mov.nextTarget == null) // TODO
+							goToPos(mov -> mov.currentTarget, mov -> mov.getMaterial() == EMaterialType.NO_MATERIAL || !mov.isOnOwnGround())
 						),
 						selector(
 							condition(mov -> mov.getMaterial() != EMaterialType.NO_MATERIAL),

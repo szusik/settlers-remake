@@ -23,4 +23,20 @@ public abstract class Composite<T> extends Node<T> {
 
 		return maxId;
 	}
+
+	@Override
+	public Node<T> findNode(int id) {
+		if(getId() == id) {
+			return this;
+		} else if(getId() > id) {
+			return null;
+		} else {
+			for(Node<T> child : children) {
+				Node<T> target = child.findNode(id);
+
+				if(target != null) return target;
+			}
+			return null;
+		}
+	}
 }

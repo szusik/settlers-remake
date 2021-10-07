@@ -37,7 +37,7 @@ public class DummyEmptyAStarMap implements IAStarPathMap {
 	}
 
 	@Override
-	public float getCost(int sx, int sy, int tx, int ty) {
+	public float getCost(IPathCalculatable requester, int sx, int sy, int tx, int ty) {
 		return 1;
 	}
 

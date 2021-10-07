@@ -1,16 +1,14 @@
 package jsettlers.logic.movable.specialist;
 
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.common.action.EMoveToType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.movable.interfaces.IFerryMovable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -29,10 +27,12 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 	private EDirection workDirection = null;
 
 	public PioneerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.PIONEER, position, player, movable, behaviour);
+		super(grid, EMovableType.PIONEER, position, player, movable);
 	}
 
-	private static final Root<PioneerMovable> behaviour = new Root<>(createPioneerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.PIONEER, new Root<>(createPioneerBehaviour()));
+	}
 
 	private static Node<PioneerMovable> createPioneerBehaviour() {
 		return guardSelector(
@@ -52,8 +52,9 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 				),
 				guard(mov -> mov.goToTarget != null,
 					sequence(
-						ignoreFailure(goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null)), // TODO
+						ignoreFailure(goToPos(mov -> mov.goToTarget)),
 						action(mov -> {
+							mov.enterFerry();
 							mov.goToTarget = null;
 						})
 					)
@@ -62,7 +63,7 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 					sequence(
 						selector(
 							condition(mov -> mov.position.equals(mov.currentTarget)),
-							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+							goToPos(mov -> mov.currentTarget)
 						),
 						ignoreFailure(repeat(mov -> true,
 							sequence(
@@ -107,11 +108,11 @@ public class PioneerMovable extends AttackableHumanMovable implements IPioneerMo
 								});
 						return mov.workDirection != null;
 					}),
-					goInDirectionIfAllowedAndFree(mov -> mov.workDirection)
+					goInDirectionIfAllowedAndFreeNode(mov -> mov.workDirection)
 				),
 				sequence(
 					condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, (short) 30, ESearchType.UNENFORCED_FOREIGN_GROUND)),
-					followPresearchedPath(mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+					followPresearchedPath()
 				)
 		);
 	}

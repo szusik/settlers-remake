@@ -17,7 +17,7 @@ package jsettlers.mapcreator.data.objects;
 import java.util.Collections;
 import java.util.List;
 
-import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
@@ -92,7 +92,7 @@ public class MovableObjectContainer implements ObjectContainer, IGraphicsMovable
 	}
 
 	@Override
-	public EBuildingType getGarrisonedBuildingType() {
+	public IBuilding getGarrisonedBuilding() {
 		return null;
 	}
 

@@ -1,7 +1,6 @@
 package jsettlers.logic.movable.military;
 
 import jsettlers.algorithms.path.Path;
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.buildings.OccupierPlace;
@@ -11,8 +10,8 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
-import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.IAttackable;
 import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
@@ -44,12 +43,18 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 
 	public SoldierMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, movableType, position, player, movable, behaviour);
+		super(grid, movableType, position, player, movable);
 
 		enemyNearby = true; // might not actually be true
 	}
-	
-	private static final Root<SoldierMovable> behaviour = new Root<>(createSoldierBehaviour());
+
+	static {
+		Root<SoldierMovable> behaviour = new Root<>(createSoldierBehaviour());
+
+		for(EMovableType type : EMovableType.SOLDIERS) {
+			MovableManager.registerBehaviour(type, behaviour);
+		}
+	}
 
 	private static Node<SoldierMovable> createSoldierBehaviour() {
 		return guardSelector(
@@ -65,7 +70,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 						sequence(
 							selector(
 								condition(mov -> mov.building.getDoor().equals(mov.position)),
-								goToPos(mov -> mov.building.getDoor(), mov -> mov.building != null && !mov.building.isDestroyed() && mov.building.getPlayer() == mov.player) // TODO
+								goToPos(mov -> mov.building.getDoor(), mov -> mov.building.getPlayer() == mov.player)
 							),
 							hide(),
 							action(mov -> {
@@ -101,8 +106,9 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				),
 				guard(mov -> mov.goToTarget != null,
 					sequence(
-						ignoreFailure(goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null)), // TODO
+						ignoreFailure(goToPos(mov -> mov.goToTarget)),
 						action(mov -> {
+							mov.enterFerry();
 							mov.goToTarget = null;
 						})
 					)
@@ -124,7 +130,13 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				// attack enemies from the top of the tower
 				guard(mov -> mov.isBowman() && mov.isInTower && mov.enemyNearby,
 					sequence(
-						findEnemy(),
+						selector(
+							findEnemy(),
+							sequence(
+								sleep(100),
+								alwaysFail()
+							)
+						),
 						attackEnemy()
 					)
 				),
@@ -142,7 +154,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 									condition(mov -> !mov.enemy.isAlive()), // enemy might die even if the attack fails
 
 									// or roughly chase enemy
-									goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.position, mov.enemy.getPosition())),
+									goInDirectionIfAllowedAndFreeNode(mov -> EDirection.getApproxDirection(mov.position, mov.enemy.getPosition())),
 									// or go to his position
 									resetAfter(mov -> {
 										mov.startPoint = null;
@@ -167,7 +179,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 							// handle nearby enemies (bowman only)
 							findTooCloseEnemy(),
 							// run in opposite direction
-							ignoreFailure(goInDirectionIfAllowedAndFree(mov -> EDirection.getApproxDirection(mov.toCloseEnemy.getPosition(), mov.position)))
+							ignoreFailure(goInDirectionIfAllowedAndFreeNode(mov -> EDirection.getApproxDirection(mov.toCloseEnemy.getPosition(), mov.position)))
 						),
 						sequence(
 							// no enemy in sight
@@ -179,7 +191,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				),
 				guard(mov -> mov.currentTarget != null,
 					sequence(
-						ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> !mov.enemyNearby && mov.nextTarget == null && mov.currentTarget != null)), // TODO
+						ignoreFailure(goToPos(mov -> mov.currentTarget)),
 						action(mov -> {
 							mov.currentTarget = null;
 						})
@@ -187,7 +199,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				),
 				guard(mov -> mov.patrolStep != -1,
 					sequence(
-						ignoreFailure(goToPos(mov -> mov.patrolPoints[mov.patrolStep], mov -> !mov.enemyNearby && mov.nextTarget == null && mov.patrolStep != -1)), // TODO
+						ignoreFailure(goToPos(mov -> mov.patrolPoints[mov.patrolStep])),
 						action(mov -> {
 							mov.patrolStep = (mov.patrolStep+1) % mov.patrolPoints.length;
 						})
@@ -318,7 +330,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	}
 
 	@Override
-	public Path findWayAroundObstacle(ShortPoint2D position, Path path) {
+	public void findWayAroundObstacle() {
 		if (building == null && startPoint != null) {
 			EDirection direction = EDirection.getDirection(position, path.getNextPos());
 
@@ -330,7 +342,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 			ShortPoint2D freePosition = getRandomFreePosition(rightPos, leftPos);
 
 			if (freePosition != null) {
-				return new Path(freePosition);
+				path = new Path(freePosition);
 
 			} else {
 				EDirection twoRightDir = direction.getNeighbor(-2);
@@ -341,13 +353,11 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				freePosition = getRandomFreePosition(twoRightPos, twoLeftPos);
 
 				if (freePosition != null) {
-					return new Path(freePosition);
-				} else {
-					return path;
+					path = new Path(freePosition);
 				}
 			}
 		} else {
-			return super.findWayAroundObstacle(position, path);
+			super.findWayAroundObstacle();
 		}
 	}
 

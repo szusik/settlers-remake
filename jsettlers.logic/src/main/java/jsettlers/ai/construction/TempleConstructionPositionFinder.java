@@ -24,19 +24,25 @@ public class TempleConstructionPositionFinder extends NearRequiredBuildingConstr
 
 	public static final int WINE_PER_TEMPLE = 15;
 
-	public TempleConstructionPositionFinder(Factory factory, EBuildingType mannaProducer) {
-		super(factory, EBuildingType.TEMPLE, mannaProducer);
+	public TempleConstructionPositionFinder(Factory factory) {
+		super(factory, EBuildingType.TEMPLE, factory.civilisation.getMannaBuilding());
 	}
 
 	@Override
 	public ShortPoint2D findBestConstructionPosition() {
-		int availableWine = aiStatistics.getTotalWineCountForPlayer(playerId);
-		int usedWine = aiStatistics.getTotalNumberOfBuildingTypeForPlayer(EBuildingType.TEMPLE, playerId) * WINE_PER_TEMPLE;
-		if (availableWine - usedWine >= WINE_PER_TEMPLE) {
-			return super.findBestConstructionPosition();
-		} else {
-			// reject construction of temple - the wine is not grown yet
-			return null;
+		switch (civilisation) {
+			case EGYPTIAN:
+				return super.findBestConstructionPosition();
+			default:
+				int availableWine = aiStatistics.getTotalWineCountForPlayer(playerId);
+				int usedWine = aiStatistics.getTotalNumberOfBuildingTypeForPlayer(EBuildingType.TEMPLE, playerId) *
+						WINE_PER_TEMPLE;
+				if (availableWine - usedWine >= WINE_PER_TEMPLE) {
+					return super.findBestConstructionPosition();
+				} else {
+					// reject construction of temple - the wine is not grown yet
+					return null;
+				}
 		}
 	}
 

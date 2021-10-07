@@ -615,11 +615,14 @@ public class AiStatistics {
 	public boolean blocksWorkingAreaOfOtherBuilding(int x, int y, byte playerId, BuildingVariant building) {
 		ECivilisation playerCivilisation = partitionsGrid.getPlayer(playerId).getCivilisation();
 
-		int winegrowerWorkRadius = EBuildingType.WINEGROWER.getVariant(playerCivilisation).getWorkRadius();
-		for (ShortPoint2D workAreaCenter : playerStatistics[playerId].wineGrowerWorkAreas) {
-			for (RelativePoint blockedPoint : building.getBlockedTiles()) {
-				if (workAreaCenter.getOnGridDistTo(blockedPoint.calculatePoint(x, y)) <= winegrowerWorkRadius) {
-					return true;
+		BuildingVariant winegrowerVariant = EBuildingType.WINEGROWER.getVariant(playerCivilisation);
+		if(winegrowerVariant != null) {
+			int winegrowerWorkRadius = winegrowerVariant.getWorkRadius();
+			for (ShortPoint2D workAreaCenter : playerStatistics[playerId].wineGrowerWorkAreas) {
+				for (RelativePoint blockedPoint : building.getBlockedTiles()) {
+					if (workAreaCenter.getOnGridDistTo(blockedPoint.calculatePoint(x, y)) <= winegrowerWorkRadius) {
+						return true;
+					}
 				}
 			}
 		}

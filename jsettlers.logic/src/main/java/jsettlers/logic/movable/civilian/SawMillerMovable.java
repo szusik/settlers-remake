@@ -8,6 +8,7 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -16,10 +17,12 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 public class SawMillerMovable extends BuildingWorkerMovable {
 
 	public SawMillerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.SAWMILLER, position, player, replace, tree);
+		super(grid, EMovableType.SAWMILLER, position, player, replace);
 	}
 
-	private static final Root<SawMillerMovable> tree = new Root<>(createSawMillerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.SAWMILLER, new Root<>(createSawMillerBehaviour()));
+	}
 
 	private static Node<SawMillerMovable> createSawMillerBehaviour() {
 		return defaultWorkCycle(
@@ -36,14 +39,14 @@ public class SawMillerMovable extends BuildingWorkerMovable {
 					show(),
 					ignoreFailure(
 						sequence(
-							goToInputStack(EMaterialType.TRUNK, BuildingWorkerMovable::tmpPathStep),
+							goToInputStack(EMaterialType.TRUNK),
 							setDirectionNode(EDirection.NORTH_EAST),
-							take(mov -> EMaterialType.TRUNK, mov -> true, mov -> {}),
-							goToPos(SawMillerMovable::getWorkPosition, BuildingWorkerMovable::tmpPathStep),
+							take(mov -> EMaterialType.TRUNK, true),
+							goToPos(SawMillerMovable::getWorkPosition),
 							setDirectionNode(SawMillerMovable::getWorkDirection),
 							repeatLoop(5, playAction(EMovableAction.ACTION1, (short)900)),
 							setMaterialNode(EMaterialType.PLANK),
-							goToOutputStack(EMaterialType.PLANK, BuildingWorkerMovable::tmpPathStep),
+							goToOutputStack(EMaterialType.PLANK),
 							setDirectionNode(EDirection.NORTH_EAST),
 							dropProduced(mov -> EMaterialType.PLANK)
 						)

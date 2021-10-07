@@ -223,7 +223,7 @@ public class MapData implements IMapData {
 			}
 		}
 
-		if(type.isFlat() && has_hight_diff) return false;
+		if(!landscapes[x][y].isFlat() && type.isFlat() && has_hight_diff) return false;
 
 		if(resourceAmount[x][y] > 0 && !type.canHoldResource(resources[x][y])) decreaseResourceTo(x, y, (byte) 0);
 

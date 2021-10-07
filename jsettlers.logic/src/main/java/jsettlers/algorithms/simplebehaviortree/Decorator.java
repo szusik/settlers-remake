@@ -19,6 +19,17 @@ public abstract class Decorator<T> extends Node<T> {
 	}
 
 	@Override
+	public Node<T> findNode(int id) {
+		if (getId() == id) {
+			return this;
+		} else if(getId() > id) {
+			return null;
+		} else {
+			return child.findNode(id);
+		}
+	}
+
+	@Override
 	protected void onClose(Tick<T> tick) {
 		child.close(tick);
 	}

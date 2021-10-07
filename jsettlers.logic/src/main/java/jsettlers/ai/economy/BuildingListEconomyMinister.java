@@ -261,10 +261,12 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 	}
 
 	private void addManaBuildings() {
-		for (int i = 0; i < mapBuildingCounts[WINEGROWER.ordinal]; i++) {
-			addIfPossible(WINEGROWER);
+		EBuildingType mannaProducer = player.getCivilisation().getMannaBuilding();
+
+		for (int i = 0; i < mapBuildingCounts[mannaProducer.ordinal]; i++) {
+			addIfPossible(mannaProducer);
 		}
-		for (int i = 0; i < mapBuildingCounts[WINEGROWER.ordinal]; i++) {
+		for (int i = 0; i < mapBuildingCounts[mannaProducer.ordinal]; i++) {
 			addIfPossible(TEMPLE);
 		}
 		if (mapBuildingCounts[BIG_TEMPLE.ordinal] > 0) {

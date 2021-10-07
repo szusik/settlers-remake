@@ -160,6 +160,8 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 							new PlaceMovableTool(EMovableType.STONECUTTER, this),
 							new PlaceMovableTool(EMovableType.WATERWORKER, this),
 							new PlaceMovableTool(EMovableType.DOCKWORKER, this),
+							new PlaceMovableTool(EMovableType.BREWER, this),
+							new PlaceMovableTool(EMovableType.RICE_FARMER, this)
 							}),
 					new ToolBox(EditorLabels.getLabel("tools.category.specialist"), new ToolNode[] {
 							new PlaceMovableTool(EMovableType.GEOLOGIST, this),

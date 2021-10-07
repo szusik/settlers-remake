@@ -13,6 +13,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -21,10 +22,12 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 public class PigFarmerMovable extends BuildingWorkerMovable {
 
 	public PigFarmerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.PIG_FARMER, position, player, replace, tree);
+		super(grid, EMovableType.PIG_FARMER, position, player, replace);
 	}
 
-	private static final Root<PigFarmerMovable> tree = new Root<>(createPigFarmerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.PIG_FARMER, new Root<>(createPigFarmerBehaviour()));
+	}
 
 	private ShortPoint2D targetKillablePig;
 	private ShortPoint2D targetFreePig;
@@ -57,11 +60,11 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 								condition(mov -> mov.targetKillablePig != null),
 								ignoreFailure(
 									sequence(
-										goToPos(mov -> mov.targetKillablePig, BuildingWorkerMovable::tmpPathStep),
+										goToPos(mov -> mov.targetKillablePig),
 										setDirectionNode(EDirection.NORTH_EAST),
-										take(mov -> EMaterialType.PIG, mov -> false, mov -> {}),
+										take(mov -> EMaterialType.PIG, false),
 										setPigAtTarget(mov -> mov.targetKillablePig, false),
-										goToOutputStack(EMaterialType.PIG, BuildingWorkerMovable::tmpPathStep),
+										goToOutputStack(EMaterialType.PIG),
 										setDirectionNode(EDirection.NORTH_WEST),
 										dropProduced(mov -> EMaterialType.PIG)
 									)
@@ -75,9 +78,9 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 									sequence(
 										// take crops
 										setDirectionNode(EDirection.SOUTH_EAST),
-										goToInputStack(EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep),
+										goToInputStack(EMaterialType.CROP),
 										setDirectionNode(EDirection.NORTH_WEST),
-										take(mov -> EMaterialType.CROP, mov -> true, mov -> {}),
+										take(mov -> EMaterialType.CROP, true),
 										// and go home
 										enterHome(),
 										sleep(1000),
@@ -86,20 +89,20 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 										setMaterialNode(EMaterialType.NO_MATERIAL),
 										setDirectionNode(EDirection.SOUTH_EAST),
 										show(),
-										goToInputStack(EMaterialType.WATER, BuildingWorkerMovable::tmpPathStep),
+										goToInputStack(EMaterialType.WATER),
 										setDirectionNode(EDirection.NORTH_EAST),
-										take(mov -> EMaterialType.WATER, mov -> true, mov -> {}),
+										take(mov -> EMaterialType.WATER, true),
 										// and go home
 										enterHome(),
 										sleep(1000),
 
 										// place new pig
 										setPigAtTarget(mov -> mov.targetFreePig, true),
-										goToPos(mov -> mov.targetFreePig, BuildingWorkerMovable::tmpPathStep),
+										goToPos(mov -> mov.targetFreePig),
 										setMaterialNode(EMaterialType.BASKET),
 										setDirectionNode(EDirection.SOUTH_EAST),
 										show(),
-										goToPos(PigFarmerMovable::getPigPlacePosition, BuildingWorkerMovable::tmpPathStep),
+										goToPos(PigFarmerMovable::getPigPlacePosition),
 										setDirectionNode(EDirection.NORTH_EAST),
 										playAction(EMovableAction.ACTION1, (short)2000)
 									)

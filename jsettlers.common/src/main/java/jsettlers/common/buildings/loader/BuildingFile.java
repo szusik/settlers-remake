@@ -17,7 +17,6 @@ package jsettlers.common.buildings.loader;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
@@ -31,7 +30,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.OccupierPlace;
 import jsettlers.common.buildings.RelativeDirectionPoint;
-import jsettlers.common.buildings.jobs.IBuildingJob;
 import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.images.EImageLinkType;
@@ -49,13 +47,11 @@ import jsettlers.common.position.RelativePoint;
  * 
  * @author michael
  */
-public class BuildingFile implements BuildingJobDataProvider {
+public class BuildingFile {
 
 	private static final String BUILDING_DTD = "building.dtd";
 
 	private static final String TAG_BUILDING = "building";
-	private static final String TAG_JOB = "job";
-	private static final String TAG_STARTJOB = "startjob";
 	private static final String TAG_DOOR = "door";
 	private static final String TAG_BLOCKED = "blocked";
 	private static final String TAG_CONSTRUCTION_STACK = "constructionStack";
@@ -78,23 +74,38 @@ public class BuildingFile implements BuildingJobDataProvider {
 	private static final String TAG_OVEN_POSITION = "ovenPosition";
 	private static final String TAG_ANIMAL_POSITION = "animalPosition";
 	private static final String TAG_SMOKE_POSITION = "smokePosition";
+	private static final String TAG_MINE = "mine";
 	private static final String TAG_HEALSPOT = "healspot";
+	private static final String TAG_MOLTEN_METAL = "moltenMetal";
+	private static final String TAG_MELT_INPUT = "meltInput";
+	private static final String TAG_MELT_OUTPUT = "meltOutput";
+	private static final String TAG_ANVIL_POSITION = "anvilPosition";
+	private static final String TAG_SMITH_DROP_POSITION = "smithDropPosition";
 	private static final String TAG_IMAGE = "image";
 	private static final String TAG_GROUNDTYE = "ground";
+	private static final String TAG_FIRE = "fire";
 
 	private final ArrayList<RelativePoint> blocked = new ArrayList<>();
 
 	private final ArrayList<RelativePoint> protectedTiles = new ArrayList<>();
 
-	private final Hashtable<String, JobElementWrapper> jobElements = new Hashtable<>();
-
-	private String startJobName = "";
 	private RelativePoint door = new RelativePoint(0, 0);
-	private IBuildingJob startJob = null;
 	private RelativePoint smokePosition = new RelativePoint(0, 0);
+	private boolean smokeWithFire = false;
+
 	private RelativePoint healSpot = new RelativePoint(0, 0);
 	private RelativePoint pigFeedPosition = new RelativePoint(0, 0);
 	private ArrayList<RelativePoint> animalPositions = new ArrayList<>();
+
+	private RelativeDirectionPoint meltInput = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
+	private RelativeDirectionPoint meltOutput = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
+	private EMaterialType meltInputMaterial = EMaterialType.NO_MATERIAL;
+	private EMaterialType meltOutputMaterial = EMaterialType.NO_MATERIAL;
+
+	private RelativeDirectionPoint anvilPosition;
+	private RelativePoint smithDropPosition;
+
+	private RelativePoint moltenMetalPosition = new RelativePoint(0, 0);
 
 	private ArrayList<RelativeDirectionPoint> donkeyFeedPositions = new ArrayList<>();
 	private RelativeDirectionPoint sawmillerWorkPosition = new RelativeDirectionPoint(0, 0, EDirection.NORTH_EAST);
@@ -110,6 +121,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	private int workradius;
 	private boolean mine;
+	private MineElementWrapper mineEntry = new MineElementWrapper();
 	private RelativePoint workCenter = new RelativePoint(0, 0);
 	private RelativePoint flag = new RelativePoint(0, 0);
 	private ArrayList<RelativePoint> buildmarks = new ArrayList<>();
@@ -152,11 +164,6 @@ public class BuildingFile implements BuildingJobDataProvider {
 		public void startElement(String uri, String localName, String tagName, Attributes attributes) throws SAXException {
 			if (TAG_BUILDING.equals(tagName)) {
 				readAttributes(attributes);
-			} else if (TAG_JOB.equals(tagName)) {
-				String name = attributes.getValue(ATTR_JOBNAME);
-				jobElements.put(name, new JobElementWrapper(attributes));
-			} else if (TAG_STARTJOB.equals(tagName)) {
-				startJobName = attributes.getValue(ATTR_JOBNAME);
 			} else if (TAG_DOOR.equals(tagName)) {
 				door = readRelativeTile(attributes);
 			} else if (TAG_WORKCENTER.equals(tagName)) {
@@ -194,8 +201,23 @@ public class BuildingFile implements BuildingJobDataProvider {
 				animalPositions.add(readRelativeTile(attributes));
 			} else if(TAG_SMOKE_POSITION.equals(tagName)) {
 				smokePosition = readRelativeTile(attributes);
+				smokeWithFire = Boolean.parseBoolean(attributes.getValue(TAG_FIRE));
+			} else if(TAG_MINE.equals(tagName)) {
+				mineEntry = new MineElementWrapper(attributes);
 			} else if(TAG_HEALSPOT.equals(tagName)) {
 				healSpot = readRelativeTile(attributes);
+			} else if(TAG_MOLTEN_METAL.equals(tagName)) {
+				moltenMetalPosition = readRelativeTile(attributes);
+			} else if(TAG_MELT_INPUT.equals(tagName)) {
+				meltInput = readRelativeDirectionPoint(attributes);
+				meltInputMaterial = readMaterial(attributes);
+			} else if(TAG_MELT_OUTPUT.equals(tagName)) {
+				meltOutput = readRelativeDirectionPoint(attributes);
+				meltOutputMaterial = readMaterial(attributes);
+			} else if (TAG_ANVIL_POSITION.equals(tagName)) {
+				anvilPosition = readRelativeDirectionPoint(attributes);
+			} else if (TAG_SMITH_DROP_POSITION.equals(tagName)) {
+				smithDropPosition = readRelativeTile(attributes);
 			} else if (TAG_GROUNDTYE.equals(tagName)) {
 				groundtypes.add(ELandscapeType.valueOf(attributes.getValue("groundtype")));
 			} else if (TAG_OCCUPYER.equals(tagName)) {
@@ -309,11 +331,15 @@ public class BuildingFile implements BuildingJobDataProvider {
 		}
 	}
 
+	private EMaterialType readMaterial(Attributes attributes) {
+		return EMaterialType.valueOf(attributes.getValue(ATTR_MATERIAl));
+	}
+
 	private void readAndAddRelativeStack(Attributes attributes, ArrayList<RelativeStack> stacks) {
 		try {
 			int dx = Integer.parseInt(attributes.getValue(ATTR_DX));
 			int dy = Integer.parseInt(attributes.getValue(ATTR_DY));
-			EMaterialType type = EMaterialType.valueOf(attributes.getValue(ATTR_MATERIAl));
+			EMaterialType type = readMaterial(attributes);
 
 			stacks.add(new RelativeStack(dx, dy, type));
 		} catch (NumberFormatException e) {
@@ -327,7 +353,7 @@ public class BuildingFile implements BuildingJobDataProvider {
 		try {
 			int dx = Integer.parseInt(attributes.getValue(ATTR_DX));
 			int dy = Integer.parseInt(attributes.getValue(ATTR_DY));
-			EMaterialType type = EMaterialType.valueOf(attributes.getValue(ATTR_MATERIAl));
+			EMaterialType type = readMaterial(attributes);
 			short requiredForBuild = Short.parseShort(attributes.getValue(ATTR_BUILDREQUIRED));
 
 			if (requiredForBuild <= 0) {
@@ -371,30 +397,8 @@ public class BuildingFile implements BuildingJobDataProvider {
 		this.mine = Boolean.valueOf(attributes.getValue("mine"));
 	}
 
-	public IBuildingJob getStartJob() {
-		if (startJob == null) {
-			try {
-				if (startJobName == null || startJobName.isEmpty()) {
-					startJob = SimpleBuildingJob.createFallback();
-				} else {
-					startJob = SimpleBuildingJob.createLinkedJobs(this, startJobName);
-				}
-			} catch (Exception e) {
-				System.err.println("Error while creating job list for " + buildingName + ", using fallback. Message: " + e);
-				e.printStackTrace();
-				startJob = SimpleBuildingJob.createFallback();
-			}
-		}
-		return startJob;
-	}
-
 	public RelativePoint getDoor() {
 		return door;
-	}
-
-	@Override
-	public BuildingJobData getJobData(String name) {
-		return jobElements.get(name);
 	}
 
 	public EMovableType getWorkerType() {
@@ -461,6 +465,14 @@ public class BuildingFile implements BuildingJobDataProvider {
 		return smokePosition;
 	}
 
+	public boolean isSmokeWithFire() {
+		return smokeWithFire;
+	}
+
+	public MineElementWrapper getMineEntry() {
+		return mineEntry;
+	}
+
 	public RelativePoint getHealSpot() {
 		return healSpot;
 	}
@@ -483,6 +495,34 @@ public class BuildingFile implements BuildingJobDataProvider {
 
 	public RelativePoint[] getAnimalPositions() {
 		return animalPositions.toArray(new RelativePoint[0]);
+	}
+
+	public RelativePoint getMoltenMetalPosition() {
+		return moltenMetalPosition;
+	}
+
+	public RelativeDirectionPoint getMeltInput() {
+		return meltInput;
+	}
+
+	public EMaterialType getMeltInputMaterial() {
+		return meltInputMaterial;
+	}
+
+	public RelativeDirectionPoint getMeltOutput() {
+		return meltOutput;
+	}
+
+	public EMaterialType getMeltOutputMaterial() {
+		return meltOutputMaterial;
+	}
+
+	public RelativeDirectionPoint getAnvilPosition() {
+		return anvilPosition;
+	}
+
+	public RelativePoint getSmithDropPosition() {
+		return smithDropPosition;
 	}
 
 	public List<ELandscapeType> getGroundtypes() {

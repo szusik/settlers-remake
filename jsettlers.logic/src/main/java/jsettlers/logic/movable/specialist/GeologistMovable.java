@@ -1,10 +1,8 @@
 package jsettlers.logic.movable.specialist;
 
 import jsettlers.algorithms.path.Path;
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.common.action.EMoveToType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableAction;
@@ -12,7 +10,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.MutablePoint2D;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.mutables.MutableDouble;
-import jsettlers.logic.movable.interfaces.IFerryMovable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -30,10 +28,12 @@ public class GeologistMovable extends AttackableHumanMovable {
 	private ShortPoint2D centerPos = null;
 
 	public GeologistMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.GEOLOGIST, position, player, movable, behaviour);
+		super(grid, EMovableType.GEOLOGIST, position, player, movable);
 	}
 
-	private static final Root<GeologistMovable> behaviour = new Root<>(createGeologistBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.GEOLOGIST, new Root<>(createGeologistBehaviour()));
+	}
 
 	public static Node<GeologistMovable> createGeologistBehaviour() {
 		return guardSelector(
@@ -53,8 +53,9 @@ public class GeologistMovable extends AttackableHumanMovable {
 				),
 				guard(mov -> mov.goToTarget != null,
 					sequence(
-						goToPos(mov -> mov.goToTarget, mov -> mov.nextTarget == null && mov.goToTarget != null), // TODO
+						goToPos(mov -> mov.goToTarget),
 						action(mov -> {
+							mov.enterFerry();
 							mov.goToTarget = null;
 						})
 					)
@@ -63,7 +64,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 					sequence(
 						selector(
 							condition(mov -> mov.position.equals(mov.currentTarget)),
-							goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null) // TODO
+							goToPos(mov -> mov.currentTarget)
 						),
 						action(mov -> {mov.centerPos = mov.currentTarget;}),
 						ignoreFailure(repeat(mov -> true,
@@ -73,7 +74,7 @@ public class GeologistMovable extends AttackableHumanMovable {
 
 									sequence(
 										action(mov -> {mov.grid.setMarked(mov.currentTarget, true);}),
-										goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null), // TODO
+										goToPos(mov -> mov.currentTarget),
 										ignoreFailure(workOnPosition())
 									)
 								)

@@ -9,6 +9,7 @@ import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IHealerMovable;
@@ -24,10 +25,12 @@ public class HealerMovable extends BuildingWorkerMovable implements IHealerMovab
 	private IAttackableHumanMovable nextPatient = null;
 
 	public HealerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.HEALER, position, player, replace, tree);
+		super(grid, EMovableType.HEALER, position, player, replace);
 	}
 
-	private static final Root<HealerMovable> tree = new Root<>(createHealerBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.HEALER, new Root<>(createHealerBehaviour()));
+	}
 
 	private static Node<HealerMovable> createHealerBehaviour() {
 		return defaultWorkCycle(

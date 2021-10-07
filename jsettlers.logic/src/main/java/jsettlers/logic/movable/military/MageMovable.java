@@ -7,7 +7,6 @@ import java.util.Queue;
 
 import java8.util.Lists;
 import java8.util.function.Function;
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.terraform.LandscapeEditor;
@@ -27,6 +26,7 @@ import jsettlers.common.utils.coordinates.CoordinateStream;
 import jsettlers.common.utils.mutables.MutableInt;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.IAttackableHumanMovable;
 import jsettlers.logic.movable.interfaces.IBowmanMovable;
 import jsettlers.logic.movable.interfaces.IFerryMovable;
@@ -52,10 +52,12 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 	private ESpellType currentSpell;
 
 	public MageMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.MAGE, position, player, movable, behaviour);
+		super(grid, EMovableType.MAGE, position, player, movable);
 	}
 
-	private static final Root<MageMovable> behaviour = new Root<>(createMageBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.MAGE, new Root<>(createMageBehaviour()));
+	}
 
 	private static Node<MageMovable> createMageBehaviour() {
 		return guardSelector(
@@ -72,20 +74,21 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 					sequence(
 						selector(
 							guard(mov -> mov.currentSpell == null,
-								ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null)) // TODO
+								ignoreFailure(goToPos(mov -> mov.currentTarget))
 							),
 							guard(mov -> !mov.currentSpell.forcePresence(),
 								ignoreFailure(castSpellNode())
 							),
 							sequence(
-								ignoreFailure(goToPos(mov -> mov.currentTarget, mov -> mov.currentTarget != null && mov.nextTarget == null &&
-											mov.position.getOnGridDistTo(mov.currentTarget) > Constants.MAGE_CAST_DISTANCE &&
-											mov.player.getMannaInformation().canUseSpell(mov.currentSpell)
-								)), // TODO
+								ignoreFailure(goToPos(mov -> mov.currentTarget, mov ->
+										mov.position.getOnGridDistTo(mov.currentTarget) > Constants.MAGE_CAST_DISTANCE &&
+										mov.player.getMannaInformation().canUseSpell(mov.currentSpell)
+								)),
 								ignoreFailure(castSpellNode())
 							)
 						),
 						action(mov -> {
+							mov.enterFerry();
 							mov.currentTarget = null;
 						})
 					)

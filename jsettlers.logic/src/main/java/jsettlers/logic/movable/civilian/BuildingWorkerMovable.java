@@ -3,11 +3,12 @@ package jsettlers.logic.movable.civilian;
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
-import jsettlers.algorithms.simplebehaviortree.IShortPoint2DSupplier;
+import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
 import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.mapobject.EMapObjectType;
@@ -33,8 +34,8 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	private boolean registered = false;
 	protected int searchFailedCtr = 0;
 
-	public BuildingWorkerMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends BuildingWorkerMovable> behaviour) {
-		super(grid, movableType, position, player, replace, behaviour);
+	public BuildingWorkerMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
+		super(grid, movableType, position, player, replace);
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> dropProduced(IEMaterialTypeSupplier<T> material) {
@@ -44,7 +45,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 						mov.getPlayer().getEndgameStatistic().incrementAmountOfProducedGold();
 					}
 				}),
-				drop(material, mov -> true)
+				drop(material, true)
 		);
 	}
 	protected static <T extends BuildingWorkerMovable> Node<T> lookAtSearched(ESearchType searchType) {
@@ -75,20 +76,42 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		throw new AssertionError("stack for " + inputMaterial + " not found in " + building.getBuildingVariant());
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(EMaterialType outputMaterial, IBooleanConditionFunction<T> pathStep) {
-		return goToPos(mov -> mov.getOutputStackPosition(outputMaterial), pathStep);
+	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(EMaterialType outputMaterial) {
+		return goToOutputStack(mov -> outputMaterial);
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(EMaterialType outputMaterial, IBooleanConditionFunction<T> pathStep) {
-		return goToPos(mov -> mov.getInputStackPosition(outputMaterial), pathStep);
+	protected static <T extends BuildingWorkerMovable> Node<T> goToOutputStack(IEMaterialTypeSupplier<T> outputMaterial) {
+		return goToPos(mov -> mov.getOutputStackPosition(outputMaterial.apply(mov)));
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(EMaterialType outputMaterial) {
+		return goToInputStack(mov -> outputMaterial);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> goToInputStack(IEMaterialTypeSupplier<T> outputMaterial) {
+		return goToPos(mov -> mov.getInputStackPosition(outputMaterial.apply(mov)));
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> outputStackNotFull(EMaterialType outputMaterial) {
-		return condition(mov -> mov.grid.canPushMaterial(mov.getOutputStackPosition(outputMaterial)));
+		return outputStackNotFull(mov -> outputMaterial);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> outputStackNotFull(IEMaterialTypeSupplier<T> outputMaterial) {
+		return condition(mov -> {
+			EMaterialType mat = outputMaterial.apply(mov);
+			return mov.grid.canPushMaterial(mov.getOutputStackPosition(mat));
+		});
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> inputStackNotEmpty(EMaterialType inputMaterial) {
-		return condition(mov -> mov.grid.canTakeMaterial(mov.getInputStackPosition(inputMaterial), inputMaterial));
+		return inputStackNotEmpty(mov -> inputMaterial);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> inputStackNotEmpty(IEMaterialTypeSupplier<T> inputMaterial) {
+		return condition(mov -> {
+			EMaterialType realInputMaterial = inputMaterial.apply(mov);
+			return mov.grid.canTakeMaterial(mov.getInputStackPosition(realInputMaterial), realInputMaterial);
+		});
 	}
 
 	protected static <T extends BuildingWorkerMovable> Node<T> isAllowedToWork() {
@@ -100,7 +123,7 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 				// I am not sure if the repeat structure is actually necessary but it won't hurt
 				repeat(mov -> !mov.building.getDoor().equals(mov.getPosition()),
 						selector(
-								goToPos(mov -> mov.building.getDoor(), BuildingWorkerMovable::tmpPathStep), // TODO
+								goToPos(mov -> mov.building.getDoor()),
 								sleep(1000)
 						)
 				),
@@ -120,7 +143,6 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 					mov.dropCurrentMaterial();
 					mov.abortJob();
 					((BuildingWorkerMovable)mov).registered = true;
-					mov.pathStep = null;
 					mov.grid.addJobless(mov);
 				})
 		);
@@ -147,15 +169,32 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		);
 	}
 
-	protected static <T extends BuildingWorkerMovable> Node<T> setSmoke(boolean on) {
+	protected static <T extends BuildingWorkerMovable> Node<T> setSmoke(short duration) {
+		return setSmoke(mov -> duration);
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> setSmoke(IShortSupplier<T> duration) {
 		return action(mov -> {
 			ShortPoint2D pos = mov.building.getBuildingVariant()
 					.getSmokePosition()
 					.calculatePoint(mov.building.getPosition());
 
-			mov.grid.placeSmoke(pos, on);
-			mov.building.addMapObjectCleanupPosition(pos, EMapObjectType.SMOKE);
+			EMapObjectType type = mov.building.getBuildingVariant().isSmokeWithFire() ? EMapObjectType.SMOKE_WITH_FIRE : EMapObjectType.SMOKE;
+			mov.grid.placeSmoke(pos, type, duration.apply(mov));
+			mov.building.addMapObjectCleanupPosition(pos, type);
 		});
+	}
+
+	protected static <T extends BuildingWorkerMovable> Node<T> dropIntoOven(EMaterialType material, EDirection takeDirection) {
+		return sequence(
+				goToInputStack(material),
+				setDirectionNode(takeDirection),
+				take(mov -> material, true),
+
+				goToPos(mov -> mov.building.getBuildingVariant().getOvenPosition().calculatePoint(mov.building.getPosition())),
+				setDirectionNode(mov -> mov.building.getBuildingVariant().getOvenPosition().getDirection()),
+				crouchDown(setMaterialNode(EMaterialType.NO_MATERIAL))
+		);
 	}
 
 	@Override
@@ -164,12 +203,8 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 	}
 
 	@Override
-	public EBuildingType getGarrisonedBuildingType() {
-		if(building != null) {
-			return building.getBuildingVariant().getType();
-		} else {
-			return null;
-		}
+	public IBuilding getGarrisonedBuilding() {
+		return building;
 	}
 
 	@Override
@@ -271,9 +306,5 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 			grid.dropMaterial(position, material, true, false);
 		}
 		super.setMaterial(EMaterialType.NO_MATERIAL);
-	}
-
-	protected boolean tmpPathStep() {
-		return building != null;
 	}
 }

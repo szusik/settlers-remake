@@ -27,6 +27,11 @@ public abstract class CommonConstants {
 	public static final int FOG_OF_WAR_EXPLORED = 50;
 
 	/**
+	 * NOTE: this will consume high amounts of memory even for small maps
+	 */
+	public static final boolean FOG_OF_WAR_DEBUG_REFERENCES = false;
+
+	/**
 	 * How much the current fog of war status can be changed per second
 	 */
 	public static final int FOG_OF_WAR_DIM = 30;
@@ -35,10 +40,15 @@ public abstract class CommonConstants {
 	public static final int FOG_OF_WAR_DIM_MAX_FRAMERATE = 60;
 	public static final int FOG_OF_WAR_REF_UPDATE_FRAMERATE = 1;
 
+	public static final int FOG_OF_WAR_DIM_NO_CLOCK_FRAMERATE = 10;
+
 	/**
 	 * Radius of the area occupied by towers.
 	 */
 	public static final short TOWER_RADIUS = 40;
+
+	public static final short MOVABLE_PATH_REPAIR_DISTANCE = 10;
+
 	/**
 	 * Maximum number of players allowed to play. Should be 2..127.
 	 */

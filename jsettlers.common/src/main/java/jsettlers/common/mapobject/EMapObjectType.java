@@ -30,7 +30,7 @@ public enum EMapObjectType {
 	WINE_GROWING,
 	WINE_HARVESTABLE,
 	WINE_DEAD,
-	WINE_BOWL,
+	MANNA_BOWL,
 
 	WAVES,
 	STONE,
@@ -114,6 +114,8 @@ public enum EMapObjectType {
 	 */
 	SMOKE,
 
+	SMOKE_WITH_FIRE,
+
 	/**
 	 * A pig. Progress is ignored.
 	 */
@@ -151,7 +153,15 @@ public enum EMapObjectType {
 	SPELL_EFFECT,
 
 	FERRY,
-	CARGO_SHIP;
+	CARGO_SHIP,
+
+	RICE_GROWING,
+	RICE_HARVESTABLE,
+	RICE_DEAD,
+
+	HIVE_EMPTY,
+	HIVE_GROWING,
+	HIVE_HARVESTABLE;
 
 	public static final EMapObjectType[] VALUES = EMapObjectType.values();
 	public final byte ordinal;

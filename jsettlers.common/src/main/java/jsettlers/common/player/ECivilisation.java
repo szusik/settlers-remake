@@ -44,6 +44,8 @@ public enum ECivilisation {
 
 	public EBuildingType getMannaBuilding() {
 		switch (this) {
+			case EGYPTIAN:
+				return EBuildingType.BREWERY;
 			default:
 				return EBuildingType.WINEGROWER;
 		}

@@ -17,7 +17,7 @@ package jsettlers.graphics.test;
 import java.util.List;
 
 import java8.util.Lists2;
-import jsettlers.common.buildings.EBuildingType;
+import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
@@ -146,7 +146,7 @@ public class TestSettler implements IGraphicsMovable, IGraphicsFerry, IGraphicsC
 	}
 
 	@Override
-	public EBuildingType getGarrisonedBuildingType() {
+	public IBuilding getGarrisonedBuilding() {
 		return null;
 	}
 

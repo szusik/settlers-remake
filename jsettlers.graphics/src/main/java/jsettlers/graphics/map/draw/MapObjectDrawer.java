@@ -34,6 +34,7 @@ import jsettlers.common.images.OriginalImageLink;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IArrowMapObject;
 import jsettlers.common.mapobject.IAttackableTowerMapObject;
+import jsettlers.common.mapobject.IMannaBowlObject;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.mapobject.ISpecializedMapObject;
 import jsettlers.common.mapobject.IStackMapObject;
@@ -68,6 +69,7 @@ import jsettlers.graphics.sound.SoundManager;
  * This class handles drawing of objects on the map.
  *
  * @author michael
+ * @author MarviMarv
  */
 public class MapObjectDrawer {
 
@@ -157,6 +159,15 @@ public class MapObjectDrawer {
 	private static final int WINE_BOWL_SEQUENCE = 46;
 	private static final int WINE_BOWL_IMAGES   = 9;
 
+	private static final int RICE			 = 24;
+	private static final int RICE_GROW_STEPS = 5;
+	private static final int RICE_DEAD_STEP  = 0;
+
+	public static final int HIVE_EMPTY = 8;
+	public static final int HIVE_LAST = 14;
+	public static final int[] HIVE_GROW = {9, 10, 11, 12, 13, 14};
+
+
 	private static final int WAVES = 26;
 
 	private static final int FILE_BORDER_POST = 13;
@@ -165,9 +176,6 @@ public class MapObjectDrawer {
 
 	private static final int SELECT_MARK_SEQUENCE = 11;
 	private static final int SELECT_MARK_FILE     = 4;
-
-	private static final int MILL_FILE = 13;
-	private static final int MILL_SEQ  = 15;
 
 	private static final int PIG_SEQ      = 0;
 	private static final int ANIMALS_FILE = 6;
@@ -186,6 +194,7 @@ public class MapObjectDrawer {
 	private final float z_per_y;
 	private final float shadow_offset;
 	private final float construction_offset;
+	private final float molten_metal_offset;
 
 	private static final int SMOKE_HEIGHT = 30;
 
@@ -222,6 +231,7 @@ public class MapObjectDrawer {
 		z_per_y = 1f/(context.getMap().getHeight()*100);
 		shadow_offset = 10 * z_per_y;
 		construction_offset = z_per_y;
+		molten_metal_offset = z_per_y;
 	}
 
 	public void setVisibleGrid(byte[][] visibleGrid) {
@@ -458,6 +468,16 @@ public class MapObjectDrawer {
 				drawDeadCorn(x, y, color);
 				break;
 
+			case HIVE_EMPTY:
+				drawEmptyHive(x, y, color);
+				break;
+			case HIVE_GROWING:
+				drawGrowingHive(x, y, color);
+				break;
+			case HIVE_HARVESTABLE:
+				drawHarvestableHive(x, y, color);
+				break;
+
 			case WINE_GROWING:
 				drawGrowingWine(x, y, object, color);
 				break;
@@ -468,8 +488,18 @@ public class MapObjectDrawer {
 				drawDeadWine(x, y, color);
 				break;
 
-			case WINE_BOWL:
-				drawWineBowl(x, y, object, color);
+			case MANNA_BOWL:
+				drawMannaBowl(x, y, (IMannaBowlObject) object, color);
+				break;
+
+			case RICE_GROWING:
+				drawGrowingRice(x, y, object, color);
+				break;
+			case RICE_HARVESTABLE:
+				drawHarvestableRice(x, y, color);
+				break;
+			case RICE_DEAD:
+				drawDeadRice(x, y, color);
 				break;
 
 			case WAVES:
@@ -561,7 +591,8 @@ public class MapObjectDrawer {
 				break;
 
 			case SMOKE:
-				drawByProgressWithHeight(x, y, SMOKE_HEIGHT, progress, color);
+			case SMOKE_WITH_FIRE:
+				drawByProgressWithHeight(x, y, SMOKE_HEIGHT, object, color);
 				break;
 
 			case PLANT_DECORATION:
@@ -848,44 +879,27 @@ public class MapObjectDrawer {
 		float viewX;
 		float viewY;
 		int height = context.getHeight(x, y);
-
-		// smith action
 		EMovableType movableType = movable.getMovableType();
-		if (movableType == EMovableType.SMITH && movable.getAction() == EMovableAction.ACTION3) {
-			// draw smoke
-			ShortPoint2D smokePosition = movable.getDirection().getNextHexPoint(movable.getPosition(), 2);
-			int smokeX = smokePosition.x;
-			int smokeY = smokePosition.y;
-			if (movable.getDirection() == EDirection.NORTH_WEST) {
-				smokeY--;
-			}
-			viewX = context.getConverter().getViewX(smokeX, smokeY, height);
-			viewY = context.getConverter().getViewY(smokeX, smokeY, height);
-			ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, 13, 43, (int) (moveProgress * 40));
-			image = imageProvider.getImage(link);
-			image.drawAt(context.getGl(), viewX, viewY, getZ(0, smokeY), color, shade);
-		}
 
 		// melter action
 		if (movableType == EMovableType.MELTER && movable.getAction() == EMovableAction.ACTION1) {
 			int number = (int) (moveProgress * 36);
-			// draw molten metal
-			int metalX = x - 2;
-			int metalY = y - 5;
-			viewX = context.getConverter().getViewX(metalX, metalY, height);
-			viewY = context.getConverter().getViewY(metalX, metalY, height);
-			int metal = (((IGraphicsBuildingWorker)movable).getGarrisonedBuildingType() == EBuildingType.IRONMELT) ? 37 : 36;
-			ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, 13, metal, number > 24 ? 24 : number);
-			image = imageProvider.getImage(link);
-			image.drawAt(context.getGl(), viewX, viewY, getZ(0, metalY), color, shade);
-			// draw smoke
-			int smokeX = x - 9;
-			int smokeY = y - 14;
-			viewX = context.getConverter().getViewX(smokeX, smokeY, height);
-			viewY = context.getConverter().getViewY(smokeX, smokeY, height);
-			link = new OriginalImageLink(EImageLinkType.SETTLER, 13, 42, number > 35 ? 35 : number);
-			image = imageProvider.getImage(link);
-			image.drawAt(context.getGl(), viewX, viewY, SMOKE_Z, color, shade);
+
+			IBuilding building = ((IGraphicsBuildingWorker)movable).getGarrisonedBuilding();
+
+			if(building != null) {
+				ShortPoint2D position = building.getBuildingVariant().getMoltenMetalPosition().calculatePoint(building.getPosition());
+				int metalHeight = context.getHeight(position.x, position.y);
+
+				viewX = context.getConverter().getViewX(position.x, position.y, metalHeight);
+				viewY = context.getConverter().getViewY(position.x, position.y, metalHeight);
+
+				int metal = building.getBuildingVariant().isVariantOf(EBuildingType.IRONMELT) ? 37 : 36;
+
+				ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, movable.getPlayer().getCivilisation().getFileIndex()*10 + 3, metal, number > 24 ? 24 : number);
+				image = imageProvider.getImage(link);
+				image.drawAt(context.getGl(), viewX, viewY, getZ(molten_metal_offset, position.y), color, shade);
+			}
 		}
 
 		if (movable.getAction() == EMovableAction.WALKING) {
@@ -1023,6 +1037,7 @@ public class MapObjectDrawer {
 		}
 	}
 
+	//Corn
 	private void drawGrowingCorn(int x, int y, IMapObject object, float color) {
 		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, CORN);
 		int step = (int) (object.getStateProgress() * CORN_GROW_STEPS);
@@ -1039,6 +1054,7 @@ public class MapObjectDrawer {
 		draw(seq.getImageSafe(CORN_DEAD_STEP, () -> "dead-corn"), x, y, 0, color);
 	}
 
+	//Wine
 	private void drawGrowingWine(int x, int y, IMapObject object, float color) {
 		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, WINE);
 		int step = (int) (object.getStateProgress() * WINE_GROW_STEPS);
@@ -1055,12 +1071,53 @@ public class MapObjectDrawer {
 		draw(seq.getImageSafe(WINE_DEAD_STEP, () -> "dead-wine"), x, y, 0, color);
 	}
 
-	private void drawWineBowl(int x, int y, IMapObject object, float color) {
-		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(BUILDINGS_FILE, WINE_BOWL_SEQUENCE);
+	//Rice
+	private void drawGrowingRice(int x, int y, IMapObject object, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, RICE);
+		int step = (int) (object.getStateProgress() * RICE_GROW_STEPS);
+		draw(seq.getImageSafe(step, () -> "growing-rice"), x, y, 0, color);
+	}
+
+	private void drawHarvestableRice(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, RICE);
+		draw(seq.getImageSafe(RICE_GROW_STEPS, () -> "grown-rice"), x, y, 0, color);
+	}
+
+	private void drawDeadRice(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, RICE);
+		draw(seq.getImageSafe(RICE_DEAD_STEP, () -> "dead-rice"), x, y, 0, color);
+	}
+
+	private void drawMannaBowl(int x, int y, IMannaBowlObject object, float color) {
+
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(
+				imageProvider.getGFXBuildingFileIndex(object.getCivilisation()),
+				imageProvider.getMannaBowlSequence(object.getCivilisation())
+		);
+
 		int step = (int) (object.getStateProgress() * (WINE_BOWL_IMAGES - 1));
 		draw(seq.getImageSafe(step, () -> "wine-bowl"), x, y, 0, color);
 	}
 
+	//Hive
+	private void drawEmptyHive(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(ANIMALS_FILE, HIVE_EMPTY);
+		draw(seq.getImageSafe(0, () -> "empty-hive"), x, y, 0, color);
+	}
+
+	private void drawGrowingHive(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(ANIMALS_FILE, HIVE_GROW[0]);
+		int step = getAnimationStep(x, y) % seq.length();
+		draw(seq.getImageSafe(step, () -> "growing-hive"), x, y, 0, color);
+	}
+
+	private void drawHarvestableHive(int x, int y, float color) {
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(ANIMALS_FILE, HIVE_LAST);
+		int step = getAnimationStep(x, y) % seq.length();
+		draw(seq.getImageSafe(step, () -> "grown-hive"), x, y, 0, color);
+	}
+
+	//Tree
 	private void drawGrowingTree(int x, int y, float progress, float color) {
 		Image image;
 		if (progress < 0.33) {
@@ -1240,7 +1297,7 @@ public class MapObjectDrawer {
 			}
 
 			if (variant.isVariantOf(EBuildingType.MILL) && building instanceof IBuilding.IMill && ((IBuilding.IMill) building).isRotating()) {
-				Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(MILL_FILE, MILL_SEQ);
+				Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(this.imageProvider.getGFXBuildingFileIndex(variant.getCivilisation()), this.imageProvider.getMillRotationIndex(variant.getCivilisation()));
 
 				if (seq.length() > 0) {
 					int i = getAnimationStep(x, y);
@@ -1422,10 +1479,18 @@ public class MapObjectDrawer {
 
 	private static final int SMOKE_FILE = 13;
 	private static final int SMOKE_INDEX = 42;
+	private static final int SMOKE_WITH_FIRE_INDEX = 43;
 
-	private void drawByProgressWithHeight(int x, int y, int height, float progress, float color) {
-		Sequence<? extends Image> sequence = this.imageProvider.getSettlerSequence(SMOKE_FILE, SMOKE_INDEX);
-		int index = Math.min((int) (progress * sequence.length()), sequence.length() - 1);
+	private void drawByProgressWithHeight(int x, int y, int height, IMapObject object, float color) {
+		int sequenceIndex;
+		if(object.getObjectType() == EMapObjectType.SMOKE_WITH_FIRE) {
+			sequenceIndex = SMOKE_WITH_FIRE_INDEX;
+		} else {
+			sequenceIndex = SMOKE_INDEX;
+		}
+
+		Sequence<? extends Image> sequence = this.imageProvider.getSettlerSequence(SMOKE_FILE, sequenceIndex);
+		int index = Math.min((int) (object.getStateProgress() * sequence.length()), sequence.length() - 1);
 		drawWithHeight(sequence.getImageSafe(index, null), x, y, height, color);
 	}
 

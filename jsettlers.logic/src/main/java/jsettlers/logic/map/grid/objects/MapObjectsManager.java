@@ -25,6 +25,7 @@ import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IAttackableTowerMapObject;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
@@ -34,17 +35,19 @@ import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.interfaces.IInformable;
 import jsettlers.logic.objects.BurningTree;
 import jsettlers.logic.objects.DonkeyMapObject;
+import jsettlers.logic.objects.HiveObject;
 import jsettlers.logic.objects.PigObject;
 import jsettlers.logic.objects.RessourceSignMapObject;
 import jsettlers.logic.objects.SelfDeletingMapObject;
 import jsettlers.logic.objects.SoundableSelfDeletingObject;
 import jsettlers.logic.objects.StandardMapObject;
-import jsettlers.logic.objects.WineBowlMapObject;
+import jsettlers.logic.objects.MannaBowlMapObject;
 import jsettlers.logic.objects.arrow.ArrowObject;
 import jsettlers.logic.objects.building.BuildingWorkAreaMarkObject;
 import jsettlers.logic.objects.building.ConstructionMarkObject;
 import jsettlers.logic.objects.building.InformableMapObject;
 import jsettlers.logic.objects.growing.Corn;
+import jsettlers.logic.objects.growing.Rice;
 import jsettlers.logic.objects.growing.Wine;
 import jsettlers.logic.objects.growing.tree.AdultTree;
 import jsettlers.logic.objects.growing.tree.Tree;
@@ -130,6 +133,16 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 			return plantWine(pos, timeMod);
 		case HARVESTABLE_WINE:
 			return harvestWine(pos);
+
+		case PLANTABLE_RICE:
+			return plantRice(pos, timeMod);
+		case HARVESTABLE_RICE:
+			return harvestRice(pos);
+
+		case PLANTABLE_HIVE:
+			return plantHive(pos, timeMod);
+		case HARVESTABLE_HIVE:
+			return harvestHive(pos);
 
 		case RESOURCE_SIGNABLE:
 			return addRessourceSign(pos);
@@ -252,6 +265,50 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		return false;
 	}
 
+	private boolean plantRice(ShortPoint2D pos, float mod) {
+		Rice rice = new Rice(pos);
+		addMapObject(pos, rice);
+		schedule(rice, Rice.GROWTH_DURATION * mod, false);
+		schedule(rice, Rice.GROWTH_DURATION * mod + Rice.DECOMPOSE_DURATION, false);
+		schedule(rice, Rice.GROWTH_DURATION * mod + Rice.DECOMPOSE_DURATION + Rice.REMOVE_DURATION, true);
+		return true;
+	}
+
+	private boolean harvestRice(ShortPoint2D pos) {
+		short x = pos.x;
+		short y = pos.y;
+		if (grid.isInBounds(x, y)) {
+			AbstractObjectsManagerObject rice = (AbstractObjectsManagerObject) grid.getMapObject(x, y, EMapObjectType.RICE_HARVESTABLE);
+			if (rice != null && rice.cutOff()) {
+				schedule(rice, Rice.REMOVE_DURATION, true);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean plantHive(ShortPoint2D pos, float mod) {
+		HiveObject hive = new HiveObject(pos);
+		addMapObject(pos, hive);
+		schedule(hive, hive.getEmptyDuration() * mod, false);
+		schedule(hive, hive.getEmptyDuration() * mod + hive.getGrowingDuration(), false);
+		return true;
+	}
+
+	private boolean harvestHive(ShortPoint2D pos) {
+		short x = pos.x;
+		short y = pos.y;
+		if (grid.isInBounds(x, y)) {
+			HiveObject hive = (HiveObject) grid.getMapObject(x, y, EMapObjectType.HIVE_HARVESTABLE);
+			if (hive != null && hive.cutOff()) {
+				schedule(hive, hive.getEmptyDuration(), false);
+				schedule(hive, hive.getEmptyDuration() + hive.getGrowingDuration(), false);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public boolean addMapObject(ShortPoint2D pos, AbstractHexMapObject mapObject) {
 		return addMapObject(pos.x, pos.y, mapObject);
 	}
@@ -321,8 +378,8 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		addMapObject(x, y, new BuildingWorkAreaMarkObject(radius));
 	}
 
-	public void addWineBowl(ShortPoint2D pos, IStackSizeSupplier wineStack) {
-		addMapObject(pos, new WineBowlMapObject(wineStack));
+	public void addMannaBowl(ShortPoint2D pos, IStackSizeSupplier wineStack, ECivilisation civilisation) {
+		addMapObject(pos, new MannaBowlMapObject(wineStack, civilisation));
 	}
 
 	public void addSelfDeletingMapObject(ShortPoint2D pos, EMapObjectType mapObjectType, float duration, IPlayer player) {

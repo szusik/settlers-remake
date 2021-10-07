@@ -26,51 +26,55 @@ public abstract class CivilianMovable extends Movable implements ICivilianMovabl
 	private ShortPoint2D lastCheckedPosition = null;
 	private byte pathStepCheckedCounter;
 
-	protected CivilianMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace, Root<? extends CivilianMovable> behaviour) {
-		super(grid, movableType, position, player, replace, behaviour);
+	protected CivilianMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable replace) {
+		super(grid, movableType, position, player, replace);
 	}
 
 	protected static <T extends CivilianMovable> Guard<T> fleeIfNecessary() {
 		return guard(CivilianMovable::checkPlayerOfPosition,
-				sequence(
-					action(CivilianMovable::abortJob),
-					repeat(mov -> ((CivilianMovable)mov).searchesCounter <= 120,
-						sequence(
-							action(mov -> {((CivilianMovable)mov).searchesCounter++;}),
-							ignoreFailure(
-								selector(
-									// move to nearest own ground
-									sequence(
-										condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, Constants.MOVABLE_FLEEING_DIJKSTRA_RADIUS, ESearchType.VALID_FREE_POSITION)
-												|| mov.preSearchPath(false, mov.position.x, mov.position.y, Constants.MOVABLE_FLEEING_MAX_RADIUS, ESearchType.VALID_FREE_POSITION)),
+				resetAfter(mov -> {
+					((CivilianMovable)mov).searchesCounter = 0;
+				},
+					sequence(
+						action(CivilianMovable::abortJob),
+						repeat(mov -> ((CivilianMovable)mov).searchesCounter <= 120,
+							sequence(
+								action(mov -> {((CivilianMovable)mov).searchesCounter++;}),
+								ignoreFailure(
+									selector(
+										// move to nearest own ground
+										sequence(
+											condition(mov -> mov.preSearchPath(true, mov.position.x, mov.position.y, Constants.MOVABLE_FLEEING_DIJKSTRA_RADIUS, ESearchType.VALID_FREE_POSITION)
+													|| mov.preSearchPath(false, mov.position.x, mov.position.y, Constants.MOVABLE_FLEEING_MAX_RADIUS, ESearchType.VALID_FREE_POSITION)),
 
-										action(mov -> {((CivilianMovable)mov).lastCheckedPosition = null;}),
-										followPresearchedPath(CivilianMovable::checkEvacuationPath)
-									),
-									// or move in random directions
-									sequence(
-										action(mov -> {
-											EDirection currentDirection = mov.getDirection();
-											if (mov.turnNextTime || MatchConstants.random().nextFloat() < 0.10) {
-												mov.turnNextTime = false;
-												mov.lookInDirection(currentDirection.getNeighbor(MatchConstants.random().nextInt(-1, 1)));
-											}
-										}),
-										selector(
-											sequence(
-												goInDirectionIfFree(Movable::getDirection),
-												action(mov -> {
-													mov.turnNextTime = MatchConstants.random().nextInt(7) == 0;
-												})
-											),
-											action(mov -> {mov.turnNextTime = true;})
+											action(mov -> {((CivilianMovable)mov).lastCheckedPosition = null;}),
+											followPresearchedPath(CivilianMovable::checkEvacuationPath)
+										),
+										// or move in random directions
+										sequence(
+											action(mov -> {
+												EDirection currentDirection = mov.getDirection();
+												if (mov.turnNextTime || MatchConstants.random().nextFloat() < 0.10) {
+													mov.turnNextTime = false;
+													mov.lookInDirection(currentDirection.getNeighbor(MatchConstants.random().nextInt(-1, 1)));
+												}
+											}),
+											selector(
+												sequence(
+													goInDirectionIfFree(Movable::getDirection),
+													action(mov -> {
+														mov.turnNextTime = MatchConstants.random().nextInt(7) == 0;
+													})
+												),
+												action(mov -> {mov.turnNextTime = true;})
+											)
 										)
 									)
 								)
 							)
-						)
-					),
-					action(Movable::kill)
+						),
+						action(Movable::kill)
+					)
 				)
 		);
 	}

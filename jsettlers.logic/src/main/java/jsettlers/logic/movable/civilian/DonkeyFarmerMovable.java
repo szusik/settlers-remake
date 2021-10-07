@@ -10,6 +10,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
+import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
@@ -20,10 +21,12 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 	private int feedIndex;
 
 	public DonkeyFarmerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
-		super(grid, EMovableType.DONKEY_FARMER, position, player, replace, tree);
+		super(grid, EMovableType.DONKEY_FARMER, position, player, replace);
 	}
 
-	private static final Root<DonkeyFarmerMovable> tree = new Root<>(createDonkeyBehaviour());
+	static {
+		MovableManager.registerBehaviour(EMovableType.DONKEY_FARMER, new Root<>(createDonkeyBehaviour()));
+	}
 
 	private static Node<DonkeyFarmerMovable> createDonkeyBehaviour() {
 		return defaultWorkCycle(
@@ -41,9 +44,9 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 					sequence(
 						// take crops
 						setMaterialNode(EMaterialType.NO_MATERIAL),
-						goToInputStack(EMaterialType.CROP, BuildingWorkerMovable::tmpPathStep),
+						goToInputStack(EMaterialType.CROP),
 						setDirectionNode(EDirection.NORTH_WEST),
-						take(mov -> EMaterialType.CROP, mov -> true, mov -> {}),
+						take(mov -> EMaterialType.CROP, true),
 						// and go home
 						enterHome(),
 						setMaterialNode(EMaterialType.NO_MATERIAL),
@@ -51,9 +54,9 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 
 						// take water
 						show(),
-						goToInputStack(EMaterialType.WATER, BuildingWorkerMovable::tmpPathStep),
+						goToInputStack(EMaterialType.WATER),
 						setDirectionNode(EDirection.NORTH_WEST),
-						take(mov -> EMaterialType.WATER, mov -> true, mov -> {}),
+						take(mov -> EMaterialType.WATER, true),
 						// and go home
 						enterHome(),
 						setMaterialNode(EMaterialType.BASKET),
@@ -69,7 +72,7 @@ public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 						show(),
 						repeatLoop(DonkeyFarmerMovable::getFeedPositionCount,
 							sequence(
-								goToPos(DonkeyFarmerMovable::getFeedPosition, BuildingWorkerMovable::tmpPathStep),
+								goToPos(DonkeyFarmerMovable::getFeedPosition),
 								setDirectionNode(DonkeyFarmerMovable::getFeedDirection),
 								playAction(EMovableAction.ACTION1, mov -> (short)900),
 								action(mov -> mov.feedIndex++)

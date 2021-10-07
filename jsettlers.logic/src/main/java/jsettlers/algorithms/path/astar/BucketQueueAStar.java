@@ -68,6 +68,11 @@ public final class BucketQueueAStar extends AbstractAStar {
 	}
 
 	@Override
+	public Path findPath(IPathCalculatable requester, ShortPoint2D target, ShortPoint2D start) {
+		return findPath(requester, start.x, start.y, target.x, target.y);
+	}
+
+	@Override
 	public final Path findPath(IPathCalculatable requester, final short sx, final short sy, final short tx, final short ty) {
 		final short blockedAtStartPartition;
 		if (!isInBounds(sx, sy)) {
@@ -114,7 +119,7 @@ public final class BucketQueueAStar extends AbstractAStar {
 					final int flatNeighborIdx = getFlatIdx(neighborX, neighborY);
 
 					if (!closedBitSet.get(flatNeighborIdx)) {
-						final float newCosts = currPositionCosts + map.getCost(x, y, neighborX, neighborY);
+						final float newCosts = currPositionCosts + map.getCost(requester, x, y, neighborX, neighborY);
 
 						if (openBitSet.get(flatNeighborIdx)) {
 							final float oldCosts = costs[flatNeighborIdx];
