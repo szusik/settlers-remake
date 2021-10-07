@@ -19,9 +19,9 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.BitSet;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Set;
 
-import java8.util.Objects;
 import java8.util.Optional;
 import jsettlers.algorithms.borders.BordersThread;
 import jsettlers.algorithms.borders.IBordersThreadGrid;
@@ -74,8 +74,6 @@ import jsettlers.common.position.RelativePoint;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.collections.IPredicate;
 import jsettlers.common.utils.coordinates.CoordinateStream;
-import jsettlers.common.utils.mutables.Mutable;
-import jsettlers.common.utils.mutables.MutableInt;
 import jsettlers.input.IGuiInputGrid;
 import jsettlers.input.PlayerState;
 import jsettlers.logic.DockPosition;
@@ -2220,20 +2218,21 @@ public final class MainGrid implements Serializable {
 		}
 		
 		@Override
-		public void changeMovableRatio(ShortPoint2D position, EMovableType moveableType, boolean add) {
-			System.out.println(String.format("%s ratio at %s for '%s'", add?"Increase":"Decrease", position, moveableType));
+		public void changeMovableSettings(ShortPoint2D position, EMovableType movableType, boolean relative,
+										  int amount) {
+			float delta = amount/100f;
+			System.out.printf(Locale.ENGLISH, "Change ratio at %s for '%s' by %f%n", position, movableType, delta);
 
-			float delta = add? 0.05f : -0.05f;
 
 			ProfessionSettings professionSettings = partitionsGrid.getPartitionSettings(position).getProfessionSettings();
-			if (moveableType == EMovableType.BEARER) {
+			if (movableType == EMovableType.BEARER) {
 				professionSettings.changeMinBearerRatio(delta);
-			} else if (moveableType == EMovableType.DIGGER) {
+			} else if (movableType == EMovableType.DIGGER) {
 				professionSettings.changeMaxDiggerRatio(delta);
-			} else if (moveableType == EMovableType.BRICKLAYER) {
+			} else if (movableType == EMovableType.BRICKLAYER) {
 				professionSettings.changeMaxBricklayerRatio(delta);
 			} else {
-				throw new IllegalArgumentException(String.format("The moveable type '%s' does not support to set the ratio.", moveableType));
+				throw new IllegalArgumentException(String.format("The moveable type '%s' does not support to set the ratio.", movableType));
 			}
 		}		
 	}

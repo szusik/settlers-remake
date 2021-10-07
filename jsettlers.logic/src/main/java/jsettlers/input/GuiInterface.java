@@ -43,7 +43,7 @@ import jsettlers.common.action.SetDockAction;
 import jsettlers.common.action.SetMaterialDistributionSettingsAction;
 import jsettlers.common.action.SetMaterialPrioritiesAction;
 import jsettlers.common.action.SetMaterialProductionAction;
-import jsettlers.common.action.ChangeMovableRatioAction;
+import jsettlers.common.action.ChangeMovableSettingsAction;
 import jsettlers.common.action.SetSpeedAction;
 import jsettlers.common.action.SetTradingWaypointAction;
 import jsettlers.common.action.ShowConstructionMarksAction;
@@ -84,7 +84,7 @@ import jsettlers.input.tasks.SetDockGuiTask;
 import jsettlers.input.tasks.SetMaterialDistributionSettingsGuiTask;
 import jsettlers.input.tasks.SetMaterialPrioritiesGuiTask;
 import jsettlers.input.tasks.SetMaterialProductionGuiTask;
-import jsettlers.input.tasks.ChangeMovableRatioTask;
+import jsettlers.input.tasks.ChangeMovableSettingsTask;
 import jsettlers.input.tasks.SetTradingWaypointGuiTask;
 import jsettlers.input.tasks.SimpleBuildingGuiTask;
 import jsettlers.input.tasks.SimpleGuiTask;
@@ -401,13 +401,10 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 				unloadFerries();
 				break;
 				
-			case INCREASE_MOVABLE_RATIO:
-			case DECREASE_MOVABLE_RATIO:
-				ChangeMovableRatioAction ratioAction = (ChangeMovableRatioAction) action;
+			case CHANGE_MOVABLE_SETTINGS:
+				ChangeMovableSettingsAction ratioAction = (ChangeMovableSettingsAction) action;
 
-				EGuiAction guiAction = (ratioAction.getActionType() == EActionType.INCREASE_MOVABLE_RATIO)? EGuiAction.INCREASE_MOVABLE_RATIO : EGuiAction.DECREASE_MOVABLE_RATIO;
-
-				scheduleTask(new ChangeMovableRatioTask(guiAction, playerId, ratioAction.getPosition(), ratioAction.getMoveableType()));
+				scheduleTask(new ChangeMovableSettingsTask(EGuiAction.CHANGE_MOVABLE_SETTINGS, playerId, ratioAction.getPosition(), ratioAction.isRelative(), ratioAction.getAmount(), ratioAction.getMovableType()));
 				break;
 
 			default:

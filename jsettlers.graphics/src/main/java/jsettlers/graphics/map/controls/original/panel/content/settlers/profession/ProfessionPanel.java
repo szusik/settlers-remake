@@ -4,8 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import go.graphics.text.EFontSize;
-import jsettlers.common.action.ChangeMovableRatioAction;
-import jsettlers.common.action.EActionType;
+import jsettlers.common.action.ChangeMovableSettingsAction;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionSettings;
 import jsettlers.common.map.partition.IProfessionSettings;
@@ -88,12 +87,12 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 
 		public final String label;
 		public final boolean min;
-		public final EMovableType moveableType;
+		public final EMovableType movableType;
 
 		private EProfessionType(String label, boolean min, EMovableType movableType) {
 			this.label = label;
 			this.min = min;
-			this.moveableType = movableType;
+			this.movableType = movableType;
 		}
 	}
 
@@ -151,8 +150,8 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 				this.type = type;
 
 				add(Panel.box(new CountArrows(
-						() -> new ChangeMovableRatioAction(EActionType.INCREASE_MOVABLE_RATIO, type.moveableType, position),
-						() -> new ChangeMovableRatioAction(EActionType.DECREASE_MOVABLE_RATIO, type.moveableType, position)
+						() -> new ChangeMovableSettingsAction(type.movableType, true, 5, position),
+						() -> new ChangeMovableSettingsAction(type.movableType, true, -5, position)
 				), 12f, 18f), 10f, 5f);
 				add(Panel.box(label, width, 20f), 28f, 5f);
 			}
@@ -160,7 +159,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 			@Override
 			public void update() {
 				super.update();
-				this.label.setText(MessageFormat.format("{0} {1} {2} ({3})", (this.type.min ? '>' : '<'), formatPercentage(ratio), Labels.getName(this.type.moveableType), formatPercentage(currentRatio)));
+				this.label.setText(MessageFormat.format("{0} {1} {2} ({3})", (this.type.min ? '>' : '<'), formatPercentage(ratio), Labels.getName(this.type.movableType), formatPercentage(currentRatio)));
 			}
 
 			private String formatPercentage(float value) {

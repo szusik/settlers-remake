@@ -141,5 +141,5 @@ public interface IGuiInputGrid {
 
 	boolean hasLost(byte playerId);
 	
-	void changeMovableRatio(ShortPoint2D position, EMovableType moveableType, boolean add);
+	void changeMovableSettings(ShortPoint2D position, EMovableType movableType, boolean relative, int amount);
 }
