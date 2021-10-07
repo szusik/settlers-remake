@@ -18,7 +18,7 @@ jobs:
     - uses: jonasb/android-problem-matchers-action@v1
     - uses: gradle/gradle-build-action@v2
       with:
-        arguments: release test
+        arguments: release test --info
     - uses: actions/upload-artifact@v2
       with:
         name: Release
