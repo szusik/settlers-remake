@@ -116,14 +116,14 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 		}
 
 		public void setup(IProfessionSettings settings) {
-			this.carrierPanel.setRatio(settings.getMinBearerRatio());
-			this.carrierPanel.setCurrentRatio(settings.getCurrentBearerRatio());
+			this.carrierPanel.setRatio(settings.getTargetMovableRatio(EMovableType.BEARER));
+			this.carrierPanel.setCurrentRatio(settings.getCurrentMovableRatio(EMovableType.BEARER));
 
-			this.diggerPanel.setRatio(settings.getMaxDiggerRatio());
-			this.diggerPanel.setCurrentRatio(settings.getCurrentDiggerRatio());
+			this.diggerPanel.setRatio(settings.getTargetMovableRatio(EMovableType.DIGGER));
+			this.diggerPanel.setCurrentRatio(settings.getCurrentMovableRatio(EMovableType.DIGGER));
 
-			this.builderPanel.setRatio(settings.getMaxBricklayerRatio());
-			this.builderPanel.setCurrentRatio(settings.getCurrentBricklayerRatio());
+			this.builderPanel.setRatio(settings.getTargetMovableRatio(EMovableType.BRICKLAYER));
+			this.builderPanel.setCurrentRatio(settings.getCurrentMovableCount(EMovableType.BRICKLAYER));
 
 			update();
 		}

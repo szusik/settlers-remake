@@ -26,7 +26,6 @@ import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.Building;
 import jsettlers.logic.buildings.workers.WorkerBuilding;
-import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.partition.data.MaterialCounts;
 import jsettlers.logic.map.grid.partition.manager.datastructures.PositionableList;
 import jsettlers.logic.map.grid.partition.manager.datastructures.PredicatedPositionableList;
@@ -326,9 +325,9 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 		EMovableType movableType = workerCreationRequest.requestedMovableType();
 		ProfessionSettings professionSettings = settings.getProfessionSettings();
 
-		if(!professionSettings.isBaererRatioFulfilled()) return false;
-		if(movableType == EMovableType.DIGGER && !professionSettings.isDiggerRatioFulfilled()) return false;
-		if(movableType == EMovableType.BRICKLAYER && !professionSettings.isBricklayerRatioFulfilled()) return false;
+		if(!professionSettings.isBearerConversionAllowed(movableType)) {
+			return false;
+		}
 		
 		EMaterialType tool = movableType.getTool();
 		MaterialOffer offer = null;

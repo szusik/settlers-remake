@@ -2225,15 +2225,7 @@ public final class MainGrid implements Serializable {
 
 
 			ProfessionSettings professionSettings = partitionsGrid.getPartitionSettings(position).getProfessionSettings();
-			if (movableType == EMovableType.BEARER) {
-				professionSettings.changeMinBearerRatio(delta);
-			} else if (movableType == EMovableType.DIGGER) {
-				professionSettings.changeMaxDiggerRatio(delta);
-			} else if (movableType == EMovableType.BRICKLAYER) {
-				professionSettings.changeMaxBricklayerRatio(delta);
-			} else {
-				throw new IllegalArgumentException(String.format("The moveable type '%s' does not support to set the ratio.", movableType));
-			}
+			professionSettings.changeRatio(movableType, delta);
 		}		
 	}
 

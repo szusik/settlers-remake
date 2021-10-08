@@ -1,30 +1,16 @@
 package jsettlers.common.map.partition;
 
+import jsettlers.common.movable.EMovableType;
+
 public interface IProfessionSettings {
 
-	boolean isBaererRatioFulfilled();
+	boolean isBearerConversionAllowed(EMovableType newType);
 
-	boolean isDiggerRatioFulfilled();
+	float getTargetMovableRatio(EMovableType movableType);
 
-	boolean isBricklayerRatioFulfilled();
+	int getTargetMovableCount(EMovableType movableType);
 
-	float getMinBearerRatio();
+	float getCurrentMovableRatio(EMovableType movableType);
 
-	float getCurrentBearerRatio();
-
-	float getMaxDiggerRatio();
-
-	float getCurrentDiggerRatio();
-
-	float getMaxBricklayerRatio();
-
-	float getCurrentBricklayerRatio();
-
-	int getWorkerCount();
-	
-	int getBearerCount();
-
-	int getDiggerCount();
-
-	int getBricklayerCount();
+	int getCurrentMovableCount(EMovableType movableType);
 }
