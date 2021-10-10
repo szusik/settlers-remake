@@ -31,7 +31,7 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 
 	@Override
 	public boolean isBearerConversionAllowed(EMovableType newType) {
-		if(getCurrentMovableCount(newType) > getTargetMovableCount(EMovableType.BEARER)) {
+		if(getCurrentMovableCount(EMovableType.BEARER) <= getTargetMovableCount(EMovableType.BEARER)) {
 			return false;
 		}
 
@@ -130,7 +130,7 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 
 	@Override
 	public int getTargetMovableCount(EMovableType movableType) {
-		return (int) getTargetMovableRatio(movableType) * workerCount;
+		return (int) (getTargetMovableRatio(movableType) * workerCount);
 	}
 
 	@Override
