@@ -52,12 +52,10 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 							Path dijkstraPath = mov.grid.searchDijkstra(mov, mov.nextTarget.x, mov.nextTarget.y, (short) 30, ESearchType.FOREIGN_MATERIAL);
 							if (dijkstraPath != null) {
 								mov.currentTarget = dijkstraPath.getTargetPosition();
-							} else {
-								mov.currentTarget = null;
+								mov.returnPos = mov.position;
 							}
-
-							mov.returnPos = mov.position;
-						} else {
+						}
+						if(mov.currentTarget == null) {
 							// or just go there
 							mov.goToTarget = mov.nextTarget;
 						}
