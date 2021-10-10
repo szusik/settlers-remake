@@ -68,7 +68,7 @@ All the options above can also be specified as command line options. For this, y
 4. Install JSettlers by running the downloaded file.
 
 ## Build instructions and developer's guide
-The [build instructions](https://github.com/jsettlers/settlers-remake/wiki/Compiling-using-gradle) and the [developer's guide](https://github.com/jsettlers/settlers-remake/wiki/Developer's%20Guide) can be found in our wiki.
+The [build instructions](https://github.com/paulwedeck/settlers-remake/wiki/Compiling-using-gradle) and the [developer's guide](https://github.com/paulwedeck/settlers-remake/wiki/Developer's%20Guide) can be found in our wiki.
 
 ## Getting in Touch
 Besides the possibility to report bugs on Github you can also join our [JSettlers Discord](https://discord.gg/2hVV4u6). Here you can discuss on development questions and find other players to meet with. 
