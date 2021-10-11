@@ -47,7 +47,7 @@ public class MultiPlayerViewHolder extends RecyclerView.ViewHolder {
 				String ip = null;
 				try {
 					Enumeration<NetworkInterface> netIter = NetworkInterface.getNetworkInterfaces();
-					while(netIter.hasMoreElements() || ip != null) {
+					while(netIter.hasMoreElements()) {
 						NetworkInterface net = netIter.nextElement();
 						if(net.isLoopback()) continue;
 						if(!net.isUp()) continue;
