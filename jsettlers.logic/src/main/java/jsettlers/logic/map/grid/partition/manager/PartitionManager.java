@@ -344,7 +344,9 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 		if(manageableBearer != null) {
 			if(manageableBearer.becomeWorker(this, workerCreationRequest, offer)) {
 				professionSettings.getSettings(EMovableType.BEARER).decrementCount();
-				if(movableType == EMovableType.DIGGER || movableType == EMovableType.BRICKLAYER) professionSettings.increment(movableType);
+				if(movableType == EMovableType.DIGGER || movableType == EMovableType.BRICKLAYER) {
+					professionSettings.getSettings(movableType).incrementAmount();
+				}
 				return true;
 			}
 		} 
