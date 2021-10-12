@@ -10,10 +10,15 @@ public abstract class SingleProfessionLimit implements ISingleProfessionLimit, S
 
 	protected int currentAmount;
 
-	protected SingleProfessionLimit(ProfessionSettings parent) {
+
+	protected SingleProfessionLimit(ProfessionSettings parent, int currentAmount) {
 		this.parent = parent;
 
-		this.currentAmount = 0;
+		this.currentAmount = currentAmount;
+	}
+
+	protected SingleProfessionLimit(ProfessionSettings parent) {
+		this(parent, 0);
 	}
 
 	public abstract void setLimit(int value, boolean relative);

@@ -13,7 +13,7 @@ public class RelativeProfessionLimit extends SingleProfessionLimit {
 	}
 
 	protected RelativeProfessionLimit(ProfessionSettings parent, ISingleProfessionLimit predecessor) {
-		super(parent);
+		super(parent, predecessor.getCurrentCount());
 
 		targetRatio = predecessor.getTargetRatio();
 	}
