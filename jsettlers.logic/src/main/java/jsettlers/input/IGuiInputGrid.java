@@ -142,4 +142,6 @@ public interface IGuiInputGrid {
 	boolean hasLost(byte playerId);
 	
 	void changeMovableSettings(ShortPoint2D position, EMovableType movableType, boolean relative, int amount);
+
+	void setMovableLimitType(ShortPoint2D position, EMovableType movableType, boolean relative);
 }

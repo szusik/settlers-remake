@@ -376,6 +376,7 @@ public enum EActionType {
 	 * Increase or decrease the amount of {@link EMovableType}s should be recruited if possible.
 	 */
 	CHANGE_MOVABLE_SETTINGS,
+	SET_MOVABLE_LIMIT_TYPE,
 
 	TOGGLE_MUSIC,
 	MUSIC_VOLUME_UP,

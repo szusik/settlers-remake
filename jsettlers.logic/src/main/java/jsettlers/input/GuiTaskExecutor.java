@@ -45,6 +45,7 @@ import jsettlers.input.tasks.SetMaterialDistributionSettingsGuiTask;
 import jsettlers.input.tasks.SetMaterialPrioritiesGuiTask;
 import jsettlers.input.tasks.SetMaterialProductionGuiTask;
 import jsettlers.input.tasks.ChangeMovableSettingsTask;
+import jsettlers.input.tasks.SetMovableLimitTypeTask;
 import jsettlers.input.tasks.SetTradingWaypointGuiTask;
 import jsettlers.input.tasks.SimpleBuildingGuiTask;
 import jsettlers.input.tasks.SimpleGuiTask;
@@ -229,9 +230,19 @@ class GuiTaskExecutor implements ITaskExecutor {
 				unloadFerry((MovableGuiTask) guiTask);
 				break;
 
-			case CHANGE_MOVABLE_SETTINGS:
+			case CHANGE_MOVABLE_SETTINGS: {
 				ChangeMovableSettingsTask task = (ChangeMovableSettingsTask) guiTask;
-				grid.changeMovableSettings(task.getPosition(), task.getMovableType(), task.isRelative(), task.getAmount());
+				grid.changeMovableSettings(task.getPosition(), task.getMovableType(), task.isRelative(),
+						task.getAmount());
+				break;
+			}
+
+			case SET_MOVABLE_LIMIT_TYPE: {
+				SetMovableLimitTypeTask task = (SetMovableLimitTypeTask) guiTask;
+
+				grid.setMovableLimitType(task.getPosition(), task.getMovableType(), task.isRelative());
+				break;
+			}
 
 			default:
 				break;

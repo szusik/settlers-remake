@@ -56,6 +56,7 @@ public enum EGuiAction {
 	SET_ACCEPTED_STOCK_MATERIAL,
 	CAST_SPELL,
 	CHANGE_MOVABLE_SETTINGS,
+	SET_MOVABLE_LIMIT_TYPE,
 	;
 
 	public static final EGuiAction[] VALUES = values();

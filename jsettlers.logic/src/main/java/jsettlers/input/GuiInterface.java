@@ -44,6 +44,7 @@ import jsettlers.common.action.SetMaterialDistributionSettingsAction;
 import jsettlers.common.action.SetMaterialPrioritiesAction;
 import jsettlers.common.action.SetMaterialProductionAction;
 import jsettlers.common.action.ChangeMovableSettingsAction;
+import jsettlers.common.action.SetMovableLimitTypeAction;
 import jsettlers.common.action.SetSpeedAction;
 import jsettlers.common.action.SetTradingWaypointAction;
 import jsettlers.common.action.ShowConstructionMarksAction;
@@ -85,6 +86,7 @@ import jsettlers.input.tasks.SetMaterialDistributionSettingsGuiTask;
 import jsettlers.input.tasks.SetMaterialPrioritiesGuiTask;
 import jsettlers.input.tasks.SetMaterialProductionGuiTask;
 import jsettlers.input.tasks.ChangeMovableSettingsTask;
+import jsettlers.input.tasks.SetMovableLimitTypeTask;
 import jsettlers.input.tasks.SetTradingWaypointGuiTask;
 import jsettlers.input.tasks.SimpleBuildingGuiTask;
 import jsettlers.input.tasks.SimpleGuiTask;
@@ -404,8 +406,13 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 			case CHANGE_MOVABLE_SETTINGS:
 				ChangeMovableSettingsAction ratioAction = (ChangeMovableSettingsAction) action;
 
-				scheduleTask(new ChangeMovableSettingsTask(EGuiAction.CHANGE_MOVABLE_SETTINGS, playerId, ratioAction.getPosition(), ratioAction.isRelative(), ratioAction.getAmount(), ratioAction.getMovableType()));
+				scheduleTask(new ChangeMovableSettingsTask(playerId, ratioAction.getPosition(), ratioAction.isRelative(), ratioAction.getAmount(), ratioAction.getMovableType()));
 				break;
+
+			case SET_MOVABLE_LIMIT_TYPE:
+				SetMovableLimitTypeAction setTypeAction = (SetMovableLimitTypeAction) action;
+
+				scheduleTask(new SetMovableLimitTypeTask(playerId, setTypeAction.getPosition(), setTypeAction.getMovableType(), setTypeAction.isRelative()));
 
 			default:
 				System.out.println("WARNING: GuiInterface.action() called, but event can't be handled... (" + action.getActionType() + ")");
