@@ -7,25 +7,24 @@ import jsettlers.common.movable.EMovableType;
 
 public class ProfessionSettings implements Serializable, IProfessionSettings {
 
-	private static final long serialVersionUID = -3565901631440791614L;
+	private static final long serialVersionUID = -3565901631440791613L;
 
-	private float minBearerRatio;
-	private float maxDiggerRatio;
-	private float maxBricklayerRatio;
+	private SingleProfessionLimit bearerSettings;
+	private SingleProfessionLimit diggerSettings;
+	private SingleProfessionLimit bricklayerSettings;
 
-	private transient int workerCount;
-	private transient int bearerCount;
-	private transient int diggerCount;
-	private transient int bricklayerCount;
+	private int workerCount;
 
 	public ProfessionSettings() {
 		this(0.10f, 0.25f, 0.25f);
 	}
 
 	public ProfessionSettings(float minBearerRatio, float maxDiggerRatio, float maxBricklayerRatio) {
-		this.minBearerRatio = minBearerRatio;
-		this.maxDiggerRatio = maxDiggerRatio;
-		this.maxBricklayerRatio = maxBricklayerRatio;
+
+		bearerSettings = new RelativeProfessionLimit(this, minBearerRatio);
+		diggerSettings = new RelativeProfessionLimit(this, maxDiggerRatio);
+		bricklayerSettings = new RelativeProfessionLimit(this, maxBricklayerRatio);
+
 		resetCount();
 	}
 
@@ -41,119 +40,61 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 		}
 	}
 
-	public void changeRatio(EMovableType movableType, float delta) {
+	@Override
+	public SingleProfessionLimit getSettings(EMovableType movableType) {
 		switch (movableType) {
 			case BEARER:
-				changeMinBearerRatio(delta);
-				break;
+				return bearerSettings;
 			case DIGGER:
-				changeMaxDiggerRatio(delta);
-				break;
+				return diggerSettings;
 			case BRICKLAYER:
-				changeMaxBricklayerRatio(delta);
-				break;
+				return bricklayerSettings;
 			default:
-				System.err.println("Unknown movable ratio!");
+				return null;
 		}
 	}
 
-	private void changeMinBearerRatio(float delta) {
-		float newMinBearerRatio = minBearerRatio + delta;
-		if(newMinBearerRatio < 0) return;
-
-		if(newMinBearerRatio + maxBricklayerRatio + maxDiggerRatio > 1) return;
-
-		minBearerRatio = newMinBearerRatio;
-	}
-
-	private void changeMaxDiggerRatio(float delta) {
-		float newMaxDiggerRatio = maxDiggerRatio + delta;
-		if(newMaxDiggerRatio < 0) return;
-
-		if(minBearerRatio + maxBricklayerRatio + newMaxDiggerRatio > 1) return;
-
-		maxDiggerRatio = newMaxDiggerRatio;
-	}
-
-	private void changeMaxBricklayerRatio(float delta) {
-		float newMaxBricklayerRatio = maxBricklayerRatio + delta;
-		if(newMaxBricklayerRatio < 0) return;
-
-		if(minBearerRatio + newMaxBricklayerRatio + maxDiggerRatio > 1) return;
-
-		maxBricklayerRatio = newMaxBricklayerRatio;
+	public void changeRatio(EMovableType movableType, int value, boolean relative) {
+		getSettings(movableType).setLimit(value, relative);
 	}
 
 	public void resetCount() {
 		this.workerCount = 0;
-		this.bearerCount = 0;
-		this.diggerCount = 0;
-		this.bricklayerCount = 0;
-	}
-
-	public void decrementBearerCount() {
-		this.bearerCount--;
+		bearerSettings.resetCount();
+		diggerSettings.resetCount();
+		bricklayerSettings.resetCount();
 	}
 	
 	public void increment(EMovableType movableType) {
 		if(!movableType.isPlayerControllable()) workerCount++;
 
-		switch (movableType) {
-			case BEARER:
-				bearerCount++;
-				break;
-			case DIGGER:
-				diggerCount++;
-				break;
-			case BRICKLAYER:
-				bricklayerCount++;
-				break;
-			default:
-				break;
+		SingleProfessionLimit settings = getSettings(movableType);
+		if(settings != null) {
+			settings.incrementAmount();
 		}
 	}
 	
 	@Override
 	public float getTargetMovableRatio(EMovableType movableType) {
-		switch (movableType) {
-			case BEARER:
-				return minBearerRatio;
-			case DIGGER:
-				return maxDiggerRatio;
-			case BRICKLAYER:
-				return maxBricklayerRatio;
-			default:
-				return Float.POSITIVE_INFINITY;
-		}
+		return getSettings(movableType).getTargetRatio();
 	}
 
 	@Override
 	public int getTargetMovableCount(EMovableType movableType) {
-		return (int) (getTargetMovableRatio(movableType) * workerCount);
+		return getSettings(movableType).getTargetCount();
 	}
 
 	@Override
 	public float getCurrentMovableRatio(EMovableType movableType) {
-		return getCurrentMovableCount(movableType) / (float) workerCount;
+		return getSettings(movableType).getCurrentRatio();
 	}
 
 	@Override
 	public int getCurrentMovableCount(EMovableType movableType) {
-		switch (movableType) {
-			case BEARER:
-				return bearerCount;
-			case DIGGER:
-				return diggerCount;
-			case BRICKLAYER:
-				return bricklayerCount;
-			default:
-				return -1;
-		}
+		return getSettings(movableType).getCurrentCount();
 	}
 
-	@Override
-	public String toString() {
-		return String.format("ProfessionSettings [minBearerRatio=%s, maxDiggerRatio=%s, maxBricklayerRatio=%s, workerCount=%s, bearerCount=%s, diggerCount=%s, bricklayerCount=%s]", minBearerRatio,
-				maxDiggerRatio, maxBricklayerRatio, workerCount, bearerCount, diggerCount, bricklayerCount);
+	public int getWorkerCount() {
+		return workerCount;
 	}
 }

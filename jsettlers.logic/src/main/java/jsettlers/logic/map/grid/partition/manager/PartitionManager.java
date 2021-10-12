@@ -343,7 +343,7 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 		IManageableBearer manageableBearer = joblessBearer.removeObjectNextTo(workerCreationRequest.getPosition());
 		if(manageableBearer != null) {
 			if(manageableBearer.becomeWorker(this, workerCreationRequest, offer)) {
-				professionSettings.decrementBearerCount();
+				professionSettings.getSettings(EMovableType.BEARER).decrementCount();
 				if(movableType == EMovableType.DIGGER || movableType == EMovableType.BRICKLAYER) professionSettings.increment(movableType);
 				return true;
 			}

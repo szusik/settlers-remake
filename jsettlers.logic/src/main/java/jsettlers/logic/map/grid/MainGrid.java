@@ -2225,7 +2225,7 @@ public final class MainGrid implements Serializable {
 
 
 			ProfessionSettings professionSettings = partitionsGrid.getPartitionSettings(position).getProfessionSettings();
-			professionSettings.changeRatio(movableType, delta);
+			professionSettings.changeRatio(movableType, amount, relative);
 		}		
 	}
 
