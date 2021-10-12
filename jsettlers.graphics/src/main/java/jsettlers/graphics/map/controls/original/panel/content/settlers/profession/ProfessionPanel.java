@@ -6,6 +6,7 @@ import java.util.List;
 import go.graphics.text.EFontSize;
 import jsettlers.common.action.Action;
 import jsettlers.common.action.ChangeMovableSettingsAction;
+import jsettlers.common.action.SetMovableLimitTypeAction;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionSettings;
 import jsettlers.common.map.partition.IProfessionSettings;
@@ -132,6 +133,11 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 					@Override
 					public boolean isActive() {
 						return data != null && data.isRelative();
+					}
+
+					@Override
+					public Action getAction() {
+						return new SetMovableLimitTypeAction(position, type, !isActive());
 					}
 				};
 				targetLabel = new Label("...", EFontSize.NORMAL, EHorizontalAlignment.RIGHT);

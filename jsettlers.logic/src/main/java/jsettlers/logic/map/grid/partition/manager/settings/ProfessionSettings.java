@@ -77,4 +77,29 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 	public int getWorkerCount() {
 		return workerCount;
 	}
+
+	public void changeLimitType(EMovableType movableType, boolean relative) {
+		SingleProfessionLimit newSettings;
+		SingleProfessionLimit currentSettings = getSettings(movableType);
+
+		if(relative) {
+			newSettings = new RelativeProfessionLimit(this, currentSettings);
+		} else {
+			newSettings = new AbsoluteProfessionLimit(this, currentSettings);
+		}
+
+		switch (movableType) {
+			case BEARER:
+				bearerSettings = newSettings;
+				break;
+			case DIGGER:
+				diggerSettings = newSettings;
+				break;
+			case BRICKLAYER:
+				bricklayerSettings = newSettings;
+				break;
+			default:
+				throw new Error("Unknown movable limit type!");
+		}
+	}
 }

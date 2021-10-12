@@ -2230,6 +2230,9 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public void setMovableLimitType(ShortPoint2D position, EMovableType movableType, boolean relative) {
+			ProfessionSettings professionSettings = partitionsGrid.getPartitionSettings(position).getProfessionSettings();
+
+			professionSettings.changeLimitType(movableType, relative);
 		}
 	}
 
