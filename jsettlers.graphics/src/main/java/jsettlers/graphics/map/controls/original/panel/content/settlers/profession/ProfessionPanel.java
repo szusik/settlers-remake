@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import go.graphics.text.EFontSize;
+import jsettlers.common.action.Action;
 import jsettlers.common.action.ChangeMovableSettingsAction;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionSettings;
@@ -19,9 +20,11 @@ import jsettlers.graphics.map.controls.original.panel.content.AbstractContentPro
 import jsettlers.graphics.map.controls.original.panel.content.ESecondaryTabType;
 import jsettlers.graphics.map.controls.original.panel.content.updaters.UiContentUpdater;
 import jsettlers.graphics.map.controls.original.panel.content.updaters.UiLocationDependingContentUpdater;
+import jsettlers.graphics.ui.Button;
 import jsettlers.graphics.ui.CountArrows;
 import jsettlers.graphics.ui.Label;
 import jsettlers.graphics.ui.Label.EHorizontalAlignment;
+import jsettlers.graphics.ui.LabeledButton;
 import jsettlers.graphics.ui.UIElement;
 import jsettlers.graphics.ui.UIPanel;
 
@@ -115,6 +118,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 		public class SettlerPanel extends Panel {
 			private ISingleProfessionLimit data;
 			private final Label descLabel;
+			private final Button percentButton;
 			private final Label targetLabel;
 			private final Label currentLabel;
 			private final EMovableType type;
@@ -124,18 +128,25 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 				super(width, 30f);
 				data = null;
 				descLabel = new Label(Labels.getName(type), EFontSize.NORMAL, EHorizontalAlignment.LEFT);
-				targetLabel = new Label("...", EFontSize.NORMAL, EHorizontalAlignment.LEFT);
+				percentButton = new LabeledButton("%", null) {
+					@Override
+					public boolean isActive() {
+						return data != null && data.isRelative();
+					}
+				};
+				targetLabel = new Label("...", EFontSize.NORMAL, EHorizontalAlignment.RIGHT);
 				currentLabel = new Label("...", EFontSize.NORMAL, EHorizontalAlignment.LEFT);
 				this.type = type;
 				this.min = min;
 
 
-				add(Panel.box(targetLabel, 30f, 20f), 10f, 5f);
+				add(Panel.box(targetLabel, 20f, 20f), 10f, 5f);
+				add(Panel.box(percentButton, 10, 20), 30, 5);
 				add(Panel.box(new CountArrows(
 						() -> new ChangeMovableSettingsAction(type, true, 5, position),
 						() -> new ChangeMovableSettingsAction(type, true, -5, position)
-				), 12f, 18f), 40f, 5f);
-				add(Panel.box(descLabel, width, 20f), 52f, 5f);
+				), 12f, 18f), 45f, 5f);
+				add(Panel.box(descLabel, width, 20f), 57f, 5f);
 				add(Panel.box(currentLabel, width, 20f), 10f, 25f);
 			}
 
