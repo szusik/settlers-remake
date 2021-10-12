@@ -1,10 +1,10 @@
-<?xml version="1.1" encoding="UTF-8"?><!DOCTYPE building SYSTEM "../building.dtd">
-
+<?xml version="1.1" encoding="UTF-8"?>
+<!DOCTYPE building SYSTEM "../building.dtd">
 <building worker="MILLER">
 	<ground groundtype="GRASS" />
 	<ground groundtype="EARTH" />
 	<ground groundtype="FLATTENED" />
-	
+
 	<blocked dx="1" dy="1" />
 	<blocked dx="1" dy="2" />
 	<blocked dx="0" dy="1" />
@@ -63,7 +63,9 @@
 
 	<constructionStack dx="3" dy="4" material="PLANK" buildrequired="5" />
 	<constructionStack dx="1" dy="4" material="STONE" buildrequired="1" />
+
 	<requestStack dx="3" dy="5" material="CROP" />
+
 	<offerStack dx="-1" dy="2" material="FLOUR" />
 
 	<bricklayer dx="0" dy="3" direction="NORTH_EAST" />
@@ -86,5 +88,4 @@
 	<image file="34" type="GUI" for="GUI" image="0" sequence="18" />
 	<image file="33" type="SETTLER" for="FINAL" image="0" sequence="20"/>
 	<image file="33" type="SETTLER" for="BUILD" image="1" sequence="20"/>
-
 </building>

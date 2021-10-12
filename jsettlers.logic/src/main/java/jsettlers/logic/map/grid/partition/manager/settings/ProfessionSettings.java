@@ -29,7 +29,6 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 		resetCount();
 	}
 
-	@Override
 	public boolean isBearerConversionAllowed(EMovableType newType) {
 		if(getCurrentMovableCount(EMovableType.BEARER) <= getTargetMovableCount(EMovableType.BEARER)) {
 			return false;

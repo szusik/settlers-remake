@@ -85,7 +85,7 @@ public class ChangeMovableSettingsTask extends SimpleGuiTask {
 	public String toString() {
 		return "ChangeMovableSettingsTask{" +
 				"position=" + position +
-				", moveableType=" + movableType +
+				", movableType=" + movableType +
 				", relative=" + relative +
 				", amount=" + amount +
 				'}';

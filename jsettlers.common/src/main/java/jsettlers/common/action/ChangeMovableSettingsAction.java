@@ -39,12 +39,12 @@ public class ChangeMovableSettingsAction extends PointAction {
 			return false;
 		}
 		ChangeMovableSettingsAction that = (ChangeMovableSettingsAction) o;
-		return relative == that.relative && amount == that.amount && movableType == that.movableType;
+		return relative == that.relative && amount == that.amount && movableType == that.movableType && getPosition().equals(that.getPosition());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(movableType, relative, amount);
+		return Objects.hash(movableType, relative, amount, getPosition());
 	}
 
 	@Override
@@ -53,6 +53,7 @@ public class ChangeMovableSettingsAction extends PointAction {
 				"movableType=" + movableType +
 				", relative=" + relative +
 				", amount=" + amount +
+				", position=" + getPosition() +
 				'}';
 	}
 }
