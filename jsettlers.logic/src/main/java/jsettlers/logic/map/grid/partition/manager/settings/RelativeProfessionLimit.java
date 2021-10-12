@@ -51,4 +51,9 @@ public class RelativeProfessionLimit extends SingleProfessionLimit {
 				", currentAmount=" + currentAmount +
 				'}';
 	}
+
+	@Override
+	public boolean isRelative() {
+		return true;
+	}
 }

@@ -81,22 +81,6 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 		return (player != null && player.getPlayerId() >= 0) ? grid.getPartitionData(position.x, position.y).getPartitionSettings() : null;
 	}
 
-	public enum EProfessionType {
-		CARRIER("Carriers", true, EMovableType.BEARER),
-		DIGGER("Diggers", false, EMovableType.DIGGER),
-		BUILDER("Builders", false, EMovableType.BRICKLAYER);
-
-		public final String label;
-		public final boolean min;
-		public final EMovableType movableType;
-
-		private EProfessionType(String label, boolean min, EMovableType movableType) {
-			this.label = label;
-			this.min = min;
-			this.movableType = movableType;
-		}
-	}
-
 	public class ContentPanel extends Panel {
 		private ShortPoint2D position;
 		private final SettlerPanel diggerPanel;
@@ -106,14 +90,14 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 		public ContentPanel() {
 			super(118f, 216f);
 			this.position = new ShortPoint2D(0, 0);
-			this.carrierPanel = new SettlerPanel(widthInPx, EProfessionType.CARRIER);
-			this.diggerPanel = new SettlerPanel(widthInPx, EProfessionType.DIGGER);
-			this.builderPanel = new SettlerPanel(widthInPx, EProfessionType.BUILDER);
+			this.carrierPanel = new SettlerPanel(widthInPx, EMovableType.BEARER, true);
+			this.diggerPanel = new SettlerPanel(widthInPx, EMovableType.DIGGER, false);
+			this.builderPanel = new SettlerPanel(widthInPx, EMovableType.BRICKLAYER, false);
 
 			add(Panel.box(new Label(Labels.getString("settler_profession_title"), EFontSize.NORMAL), widthInPx, 20f), 0f, 0f);
 			add(carrierPanel, 0f, 20f);
-			add(diggerPanel, 0f, 50f);
-			add(builderPanel, 0f, 80f);
+			add(diggerPanel, 0f, 60f);
+			add(builderPanel, 0f, 100f);
 		}
 
 		public void setup(IProfessionSettings settings) {
@@ -124,49 +108,50 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 			update();
 		}
 
-		public float getTotalRatio() {
-			return carrierPanel.ratio + diggerPanel.ratio + builderPanel.ratio;
-		}
-
 		public void setPosition(ShortPoint2D position) {
 			this.position = position;
 		}
 
 		public class SettlerPanel extends Panel {
-			private float ratio;
-			private float currentRatio;
-			private final Label label;
-			private final EProfessionType type;
+			private ISingleProfessionLimit data;
+			private final Label descLabel;
+			private final Label targetLabel;
+			private final Label currentLabel;
+			private final EMovableType type;
+			private final boolean min;
 
-			public SettlerPanel(float width, EProfessionType type) {
+			public SettlerPanel(float width, EMovableType type, boolean min) {
 				super(width, 30f);
-				this.ratio = 0f;
-				this.currentRatio = 0f;
-				this.label = new Label("...", EFontSize.NORMAL, EHorizontalAlignment.LEFT);
+				data = null;
+				descLabel = new Label(Labels.getName(type), EFontSize.NORMAL, EHorizontalAlignment.LEFT);
+				targetLabel = new Label("...", EFontSize.NORMAL, EHorizontalAlignment.LEFT);
+				currentLabel = new Label("...", EFontSize.NORMAL, EHorizontalAlignment.LEFT);
 				this.type = type;
+				this.min = min;
 
+
+				add(Panel.box(targetLabel, 30f, 20f), 10f, 5f);
 				add(Panel.box(new CountArrows(
-						() -> new ChangeMovableSettingsAction(type.movableType, true, 5, position),
-						() -> new ChangeMovableSettingsAction(type.movableType, true, -5, position)
-				), 12f, 18f), 10f, 5f);
-				add(Panel.box(label, width, 20f), 28f, 5f);
+						() -> new ChangeMovableSettingsAction(type, true, 5, position),
+						() -> new ChangeMovableSettingsAction(type, true, -5, position)
+				), 12f, 18f), 40f, 5f);
+				add(Panel.box(descLabel, width, 20f), 52f, 5f);
+				add(Panel.box(currentLabel, width, 20f), 10f, 25f);
 			}
 
 			@Override
 			public void update() {
 				super.update();
-				this.label.setText(MessageFormat.format("{0} {1} {2} ({3})", (this.type.min ? '>' : '<'), formatPercentage(ratio), Labels.getName(this.type.movableType), formatPercentage(currentRatio)));
-			}
 
-			private String formatPercentage(float value) {
-				return (int) (value * 100f) + "%";
+				if(data != null) {
+					targetLabel.setText((min ? '>' : '<') + Integer.toString(data.isRelative() ? (int)(data.getTargetRatio()*100) : data.getTargetCount()));
+
+					currentLabel.setText(Labels.getString("settler_profession_currently", data.getCurrentCount(), data.getCurrentRatio()*100));
+				}
 			}
 
 			public void setValue(IProfessionSettings settings) {
-				ISingleProfessionLimit limit = settings.getSettings(type.movableType);
-
-				ratio = limit.getTargetRatio();
-				currentRatio = limit.getCurrentRatio();
+				data = settings.getSettings(type);
 			}
 		}
 	}

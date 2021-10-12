@@ -9,4 +9,6 @@ public interface ISingleProfessionLimit {
 	float getCurrentRatio();
 
 	float getTargetRatio();
+
+	boolean isRelative();
 }
