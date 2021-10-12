@@ -35,6 +35,12 @@ public class RelativeProfessionLimit extends SingleProfessionLimit {
 		} else {
 			targetRatio = value/100f;
 		}
+
+		if(targetRatio < 0) {
+			targetRatio = 0;
+		} else if(targetRatio > 1) {
+			targetRatio = 1;
+		}
 	}
 
 	@Override
