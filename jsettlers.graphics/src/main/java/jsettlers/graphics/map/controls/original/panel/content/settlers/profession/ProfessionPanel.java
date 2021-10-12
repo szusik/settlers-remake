@@ -8,6 +8,7 @@ import jsettlers.common.action.ChangeMovableSettingsAction;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.map.partition.IPartitionSettings;
 import jsettlers.common.map.partition.IProfessionSettings;
+import jsettlers.common.map.partition.ISingleProfessionLimit;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.player.IPlayer;
@@ -116,14 +117,9 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 		}
 
 		public void setup(IProfessionSettings settings) {
-			this.carrierPanel.setRatio(settings.getTargetMovableRatio(EMovableType.BEARER));
-			this.carrierPanel.setCurrentRatio(settings.getCurrentMovableRatio(EMovableType.BEARER));
-
-			this.diggerPanel.setRatio(settings.getTargetMovableRatio(EMovableType.DIGGER));
-			this.diggerPanel.setCurrentRatio(settings.getCurrentMovableRatio(EMovableType.DIGGER));
-
-			this.builderPanel.setRatio(settings.getTargetMovableRatio(EMovableType.BRICKLAYER));
-			this.builderPanel.setCurrentRatio(settings.getCurrentMovableCount(EMovableType.BRICKLAYER));
+			carrierPanel.setValue(settings);
+			diggerPanel.setValue(settings);
+			builderPanel.setValue(settings);
 
 			update();
 		}
@@ -166,12 +162,11 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 				return (int) (value * 100f) + "%";
 			}
 
-			public void setRatio(float ratio) {
-				this.ratio = ratio;
-			}
+			public void setValue(IProfessionSettings settings) {
+				ISingleProfessionLimit limit = settings.getSettings(type.movableType);
 
-			public void setCurrentRatio(float currentRatio) {
-				this.currentRatio = currentRatio;
+				ratio = limit.getTargetRatio();
+				currentRatio = limit.getCurrentRatio();
 			}
 		}
 	}

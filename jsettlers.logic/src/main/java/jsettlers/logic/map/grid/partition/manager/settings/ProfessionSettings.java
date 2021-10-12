@@ -29,12 +29,12 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 	}
 
 	public boolean isBearerConversionAllowed(EMovableType newType) {
-		if(getCurrentMovableCount(EMovableType.BEARER) <= getTargetMovableCount(EMovableType.BEARER)) {
+		if(getSettings(EMovableType.BEARER).getCurrentCount() <= getSettings(EMovableType.BEARER).getTargetCount()) {
 			return false;
 		}
 
 		if(newType == EMovableType.DIGGER || newType == EMovableType.BRICKLAYER) {
-			return getCurrentMovableCount(newType) < getTargetMovableCount(newType);
+			return getSettings(newType).getCurrentCount() < getSettings(newType).getTargetCount();
 		} else {
 			return true;
 		}
@@ -72,26 +72,6 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 		if(settings != null) {
 			settings.incrementAmount();
 		}
-	}
-	
-	@Override
-	public float getTargetMovableRatio(EMovableType movableType) {
-		return getSettings(movableType).getTargetRatio();
-	}
-
-	@Override
-	public int getTargetMovableCount(EMovableType movableType) {
-		return getSettings(movableType).getTargetCount();
-	}
-
-	@Override
-	public float getCurrentMovableRatio(EMovableType movableType) {
-		return getSettings(movableType).getCurrentRatio();
-	}
-
-	@Override
-	public int getCurrentMovableCount(EMovableType movableType) {
-		return getSettings(movableType).getCurrentCount();
 	}
 
 	public int getWorkerCount() {
