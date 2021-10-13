@@ -53,6 +53,7 @@ import jsettlers.logic.map.grid.partition.manager.objects.WorkerRequest;
 import jsettlers.logic.map.grid.partition.manager.settings.MaterialProductionSettings;
 import jsettlers.logic.map.grid.partition.manager.settings.PartitionManagerSettings;
 import jsettlers.logic.map.grid.partition.manager.settings.ProfessionSettings;
+import jsettlers.logic.map.grid.partition.manager.settings.SingleProfessionLimit;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.timer.IScheduledTimerable;
 import jsettlers.logic.timer.RescheduleTimer;
@@ -482,4 +483,37 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 	 *
 	 */
 	public abstract boolean contains(ILogicMovable mov);
+
+	public void convertWorkers() {
+		SingleProfessionLimit bearerSettings = settings.getProfessionSettings().getSettings(EMovableType.BEARER);
+		SingleProfessionLimit bricklayerSettings = settings.getProfessionSettings().getSettings(EMovableType.BRICKLAYER);
+		float convertBricklayers = -bricklayerSettings.getRemainingAmount();
+
+		for(int i = 0; i < convertBricklayers; i++) {
+			IManageableBricklayer bricklayer = joblessBricklayers.getAnyObject();
+
+			if(bricklayer == null) {
+				break;
+			}
+
+			bricklayer.convertToBearer();
+			bricklayerSettings.decrementRealAmount();
+			bearerSettings.incrementRealAmount();
+		}
+
+		SingleProfessionLimit diggerSettings = settings.getProfessionSettings().getSettings(EMovableType.DIGGER);
+		float convertDiggers = -diggerSettings.getRemainingAmount();
+
+		for(int i = 0; i < convertDiggers; i++) {
+			IManageableDigger digger = joblessDiggers.getAnyObject();
+
+			if(digger == null) {
+				break;
+			}
+
+			digger.convertToBearer();
+			diggerSettings.decrementRealAmount();
+			bearerSettings.incrementRealAmount();
+		}
+	}
 }

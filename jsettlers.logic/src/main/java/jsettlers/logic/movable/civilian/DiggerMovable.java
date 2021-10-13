@@ -87,6 +87,12 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 		}
 	}
 
+	@Override
+	public void convertToBearer() {
+		grid.dropMaterial(position, getMovableType().getTool(), true, true);
+		createMovable(EMovableType.BEARER, player, position, grid, this);
+	}
+
 	private void executeDigg() {
 		grid.changeHeightTowards(position.x, position.y, requester.getAverageHeight());
 	}

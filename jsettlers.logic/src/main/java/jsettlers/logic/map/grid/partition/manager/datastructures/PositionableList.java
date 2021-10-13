@@ -75,6 +75,14 @@ public class PositionableList<T extends ILocatable> implements Serializable {
 	}
 
 	/**
+	 *
+	 * @return Returns any object in this list or null if this list is empty
+	 */
+	public T getAnyObject() {
+		return data.peekFirst();
+	}
+
+	/**
 	 * Finds the object that's closest to the given position and removes it.
 	 *
 	 * @param position

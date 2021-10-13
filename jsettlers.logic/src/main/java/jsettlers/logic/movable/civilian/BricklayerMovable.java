@@ -81,6 +81,12 @@ public class BricklayerMovable extends CivilianMovable implements IManageableBri
 	}
 
 	@Override
+	public void convertToBearer() {
+		grid.dropMaterial(position, getMovableType().getTool(), true, true);
+		createMovable(EMovableType.BEARER, player, position, grid, this);
+	}
+
+	@Override
 	protected void decoupleMovable() {
 		super.decoupleMovable();
 

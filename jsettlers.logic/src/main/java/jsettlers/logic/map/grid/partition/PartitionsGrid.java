@@ -15,7 +15,6 @@
 package jsettlers.logic.map.grid.partition;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.BitSet;
@@ -753,6 +752,12 @@ public final class PartitionsGrid implements Serializable, IScheduledTimerable {
 			if(partition.playerId != movable.getPlayer().getPlayerId()) continue;
 
 			partition.getPartitionSettings().getProfessionSettings().increment(movable.getMovableType());
+		}
+
+		for(Partition partition : partitionObjects) {
+			if(partition == null) continue;
+
+			partition.convertWorkers();
 		}
 	}
 
