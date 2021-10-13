@@ -402,7 +402,10 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		}
 		Color color = localPlayer.getWinState() == EWinState.WON ? Color.GREEN : Color.RED;
 		final String msg = Labels.getString("winstate_" + localPlayer.getWinState());
-		textDrawer.getTextDrawer(gl, EFontSize.HEADLINE).drawString(windowWidth / 2, windowHeight - 2 * EFontSize.HEADLINE.getSize(), color, msg);
+
+		TextDrawer drawer = textDrawer.getTextDrawer(gl, EFontSize.HEADLINE);
+
+		drawer.drawString((windowWidth - drawer.getWidth(msg)) / 2, windowHeight - 2 * EFontSize.HEADLINE.getSize(), color, msg);
 	}
 
 	private void drawMessages(GLDrawContext gl) {
