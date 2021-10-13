@@ -28,13 +28,45 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 		resetCount();
 	}
 
+	public void markTempBearerConversion(EMovableType newType) {
+		bearerSettings.decrementTempAmount();
+
+		SingleProfessionLimit settings = getSettings(newType);
+		if(settings != null) {
+			settings.incrementTempAmount();
+		}
+	}
+
+
+	public void abortBearerConversion(EMovableType newType) {
+		SingleProfessionLimit settings = getSettings(newType);
+		if(settings != null) {
+			settings.decrementTempAmount();
+		}
+
+		bearerSettings.incrementTempAmount();
+	}
+
+
+
+	public void applyBearerConversion(EMovableType newType) {
+		bearerSettings.decrementRealAmount();
+		bearerSettings.incrementTempAmount();
+
+		SingleProfessionLimit settings = getSettings(newType);
+		if(settings != null) {
+			settings.decrementTempAmount();
+			settings.incrementRealAmount();
+		}
+	}
+
 	public boolean isBearerConversionAllowed(EMovableType newType) {
-		if(getSettings(EMovableType.BEARER).getCurrentCount() <= getSettings(EMovableType.BEARER).getTargetCount()) {
+		if(getSettings(EMovableType.BEARER).getRemainingAmount() > -1) {
 			return false;
 		}
 
 		if(newType == EMovableType.DIGGER || newType == EMovableType.BRICKLAYER) {
-			return getSettings(newType).getCurrentCount() < getSettings(newType).getTargetCount();
+			return getSettings(newType).getRemainingAmount() >= 1;
 		} else {
 			return true;
 		}
@@ -70,7 +102,7 @@ public class ProfessionSettings implements Serializable, IProfessionSettings {
 
 		SingleProfessionLimit settings = getSettings(movableType);
 		if(settings != null) {
-			settings.incrementAmount();
+			settings.incrementRealAmount();
 		}
 	}
 

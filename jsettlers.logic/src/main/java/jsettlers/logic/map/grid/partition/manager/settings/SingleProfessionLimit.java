@@ -9,26 +9,38 @@ public abstract class SingleProfessionLimit implements ISingleProfessionLimit, S
 	protected final ProfessionSettings parent;
 
 	protected int currentAmount;
+	protected int tempAmount;
 
-
-	protected SingleProfessionLimit(ProfessionSettings parent, int currentAmount) {
+	protected SingleProfessionLimit(ProfessionSettings parent, SingleProfessionLimit predecessor) {
 		this.parent = parent;
 
-		this.currentAmount = currentAmount;
+		this.currentAmount = predecessor.currentAmount;
+		this.tempAmount = predecessor.tempAmount;
 	}
 
 	protected SingleProfessionLimit(ProfessionSettings parent) {
-		this(parent, 0);
+		this.parent = parent;
+
+		this.currentAmount = 0;
+		this.tempAmount = 0;
 	}
 
 	public abstract void setLimit(int value, boolean relative);
 
-	public final void incrementAmount() {
+	public final void incrementRealAmount() {
 		currentAmount++;
 	}
 
-	public final void decrementCount() {
+	public final void incrementTempAmount() {
+		tempAmount++;
+	}
+
+	public final void decrementRealAmount() {
 		currentAmount--;
+	}
+
+	public final void decrementTempAmount() {
+		tempAmount--;
 	}
 
 	public final void resetCount() {
@@ -37,11 +49,13 @@ public abstract class SingleProfessionLimit implements ISingleProfessionLimit, S
 
 	@Override
 	public final int getCurrentCount() {
-		return currentAmount;
+		return currentAmount + tempAmount;
 	}
 
 	@Override
 	public final float getCurrentRatio() {
-		return currentAmount / (float) parent.getWorkerCount();
+		return getCurrentCount() / (float) parent.getWorkerCount();
 	}
+
+	public abstract float getRemainingAmount();
 }

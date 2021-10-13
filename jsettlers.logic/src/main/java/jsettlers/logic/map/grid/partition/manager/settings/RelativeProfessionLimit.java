@@ -1,7 +1,5 @@
 package jsettlers.logic.map.grid.partition.manager.settings;
 
-import jsettlers.common.map.partition.ISingleProfessionLimit;
-
 public class RelativeProfessionLimit extends SingleProfessionLimit {
 
 	private float targetRatio;
@@ -12,8 +10,8 @@ public class RelativeProfessionLimit extends SingleProfessionLimit {
 		targetRatio = initialTargetRatio;
 	}
 
-	protected RelativeProfessionLimit(ProfessionSettings parent, ISingleProfessionLimit predecessor) {
-		super(parent, predecessor.getCurrentCount());
+	protected RelativeProfessionLimit(ProfessionSettings parent, SingleProfessionLimit predecessor) {
+		super(parent, predecessor);
 
 		targetRatio = predecessor.getTargetRatio();
 	}
@@ -49,11 +47,17 @@ public class RelativeProfessionLimit extends SingleProfessionLimit {
 				"targetRatio=" + targetRatio +
 				", parent=" + parent +
 				", currentAmount=" + currentAmount +
+				", tempAmount=" + tempAmount +
 				'}';
 	}
 
 	@Override
 	public boolean isRelative() {
 		return true;
+	}
+
+	@Override
+	public float getRemainingAmount() {
+		return targetRatio*parent.getWorkerCount() - getCurrentCount();
 	}
 }

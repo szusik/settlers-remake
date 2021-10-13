@@ -84,6 +84,7 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 							),
 							action(mov -> {
 								EMovableType newMovable = mov.workerCreationRequest.requestedMovableType();
+								mov.workerRequester.workerCreationRequestFulfilled(mov.workerCreationRequest);
 								mov.workerCreationRequest = null;
 								mov.setMaterial(EMaterialType.NO_MATERIAL);
 								mov.convertTo(newMovable);

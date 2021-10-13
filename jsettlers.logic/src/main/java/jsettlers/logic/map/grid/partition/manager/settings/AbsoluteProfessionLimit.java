@@ -1,7 +1,5 @@
 package jsettlers.logic.map.grid.partition.manager.settings;
 
-import jsettlers.common.map.partition.ISingleProfessionLimit;
-
 public class AbsoluteProfessionLimit extends SingleProfessionLimit {
 
 	private int targetCount;
@@ -12,8 +10,8 @@ public class AbsoluteProfessionLimit extends SingleProfessionLimit {
 		this.targetCount = initialTargetCount;
 	}
 
-	public AbsoluteProfessionLimit(ProfessionSettings parent, ISingleProfessionLimit predecessor) {
-		super(parent, predecessor.getCurrentCount());
+	public AbsoluteProfessionLimit(ProfessionSettings parent, SingleProfessionLimit predecessor) {
+		super(parent, predecessor);
 
 		this.targetCount = predecessor.getTargetCount();
 	}
@@ -47,11 +45,17 @@ public class AbsoluteProfessionLimit extends SingleProfessionLimit {
 				"targetCount=" + targetCount +
 				", parent=" + parent +
 				", currentAmount=" + currentAmount +
+				", tempAmount=" + tempAmount +
 				'}';
 	}
 
 	@Override
 	public boolean isRelative() {
 		return false;
+	}
+
+	@Override
+	public float getRemainingAmount() {
+		return targetCount - getCurrentCount();
 	}
 }

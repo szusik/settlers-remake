@@ -343,10 +343,7 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 		IManageableBearer manageableBearer = joblessBearer.removeObjectNextTo(workerCreationRequest.getPosition());
 		if(manageableBearer != null) {
 			if(manageableBearer.becomeWorker(this, workerCreationRequest, offer)) {
-				professionSettings.getSettings(EMovableType.BEARER).decrementCount();
-				if(movableType == EMovableType.DIGGER || movableType == EMovableType.BRICKLAYER) {
-					professionSettings.getSettings(movableType).incrementAmount();
-				}
+				professionSettings.markTempBearerConversion(movableType);
 				return true;
 			}
 		} 
@@ -356,6 +353,13 @@ public abstract class PartitionManager implements IScheduledTimerable, Serializa
 	@Override
 	public void workerCreationRequestFailed(WorkerCreationRequest failedRequest) {
 		workerCreationRequests.offer(failedRequest);
+
+		settings.getProfessionSettings().abortBearerConversion(failedRequest.requestedMovableType());
+	}
+
+	@Override
+	public void workerCreationRequestFulfilled(WorkerCreationRequest fulfilledRequest) {
+		settings.getProfessionSettings().applyBearerConversion(fulfilledRequest.requestedMovableType());
 	}
 
 	private void handleSoldierCreationRequest() {

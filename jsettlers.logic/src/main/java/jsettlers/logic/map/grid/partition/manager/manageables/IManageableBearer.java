@@ -38,5 +38,7 @@ public interface IManageableBearer extends IManageable, ILocatable, IManagerBear
 	 */
 	interface IWorkerRequester {
 		void workerCreationRequestFailed(WorkerCreationRequest failedRequest);
+
+		void workerCreationRequestFulfilled(WorkerCreationRequest fulfilledRequest);
 	}
 }
