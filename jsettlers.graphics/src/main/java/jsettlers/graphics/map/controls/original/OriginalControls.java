@@ -42,7 +42,7 @@ import jsettlers.graphics.map.controls.IControls;
 import jsettlers.graphics.map.controls.original.panel.MainPanel;
 import jsettlers.graphics.map.controls.original.panel.content.ContentType;
 import jsettlers.graphics.map.controls.original.panel.content.MessageContent;
-import jsettlers.graphics.map.controls.original.panel.selection.BearerSelectionContent;
+import jsettlers.graphics.map.controls.original.panel.selection.PeopleSelectionContent;
 import jsettlers.graphics.map.controls.original.panel.selection.BuildingSelectionContent;
 import jsettlers.graphics.map.controls.original.panel.selection.PriestSelectionContent;
 import jsettlers.graphics.map.controls.original.panel.selection.ShipSelectionContent;
@@ -390,7 +390,7 @@ public class OriginalControls implements IControls {
 
 			switch (selection.getSelectionType()) {
 			case PEOPLE:
-				mainPanel.setContent(new BearerSelectionContent(player, selection));
+				mainPanel.setContent(new PeopleSelectionContent(player, selection));
 				break;
 			case SOLDIERS:
 				mainPanel.setContent(new SoldierSelectionContent(selection));

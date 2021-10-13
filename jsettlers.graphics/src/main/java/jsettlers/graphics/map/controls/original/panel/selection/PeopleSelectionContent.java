@@ -14,8 +14,12 @@
  *******************************************************************************/
 package jsettlers.graphics.map.controls.original.panel.selection;
 
+import java.util.HashMap;
+import java.util.Map;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IInGamePlayer;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.selectable.ISelectionSet;
 import jsettlers.common.action.ConvertAction;
 import jsettlers.graphics.localization.Labels;
@@ -30,11 +34,21 @@ import jsettlers.graphics.ui.UIPanel;
  * @author Michael Zangl
  *
  */
-public class BearerSelectionContent extends AbstractSelectionContent {
+public class PeopleSelectionContent extends AbstractSelectionContent {
 	private final UIPanel panel;
 
-	public BearerSelectionContent(IInGamePlayer player, ISelectionSet selection) {
+	private boolean hasBearers;
+
+	public PeopleSelectionContent(IInGamePlayer player, ISelectionSet selection) {
 		panel = new UIPanel();
+
+
+		for(int i = 0; i < selection.getSize() && !hasBearers; i++) {
+			IGraphicsMovable mov = (IGraphicsMovable) selection.get(i);
+			if(mov.getMovableType() == EMovableType.BEARER) {
+				hasBearers = true;
+			}
+		}
 
 		drawButtongroup(.7f, player, EMovableType.PIONEER);
 		drawButtongroup(.45f, player, EMovableType.GEOLOGIST);
@@ -46,16 +60,18 @@ public class BearerSelectionContent extends AbstractSelectionContent {
 		UIPanel icon = new UIPanel();
 		icon.setBackground(ImageLinkMap.get(player.getCivilisation(), ECommonLinkType.SETTLER_GUI, type));
 
-		LabeledButton convert1 =
-				new LabeledButton(Labels.getString("convert_1_to_" + type),
-						new ConvertAction(type, (short) 1));
-		LabeledButton convertall =
-				new LabeledButton(Labels.getString("convert_all_to_" + type),
-						new ConvertAction(type, Short.MAX_VALUE));
+		if(hasBearers) {
+			LabeledButton convert1 =
+					new LabeledButton(Labels.getString("convert_1_to_" + type),
+							new ConvertAction(type, (short) 1));
+			LabeledButton convertall =
+					new LabeledButton(Labels.getString("convert_all_to_" + type),
+							new ConvertAction(type, Short.MAX_VALUE));
 
-		panel.addChild(icon, .1f, bottom, .3f, bottom + .2f);
-		panel.addChild(convert1, .3f, bottom + .1f, .9f, bottom + .2f);
-		panel.addChild(convertall, .3f, bottom, .9f, bottom + .1f);
+			panel.addChild(icon, .1f, bottom, .3f, bottom + .2f);
+			panel.addChild(convert1, .3f, bottom + .1f, .9f, bottom + .2f);
+			panel.addChild(convertall, .3f, bottom, .9f, bottom + .1f);
+		}
 	}
 
 	@Override
