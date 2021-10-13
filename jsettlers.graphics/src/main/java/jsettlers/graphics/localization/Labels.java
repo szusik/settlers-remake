@@ -79,7 +79,31 @@ public final class Labels extends AbstractLabels {
 	 * @return The name.
 	 */
 	public static String getName(EMovableType type) {
-		return getString("movable_" + type);
+		return getName(type, false);
+	}
+
+	/**
+	 * Gets the name of a movable.
+	 *
+	 * @param type
+	 *            The movable type
+	 * @param plural
+	 * 				If the plural name should be used
+	 * @return The name.
+	 */
+	public static String getName(EMovableType type, boolean plural) {
+		String key = "movable_" + type;
+
+		if(plural) {
+			String pluralKey = key + "p";
+			String pluralValue = getString(pluralKey);
+
+			if(pluralValue != null) {
+				return pluralValue;
+			}
+		}
+
+		return getString(key);
 	}
 
 	/**

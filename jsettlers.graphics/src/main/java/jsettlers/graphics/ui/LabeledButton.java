@@ -56,7 +56,11 @@ public class LabeledButton extends Button {
 		super.drawAt(gl);
 
 		TextDrawer drawer = gl.getTextDrawer(size);
-		drawer.renderCentered(getPosition().getCenterX(), getPosition().getCenterY(), text);
+		drawer.renderCentered(getPosition().getCenterX(), getPosition().getCenterY(), getText());
+	}
+
+	protected String getText() {
+		return text;
 	}
 	
 	@Override

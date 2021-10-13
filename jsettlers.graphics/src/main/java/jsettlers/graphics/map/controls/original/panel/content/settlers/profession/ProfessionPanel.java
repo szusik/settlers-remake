@@ -128,11 +128,20 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 			public SettlerPanel(float width, EMovableType type, boolean min) {
 				super(width, 30f);
 				data = null;
-				descLabel = new Label(Labels.getName(type), EFontSize.NORMAL, EHorizontalAlignment.LEFT);
+				descLabel = new Label(Labels.getName(type, true), EFontSize.NORMAL, EHorizontalAlignment.LEFT);
 				percentButton = new LabeledButton("%", null) {
 					@Override
 					public boolean isActive() {
 						return data != null && data.isRelative();
+					}
+
+					@Override
+					protected String getText() {
+						if(isActive()) {
+							return Labels.getString("settler_profession_relative");
+						} else {
+							return Labels.getString("settler_profession_absolute");
+						}
 					}
 
 					@Override
@@ -147,12 +156,12 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 
 
 				add(Panel.box(targetLabel, 20f, 20f), 10f, 5f);
-				add(Panel.box(percentButton, 10, 20), 30, 5);
 				add(Panel.box(new CountArrows(
 						() -> new ChangeMovableSettingsAction(type, true, 5, position),
 						() -> new ChangeMovableSettingsAction(type, true, -5, position)
-				), 12f, 18f), 45f, 5f);
-				add(Panel.box(descLabel, width, 20f), 57f, 5f);
+				), 12f, 18f), 30, 5f);
+				add(Panel.box(descLabel, 30, 20f), 42f, 5f);
+				add(Panel.box(percentButton, 40, 20), 77, 5);
 				add(Panel.box(currentLabel, width, 20f), 10f, 25f);
 			}
 
@@ -161,7 +170,7 @@ public class ProfessionPanel extends AbstractContentProvider implements UiConten
 				super.update();
 
 				if(data != null) {
-					targetLabel.setText((min ? '>' : '<') + Integer.toString(data.isRelative() ? (int)(data.getTargetRatio()*100) : data.getTargetCount()));
+					targetLabel.setText((min ? '>' : '<') + (data.isRelative() ? (int)(data.getTargetRatio()*100) + "%" : data.getTargetCount() + ""));
 
 					currentLabel.setText(Labels.getString("settler_profession_currently", data.getCurrentCount(), data.getCurrentRatio()*100));
 				}
