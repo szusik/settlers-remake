@@ -77,8 +77,10 @@ public interface IControls extends IMapInterfaceListener {
 	 *
 	 * @param screenArea
 	 *            The new area of the map.
+	 * @param centerPosition
+	 * 			The center of the viewport
 	 */
-	void setMapViewport(MapRectangle screenArea);
+	void setMapViewport(MapRectangle screenArea, ShortPoint2D centerPosition);
 
 	/**
 	 * Gets the action for the given ui position, that should be executed if the user clicked it.

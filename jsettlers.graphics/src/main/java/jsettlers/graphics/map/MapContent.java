@@ -441,7 +441,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private void adaptScreenSize() {
 		FloatRectangle newScreen = context.getScreen().getPosition();
 		if (!newScreen.equals(oldScreen)) {
-			getInterfaceConnector().fireAction(new ScreenChangeAction(context.getScreenArea()));
+			getInterfaceConnector().fireAction(new ScreenChangeAction(context.getScreenArea(), context.getPositionUnder(newScreen.getCenterX(), newScreen.getCenterY())));
 		}
 		oldScreen = newScreen;
 	}
@@ -962,7 +962,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			break;
 		case SCREEN_CHANGE:
 			ScreenChangeAction screenAction = (ScreenChangeAction) action;
-			controls.setMapViewport(screenAction.getScreenArea());
+			controls.setMapViewport(screenAction.getScreenArea(), screenAction.getCenterPosition());
 			break;
 		case ZOOM_IN:
 			if (context.getScreen().getZoom() < 1.1) {

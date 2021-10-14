@@ -197,7 +197,7 @@ public final class MapDrawContext implements IGLProvider {
 	 *            The y coordinate in draw space.
 	 * @return The map position under the point.
 	 */
-	private ShortPoint2D getPositionUnder(float screenX, float screenY) {
+	public ShortPoint2D getPositionUnder(float screenX, float screenY) {
 		// do a three step iteration by using the coordinate transformation and the map height
 		int mapX = getConverter().getMapX(screenX, screenY);
 		int mapY = getConverter().getMapY(screenX, screenY);

@@ -270,12 +270,12 @@ public class OriginalControls implements IControls {
 	}
 
 	@Override
-	public void setMapViewport(MapRectangle screenArea) {
+	public void setMapViewport(MapRectangle screenArea, ShortPoint2D centerPosition) {
 		if (minimap != null) {
 			minimap.setMapViewport(screenArea);
 		}
 		if (context != null) {
-			mainPanel.setMapViewport(screenArea, context.getMap());
+			mainPanel.setMapViewport(screenArea, centerPosition, context.getMap());
 		}
 	}
 

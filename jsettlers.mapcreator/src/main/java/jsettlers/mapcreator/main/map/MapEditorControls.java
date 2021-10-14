@@ -104,7 +104,7 @@ public class MapEditorControls implements IControls {
 	}
 
 	@Override
-	public void setMapViewport(MapRectangle screenArea) {
+	public void setMapViewport(MapRectangle screenArea, ShortPoint2D centerPosition) {
 	}
 
 	@Override
