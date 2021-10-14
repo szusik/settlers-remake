@@ -500,6 +500,21 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected static <T extends Movable> Node<T> doingNothingAction() {
+		return sequence(
+				idleAction(),
+				sequence(
+					action(mov -> {
+						int turnDirection = MatchConstants.random().nextInt(-8, 8);
+						if (Math.abs(turnDirection) <= 1) {
+							mov.lookInDirection(mov.getDirection().getNeighbor(turnDirection));
+						}
+					}),
+					sleep(mov -> mov.flockDelay)
+				)
+		);
+	}
+
+	protected static <T extends Movable> Node<T> idleAction() {
 		return selector(
 				sequence(
 					condition(mov -> ((Movable) mov).pushedFrom != null),
@@ -567,15 +582,6 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 							goInDirectionIfAllowedAndFreeNode(Movable::getDirection)
 						)
 					)
-				),
-				sequence(
-					action(mov -> {
-						int turnDirection = MatchConstants.random().nextInt(-8, 8);
-						if (Math.abs(turnDirection) <= 1) {
-							mov.lookInDirection(mov.getDirection().getNeighbor(turnDirection));
-						}
-					}),
-					sleep(mov -> mov.flockDelay)
 				)
 		);
 	}

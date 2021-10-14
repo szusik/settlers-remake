@@ -1,14 +1,15 @@
 package jsettlers.logic.movable.civilian;
 
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.material.EMaterialType;
+import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.constants.Constants;
+import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBearer;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IBarrack;
 import jsettlers.logic.map.grid.partition.manager.materials.interfaces.IMaterialOffer;
@@ -36,8 +37,17 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 
 	private boolean registered = false;
 
-	public BearerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
-		super(grid, EMovableType.BEARER, position, player, movable);
+	private boolean hasBed;
+
+	public BearerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
+		super(grid, EMovableType.BEARER, position, player, replace);
+
+		if(replace == null) {
+			player.getBedInformation().addNewBearer();
+			hasBed = true;
+		} else {
+			hasBed = false;
+		}
 	}
 
 	static {
@@ -52,6 +62,35 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 	private static Node<BearerMovable> createBearerBehaviour() {
 		return guardSelector(
 				fleeIfNecessary(),
+				guard(BearerMovable::isHomeless,
+					selector(
+						idleAction(),
+						doRandomly(3/4f,
+							selector(
+								sequence(
+									condition(mov -> mov.player.getCivilisation() != ECivilisation.AMAZON),
+									playAction(EMovableAction.HOMELESS1, (short) 1500),
+									ignoreFailure(repeat(mov -> true,
+										selector(
+											doRandomly(1/8f, setDirectionNode(mov -> EDirection.VALUES[MatchConstants.random().nextInt(0, EDirection.NUMBER_OF_DIRECTIONS-1)])),
+											doRandomly(1/4f, alwaysFail()),
+											doRandomly(7/8f, playAction(EMovableAction.HOMELESS_IDLE, mov -> (short) MatchConstants.random().nextInt(1000, 3000))),
+											doRandomly(1/2f, playAction(EMovableAction.HOMELESS2, (short) 1500)),
+											playAction(EMovableAction.HOMELESS3, (short) 1500)
+										)
+									)),
+									playAction(EMovableAction.HOMELESS4, (short) 1500)
+								),
+								sequence(
+									playAction(EMovableAction.HOMELESS1, (short) 2000),
+									playAction(EMovableAction.HOMELESS_IDLE, (short) MatchConstants.random().nextInt(1000, 3000)),
+									playAction(EMovableAction.HOMELESS2, (short) 2000)
+								)
+							)
+						),
+						sleep(3000)
+					)
+				),
 				guard(mov -> mov.barrack != null,
 					selector(
 						sequence(
@@ -138,6 +177,23 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 		);
 	}
 
+	private boolean isHomeless() {
+		if(hasBed) {
+			if(!player.getBedInformation().testIfBedStillExists()) {
+				hasBed = false;
+			}
+		}
+
+		if(!hasBed) {
+			if(player.getBedInformation().tryReservingBed()) {
+				hasBed = true;
+			}
+		}
+
+		return !hasBed;
+
+	}
+
 	private static Node<BearerMovable> handleOffer() {
 		return sequence(
 				goToPos(mov -> mov.offer.getPosition(), mov -> {
@@ -215,6 +271,10 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 		super.decoupleMovable();
 
 		abortJob();
+
+		if(hasBed) {
+			player.getBedInformation().removeBearer();
+		}
 
 		grid.removeJobless(this);
 	}

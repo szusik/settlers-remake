@@ -24,6 +24,7 @@ import jsettlers.common.menu.messages.IMessage;
 import jsettlers.common.menu.messages.IMessenger;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.EWinState;
+import jsettlers.common.player.IBedInformation;
 import jsettlers.common.player.ICombatStrengthInformation;
 import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.player.ISettlerInformation;
@@ -46,6 +47,7 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 
 	private final MaterialCounts	materialCounts = new MaterialCounts();
 	private final EndgameStatistic	endgameStatistic = new EndgameStatistic(this);
+	private final BedInformation bedInformation = new BedInformation();
 
 	private EWinState winState;
 	private ECivilisation civilisation;
@@ -130,6 +132,11 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 			System.out.println("amount of gems of player: " + playerId + "   changed by: " + delta + "    to total: " + getAmountOf(EMaterialType.GEMS) + "    combat strength changed from\n\t" +
 					combatStrength + "   to \n\t" + this.combatStrengthInfo);
 		}
+	}
+
+	@Override
+	public BedInformation getBedInformation() {
+		return bedInformation;
 	}
 
 	@Override

@@ -86,4 +86,11 @@ public abstract class SpawnBuilding extends Building {
 	public boolean cannotWork() {
 		return produced >= getProduceLimit();
 	}
+
+	@Override
+	protected void killedEvent() {
+		if(getMovableType() == EMovableType.BEARER) {
+			getPlayer().getBedInformation().removeBeds(produced);
+		}
+	}
 }

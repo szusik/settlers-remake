@@ -42,6 +42,7 @@ public class SettlersStatisticsPanel extends AbstractContentProvider implements 
 
 	private UIPanel panel;
 	private final UiPlayerDependingContentUpdater<ISettlerInformation> uiContentUpdater = new UiPlayerDependingContentUpdater<>(IInGamePlayer::getSettlerInformation);
+	private IInGamePlayer player;
 
 	public SettlersStatisticsPanel() {
 		uiContentUpdater.addListener(this);
@@ -49,6 +50,7 @@ public class SettlersStatisticsPanel extends AbstractContentProvider implements 
 
 	public void setPlayer(IInGamePlayer player) {
 		panel = new StatisticLayoutRomans(null, player.getCivilisation())._root;
+		this.player = player;
 		uiContentUpdater.updatePlayer(player);
 	}
 
@@ -79,7 +81,7 @@ public class SettlersStatisticsPanel extends AbstractContentProvider implements 
 
 				switch (name) {
 				case "stat_beds":
-					label.setText("-"); // there is not concept of "beds" yet
+					label.setText(Integer.toString(player.getBedInformation().getTotalBedAmount())); // there is not concept of "beds" yet
 					break;
 				case "stat_civilian":
 					label.setText(String.valueOf(civilianCount));

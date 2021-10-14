@@ -45,6 +45,12 @@ public interface IInGamePlayer extends IPlayer {
 	ECivilisation getCivilisation();
 
 	/**
+	 * Gets the current amount of beds
+	 * @return
+	 */
+	IBedInformation getBedInformation();
+
+	/**
 	 * Get win/lose state for the player
 	 * @return The win/lose state the player is in
 	 */

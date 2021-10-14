@@ -73,6 +73,11 @@ public interface IPlayer {
 		}
 
 		@Override
+		public IBedInformation getBedInformation() {
+			return null;
+		}
+
+		@Override
 		public ISettlerInformation getSettlerInformation() {
 			return null;
 		}

@@ -22,6 +22,7 @@ import jsettlers.algorithms.simplebehaviortree.nodes.Repeat;
 import jsettlers.algorithms.simplebehaviortree.nodes.Wait;
 
 import java.io.Serializable;
+import jsettlers.logic.constants.MatchConstants;
 
 public final class BehaviorTreeHelper {
 
@@ -170,5 +171,12 @@ public final class BehaviorTreeHelper {
 
 	public static <T, I extends Serializable> Property<T, I> property(ISetPropertyConsumer<T, I> setter, IGetPropertyProducer<T, I> getter, I value, Node<T> child) {
 		return new Property<>(setter, getter, value, child);
+	}
+
+	public static <T> Node<T> doRandomly(float chance, Node<T> child) {
+		return sequence(
+				condition(mov -> MatchConstants.random().nextFloat() <= chance),
+				child
+		);
 	}
 }
