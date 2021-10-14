@@ -1,6 +1,8 @@
 package jsettlers.common.player;
 
-public interface IBedInformation {
+import java.io.Serializable;
+
+public interface IBedInformation extends Serializable {
 
 	int getTotalBedAmount();
 }
