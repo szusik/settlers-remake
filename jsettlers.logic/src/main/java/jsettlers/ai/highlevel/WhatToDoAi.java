@@ -66,7 +66,7 @@ import static jsettlers.ai.highlevel.AiBuildingConstants.IRON_MINE_TO_IRONMELT_R
 import static jsettlers.ai.highlevel.AiBuildingConstants.LUMBERJACK_TO_FORESTER_RATIO;
 import static jsettlers.ai.highlevel.AiBuildingConstants.LUMBERJACK_TO_SAWMILL_RATIO;
 import static jsettlers.ai.highlevel.AiBuildingConstants.WEAPON_SMITH_TO_BARRACKS_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.WINEGROWER_TO_TEMPLE_RATIO;
+import static jsettlers.ai.highlevel.AiBuildingConstants.MANNA_BUILDING_TO_TEMPLE_RATIO;
 import static jsettlers.common.buildings.EBuildingType.BAKER;
 import static jsettlers.common.buildings.EBuildingType.BARRACK;
 import static jsettlers.common.buildings.EBuildingType.BIG_LIVINGHOUSE;
@@ -445,7 +445,9 @@ class WhatToDoAi implements IWhatToDoAi {
 		case PIG_FARM:
 			return ratioFits(FARM, FARM_TO_PIG_FARM_RATIO, PIG_FARM);
 		case TEMPLE:
-			return ratioFits(WINEGROWER, WINEGROWER_TO_TEMPLE_RATIO, TEMPLE);
+			return ratioFits(player.getCivilisation().getMannaBuilding(), MANNA_BUILDING_TO_TEMPLE_RATIO, TEMPLE);
+		case BREWERY:
+			return aiStatistics.getNumberOfBuildingTypeForPlayer(EBuildingType.FARM, playerId) > 0;
 		case SAWMILL:
 			return ratioFits(LUMBERJACK, LUMBERJACK_TO_SAWMILL_RATIO, SAWMILL);
 		case FORESTER:
