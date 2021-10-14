@@ -37,6 +37,7 @@ import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ECivilisation;
+import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.tasks.ConstructBuildingTask;
@@ -122,7 +123,7 @@ class WhatToDoAi implements IWhatToDoAi {
 	private final MainGrid mainGrid;
 	private final MovableGrid movableGrid;
 	private final byte playerId;
-	private final IPlayer player;
+	private final IInGamePlayer player;
 	private final ITaskScheduler taskScheduler;
 	private final AiStatistics aiStatistics;
 	private final ArmyGeneral armyGeneral;
@@ -135,7 +136,7 @@ class WhatToDoAi implements IWhatToDoAi {
 	private PioneerGroup broadenerPioneers;
 	private AiPositions.AiPositionFilter[] geologistFilters = new AiPositions.AiPositionFilter[EResourceType.values().length];
 
-	WhatToDoAi(IPlayer player, AiStatistics aiStatistics, EconomyMinister economyMinister, ArmyGeneral armyGeneral, MainGrid mainGrid, ITaskScheduler taskScheduler) {
+	WhatToDoAi(IInGamePlayer player, AiStatistics aiStatistics, EconomyMinister economyMinister, ArmyGeneral armyGeneral, MainGrid mainGrid, ITaskScheduler taskScheduler) {
 		this.player = player;
 		this.playerId = player.getPlayerId();
 		this.mainGrid = mainGrid;
@@ -293,10 +294,7 @@ class WhatToDoAi implements IWhatToDoAi {
 
 		// destroy livinghouses
 		if (economyMinister.automaticLivingHousesEnabled()) {
-			int numberOfFreeBeds = aiStatistics.getNumberOfBuildingTypeForPlayer(EBuildingType.SMALL_LIVINGHOUSE, playerId)
-					* NUMBER_OF_SMALL_LIVING_HOUSE_BEDS
-					+ aiStatistics.getNumberOfBuildingTypeForPlayer(EBuildingType.MEDIUM_LIVINGHOUSE, playerId) * NUMBER_OF_MEDIUM_LIVING_HOUSE_BEDS
-					+ aiStatistics.getNumberOfBuildingTypeForPlayer(EBuildingType.BIG_LIVINGHOUSE, playerId) * NUMBER_OF_BIG_LIVING_HOUSE_BEDS
+			int numberOfFreeBeds = player.getBedInformation().getTotalBedAmount()
 					- aiStatistics.getPositionsOfMovablesWithTypeForPlayer(playerId, EMovableType.BEARER).size();
 			if (numberOfFreeBeds >= NUMBER_OF_SMALL_LIVING_HOUSE_BEDS + 1 && !destroyLivingHouse(SMALL_LIVINGHOUSE)) {
 				if (numberOfFreeBeds >= NUMBER_OF_MEDIUM_LIVING_HOUSE_BEDS + 1 && !destroyLivingHouse(MEDIUM_LIVINGHOUSE)) {
