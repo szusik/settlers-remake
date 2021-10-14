@@ -284,7 +284,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 
 		if (getChildFragmentManager().findFragmentByTag(TAG_FRAGMENT_GOODS_MENU) == null) {
 			getChildFragmentManager().beginTransaction()
-					.replace(R.id.container_menu, GoodsMenuFragment.newInstance(), TAG_FRAGMENT_GOODS_MENU)
+					.replace(R.id.container_menu, GoodsMenuFragment.newInstance(selectionControls.getPlayer().getCivilisation()), TAG_FRAGMENT_GOODS_MENU)
 					.commit();
 		}
 	}

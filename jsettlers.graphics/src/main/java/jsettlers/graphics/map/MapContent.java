@@ -405,7 +405,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 
 		TextDrawer drawer = textDrawer.getTextDrawer(gl, EFontSize.HEADLINE);
 
-		drawer.drawString((windowWidth - drawer.getWidth(msg)) / 2, windowHeight - 2 * EFontSize.HEADLINE.getSize(), color, msg);
+		drawer.drawString((windowWidth - drawer.getWidth(msg)) / 2, windowHeight - 7 * EFontSize.HEADLINE.getSize(), color, msg);
 	}
 
 	private void drawMessages(GLDrawContext gl) {

@@ -48,8 +48,8 @@ import jsettlers.main.android.gameplay.navigation.MenuNavigatorProvider;
 
 @EFragment(R.layout.menu_goods_distribution)
 public class GoodsDistributionFragment extends Fragment implements BackPressedListener {
-	public static GoodsDistributionFragment newInstance() {
-		return new GoodsDistributionFragment_();
+	public static GoodsDistributionFragment newInstance(ECivilisation playerCivilisation) {
+		return GoodsDistributionFragment_.builder().playerCivilisation(playerCivilisation).build();
 	}
 
 	private DistributionViewModel viewModel;
