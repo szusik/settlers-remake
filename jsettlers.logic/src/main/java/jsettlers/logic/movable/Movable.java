@@ -562,7 +562,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 					condition(mov -> {
 						ShortPoint2D decentVector = mov.grid.calcDecentralizeVector(mov.position.x, mov.position.y);
 
-						EDirection randomDirection = mov.getDirection().getNeighbor(MatchConstants.random().nextInt(-1, 1));
+						EDirection randomDirection = mov.getDirection().getNeighbor(MatchConstants.random().nextInt(-2, 2));
 						int dx = randomDirection.gridDeltaX + decentVector.x;
 						int dy = randomDirection.gridDeltaY + decentVector.y;
 
