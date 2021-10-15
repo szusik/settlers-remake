@@ -147,33 +147,39 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 	private List<EBuildingType> determineBuildingMaterialBuildings() {
 		List<EBuildingType> buildingMaterialBuildings = new ArrayList<>();
 
-		int stoneCutterMod = 2;
-		switch (player.getCivilisation()) {
-			case ASIAN:
-				stoneCutterMod = 8;
-			case ROMAN:
-			case AMAZON:
-				for (int i = 0; i < Math.ceil(mapBuildingCounts[LUMBERJACK.ordinal] * buildingIndustryFactor) - 8; i++) {
+		if (player.getCivilisation() == ECivilisation.EGYPTIAN) {
+			for (int i = 0; i < Math.ceil(mapBuildingCounts[STONECUTTER.ordinal] * buildingIndustryFactor) * 4 - 8; i++) {
+				buildingMaterialBuildings.add(STONECUTTER);
+				if (i % 4 == 1)
 					buildingMaterialBuildings.add(LUMBERJACK);
-					if (i % 3 == 1)
-						buildingMaterialBuildings.add(FORESTER);
-					if (i % 2 == 1)
-						buildingMaterialBuildings.add(SAWMILL);
-					if (i % stoneCutterMod == 1)
-						buildingMaterialBuildings.add(STONECUTTER);
-				}
-				break;
-			case EGYPTIAN:
-				for (int i = 0; i < Math.ceil(mapBuildingCounts[STONECUTTER.ordinal] * buildingIndustryFactor)*4 - 8; i++) {
+				if (i % 12 == 1)
+					buildingMaterialBuildings.add(FORESTER);
+				if (i % 6 == 1)
+					buildingMaterialBuildings.add(SAWMILL);
+			}
+		} else {
+			int stoneCutterMod = -1;
+			switch (player.getCivilisation()) {
+				case ROMAN:
+					stoneCutterMod = 2;
+					break;
+				case AMAZON:
+					stoneCutterMod = 3;
+					break;
+				case ASIAN:
+					stoneCutterMod = 8;
+					break;
+			}
+
+			for (int i = 0; i < Math.ceil(mapBuildingCounts[LUMBERJACK.ordinal] * buildingIndustryFactor) - 8; i++) {
+				buildingMaterialBuildings.add(LUMBERJACK);
+				if (i % 3 == 1)
+					buildingMaterialBuildings.add(FORESTER);
+				if (i % 2 == 1)
+					buildingMaterialBuildings.add(SAWMILL);
+				if (i % stoneCutterMod == 1)
 					buildingMaterialBuildings.add(STONECUTTER);
-					if(i % 4 == 1)
-						buildingMaterialBuildings.add(LUMBERJACK);
-					if (i % 12 == 1)
-						buildingMaterialBuildings.add(FORESTER);
-					if (i % 8 == 1)
-						buildingMaterialBuildings.add(SAWMILL);
-				}
-				break;
+			}
 		}
 		return buildingMaterialBuildings;
 	}
@@ -379,6 +385,7 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 				addIfPossible(LUMBERJACK);
 				addIfPossible(STONECUTTER);
 				addIfPossible(LUMBERJACK);
+				addIfPossible(FISHER);
 				break;
 		}
 	}
