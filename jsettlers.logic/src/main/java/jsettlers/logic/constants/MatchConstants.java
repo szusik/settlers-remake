@@ -39,7 +39,7 @@ public final class MatchConstants {
 
 	public static boolean ENABLE_FOG_OF_WAR_DISABLING = false;
 
-	public static final boolean ENABLE_PRODUCTION_LOG = true;
+	public static final boolean ENABLE_PRODUCTION_LOG = false;
 
 	/**
 	 * NOTE: this value has only an effect if it's changed before the MainGrid is created! IT MUSTN'T BE CHANGED AFTER A MAIN GRID HAS BEEN CREATED <br>
