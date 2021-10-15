@@ -146,14 +146,34 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 
 	private List<EBuildingType> determineBuildingMaterialBuildings() {
 		List<EBuildingType> buildingMaterialBuildings = new ArrayList<>();
-		for (int i = 0; i < Math.ceil(mapBuildingCounts[LUMBERJACK.ordinal] * buildingIndustryFactor) - 8; i++) {
-			buildingMaterialBuildings.add(LUMBERJACK);
-			if (i % 3 == 1)
-				buildingMaterialBuildings.add(FORESTER);
-			if (i % 2 == 1)
-				buildingMaterialBuildings.add(SAWMILL);
-			if (i % 2 == 1)
-				buildingMaterialBuildings.add(STONECUTTER);
+
+		int stoneCutterMod = 2;
+		switch (player.getCivilisation()) {
+			case ASIAN:
+				stoneCutterMod = 8;
+			case ROMAN:
+			case AMAZON:
+				for (int i = 0; i < Math.ceil(mapBuildingCounts[LUMBERJACK.ordinal] * buildingIndustryFactor) - 8; i++) {
+					buildingMaterialBuildings.add(LUMBERJACK);
+					if (i % 3 == 1)
+						buildingMaterialBuildings.add(FORESTER);
+					if (i % 2 == 1)
+						buildingMaterialBuildings.add(SAWMILL);
+					if (i % stoneCutterMod == 1)
+						buildingMaterialBuildings.add(STONECUTTER);
+				}
+				break;
+			case EGYPTIAN:
+				for (int i = 0; i < Math.ceil(mapBuildingCounts[STONECUTTER.ordinal] * buildingIndustryFactor)*4 - 8; i++) {
+					buildingMaterialBuildings.add(STONECUTTER);
+					if(i % 4 == 1)
+						buildingMaterialBuildings.add(LUMBERJACK);
+					if (i % 12 == 1)
+						buildingMaterialBuildings.add(FORESTER);
+					if (i % 8 == 1)
+						buildingMaterialBuildings.add(SAWMILL);
+				}
+				break;
 		}
 		return buildingMaterialBuildings;
 	}
@@ -300,90 +320,163 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 		}
 	}
 
+	private void addMinimalBuildingsHighGoods() {
+		switch (player.getCivilisation()) {
+			case AMAZON:
+			case ROMAN:
+			case ASIAN:
+				addIfPossible(LUMBERJACK);
+				addIfPossible(SAWMILL);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(FORESTER);
+				buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
+				addIfPossible(STONECUTTER);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(SAWMILL);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(FORESTER);
+				addIfPossible(FORESTER);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(SAWMILL);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(FORESTER);
+				addIfPossible(STONECUTTER);
+				if(player.getCivilisation() != ECivilisation.ASIAN) {
+					addIfPossible(STONECUTTER);
+					addIfPossible(STONECUTTER);
+					addIfPossible(STONECUTTER);
+				} else {
+					addIfPossible(LUMBERJACK);
+					addIfPossible(SAWMILL);
+					addIfPossible(LUMBERJACK);
+					addIfPossible(LUMBERJACK);
+					addIfPossible(FORESTER);
+				}
+				break;
+			case EGYPTIAN:
+				addIfPossible(STONECUTTER);
+				addIfPossible(STONECUTTER);
+				addIfPossible(STONECUTTER);
+				buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(SAWMILL);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(STONECUTTER);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(FORESTER);
+				addIfPossible(STONECUTTER);
+				addIfPossible(STONECUTTER);
+				addIfPossible(IRONMELT);
+				addIfPossible(TOOLSMITH);
+				addIfPossible(STONECUTTER);
+				addIfPossible(STONECUTTER);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(SAWMILL);
+				addIfPossible(STONECUTTER);
+				addIfPossible(FORESTER);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(STONECUTTER);
+				addIfPossible(LUMBERJACK);
+				break;
+		}
+	}
+
+	private void addMinimalBuildingsMediumGoods() {
+		switch (player.getCivilisation()) {
+			case ROMAN:
+			case AMAZON:
+			case ASIAN:
+				addIfPossible(LUMBERJACK);
+				addIfPossible(SAWMILL);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(FORESTER);
+				buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
+				addIfPossible(STONECUTTER);
+				buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(SAWMILL);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(FORESTER);
+				addIfPossible(STONECUTTER);
+				addIfPossible(IRONMELT);
+				addIfPossible(TOOLSMITH);
+				addIfPossible(FORESTER);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(SAWMILL);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(FORESTER);
+				if(player.getCivilisation() != ECivilisation.ASIAN) {
+					addIfPossible(STONECUTTER);
+					addIfPossible(STONECUTTER);
+					addIfPossible(STONECUTTER);
+				}
+				break;
+			case EGYPTIAN:
+				addIfPossible(STONECUTTER);
+				buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(SAWMILL);
+				addIfPossible(STONECUTTER);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(STONECUTTER);
+				buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
+				addIfPossible(LUMBERJACK);
+				addIfPossible(FORESTER);
+				addIfPossible(STONECUTTER);
+				addIfPossible(STONECUTTER);
+				break;
+		}
+	}
+
+	private void addMinimalBuildingsLowGoods() {
+		addIfPossible(LUMBERJACK);
+		addIfPossible(SAWMILL);
+		addIfPossible(LUMBERJACK);
+		buildingsToBuild.add(SMALL_LIVINGHOUSE);
+		addIfPossible(STONECUTTER);
+		addIfPossible(LUMBERJACK);
+		addIfPossible(FORESTER);
+		buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
+		buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
+		addIfPossible(IRONMELT);
+		addIfPossible(TOOLSMITH);
+		addIfPossible(COALMINE);
+		addIfPossible(IRONMINE);
+		addIfPossible(FISHER);
+		addIfPossible(FARM);
+		addIfPossible(WATERWORKS);
+		addIfPossible(MILL);
+		addIfPossible(BAKER);
+		addIfPossible(COALMINE);
+		addIfPossible(SAWMILL);
+		addIfPossible(LUMBERJACK);
+		addIfPossible(FORESTER);
+		addIfPossible(STONECUTTER);
+		addIfPossible(LUMBERJACK);
+		addIfPossible(LUMBERJACK);
+		addIfPossible(FORESTER);
+		addIfPossible(LUMBERJACK);
+		addIfPossible(SAWMILL);
+		addIfPossible(LUMBERJACK);
+		addIfPossible(FORESTER);
+		buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
+		addIfPossible(STONECUTTER);
+		addIfPossible(STONECUTTER);
+		addIfPossible(STONECUTTER);
+	}
+
 	private void addMinimalBuildingMaterialBuildings() {
 		buildingsToBuild.add(TOWER); // Start Tower
 		if (isHighGoodsGame) {
-			addIfPossible(LUMBERJACK);
-			addIfPossible(SAWMILL);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
-			addIfPossible(STONECUTTER);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(SAWMILL);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			addIfPossible(FORESTER);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(SAWMILL);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			addIfPossible(STONECUTTER);
-			addIfPossible(STONECUTTER);
-			addIfPossible(STONECUTTER);
-			addIfPossible(STONECUTTER);
+			addMinimalBuildingsHighGoods();
 		} else if (isMiddleGoodsGame) {
-			addIfPossible(LUMBERJACK);
-			addIfPossible(SAWMILL);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
-			addIfPossible(STONECUTTER);
-			buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(SAWMILL);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			addIfPossible(STONECUTTER);
-			addIfPossible(IRONMELT);
-			addIfPossible(TOOLSMITH);
-			addIfPossible(FORESTER);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(SAWMILL);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			addIfPossible(STONECUTTER);
-			addIfPossible(STONECUTTER);
-			addIfPossible(STONECUTTER);
+			addMinimalBuildingsMediumGoods();
 		} else {
-			addIfPossible(LUMBERJACK);
-			addIfPossible(SAWMILL);
-			addIfPossible(LUMBERJACK);
-			buildingsToBuild.add(SMALL_LIVINGHOUSE);
-			addIfPossible(STONECUTTER);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
-			buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
-			addIfPossible(IRONMELT);
-			addIfPossible(TOOLSMITH);
-			addIfPossible(COALMINE);
-			addIfPossible(IRONMINE);
-			addIfPossible(FISHER);
-			addIfPossible(FARM);
-			addIfPossible(WATERWORKS);
-			addIfPossible(MILL);
-			addIfPossible(BAKER);
-			addIfPossible(COALMINE);
-			addIfPossible(SAWMILL);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			addIfPossible(STONECUTTER);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(SAWMILL);
-			addIfPossible(LUMBERJACK);
-			addIfPossible(FORESTER);
-			buildingsToBuild.add(MEDIUM_LIVINGHOUSE);
-			addIfPossible(STONECUTTER);
-			addIfPossible(STONECUTTER);
-			addIfPossible(STONECUTTER);
+			addMinimalBuildingsLowGoods();
 		}
 	}
 

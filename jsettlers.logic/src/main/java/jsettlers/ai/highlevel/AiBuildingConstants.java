@@ -32,7 +32,7 @@ class AiBuildingConstants {
 	static final float WEAPON_SMITH_TO_LUMBERJACK_RATIO = 20F / 8F;
 	static final float LUMBERJACK_TO_SAWMILL_RATIO = 2F / 1F;
 	static final float LUMBERJACK_TO_FORESTER_RATIO = 2F / 1F;
-	static final float LUMBERJACK_TO_STONE_CUTTER_RATIO = 8F / 5F;
+	static final float[] LUMBERJACK_TO_STONE_CUTTER_RATIO_PER_CIVILISATION = new float[] {8/5f, 4/5f, 16/5f, 8/5f};
 	static final float COAL_MINE_TO_SMITH_RATIO = 1F / 1.8F;
 	static final float IRON_MINE_TO_IRONMELT_RATIO = COAL_MINE_TO_SMITH_RATIO / COAL_MINE_TO_IRON_MINE_RATIO;
 	static final float MANNA_BUILDING_TO_TEMPLE_RATIO = 1F / 1F;
