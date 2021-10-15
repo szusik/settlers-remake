@@ -47,6 +47,7 @@ public class AiMapInformation {
 	private static final double GEMSTONE_TO_GEM_MINES_RATIO = 100F / 1F;
 	private static final double IRONORE_TO_IRON_MINES_RATIO = 100F / 1F;
 	private static final float GRASS_TO_LUMBERJACK_RATIO = 1360F;
+	private static final float STONE_TO_STONECUTTER_RATIO = 10F;
 	private static final int MIN_SMITHS_BEFORE_MANNA_AND_GOLD_REDUCTION = 10;
 	private static final int MIN_MANNA_PRODUCERS_BEFORE_GOLD_REDUCTION = 2;
 	private static final int MIN_LUMBERJACK_COUNT = 3;
@@ -139,7 +140,9 @@ public class AiMapInformation {
 		buildingCounts[EBuildingType.LUMBERJACK.ordinal] = numberOfLumberJacks;
 		buildingCounts[EBuildingType.FORESTER.ordinal] = Math.max((int) (numberOfLumberJacks / LUMBERJACK_TO_FORESTER_RATIO), 1);
 		buildingCounts[EBuildingType.SAWMILL.ordinal] = Math.max((int) (numberOfLumberJacks / LUMBERJACK_TO_SAWMILL_RATIO), 1);
-		buildingCounts[EBuildingType.STONECUTTER.ordinal] = Math.max((int) (numberOfLumberJacks / LUMBERJACK_TO_STONE_CUTTER_RATIO_PER_CIVILISATION[civilisation.ordinal]), 1);
+
+
+		buildingCounts[EBuildingType.STONECUTTER.ordinal] = Math.max((int) (numberOfWeaponSmiths / WEAPON_SMITH_TO_STONECUTTER_RATIO), 1);
 
 		buildingCounts[EBuildingType.GEMSMINE.ordinal] = maxGemsMines;
 
