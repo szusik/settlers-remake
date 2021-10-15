@@ -181,6 +181,7 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 		if(hasBed) {
 			if(!player.getBedInformation().testIfBedStillExists()) {
 				hasBed = false;
+				abortJob();
 			}
 		}
 
