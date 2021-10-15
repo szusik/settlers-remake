@@ -97,11 +97,11 @@ public class PigFarmerMovable extends BuildingWorkerMovable {
 										sleep(1000),
 
 										// place new pig
+										show(),
+										setMaterialNode(EMaterialType.BASKET),
 										setPigAtTarget(mov -> mov.targetFreePig, true),
 										goToPos(mov -> mov.targetFreePig),
-										setMaterialNode(EMaterialType.BASKET),
 										setDirectionNode(EDirection.SOUTH_EAST),
-										show(),
 										goToPos(PigFarmerMovable::getPigPlacePosition),
 										setDirectionNode(EDirection.NORTH_EAST),
 										playAction(EMovableAction.ACTION1, (short)2000)

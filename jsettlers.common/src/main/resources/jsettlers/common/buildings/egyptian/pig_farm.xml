@@ -85,7 +85,8 @@
 	<blocked dx="-6" dy="-2" />
 	<blocked dx="-2" dy="0" />
 	<blocked dx="-3" dy="-1" />
-	<blocked dx="-2" dy="1" />
+	<blocked dx="-4" dy="-1" />
+	<blocked dx="-4" dy="0" />
 
 	<blocked dx="3" dy="6" block="false" />
 	<blocked dx="4" dy="6" block="false" />
@@ -136,12 +137,11 @@
 	<blocked dx="-6" dy="1" block="false" />
 	<blocked dx="-4" dy="2" block="false" />
 	<blocked dx="6" dy="6" block="false" />
-	<blocked dx="-4" dy="0" block="false" />
 	<blocked dx="-3" dy="0" block="false" />
 	<blocked dx="-3" dy="1" block="false" />
 	<blocked dx="-2" dy="2" block="false" />
 	<blocked dx="-3" dy="2" block="false" />
-	<blocked dx="-4" dy="-1" block="false" />
+	<blocked dx="-2" dy="1" block="false" />
 
 	<door dx="1" dy="4" />
 
@@ -171,12 +171,11 @@
 
 
 
-	<pigFeedPosition dx="-3" dy="0" />
+	<pigFeedPosition dx="-2" dy="2" />
 
-	<animalPosition dx="-3" dy="-1"/>
-	<animalPosition dx="-2" dy="0"/>
-	<animalPosition dx="-4" dy="-1"/>
-	<animalPosition dx="-4" dy="0"/>
+	<animalPosition dx="-2" dy="1"/>
+	<animalPosition dx="-3" dy="1"/>
+	<animalPosition dx="-3" dy="2"/>
 
 
 	<image file="24" type="GUI" for="GUI" image="0" sequence="66" />

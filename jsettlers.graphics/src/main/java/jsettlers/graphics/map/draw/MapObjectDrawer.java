@@ -229,7 +229,7 @@ public class MapObjectDrawer {
 		this.sound = sound;
 
 		z_per_y = 1f/(context.getMap().getHeight()*100);
-		shadow_offset = 10 * z_per_y;
+		shadow_offset = 20 * z_per_y;
 		construction_offset = z_per_y;
 		molten_metal_offset = z_per_y;
 	}
