@@ -32,3 +32,6 @@ logs
 /replayForSavegame.log
 
 out/
+
+productionStats/*.png
+productionStats/*.log

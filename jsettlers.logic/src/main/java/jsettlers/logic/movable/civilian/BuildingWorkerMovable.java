@@ -1,11 +1,9 @@
 package jsettlers.logic.movable.civilian;
 
 import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
-import jsettlers.algorithms.simplebehaviortree.IBooleanConditionFunction;
 import jsettlers.algorithms.simplebehaviortree.IEMaterialTypeSupplier;
 import jsettlers.algorithms.simplebehaviortree.IShortSupplier;
 import jsettlers.algorithms.simplebehaviortree.Node;
-import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.simplebehaviortree.nodes.Guard;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
@@ -19,12 +17,17 @@ import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableWorker;
 import jsettlers.logic.map.grid.partition.manager.manageables.interfaces.IWorkerRequestBuilding;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.movable.interfaces.IBuildingWorkerMovable;
 import jsettlers.logic.player.Player;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
@@ -38,11 +41,33 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		super(grid, movableType, position, player, replace);
 	}
 
+	public static void resetProductionFile() {
+		if(!MatchConstants.ENABLE_PRODUCTION_LOG) return;
+
+		if(OUT != null) {
+			OUT.close();
+		}
+
+		try {
+			OUT = new PrintStream(new FileOutputStream("produced" + System.currentTimeMillis() + ".log"));
+		} catch (IOException e) {
+			throw new Error(e);
+		}
+	}
+
+	private static PrintStream OUT;
+
 	protected static <T extends BuildingWorkerMovable> Node<T> dropProduced(IEMaterialTypeSupplier<T> material) {
 		return sequence(
 				action(mov -> {
-					if(material.apply(mov) == EMaterialType.GOLD) {
+					EMaterialType mat = material.apply(mov);
+					if(mat == EMaterialType.GOLD) {
 						mov.getPlayer().getEndgameStatistic().incrementAmountOfProducedGold();
+					}
+
+					if(MatchConstants.ENABLE_PRODUCTION_LOG) {
+						OUT.println(MatchConstants.clock().getTime() + "," + mat);
+						OUT.flush();
 					}
 				}),
 				drop(material, true)
