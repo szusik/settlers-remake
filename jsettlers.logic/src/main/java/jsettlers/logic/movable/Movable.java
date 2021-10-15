@@ -500,7 +500,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 	}
 
 	protected static <T extends Movable> Node<T> doingNothingAction() {
-		return sequence(
+		return selector(
 				idleAction(),
 				sequence(
 					action(mov -> {
