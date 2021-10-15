@@ -44,7 +44,10 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 									mov -> mov.grid.setMarked(mov.targetPosition, false),
 									sequence(
 										action(mov -> {mov.grid.setMarked(mov.targetPosition, true);}),
-										goToPos(mov -> mov.targetPosition),
+										selector(
+											condition(mov -> mov.position.equals(mov.targetPosition)),
+											goToPos(mov -> mov.targetPosition)
+										),
 										playAction(EMovableAction.ACTION1, (short)1000),
 										action(DiggerMovable::executeDigg)
 									)
