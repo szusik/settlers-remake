@@ -314,7 +314,7 @@ public class EditorControl extends EditorControlBase implements IMapInterfaceLis
 		// center on screen
 		window.setLocationRelativeTo(null);
 
-		this.mapContent = new MapContent(new FakeMapGame(map), new SwingSoundPlayer(SettingsManager.getInstance()), ETextDrawPosition.TOP_RIGHT,
+		this.mapContent = new MapContent(new FakeMapGame(map), new SwingSoundPlayer(SettingsManager.getInstance()), ETextDrawPosition.DESKTOP,
 				new MapEditorControls(new CombiningActionFirerer(this)));
 		connector = mapContent.getInterfaceConnector();
 		region.setContent(mapContent);

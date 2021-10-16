@@ -416,7 +416,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		float offsetX;
 		float yDirection;
 		int messageIndex;
-		if(textDrawPosition == ETextDrawPosition.TOP_RIGHT) {
+		if(textDrawPosition == ETextDrawPosition.DESKTOP) {
 			offsetY = MESSAGE_OFFSET_Y;
 			offsetX = MESSAGE_OFFSET_X;
 			yDirection = 1;
@@ -496,7 +496,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		float sideXOffset = 2 * letterWidth;
 
 		float x;
-		if(textDrawPosition == ETextDrawPosition.TOP_LEFT) {
+		if(textDrawPosition == ETextDrawPosition.MOBILE) {
 			x = sideXOffset;
 
 			drawer.drawString(x, yFirstLine, fps);
