@@ -59,7 +59,7 @@ public class AndroidAutoReplayIT extends InstrumentationTestCase {
 		File outputDirectory = context.getCacheDir();
 		outputDirectory.mkdirs();
 
-		MapList.setDefaultListFactory(new AndroidMapListFactory(context.getAssets(), outputDirectory));
+		MapList.setDefaultListFactory(new AndroidMapListFactory(context.getAssets(), null, outputDirectory));
 		AndroidResourceProvider provider = new AndroidResourceProvider(context, outputDirectory);
 		ResourceManager.setProvider(provider);
 	}
