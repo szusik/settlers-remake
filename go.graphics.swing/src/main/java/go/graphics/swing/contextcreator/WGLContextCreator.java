@@ -14,6 +14,7 @@
  *******************************************************************************/
 package go.graphics.swing.contextcreator;
 
+import javax.swing.SwingUtilities;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.WGL;
 import org.lwjgl.opengl.WGLARBCreateContext;
@@ -23,6 +24,8 @@ import org.lwjgl.system.windows.GDI32;
 import org.lwjgl.system.windows.PIXELFORMATDESCRIPTOR;
 
 import go.graphics.swing.ContextContainer;
+import org.lwjgl.system.windows.RECT;
+import org.lwjgl.system.windows.User32;
 
 public class WGLContextCreator extends JAWTContextCreator {
 	private long context = 0;
@@ -119,5 +122,14 @@ public class WGLContextCreator extends JAWTContextCreator {
 
 		if(context == 0) error("Could not create WGL context!");
 		parent.wrapNewGLContext();
+	}
+
+	@Override
+	public float getScale() {
+		RECT rect = RECT.create();
+		User32.GetWindowRect(windowConnection, rect);
+		int realWidth = rect.right()-rect.left();
+		int swingWidth = SwingUtilities.windowForComponent(canvas).getWidth();
+		return realWidth/(float)swingWidth;
 	}
 }
