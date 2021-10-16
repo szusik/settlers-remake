@@ -194,6 +194,5 @@
 	<image file="24" type="GUI" for="GUI" image="0" sequence="105" />
 	<image file="23" type="SETTLER" for="FINAL" image="0" sequence="32" />
 	<image file="23" type="SETTLER" for="BUILD" image="1" sequence="32" />
-	<image file="23" type="SETTLER" for="FINAL" image="2" sequence="32" />
 
 </building>

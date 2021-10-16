@@ -11,7 +11,6 @@
 	<ground groundtype="FLATTENED_DESERT"/>
 	<ground groundtype="SHARP_FLATTENED_DESERT"/>
 	<ground groundtype="FLATTENED" />
-
 	<blocked dx="-2" dy="-3" />
 	<blocked dx="-2" dy="-2" />
 	<blocked dx="-2" dy="-1" />
@@ -128,15 +127,14 @@
 	<blocked dx="-2" dy="4" block="false" />
 	<blocked dx="0" dy="6" block="false" />
 	<blocked dx="1" dy="7" block="false" />
+	<blocked dx="6" dy="0" block="false" />
 
 	<door dx="0" dy="3" />
 
 	<constructionStack dx="7" dy="4" material="STONE" buildrequired="5" />
 	<constructionStack dx="7" dy="6" material="PLANK" buildrequired="2" />
-
 	<requestStack dx="7" dy="3" material="CROP" />
 	<requestStack dx="4" dy="8" material="WATER" />
-
 	<offerStack dx="-2" dy="4" material="KEG" />
 
 	<bricklayer dx="-2" dy="3" direction="NORTH_EAST" />
