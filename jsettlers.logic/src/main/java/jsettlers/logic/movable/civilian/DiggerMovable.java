@@ -130,9 +130,13 @@ public class DiggerMovable extends CivilianMovable implements IManageableDigger 
 
 	private boolean isNotFlattened(ShortPoint2D pos) {
 		// some places can't be flattened
-		if(!grid.canChangeLandscapeTo(pos.x, pos.y, ELandscapeType.FLATTENED)) return false;
+		if(!grid.canChangeLandscapeTo(pos.x, pos.y, ELandscapeType.FLATTENED) &&
+				!grid.canChangeLandscapeTo(pos.x, pos.y, ELandscapeType.FLATTENED_DESERT)) return false;
 
-		return grid.getLandscapeTypeAt(pos.x, pos.y) != ELandscapeType.FLATTENED;
+
+		ELandscapeType currentLandscape = grid.getLandscapeTypeAt(pos.x, pos.y);
+
+		return currentLandscape != ELandscapeType.FLATTENED && currentLandscape != ELandscapeType.FLATTENED_DESERT;
 	}
 
 	private boolean needsToChangeHeight(ShortPoint2D pos) {
