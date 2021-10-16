@@ -92,7 +92,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 	}
 
 	private void initSoldierRequests() {
-		final OccupierPlace[] occupierPlaces = super.getBuildingVariant().getOccupierPlaces();
+		final OccupierPlace[] occupierPlaces = getBuildingVariant().getOccupierPlaces();
 		if (occupierPlaces.length > 0) {
 			emptyPlaces.addAll(Arrays.asList(occupierPlaces));
 			requestSoldier(ESoldierClass.INFANTRY);
