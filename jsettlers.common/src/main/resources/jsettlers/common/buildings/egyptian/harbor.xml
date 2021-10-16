@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE building SYSTEM "../building.dtd" >
 <building worker="">
-	<ground groundtype="GRASS"/>
-	<ground groundtype="EARTH"/>
-	<ground groundtype="FLATTENED"/>
+	<ground groundtype="GRASS" />
+	<ground groundtype="EARTH" />
+	<ground groundtype="DESERT" />
+	<ground groundtype="DESERTBORDER"/>
+	<ground groundtype="DESERTBORDEROUTER"/>
+	<ground groundtype="DRY_GRASS"/>
+	<ground groundtype="FLATTENED_DESERT"/>
+	<ground groundtype="SHARP_FLATTENED_DESERT"/>
+	<ground groundtype="FLATTENED" />
 
 	<blocked dx="0" dy="0" />
 	<blocked dx="-1" dy="0" />
