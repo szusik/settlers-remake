@@ -174,12 +174,12 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 								//try taking fish
 								condition(mov -> mov.grid.tryTakingResource(mov.getDirection().getNextHexPoint(mov.position), EResourceType.FISH)),
 								sequence(// fishing failed
-									playAction(EMovableAction.ACTION3, (short)2000),
+									playAction(EMovableAction.ACTION2, (short)2000),
 									alwaysFail()
 								)
 							),
 							// fishing succeeded
-							playAction(EMovableAction.ACTION2, (short)1000),
+							playAction(EMovableAction.ACTION3, (short)1000),
 							setMaterialNode(EMaterialType.FISH),
 							goToOutputStack(EMaterialType.FISH),
 							setDirectionNode(mov -> EDirection.SOUTH_WEST),
