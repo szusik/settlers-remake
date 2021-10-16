@@ -69,7 +69,7 @@ public class AndroidResourcesLoader {
 		SoundManager.setLookupPath(settlersFolders.sndFolder);
 		MusicManager.setLookupPath(settlersFolders.musicFolder);
 
-		MapList.setDefaultListFactory(new AndroidMapListFactory(context.getAssets(), outputDirectory));
+		MapList.setDefaultListFactory(new AndroidMapListFactory(context.getAssets(), settlersFolders.mapsFolder, outputDirectory));
 		ResourceManager.setProvider(new AndroidResourceProvider(context, outputDirectory));
 		return true;
 	}
