@@ -195,6 +195,7 @@ public class MapObjectDrawer {
 	private final float shadow_offset;
 	private final float construction_offset;
 	private final float molten_metal_offset;
+	private final float tower_front_offset;
 
 	private static final int SMOKE_HEIGHT = 30;
 
@@ -232,6 +233,7 @@ public class MapObjectDrawer {
 		shadow_offset = 20 * z_per_y;
 		construction_offset = z_per_y;
 		molten_metal_offset = z_per_y;
+		tower_front_offset = z_per_y / 2;
 	}
 
 	public void setVisibleGrid(byte[][] visibleGrid) {
@@ -1332,7 +1334,7 @@ public class MapObjectDrawer {
 
 				for (int i = 1; i < images.length; i++) {
 					Image image = imageProvider.getImage(images[i]);
-					draw(image, x, y, 0, color);
+					draw(image, x, y, tower_front_offset, color);
 				}
 			}
 		} else if (state >= .01f) {
