@@ -155,7 +155,6 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private static final float OVERDRAW_BOTTOM_PX = 50;
 	private static final float MESSAGE_OFFSET_X = 300;
 	private static final int MESSAGE_OFFSET_Y = 30;
-	private static final int MESSAGE_LINE_HEIGHT = 18;
 	private static final long GOTO_MARK_TIME = 1500;
 	private static final long DOUBLE_CLICK_TIME = 500;
 	/**
@@ -409,12 +408,29 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	}
 
 	private void drawMessages(GLDrawContext gl) {
-		TextDrawer drawer = textDrawer.getTextDrawer(gl, EFontSize.HEADLINE);
-		int messageIndex = 0;
+		EFontSize fontSize = EFontSize.HEADLINE;
+		TextDrawer drawer = textDrawer.getTextDrawer(gl, fontSize);
 		messenger.doTick();
+
+		float offsetY;
+		float offsetX;
+		float yDirection;
+		int messageIndex;
+		if(textDrawPosition == ETextDrawPosition.TOP_RIGHT) {
+			offsetY = MESSAGE_OFFSET_Y;
+			offsetX = MESSAGE_OFFSET_X;
+			yDirection = 1;
+			messageIndex = 0;
+		} else {
+			offsetY = windowHeight - MESSAGE_OFFSET_Y*2;
+			offsetX = 30;
+			yDirection = -1;
+			messageIndex = 1;
+		}
+
 		for (IMessage m : messenger.getMessages()) {
-			float x = MESSAGE_OFFSET_X;
-			int y = MESSAGE_OFFSET_Y + messageIndex * MESSAGE_LINE_HEIGHT;
+			float x = offsetX;
+			float y = offsetY + messageIndex * (fontSize.getSize()*1.3f) * yDirection;
 			float a = messageAlpha(m);
 			if (m.getSender() >= 0) {
 				String name = getPlayername(m.getSender()) + ":";
@@ -479,16 +495,34 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 
 		float sideXOffset = 2 * letterWidth;
 
-		drawer.drawString(getConfiguredX(sideXOffset, windowWidth, fps.length() * letterWidth), yFirstLine, fps);
-		drawer.drawString(getConfiguredX(sideXOffset + (fps.length()+2) * letterWidth, windowWidth, 9 * letterWidth), yFirstLine, timeString);
-		drawer.drawString(getConfiguredX(sideXOffset, windowWidth, 7 * letterWidth), ySecondLine, CommitInfo.COMMIT_HASH_SHORT);
-	}
+		float x;
+		if(textDrawPosition == ETextDrawPosition.TOP_LEFT) {
+			x = sideXOffset;
 
-	private float getConfiguredX(float borderDistance, int windowWidth, float fixedTextLength) {
-		if (textDrawPosition == ETextDrawPosition.TOP_LEFT) {
-			return borderDistance;
+			drawer.drawString(x, yFirstLine, fps);
+			x += fps.length() * letterWidth;
+
+			drawer.drawString(x, yFirstLine, timeString);
+			x += timeString.length() * letterWidth;
+
+			if(x > windowWidth) {
+				x = sideXOffset;
+				drawer.drawString(x, ySecondLine, CommitInfo.COMMIT_HASH_SHORT);
+			} else {
+				drawer.drawString(x, yFirstLine, CommitInfo.COMMIT_HASH_SHORT);
+				x += 9 * letterWidth;
+			}
 		} else {
-			return windowWidth - (borderDistance + fixedTextLength);
+			x = windowWidth - (sideXOffset);
+
+			x -= 9 * letterWidth;
+			drawer.drawString(x, yFirstLine, CommitInfo.COMMIT_HASH_SHORT);
+
+			x -= timeString.length() * letterWidth;
+			drawer.drawString(x, yFirstLine, timeString);
+
+			x -= fps.length() * letterWidth;
+			drawer.drawString(x, yFirstLine, fps);
 		}
 	}
 
