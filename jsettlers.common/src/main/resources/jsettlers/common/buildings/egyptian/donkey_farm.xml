@@ -4,6 +4,7 @@
 	<ground groundtype="GRASS" />
 	<ground groundtype="EARTH" />
 	<ground groundtype="FLATTENED" />
+
 	<blocked dx="-2" dy="-3" />
 	<blocked dx="-2" dy="-2" />
 	<blocked dx="-2" dy="-1" />
@@ -75,15 +76,16 @@
 	<blocked dx="-4" dy="-5" />
 	<blocked dx="-4" dy="-3" />
 	<blocked dx="-3" dy="-5" />
+	<blocked dx="2" dy="2" />
+	<blocked dx="2" dy="3" />
+	<blocked dx="2" dy="4" />
+	<blocked dx="3" dy="3" />
+	<blocked dx="4" dy="7" />
 
 	<blocked dx="4" dy="4" block="false" />
-	<blocked dx="2" dy="4" block="false" />
 	<blocked dx="3" dy="4" block="false" />
 	<blocked dx="3" dy="5" block="false" />
 	<blocked dx="4" dy="5" block="false" />
-	<blocked dx="2" dy="3" block="false" />
-	<blocked dx="2" dy="2" block="false" />
-	<blocked dx="3" dy="3" block="false" />
 	<blocked dx="-1" dy="-4" block="false" />
 	<blocked dx="-2" dy="-5" block="false" />
 	<blocked dx="-3" dy="-6" block="false" />
@@ -100,7 +102,6 @@
 	<blocked dx="7" dy="4" block="false" />
 	<blocked dx="8" dy="6" block="false" />
 	<blocked dx="8" dy="7" block="false" />
-	<blocked dx="4" dy="7" block="false" />
 	<blocked dx="8" dy="8" block="false" />
 	<blocked dx="5" dy="5" block="false" />
 	<blocked dx="5" dy="6" block="false" />
@@ -166,10 +167,10 @@
 	<buildmark dx="2" dy="-2" />
 	<buildmark dx="4" dy="3" />
 
-	<donkeyFeedPosition dx="2" dy="3" direction="NORTH_EAST"/>
-	<donkeyFeedPosition dx="3" dy="4" direction="SOUTH_WEST"/>
+	<donkeyFeedPosition dx="5" dy="6" direction="NORTH_EAST"/>
+	<donkeyFeedPosition dx="4" dy="5" direction="NORTH_EAST"/>
 
-	<animalPosition dx="2" dy="2"/>
+	<animalPosition dx="5" dy="5"/>
 	<animalPosition dx="4" dy="4"/>
 
 	<image file="24" for="GUI" type="GUI" sequence="81" image="0"/>
