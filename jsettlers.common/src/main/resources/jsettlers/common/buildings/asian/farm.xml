@@ -69,8 +69,11 @@
 	<blocked dx="1" dy="-2" />
 	<blocked dx="3" dy="-1" />
 	<blocked dx="-2" dy="-5" />
+	<blocked dx="-1" dy="0" />
+	<blocked dx="-2" dy="0" />
+	<blocked dx="4" dy="1" />
+	<blocked dx="-3" dy="3" />
 
-	<blocked dx="-3" dy="3" block="false" />
 	<blocked dx="-2" dy="4" block="false" />
 	<blocked dx="-1" dy="5" block="false" />
 	<blocked dx="-1" dy="4" block="false" />
@@ -95,9 +98,7 @@
 	<blocked dx="3" dy="5" block="false" />
 	<blocked dx="2" dy="5" block="false" />
 	<blocked dx="1" dy="5" block="false" />
-	<blocked dx="-1" dy="0" block="false" />
 	<blocked dx="-2" dy="1" block="false" />
-	<blocked dx="-2" dy="0" block="false" />
 	<blocked dx="-1" dy="1" block="false" />
 	<blocked dx="-1" dy="2" block="false" />
 	<blocked dx="-2" dy="3" block="false" />
@@ -110,7 +111,6 @@
 	<blocked dx="-3" dy="4" block="false" />
 	<blocked dx="4" dy="2" block="false" />
 	<blocked dx="5" dy="1" block="false" />
-	<blocked dx="4" dy="1" block="false" />
 	<blocked dx="5" dy="2" block="false" />
 	<blocked dx="2" dy="6" block="false" />
 	<blocked dx="3" dy="6" block="false" />
@@ -120,6 +120,7 @@
 	<blocked dx="2" dy="-3" block="false" />
 	<blocked dx="0" dy="-5" block="false" />
 	<blocked dx="-1" dy="-5" block="false" />
+	<blocked dx="5" dy="3" block="false" />
 
 	<door dx="-1" dy="1" />
 
@@ -127,11 +128,13 @@
 	<constructionStack dx="3" dy="6" material="STONE" buildrequired="3" />
 	<offerStack dx="2" dy="6" material="CROP" />
 
-	<bricklayer dx="-2" dy="4" direction="NORTH_EAST" />
-	<bricklayer dx="0" dy="5" direction="NORTH_EAST" />
-	<bricklayer dx="2" dy="5" direction="NORTH_WEST" />
-	<bricklayer dx="4" dy="2" direction="NORTH_WEST" />
-	<bricklayer dx="4" dy="0" direction="NORTH_WEST" />
+	<bricklayer dx="-6" dy="1" direction="NORTH_EAST" />
+	<bricklayer dx="-5" dy="2" direction="NORTH_EAST" />
+	<bricklayer dx="-4" dy="3" direction="NORTH_EAST" />
+	<bricklayer dx="3" dy="5" direction="NORTH_WEST" />
+	<bricklayer dx="3" dy="4" direction="NORTH_WEST" />
+	<bricklayer dx="4" dy="3" direction="NORTH_WEST" />
+	<bricklayer dx="5" dy="2" direction="NORTH_WEST" />
 
 	<flag dx="-4" dy="-5" />
 
@@ -141,6 +144,7 @@
 	<buildmark dx="3" dy="3" />
 	<buildmark dx="-4" dy="-3" />
 	<buildmark dx="-6" dy="0" />
+	<buildmark dx="-3" dy="2" />
 
 
 
