@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import jsettlers.common.movable.EDirection;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -84,6 +85,25 @@ public class BuildingConfigurationsTest {
 		for (RelativeStack stack : building.getOfferStacks()) {
 			assertFalse(building + "", isBlocked(stack));
 			assertTrue(building + "", isProtected(stack));
+		}
+	}
+
+	@Test
+	public void testBricklayerPositionsAreNotBlockedButProtected() {
+		for(RelativePoint bricklayerPosition : building.getBricklayers()) {
+			assertTrue(building + ": " + bricklayerPosition + " is not protected!", isProtected(bricklayerPosition));
+			assumeFalse(building + ": " + bricklayerPosition + " is blocked!", isBlocked(bricklayerPosition));
+		}
+	}
+
+	@Test
+	public void testBuildingsAreSurroundedByProtectedPositions() {
+		for(RelativePoint pos : building.getBlockedTiles()) {
+			for(EDirection dir : new EDirection[] {EDirection.NORTH_EAST, EDirection.SOUTH_EAST, EDirection.NORTH_WEST, EDirection.SOUTH_WEST, EDirection.EAST, EDirection.WEST}) {
+				RelativePoint neighbour = new RelativePoint(pos.getDx() + dir.getGridDeltaX(), pos.getDy() + dir.getGridDeltaY());
+
+				assertTrue(pos + " has a non protected neighbour!", isProtected(neighbour));
+			}
 		}
 	}
 
