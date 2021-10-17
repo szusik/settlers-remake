@@ -50,6 +50,7 @@ import jsettlers.common.movable.IGraphicsFerry;
 import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.movable.IGraphicsThief;
 import jsettlers.common.movable.IShipInConstruction;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.player.IPlayerable;
@@ -896,7 +897,12 @@ public class MapObjectDrawer {
 				viewX = context.getConverter().getViewX(position.x, position.y, metalHeight);
 				viewY = context.getConverter().getViewY(position.x, position.y, metalHeight);
 
-				int metal = building.getBuildingVariant().isVariantOf(EBuildingType.IRONMELT) ? 37 : 36;
+				int metal;
+				if(movable.getPlayer().getCivilisation() == ECivilisation.ASIAN) {
+					metal = building.getBuildingVariant().isVariantOf(EBuildingType.IRONMELT) ? 39 : 38;
+				} else {
+					metal = building.getBuildingVariant().isVariantOf(EBuildingType.IRONMELT) ? 37 : 36;
+				}
 
 				ImageLink link = new OriginalImageLink(EImageLinkType.SETTLER, movable.getPlayer().getCivilisation().getFileIndex()*10 + 3, metal, number > 24 ? 24 : number);
 				image = imageProvider.getImage(link);
