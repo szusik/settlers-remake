@@ -144,7 +144,13 @@ public final class NetworkConstants {
 		CHAT_MESSAGE,
 		TIME_SYNC,
 
-		CHANGE_START_FINISHED;
+		CHANGE_START_FINISHED,
+
+		CHANGE_CIVILISATION,
+		CHANGE_TEAM,
+		CHANGE_PLAYER_TYPE,
+		CHANGE_POSITION,
+		;
 
 		private static final ENetworkKey[] values = ENetworkKey.values();
 		private final byte ordinal;

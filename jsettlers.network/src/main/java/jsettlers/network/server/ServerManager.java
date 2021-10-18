@@ -24,6 +24,10 @@ import jsettlers.network.infrastructure.channel.Channel;
 import jsettlers.network.infrastructure.channel.reject.RejectPacket;
 import jsettlers.network.server.db.IDBFacade;
 import jsettlers.network.server.exceptions.NotAllPlayersReadyException;
+import jsettlers.network.server.listeners.ChangeCivilisationPacketListener;
+import jsettlers.network.server.listeners.ChangePlayerTypePacketListener;
+import jsettlers.network.server.listeners.ChangePositionPacketListener;
+import jsettlers.network.server.listeners.ChangeTeamPacketListener;
 import jsettlers.network.server.listeners.ChatMessageForwardingListener;
 import jsettlers.network.server.listeners.IdentifyUserListener;
 import jsettlers.network.server.listeners.ReadyStatePacketListener;
@@ -86,6 +90,10 @@ public class ServerManager implements IServerManager {
 			channel.registerListener(new TimeSyncForwardingListener(this, player));
 			channel.registerListener(new ReadyStatePacketListener(this, player));
 			channel.registerListener(new StartFinishedSignalListener(this, player));
+			channel.registerListener(new ChangeCivilisationPacketListener(this, player));
+			channel.registerListener(new ChangePlayerTypePacketListener(this, player));
+			channel.registerListener(new ChangePositionPacketListener(this, player));
+			channel.registerListener(new ChangeTeamPacketListener(this, player));
 
 			return true;
 		} else {
