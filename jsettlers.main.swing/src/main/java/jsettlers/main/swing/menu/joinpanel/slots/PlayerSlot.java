@@ -154,17 +154,23 @@ public class PlayerSlot {
 		});
 		civilisationComboBox.addActionListener(e -> {
 			if (informGameAboutChanges) {
+				gameToBeInformedAboutChanges.setCivilisation(index, ((CivilisationUiWrapper) civilisationComboBox.getSelectedItem()).getCivilisation());
 
 			}
 		});
 		typeComboBox.addActionListener(e -> {
 			if (informGameAboutChanges) {
-
+				gameToBeInformedAboutChanges.setType(index, ((PlayerTypeUiWrapper) typeComboBox.getSelectedItem()).getPlayerType());
 			}
 		});
 		slotComboBox.addActionListener(e -> {
+			if(informGameAboutChanges) {
+				gameToBeInformedAboutChanges.setPosition(index, (Byte) slotComboBox.getSelectedItem());
+			}
+		});
+		teamComboBox.addActionListener(e -> {
 			if (informGameAboutChanges) {
-
+				gameToBeInformedAboutChanges.setTeam(index, (Byte) teamComboBox.getSelectedItem());
 			}
 		});
 	}

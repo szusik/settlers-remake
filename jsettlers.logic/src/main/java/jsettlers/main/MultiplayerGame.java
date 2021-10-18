@@ -244,6 +244,26 @@ public class MultiplayerGame {
 			}
 
 			@Override
+			public void setCivilisation(byte slot, ECivilisation civilisation) {
+				networkClient.setCivilisation(slot, (byte) civilisation.ordinal);
+			}
+
+			@Override
+			public void setTeam(byte slot, byte team) {
+				networkClient.setType(slot, team);
+			}
+
+			@Override
+			public void setType(byte slot, EPlayerType playerType) {
+				networkClient.setType(slot, (byte) playerType.ordinal());
+			}
+
+			@Override
+			public void setPosition(byte slot, byte position) {
+				networkClient.setPosition(slot, position);
+			}
+
+			@Override
 			public void setMultiplayerListener(IMultiplayerListener multiplayerListener) {
 				MultiplayerGame.this.multiplayerListener = multiplayerListener;
 			}

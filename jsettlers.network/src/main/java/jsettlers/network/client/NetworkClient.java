@@ -152,7 +152,27 @@ public class NetworkClient implements ITaskScheduler, INetworkConnector, INetwor
 	@Override
 	public void setReadyState(boolean ready) throws IllegalStateException {
 		EPlayerState.assertState(state, EPlayerState.IN_MATCH);
-		channel.sendPacketAsync(NetworkConstants.ENetworkKey.CHANGE_READY_STATE, new BooleanMessagePacket(ready));
+		channel.sendPacketAsync(ENetworkKey.CHANGE_READY_STATE, new BooleanMessagePacket(ready));
+	}
+
+	@Override
+	public void setCivilisation(byte slot, byte civilisation) throws IllegalStateException {
+		EPlayerState.assertState(state, EPlayerState.IN_MATCH);
+	}
+
+	@Override
+	public void setTeam(byte slot, byte team) throws IllegalStateException {
+		EPlayerState.assertState(state, EPlayerState.IN_MATCH);
+	}
+
+	@Override
+	public void setType(byte slot, byte playerType) throws IllegalStateException {
+		EPlayerState.assertState(state, EPlayerState.IN_MATCH);
+	}
+
+	@Override
+	public void setPosition(byte slot, byte position) throws IllegalStateException {
+		EPlayerState.assertState(state, EPlayerState.IN_MATCH);
 	}
 
 	@Override

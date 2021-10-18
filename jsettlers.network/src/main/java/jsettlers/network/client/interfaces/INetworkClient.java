@@ -92,6 +92,14 @@ public interface INetworkClient {
 
 	void setReadyState(boolean ready) throws IllegalStateException;
 
+	void setCivilisation(byte slot, byte civilisation) throws IllegalStateException;
+
+	void setTeam(byte slot, byte team) throws IllegalStateException;
+
+	void setType(byte slot, byte playerType) throws IllegalStateException;
+
+	void setPosition(byte slot, byte position) throws IllegalStateException;
+
 	void sendChatMessage(String message) throws IllegalStateException;
 
 	void leaveMatch();
