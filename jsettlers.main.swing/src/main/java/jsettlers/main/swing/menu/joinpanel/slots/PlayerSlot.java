@@ -58,9 +58,13 @@ public class PlayerSlot {
 	private ISlotListener slotListener;
 	private boolean isAvailable;
 	private boolean isReady = true;
-	private IJoinPhaseMultiplayerGameConnector gameToBeInformedAboutReady;
+	private boolean informGameAboutReady;
+	private boolean informGameAboutChanges;
+	private IJoinPhaseMultiplayerGameConnector gameToBeInformedAboutChanges;
+	private byte index;
 
-	public PlayerSlot() {
+	public PlayerSlot(byte index) {
+		this.index = index;
 		isAvailable = true;
 		setStyle();
 		localize();
@@ -144,8 +148,23 @@ public class PlayerSlot {
 		});
 		readyButton.addActionListener(e -> {
 			setReady(!isReady());
-			if (gameToBeInformedAboutReady != null) {
-				gameToBeInformedAboutReady.setReady(isReady());
+			if (informGameAboutReady) {
+				gameToBeInformedAboutChanges.setReady(isReady());
+			}
+		});
+		civilisationComboBox.addActionListener(e -> {
+			if (informGameAboutChanges) {
+
+			}
+		});
+		typeComboBox.addActionListener(e -> {
+			if (informGameAboutChanges) {
+
+			}
+		});
+		slotComboBox.addActionListener(e -> {
+			if (informGameAboutChanges) {
+
 			}
 		});
 	}
@@ -283,8 +302,11 @@ public class PlayerSlot {
 		typeComboBox.setEnabled(false);
 	}
 
-	public void informGameAboutReady(IJoinPhaseMultiplayerGameConnector gameToBeInformedAboutReady) {
-		this.gameToBeInformedAboutReady = gameToBeInformedAboutReady;
+	public void informGameAboutChanges(IJoinPhaseMultiplayerGameConnector gameToBeInformedAboutChanges, boolean informReady, boolean informOther) {
+		this.gameToBeInformedAboutChanges = gameToBeInformedAboutChanges;
+
+		this.informGameAboutReady = informReady;
+		this.informGameAboutChanges = informOther;
 	}
 
 	private static Image getReadyButtonImage(int file, int seq, int imagenumber, boolean imageIsForEnabledState) {

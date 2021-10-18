@@ -49,7 +49,6 @@ import jsettlers.common.menu.IMultiplayerPlayer;
 import jsettlers.common.menu.IStartingGame;
 import jsettlers.common.utils.collections.ChangingList;
 import jsettlers.graphics.localization.Labels;
-import jsettlers.main.swing.settings.SettingsManager;
 import jsettlers.logic.map.loading.EMapStartResources;
 import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.logic.player.PlayerSetting;
@@ -273,7 +272,7 @@ public class JoinGamePanel extends BackgroundPanel {
 				SwingUtilities.invokeLater(() -> {
 					initializeChatFor(connector);
 					setStartButtonActionListener(e -> connector.startGame());
-					connector.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, connector, myId));
+					connector.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, connector, myId, true));
 					connector.setMultiplayerListener(new IMultiplayerListener() {
 						@Override
 						public void gameIsStarting(IStartingGame game) {
@@ -286,7 +285,7 @@ public class JoinGamePanel extends BackgroundPanel {
 						}
 					});
 
-					onPlayersChanges(connector.getPlayers(), connector, myId); // init the UI with the players
+					onPlayersChanges(connector.getPlayers(), connector, myId, true); // init the UI with the players
 				});
 			}
 		});
@@ -311,7 +310,7 @@ public class JoinGamePanel extends BackgroundPanel {
 
 		prepareUiFor(mapLoader);
 
-		joinMultiPlayerMap.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, joinMultiPlayerMap, playerUUID));
+		joinMultiPlayerMap.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, joinMultiPlayerMap, playerUUID, false));
 		joinMultiPlayerMap.setMultiplayerListener(new IMultiplayerListener() {
 			@Override
 			public void gameIsStarting(IStartingGame game) {
@@ -325,7 +324,7 @@ public class JoinGamePanel extends BackgroundPanel {
 		});
 		initializeChatFor(joinMultiPlayerMap);
 
-		onPlayersChanges(joinMultiPlayerMap.getPlayers(), joinMultiPlayerMap, playerUUID); // init the UI with the players
+		onPlayersChanges(joinMultiPlayerMap.getPlayers(), joinMultiPlayerMap, playerUUID, false); // init the UI with the players
 	}
 
 	private void initializeChatFor(IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap) {
@@ -362,7 +361,7 @@ public class JoinGamePanel extends BackgroundPanel {
 		chatInputField.setText("");
 	}
 
-	private void onPlayersChanges(ChangingList<? extends IMultiplayerPlayer> changingPlayers, IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap, String myId) {
+	private void onPlayersChanges(ChangingList<? extends IMultiplayerPlayer> changingPlayers, IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap, String myId, boolean iAmTheHost) {
 		SwingUtilities.invokeLater(() -> {
 			List<? extends IMultiplayerPlayer> players = changingPlayers.getItems();
 			for (int i = 0; i < players.size(); i++) {
@@ -373,13 +372,19 @@ public class JoinGamePanel extends BackgroundPanel {
 				playerSlot.setReady(player.isReady());
 				if (player.getId().equals(myId)) {
 					playerSlot.setReadyButtonEnabled(true);
-					playerSlot.informGameAboutReady(joinMultiPlayerMap);
+					playerSlot.informGameAboutChanges(joinMultiPlayerMap, true, iAmTheHost);
 				} else {
 					playerSlot.setReadyButtonEnabled(false);
+					if(iAmTheHost) {
+						playerSlot.informGameAboutChanges(joinMultiPlayerMap, false, true);
+					}
 				}
 			}
 			for (int i = players.size(); i < playerSlots.size(); i++) {
 				playerSlots.get(i).setPlayerType(EPlayerType.AI_VERY_HARD);
+				if(iAmTheHost) {
+					playerSlots.get(i).informGameAboutChanges(joinMultiPlayerMap, false, true);
+				}
 			}
 			setCancelButtonActionListener(e -> {
 				joinMultiPlayerMap.abort();

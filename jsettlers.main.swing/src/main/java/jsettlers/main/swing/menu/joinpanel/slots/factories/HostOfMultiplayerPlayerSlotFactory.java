@@ -33,7 +33,7 @@ public class HostOfMultiplayerPlayerSlotFactory implements IPlayerSlotFactory {
 
 	@Override
 	public PlayerSlot createPlayerSlot(byte slot, MapLoader mapLoader) {
-		PlayerSlot playerSlot = new PlayerSlot();
+		PlayerSlot playerSlot = new PlayerSlot(slot);
 
 		playerSlot.setPossibleTypes(EPlayerType.VALUES_HUMAN_FIRST);
 		if (slot == 0) {

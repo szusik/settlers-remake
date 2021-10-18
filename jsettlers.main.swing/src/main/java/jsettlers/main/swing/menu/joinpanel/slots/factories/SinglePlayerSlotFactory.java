@@ -26,7 +26,7 @@ public class SinglePlayerSlotFactory implements IPlayerSlotFactory {
 
 	@Override
 	public PlayerSlot createPlayerSlot(byte slot, MapLoader mapLoader) {
-		PlayerSlot playerSlot = new PlayerSlot();
+		PlayerSlot playerSlot = new PlayerSlot(slot);
 		if (slot == 0) {
 			SettingsManager settingsManager = SettingsManager.getInstance();
 			playerSlot.setPlayerName(settingsManager.getPlayer().getName());
