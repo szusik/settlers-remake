@@ -22,6 +22,6 @@ public class ChangeTeamPacketListener extends PacketChannelListener<ByteTuplePac
 
 	@Override
 	protected void receivePacket(NetworkConstants.ENetworkKey key, ByteTuplePacket packet) throws IOException {
-
+		serverManager.setTeamForSlot(player, packet.getValueA(), packet.getValueB());
 	}
 }

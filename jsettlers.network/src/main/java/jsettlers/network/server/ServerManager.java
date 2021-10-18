@@ -38,6 +38,7 @@ import jsettlers.network.server.listeners.matches.JoinMatchListener;
 import jsettlers.network.server.listeners.matches.LeaveMatchListener;
 import jsettlers.network.server.listeners.matches.OpenNewMatchListener;
 import jsettlers.network.server.listeners.matches.StartMatchListener;
+import jsettlers.network.server.match.EPlayerState;
 import jsettlers.network.server.match.Match;
 import jsettlers.network.server.match.MatchesListSendingTimerTask;
 import jsettlers.network.server.match.Player;
@@ -187,6 +188,65 @@ public class ServerManager implements IServerManager {
 		} catch (IllegalStateException e) {
 			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
 					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_READY_STATE));
+		}
+	}
+
+	private Match verifyAndGetMatch(Player player) {
+		EPlayerState.assertState(player.getState(), EPlayerState.IN_MATCH);
+		Match match = player.getMatch();
+
+		if(match.getHost() != player) {
+			throw new IllegalStateException("Player " + player + " is not the host of " + match + "!");
+		}
+
+		return match;
+	}
+
+	@Override
+	public void setCivilisationForSlot(Player player, byte slot, byte civilisation) {
+		try {
+			Match match = verifyAndGetMatch(player);
+
+			match.setSlotCivilisation(slot, civilisation);
+		} catch (IllegalStateException e) {
+			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
+					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_CIVILISATION));
+		}
+	}
+
+	@Override
+	public void setPlayerTypeForSlot(Player player, byte slot, byte playerType) {
+		try {
+			Match match = verifyAndGetMatch(player);
+
+			match.setSlotPlayerType(slot, playerType);
+		} catch (IllegalStateException e) {
+			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
+					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_CIVILISATION));
+		}
+	}
+
+	@Override
+	public void setPositionForSlot(Player player, byte slot, byte position) {
+		try {
+			Match match = verifyAndGetMatch(player);
+
+			match.setSlotPosition(slot, position);
+		} catch (IllegalStateException e) {
+			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
+					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_CIVILISATION));
+		}
+	}
+
+	@Override
+	public void setTeamForSlot(Player player, byte slot, byte team) {
+		try {
+			Match match = verifyAndGetMatch(player);
+
+			match.setSlotTeam(slot, team);
+		} catch (IllegalStateException e) {
+			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
+					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_CIVILISATION));
 		}
 	}
 

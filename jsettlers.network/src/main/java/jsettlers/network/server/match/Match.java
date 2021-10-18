@@ -279,4 +279,16 @@ public class Match {
 		return state + ": name: '" + name + "' opened: '" + date + "' numberOfPlayers: " + players.size() + " map: '" + map.getName() + "' ('"
 				+ map.getId() + "')";
 	}
+
+	public void setSlotCivilisation(byte slot, byte civilisation) {
+	}
+
+	public void setSlotPlayerType(byte slot, byte playerType) {
+	}
+
+	public void setSlotPosition(byte slot, byte position) {
+	}
+
+	public void setSlotTeam(byte slot, byte team) {
+	}
 }

@@ -21,6 +21,6 @@ public class ChangePositionPacketListener extends PacketChannelListener<ByteTupl
 
 	@Override
 	protected void receivePacket(NetworkConstants.ENetworkKey key, ByteTuplePacket packet) throws IOException {
-
+		serverManager.setPositionForSlot(player, packet.getValueA(), packet.getValueB());
 	}
 }

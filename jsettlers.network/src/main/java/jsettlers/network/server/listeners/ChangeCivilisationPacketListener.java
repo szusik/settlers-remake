@@ -21,6 +21,6 @@ public class ChangeCivilisationPacketListener extends PacketChannelListener<Byte
 
 	@Override
 	protected void receivePacket(NetworkConstants.ENetworkKey key, ByteTuplePacket packet) throws IOException {
-
+		serverManager.setCivilisationForSlot(player, packet.getValueA(), packet.getValueB());
 	}
 }

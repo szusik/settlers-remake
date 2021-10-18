@@ -21,6 +21,6 @@ public class ChangePlayerTypePacketListener extends PacketChannelListener<ByteTu
 
 	@Override
 	protected void receivePacket(NetworkConstants.ENetworkKey key, ByteTuplePacket packet) throws IOException {
-
+		serverManager.setPlayerTypeForSlot(player, packet.getValueA(), packet.getValueB());
 	}
 }
