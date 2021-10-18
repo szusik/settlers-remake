@@ -116,7 +116,7 @@ public class ServerManager implements IServerManager {
 
 	@Override
 	public void createNewMatch(OpenNewMatchPacket matchInfo, Player player) {
-		Match match = new Match(matchInfo.getMatchName(), matchInfo.getMaxPlayers(), matchInfo.getMapInfo(), matchInfo.getRandomSeed());
+		Match match = new Match(matchInfo.getMatchName(), matchInfo.getMaxPlayers(), matchInfo.getMapInfo(), player, matchInfo.getRandomSeed());
 		database.storeMatch(match);
 
 		joinMatch(match, player);

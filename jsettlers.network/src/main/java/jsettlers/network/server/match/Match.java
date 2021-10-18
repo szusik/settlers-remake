@@ -51,15 +51,17 @@ public class Match {
 	private final MapInfoPacket map;
 	private final String name;
 	private final long randomSeed;
+	private final Player host;
 
 	private EMatchState state = EMatchState.OPENED;
 	private TaskCollectingListener taskCollectingListener;
 	private TaskSendingTimerTask taskSendingTimerTask;
 
-	public Match(String name, int maxPlayers, MapInfoPacket map, long randomSeed) {
+	public Match(String name, int maxPlayers, MapInfoPacket map, Player host, long randomSeed) {
 		this.maxPlayers = maxPlayers;
 		this.map = map;
 		this.name = name;
+		this.host = host;
 		this.randomSeed = randomSeed;
 		this.id = UUID.randomUUID().toString();
 		this.players = new LinkedList<>();
@@ -266,6 +268,10 @@ public class Match {
 		}
 
 		state = EMatchState.FINISHED;
+	}
+
+	public Player getHost() {
+		return host;
 	}
 
 	@Override
