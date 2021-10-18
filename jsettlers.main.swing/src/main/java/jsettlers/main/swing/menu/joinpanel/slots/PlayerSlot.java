@@ -200,12 +200,11 @@ public class PlayerSlot {
 	}
 
 	public void setTeam(byte team) {
-		setTeam(team, true);
+		teamComboBox.setSelectedIndex(team);
 	}
 
-	public void setTeam(byte team, boolean enabled) {
-		teamComboBox.setSelectedIndex(team);
-		teamComboBox.setEnabled(enabled);
+	public void disableTeamInput() {
+		teamComboBox.setEnabled(false);
 	}
 
 	public void setAvailable(boolean available) {
@@ -247,27 +246,29 @@ public class PlayerSlot {
 
 	public void disableAllInputs() {
 		slotComboBox.setEnabled(false);
-		civilisationComboBox.setEnabled(false);
-		teamComboBox.setEnabled(false);
-		typeComboBox.setEnabled(false);
+		disableCivilisationInput();
+		disableTeamInput();
+		disablePlayerTypeInput();
 	}
 
 	public void setReadyButtonEnabled(boolean isEnabled) {
 		readyButton.setEnabled(isEnabled);
 	}
 
-	public void setCivilisation(ECivilisation civilisation, boolean enabled) {
+	public void setCivilisation(ECivilisation civilisation) {
 		for (int i = 0; i < civilisationComboBox.getItemCount(); i++) {
 			if (civilisationComboBox.getItemAt(i).getCivilisation() == civilisation) {
 				civilisationComboBox.setSelectedIndex(i);
 				break;
 			}
 		}
-
-		civilisationComboBox.setEnabled(enabled);
 	}
 
-	public void setPlayerType(EPlayerType playerType, boolean enabled) {
+	public void disableCivilisationInput() {
+		civilisationComboBox.setEnabled(false);
+	}
+
+	public void setPlayerType(EPlayerType playerType) {
 		for (int i = 0; i < typeComboBox.getItemCount(); i++) {
 			if (typeComboBox.getItemAt(i).getPlayerType() == playerType) {
 				typeComboBox.setSelectedIndex(i);
@@ -275,8 +276,11 @@ public class PlayerSlot {
 			}
 		}
 
-		typeComboBox.setEnabled(enabled);
 		updateAiPlayerName();
+	}
+
+	public void disablePlayerTypeInput() {
+		typeComboBox.setEnabled(false);
 	}
 
 	public void informGameAboutReady(IJoinPhaseMultiplayerGameConnector gameToBeInformedAboutReady) {

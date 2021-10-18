@@ -35,23 +35,18 @@ public class HostOfMultiplayerPlayerSlotFactory implements IPlayerSlotFactory {
 	public PlayerSlot createPlayerSlot(byte slot, MapLoader mapLoader) {
 		PlayerSlot playerSlot = new PlayerSlot();
 
+		playerSlot.setPossibleTypes(EPlayerType.VALUES_HUMAN_FIRST);
 		if (slot == 0) {
 			playerSlot.setPlayerName(connector.getPlayerName());
-			playerSlot.setPossibleTypes(new EPlayerType[] { EPlayerType.HUMAN });
 			playerSlot.setReadyButtonEnabled(true);
 			playerSlot.setReady(false);
 		} else {
-			playerSlot.setPossibleTypes(new EPlayerType[] {
-					EPlayerType.HUMAN,
-					EPlayerType.AI_VERY_HARD
-			});
-			playerSlot.setPlayerType(EPlayerType.AI_VERY_HARD, false);
+			playerSlot.setPlayerType(EPlayerType.AI_VERY_HARD);
 			playerSlot.setReadyButtonEnabled(false);
 			playerSlot.setReady(true);
 		}
 
 		playerSlot.setSlotAndTeams((byte) mapLoader.getMaxPlayers());
-		playerSlot.disableAllInputs();
 		return playerSlot;
 	}
 }
