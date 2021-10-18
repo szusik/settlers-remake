@@ -27,6 +27,7 @@ import jsettlers.network.common.packets.MatchInfoPacket;
 import jsettlers.network.common.packets.MatchInfoUpdatePacket;
 import jsettlers.network.common.packets.MatchStartPacket;
 import jsettlers.network.common.packets.PlayerInfoPacket;
+import jsettlers.network.common.packets.SlotInfoPacket;
 import jsettlers.network.common.packets.TimeSyncPacket;
 import jsettlers.network.infrastructure.channel.packet.Packet;
 import jsettlers.network.infrastructure.log.Logger;
@@ -47,6 +48,7 @@ public class Match {
 	private final String id;
 	private final LinkedList<Player> players;
 	private final LinkedList<Player> leftPlayers;
+	private final Slot[] slots;
 	private final int maxPlayers;
 	private final MapInfoPacket map;
 	private final String name;
@@ -59,6 +61,7 @@ public class Match {
 
 	public Match(String name, int maxPlayers, MapInfoPacket map, Player host, long randomSeed) {
 		this.maxPlayers = maxPlayers;
+		this.slots = new Slot[maxPlayers];
 		this.map = map;
 		this.name = name;
 		this.host = host;
@@ -68,6 +71,10 @@ public class Match {
 		this.leftPlayers = new LinkedList<>();
 		this.logger = LoggerManager.getMatchLogger(id, name);
 		this.date = new Date();
+
+		for (int i = 0; i < maxPlayers; i++) {
+			slots[i] = new Slot(Byte.MAX_VALUE, (byte) i, Byte.MAX_VALUE, (byte) i);
+		}
 	}
 
 	public EMatchState getState() {
@@ -100,6 +107,17 @@ public class Match {
 			}
 
 			return result;
+		}
+	}
+
+	public SlotInfoPacket[] getSlotInfos() {
+		synchronized (slots) {
+			SlotInfoPacket[] result = new SlotInfoPacket[maxPlayers];
+			for(int i = 0; i < maxPlayers; i++) {
+				result[i] = new SlotInfoPacket(slots[i]);
+			}
+
+			 return result;
 		}
 	}
 
@@ -175,6 +193,7 @@ public class Match {
 
 	public void join(Player player) {
 		synchronized (players) {
+			setSlotPlayerType((byte) players.size(), Byte.MAX_VALUE);
 			players.add(player);
 
 			sendMatchInfoUpdate(NetworkConstants.ENetworkMessage.PLAYER_JOINED, player.getPlayerInfo());
@@ -280,15 +299,28 @@ public class Match {
 				+ map.getId() + "')";
 	}
 
-	public void setSlotCivilisation(byte slot, byte civilisation) {
+	public void setSlotCivilisation(byte slotId, byte civilisation) {
+		synchronized (slots) {
+			slots[slotId % maxPlayers].setCivilisation(civilisation);
+		}
+
 	}
 
-	public void setSlotPlayerType(byte slot, byte playerType) {
+	public void setSlotPlayerType(byte slotId, byte playerType) {
+		synchronized (slots) {
+			slots[slotId % maxPlayers].setType(playerType);
+		}
 	}
 
-	public void setSlotPosition(byte slot, byte position) {
+	public void setSlotPosition(byte slotId, byte position) {
+		synchronized (slots) {
+			slots[slotId % maxPlayers].setPosition((byte) (position % maxPlayers));
+		}
 	}
 
-	public void setSlotTeam(byte slot, byte team) {
+	public void setSlotTeam(byte slotId, byte team) {
+		synchronized (slots) {
+			slots[slotId % maxPlayers].setTeam((byte) (team % maxPlayers));
+		}
 	}
 }
