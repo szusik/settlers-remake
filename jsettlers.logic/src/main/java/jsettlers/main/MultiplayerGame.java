@@ -16,6 +16,7 @@ package jsettlers.main;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -130,9 +131,8 @@ public class MultiplayerGame {
 
 			MapLoader mapLoader = MapList.getDefaultList().getMapById(packet.getMatchInfo().getMapInfo().getId());
 			long randomSeed = packet.getRandomSeed();
-			boolean[] availablePlayers = new boolean[mapLoader.getMaxPlayers()];
-			byte ownPlayerId = calculatePlayerInfos(availablePlayers);
-			PlayerSetting[] playerSettings = determinePlayerSettings(availablePlayers);
+			PlayerSetting[] playerSettings = determinePlayerSettings();
+			byte ownPlayerId = calculateOwnPlayerId();
 
 			JSettlersGame game = new JSettlersGame(mapLoader, randomSeed, networkClient.getNetworkConnector(), ownPlayerId, playerSettings);
 
@@ -140,43 +140,27 @@ public class MultiplayerGame {
 		};
 	}
 
-	private PlayerSetting[] determinePlayerSettings(boolean[] availablePlayers) {
-		PlayerSetting[] playerSettings = new PlayerSetting[availablePlayers.length];
-
-		byte i = 0;
-		for (; i < playersList.getItems().size(); i++) {
-			playerSettings[i] = new PlayerSetting(i);
-		}
-
-		EPlayerType aiType = iAmTheHost ? EPlayerType.AI_VERY_HARD : EPlayerType.HUMAN;
-
-		for (; i < availablePlayers.length; i++) {
-			playerSettings[i] = new PlayerSetting(aiType, ECivilisation.ROMAN, i);
-		}
-
-		return playerSettings;
+	private PlayerSetting[] determinePlayerSettings() {
+		return slotList.getItems().stream().sorted(Comparator.comparingInt(IMultiplayerSlot::getPosition))
+				.map(slot -> {
+					if(iAmTheHost) {
+						return new PlayerSetting(slot.getType(), slot.getCivilisation(), slot.getTeam());
+					} else {
+						return new PlayerSetting(EPlayerType.HUMAN, slot.getCivilisation(), slot.getTeam());
+					}
+				}).toArray(PlayerSetting[]::new);
 	}
 
-	byte calculatePlayerInfos(boolean[] availablePlayers) {
+	private byte calculateOwnPlayerId() {
 		String myId = networkClient.getPlayerInfo().getId();
 		byte i = 0;
-		byte ownPlayerId = -1;
-		for (IMultiplayerPlayer currPlayer : playersList.getItems()) {
-			availablePlayers[i] = true;
-			if (currPlayer.getId().equals(myId)) {
-				ownPlayerId = i;
+		for (IMultiplayerSlot currSlot : slotList.getItems()) {
+			if(currSlot.getPlayer() != null && currSlot.getPlayer().getId().equals(myId)) {
+				return i;
 			}
 			i++;
 		}
-		for (byte ii = i; ii < availablePlayers.length; ii++) {
-			availablePlayers[ii] = true;
-		}
-
-		if (ownPlayerId < 0) {
-			throw new RuntimeException("Wasn't able to find my id!");
-		} else {
-			return ownPlayerId;
-		}
+		throw new RuntimeException("Wasn't able to find my id!");
 	}
 
 	private IPacketReceiver<MatchInfoUpdatePacket> generateMatchInfoUpdatedListener() {

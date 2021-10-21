@@ -21,6 +21,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -232,7 +233,7 @@ public class JoinGamePanel extends BackgroundPanel {
 		setStartButtonActionListener(e -> {
 			long randomSeed = System.currentTimeMillis();
 			PlayerSetting[] playerSettings = playerSlots.stream()
-					.sorted((playerSlot, otherPlayerSlot) -> playerSlot.getSlot() - otherPlayerSlot.getSlot())
+					.sorted(Comparator.comparingInt(PlayerSlot::getSlot))
 					.map(playerSlot -> {
 						if (playerSlot.isAvailable()) {
 							return new PlayerSetting(playerSlot.getPlayerType(), playerSlot.getCivilisation(),
