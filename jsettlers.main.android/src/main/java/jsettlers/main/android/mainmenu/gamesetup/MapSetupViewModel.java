@@ -10,6 +10,7 @@ import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
+import java.util.stream.Stream;
 import java8.util.J8Arrays;
 import jsettlers.common.ai.EPlayerType;
 import jsettlers.common.player.ECivilisation;
@@ -181,6 +182,10 @@ public abstract class MapSetupViewModel extends ViewModel implements PositionCha
 				new PlayerType(EPlayerType.HUMAN)
 		});
 		playerSlotPresenter.setPlayerType(new PlayerType(EPlayerType.HUMAN));
+	}
+
+	protected static void setAllSlotPlayerTypes(PlayerSlotPresenter playerSlotPresenter) {
+		playerSlotPresenter.setPossiblePlayerTypes(Stream.of(EPlayerType.VALUES).map(PlayerType::new).toArray(PlayerType[]::new));
 	}
 
 	private static void setSlotCivilisations(PlayerSlotPresenter playerSlotPresenter, PlayerSetting playerSetting) {

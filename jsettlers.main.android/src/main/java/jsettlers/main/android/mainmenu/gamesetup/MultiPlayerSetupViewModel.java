@@ -1,24 +1,30 @@
 package jsettlers.main.android.mainmenu.gamesetup;
 
+import java.util.Iterator;
 import java.util.List;
 
 import jsettlers.common.menu.IJoinPhaseMultiplayerGameConnector;
 import jsettlers.common.menu.IMultiplayerListener;
 import jsettlers.common.menu.IMultiplayerPlayer;
+import jsettlers.common.menu.IMultiplayerSlot;
 import jsettlers.common.menu.IStartingGame;
 import jsettlers.common.utils.collections.ChangingList;
 import jsettlers.common.utils.collections.IChangingListListener;
 import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.main.android.core.AndroidPreferences;
 import jsettlers.main.android.core.GameStarter;
+import jsettlers.main.android.mainmenu.gamesetup.playeritem.Civilisation;
 import jsettlers.main.android.mainmenu.gamesetup.playeritem.PlayerSlotPresenter;
+import jsettlers.main.android.mainmenu.gamesetup.playeritem.PlayerType;
 import jsettlers.main.android.mainmenu.gamesetup.playeritem.ReadyListener;
+import jsettlers.main.android.mainmenu.gamesetup.playeritem.StartPosition;
+import jsettlers.main.android.mainmenu.gamesetup.playeritem.Team;
 
 /**
  * Created by Tom Pratt on 07/10/2017.
  */
 
-public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMultiplayerListener, IChangingListListener<IMultiplayerPlayer>, ReadyListener {
+public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMultiplayerListener, IChangingListListener<IMultiplayerSlot>, ReadyListener {
 
 	private final GameStarter gameStarter;
 	private final AndroidPreferences androidPreferences;
@@ -33,7 +39,11 @@ public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMul
 		this.mapLoader = mapLoader;
 
 		connector.setMultiplayerListener(this);
-		connector.getPlayers().setListener(this);
+		connector.getSlots().setListener(this);
+
+		for (PlayerSlotPresenter playerSlotPresenter : playerSlotPresenters) {
+			setAllSlotPlayerTypes(playerSlotPresenter);
+		}
 
 		updateSlots();
 	}
@@ -63,7 +73,7 @@ public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMul
 	 * ChangingListListener implementation
 	 */
 	@Override
-	public void listChanged(ChangingList<? extends IMultiplayerPlayer> list) {
+	public void listChanged(ChangingList<? extends IMultiplayerSlot> list) {
 		updateSlots();
 		if (playerSlots.getValue() != null) {
 			playerSlots.postValue(playerSlots.getValue());
@@ -83,18 +93,21 @@ public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMul
 		List<IMultiplayerPlayer> players = connector.getPlayers().getItems();
 		int numberOfConnectedPlayers = players.size();
 
-		for (int i = 0; i < playerSlotPresenters.size(); i++) {
+
+		Iterator<IMultiplayerSlot> slotIter = connector.getSlots().getItems().iterator();
+
+		for (int i = 0; i < playerSlotPresenters.size() && slotIter.hasNext(); i++) {
+			IMultiplayerSlot remoteSlot = slotIter.next();
+
 			PlayerSlotPresenter playerSlotPresenter = playerSlotPresenters.get(i);
 
-			if (i < numberOfConnectedPlayers) {
-				setHumanSlotPlayerTypes(playerSlotPresenter);
-
-				IMultiplayerPlayer multiplayerPlayer = players.get(i);
-				playerSlotPresenter.setName(multiplayerPlayer.getName());
-				playerSlotPresenter.setReady(multiplayerPlayer.isReady());
+			IMultiplayerPlayer player = remoteSlot.getPlayer();
+			if (player != null) {
+				playerSlotPresenter.setName(player.getName());
+				playerSlotPresenter.setReady(player.isReady());
 				playerSlotPresenter.setShowReadyControl(true);
 
-				boolean isMe = multiplayerPlayer.getId().equals(androidPreferences.getPlayerId());
+				boolean isMe = player.getId().equals(androidPreferences.getPlayerId());
 
 				if (isMe) {
 					playerSlotPresenter.setControlsEnabled(true);
@@ -104,12 +117,15 @@ public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMul
 					playerSlotPresenter.setReadyListener(null);
 				}
 			} else {
-				setComputerSlotPlayerTypes(playerSlotPresenter);
 				playerSlotPresenter.setName("Computer " + i);
 				playerSlotPresenter.setShowReadyControl(false);
-				playerSlotPresenter.setControlsEnabled(true);
 				playerSlotPresenter.setReadyListener(null);
 			}
+
+			playerSlotPresenter.setPlayerType(new PlayerType(remoteSlot.getType()));
+			playerSlotPresenter.setCivilisation(new Civilisation(remoteSlot.getCivilisation()));
+			playerSlotPresenter.setTeam(new Team(remoteSlot.getTeam()));
+			playerSlotPresenter.setStartPosition(new StartPosition(remoteSlot.getPosition()));
 		}
 	}
 }
