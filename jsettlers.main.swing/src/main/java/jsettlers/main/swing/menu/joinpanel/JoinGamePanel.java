@@ -21,6 +21,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -46,6 +47,7 @@ import jsettlers.common.menu.IJoiningGameListener;
 import jsettlers.common.menu.IMultiplayerConnector;
 import jsettlers.common.menu.IMultiplayerListener;
 import jsettlers.common.menu.IMultiplayerPlayer;
+import jsettlers.common.menu.IMultiplayerSlot;
 import jsettlers.common.menu.IStartingGame;
 import jsettlers.common.utils.collections.ChangingList;
 import jsettlers.graphics.localization.Labels;
@@ -272,7 +274,7 @@ public class JoinGamePanel extends BackgroundPanel {
 				SwingUtilities.invokeLater(() -> {
 					initializeChatFor(connector);
 					setStartButtonActionListener(e -> connector.startGame());
-					connector.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, connector, myId, true));
+					connector.getSlots().setListener(changingSlots -> onSlotsChanged(changingSlots, connector, myId, true));
 					connector.setMultiplayerListener(new IMultiplayerListener() {
 						@Override
 						public void gameIsStarting(IStartingGame game) {
@@ -285,7 +287,7 @@ public class JoinGamePanel extends BackgroundPanel {
 						}
 					});
 
-					onPlayersChanges(connector.getPlayers(), connector, myId, true); // init the UI with the players
+					onSlotsChanged(connector.getSlots(), connector, myId, true); // init the UI with the players
 				});
 			}
 		});
@@ -310,7 +312,7 @@ public class JoinGamePanel extends BackgroundPanel {
 
 		prepareUiFor(mapLoader);
 
-		joinMultiPlayerMap.getPlayers().setListener(changingPlayers -> onPlayersChanges(changingPlayers, joinMultiPlayerMap, playerUUID, false));
+		joinMultiPlayerMap.getSlots().setListener(changingSlots -> onSlotsChanged(changingSlots, joinMultiPlayerMap, playerUUID, false));
 		joinMultiPlayerMap.setMultiplayerListener(new IMultiplayerListener() {
 			@Override
 			public void gameIsStarting(IStartingGame game) {
@@ -324,7 +326,7 @@ public class JoinGamePanel extends BackgroundPanel {
 		});
 		initializeChatFor(joinMultiPlayerMap);
 
-		onPlayersChanges(joinMultiPlayerMap.getPlayers(), joinMultiPlayerMap, playerUUID, false); // init the UI with the players
+		onSlotsChanged(joinMultiPlayerMap.getSlots(), joinMultiPlayerMap, playerUUID, false); // init the UI with the players
 	}
 
 	private void initializeChatFor(IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap) {
@@ -361,29 +363,35 @@ public class JoinGamePanel extends BackgroundPanel {
 		chatInputField.setText("");
 	}
 
-	private void onPlayersChanges(ChangingList<? extends IMultiplayerPlayer> changingPlayers, IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap, String myId, boolean iAmTheHost) {
+	private void onSlotsChanged(ChangingList<? extends IMultiplayerSlot> changingSlots, IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap, String myId, boolean iAmTheHost) {
 		SwingUtilities.invokeLater(() -> {
-			List<? extends IMultiplayerPlayer> players = changingPlayers.getItems();
-			for (int i = 0; i < players.size(); i++) {
+			Iterator<? extends IMultiplayerSlot> slots = changingSlots.getItems().iterator();
+
+
+			for (int i = 0; slots.hasNext() && i < playerSlots.size(); i++) {
 				PlayerSlot playerSlot = playerSlots.get(i);
-				IMultiplayerPlayer player = players.get(i);
-				playerSlot.setPlayerName(player.getName());
-				playerSlot.setPlayerType(EPlayerType.HUMAN);
-				playerSlot.setReady(player.isReady());
-				if (player.getId().equals(myId)) {
-					playerSlot.setReadyButtonEnabled(true);
-					playerSlot.informGameAboutChanges(joinMultiPlayerMap, true, iAmTheHost);
-				} else {
-					playerSlot.setReadyButtonEnabled(false);
-					if(iAmTheHost) {
-						playerSlot.informGameAboutChanges(joinMultiPlayerMap, false, true);
+				IMultiplayerSlot remoteSlot = slots.next();
+				playerSlot.setCivilisation(remoteSlot.getCivilisation(), false);
+				playerSlot.setTeam(remoteSlot.getTeam(), false);
+				playerSlot.setSlot(remoteSlot.getPosition(), false);
+				IMultiplayerPlayer player = remoteSlot.getPlayer();
+				playerSlot.setPlayerType(remoteSlot.getType(), false);
+				if(player != null) {
+					playerSlot.setPlayerName(player.getName());
+
+					if (player.getId().equals(myId)) {
+						playerSlot.setReadyButtonEnabled(true);
+						playerSlot.informGameAboutChanges(joinMultiPlayerMap, true, iAmTheHost);
+					} else {
+						playerSlot.setReadyButtonEnabled(false);
+						if(iAmTheHost) {
+							playerSlot.informGameAboutChanges(joinMultiPlayerMap, false, true);
+						}
 					}
-				}
-			}
-			for (int i = players.size(); i < playerSlots.size(); i++) {
-				playerSlots.get(i).setPlayerType(EPlayerType.AI_VERY_HARD);
-				if(iAmTheHost) {
-					playerSlots.get(i).informGameAboutChanges(joinMultiPlayerMap, false, true);
+					playerSlot.setReady(player.isReady());
+				} else if(iAmTheHost) {
+					playerSlot.informGameAboutChanges(joinMultiPlayerMap, false, true);
+					playerSlot.setReady(true);
 				}
 			}
 			setCancelButtonActionListener(e -> {
@@ -422,22 +430,22 @@ public class JoinGamePanel extends BackgroundPanel {
 			PlayerSlot playerSlot = playerSlots.get(i);
 			PlayerSetting playerSetting = playerSettings[i];
 
-			playerSlot.setSlot(i);
+			playerSlot.setSlot(i, true);
 
 			if (playerSetting.getTeamId() != null) {
-				playerSlot.setTeam(playerSetting.getTeamId());
+				playerSlot.setTeam(playerSetting.getTeamId(), true);
 				playerSlot.disableTeamInput();
 			} else {
-				playerSlot.setTeam(i);
+				playerSlot.setTeam(i, true);
 			}
 
 			if (playerSetting.getCivilisation() != null) {
-				playerSlot.setCivilisation(playerSetting.getCivilisation());
+				playerSlot.setCivilisation(playerSetting.getCivilisation(), true);
 				playerSlot.disableCivilisationInput();
 			}
 
 			if (playerSetting.getPlayerType() != null) {
-				playerSlot.setPlayerType(playerSetting.getPlayerType());
+				playerSlot.setPlayerType(playerSetting.getPlayerType(), true);
 				playerSlot.disablePlayerTypeInput();
 			}
 		}

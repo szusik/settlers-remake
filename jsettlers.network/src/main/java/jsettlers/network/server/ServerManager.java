@@ -222,7 +222,7 @@ public class ServerManager implements IServerManager {
 			match.setSlotPlayerType(slot, playerType);
 		} catch (IllegalStateException e) {
 			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
-					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_CIVILISATION));
+					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_PLAYER_TYPE));
 		}
 	}
 
@@ -234,7 +234,7 @@ public class ServerManager implements IServerManager {
 			match.setSlotPosition(slot, position);
 		} catch (IllegalStateException e) {
 			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
-					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_CIVILISATION));
+					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_POSITION));
 		}
 	}
 
@@ -246,7 +246,7 @@ public class ServerManager implements IServerManager {
 			match.setSlotTeam(slot, team);
 		} catch (IllegalStateException e) {
 			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
-					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_CIVILISATION));
+					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_TEAM));
 		}
 	}
 

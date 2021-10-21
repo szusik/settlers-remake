@@ -94,7 +94,10 @@ public final class NetworkConstants {
 		UNAUTHORIZED,
 		UNKNOWN_ERROR,
 		INVALID_STATE_ERROR,
-
+		TEAM_CHANGED,
+		CIVILISATION_CHANGED,
+		POSITION_CHANGED,
+		TYPE_CHANGED,
 		;
 
 		private static final ENetworkMessage[] values = ENetworkMessage.values();

@@ -62,6 +62,10 @@ public class PlayerSlot {
 	private boolean informGameAboutChanges;
 	private IJoinPhaseMultiplayerGameConnector gameToBeInformedAboutChanges;
 	private byte index;
+	private ECivilisation civilisation;
+	private EPlayerType playerType;
+	private byte team;
+	private byte slot;
 
 	public PlayerSlot(byte index) {
 		this.index = index;
@@ -141,7 +145,8 @@ public class PlayerSlot {
 		typeComboBox.addActionListener(e -> updateAiPlayerName());
 		civilisationComboBox.addActionListener(e -> updateAiPlayerName());
 		slotComboBox.addActionListener(e -> {
-			if (slotListener != null) {
+			// this is done server side in multiplayer
+			if (slotListener != null && gameToBeInformedAboutChanges == null) {
 				slotListener.slotHasChanged(oldSlotValue, getSlot());
 			}
 			oldSlotValue = getSlot();
@@ -153,24 +158,32 @@ public class PlayerSlot {
 			}
 		});
 		civilisationComboBox.addActionListener(e -> {
-			if (informGameAboutChanges) {
-				gameToBeInformedAboutChanges.setCivilisation(index, ((CivilisationUiWrapper) civilisationComboBox.getSelectedItem()).getCivilisation());
+			ECivilisation newCivilisation = getCivilisation();
+			if (informGameAboutChanges && newCivilisation != civilisation) {
+				gameToBeInformedAboutChanges.setCivilisation(index, newCivilisation);
+				civilisation = newCivilisation;
 
 			}
 		});
 		typeComboBox.addActionListener(e -> {
-			if (informGameAboutChanges) {
-				gameToBeInformedAboutChanges.setType(index, ((PlayerTypeUiWrapper) typeComboBox.getSelectedItem()).getPlayerType());
+			EPlayerType newPlayerType = getPlayerType();
+			if (informGameAboutChanges && newPlayerType != playerType) {
+				gameToBeInformedAboutChanges.setType(index, newPlayerType);
+				playerType = newPlayerType;
 			}
 		});
 		slotComboBox.addActionListener(e -> {
-			if(informGameAboutChanges) {
-				gameToBeInformedAboutChanges.setPosition(index, (Byte) slotComboBox.getSelectedItem());
+			byte newSlot = getSlot();
+			if(informGameAboutChanges && newSlot != slot) {
+				gameToBeInformedAboutChanges.setPosition(index, newSlot);
+				slot = newSlot;
 			}
 		});
 		teamComboBox.addActionListener(e -> {
-			if (informGameAboutChanges) {
-				gameToBeInformedAboutChanges.setTeam(index, (Byte) teamComboBox.getSelectedItem());
+			byte newTeam = getTeam();
+			if (informGameAboutChanges && newTeam != team) {
+				gameToBeInformedAboutChanges.setTeam(index, newTeam);
+				team = newTeam;
 			}
 		});
 	}
@@ -219,12 +232,18 @@ public class PlayerSlot {
 		}
 	}
 
-	public void setSlot(byte slot) {
+	public void setSlot(byte slot, boolean update) {
+		if(!update) {
+			this.slot = slot;
+		}
 		slotComboBox.setSelectedIndex(slot);
 		oldSlotValue = slot;
 	}
 
-	public void setTeam(byte team) {
+	public void setTeam(byte team, boolean update) {
+		if(!update) {
+			this.team = team;
+		}
 		teamComboBox.setSelectedIndex(team);
 	}
 
@@ -280,7 +299,11 @@ public class PlayerSlot {
 		readyButton.setEnabled(isEnabled);
 	}
 
-	public void setCivilisation(ECivilisation civilisation) {
+	public void setCivilisation(ECivilisation civilisation, boolean update) {
+		if(!update) {
+			this.civilisation = civilisation;
+		}
+
 		for (int i = 0; i < civilisationComboBox.getItemCount(); i++) {
 			if (civilisationComboBox.getItemAt(i).getCivilisation() == civilisation) {
 				civilisationComboBox.setSelectedIndex(i);
@@ -293,7 +316,11 @@ public class PlayerSlot {
 		civilisationComboBox.setEnabled(false);
 	}
 
-	public void setPlayerType(EPlayerType playerType) {
+	public void setPlayerType(EPlayerType playerType, boolean update) {
+		if(!update) {
+			this.playerType = playerType;
+		}
+
 		for (int i = 0; i < typeComboBox.getItemCount(); i++) {
 			if (typeComboBox.getItemAt(i).getPlayerType() == playerType) {
 				typeComboBox.setSelectedIndex(i);

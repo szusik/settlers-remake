@@ -46,6 +46,8 @@ public interface IJoinPhaseMultiplayerGameConnector {
 	 */
 	ChangingList<IMultiplayerPlayer> getPlayers();
 
+	ChangingList<IMultiplayerSlot> getSlots();
+
 	/**
 	 * Sets the ready state of the current user.
 	 * 

@@ -300,27 +300,68 @@ public class Match {
 	}
 
 	public void setSlotCivilisation(byte slotId, byte civilisation) {
+		byte oldCivilisation;
+		byte newCivilisation = civilisation;
 		synchronized (slots) {
-			slots[slotId % maxPlayers].setCivilisation(civilisation);
+			Slot slot = slots[slotId % maxPlayers];
+			oldCivilisation = slot.getCivilisation();
+			slot.setCivilisation(newCivilisation);
 		}
 
+		if(oldCivilisation != newCivilisation) {
+			sendMatchInfoUpdate(ENetworkMessage.CIVILISATION_CHANGED, null);
+		}
 	}
 
 	public void setSlotPlayerType(byte slotId, byte playerType) {
+		byte oldPlayerType;
+		byte newPlayerType = playerType;
 		synchronized (slots) {
-			slots[slotId % maxPlayers].setType(playerType);
+			Slot slot = slots[slotId % maxPlayers];
+			oldPlayerType = slot.getType();
+			slot.setType(newPlayerType);
+		}
+
+		if(oldPlayerType != newPlayerType) {
+			sendMatchInfoUpdate(ENetworkMessage.TYPE_CHANGED, null);
 		}
 	}
 
 	public void setSlotPosition(byte slotId, byte position) {
+		byte oldPosition;
+		byte newPosition = (byte) (position % maxPlayers);
 		synchronized (slots) {
-			slots[slotId % maxPlayers].setPosition((byte) (position % maxPlayers));
+			Slot slot = slots[slotId % maxPlayers];
+			oldPosition = slot.getPosition();
+			slot.setPosition(newPosition);
+
+			if(oldPosition != newPosition) {
+				for(int i = 0; i < maxPlayers; i++) {
+					Slot other = slots[i];
+
+					if(slot != other && other.getPosition() == newPosition) {
+						other.setPosition(oldPosition);
+					}
+				}
+			}
+		}
+
+		if(oldPosition != newPosition) {
+			sendMatchInfoUpdate(ENetworkMessage.POSITION_CHANGED, null);
 		}
 	}
 
 	public void setSlotTeam(byte slotId, byte team) {
+		byte oldTeam;
+		byte newTeam = (byte) (team % maxPlayers);
 		synchronized (slots) {
-			slots[slotId % maxPlayers].setTeam((byte) (team % maxPlayers));
+			Slot slot = slots[slotId % maxPlayers];
+			oldTeam = slot.getTeam();
+			slot.setTeam(newTeam);
+		}
+
+		if(oldTeam != newTeam) {
+			sendMatchInfoUpdate(ENetworkMessage.TEAM_CHANGED, null);
 		}
 	}
 }

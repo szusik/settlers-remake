@@ -16,6 +16,7 @@ package jsettlers.main;
 
 import static java8.util.stream.StreamSupport.stream;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import jsettlers.common.menu.IJoiningGameListener;
 import jsettlers.common.menu.IMapDefinition;
 import jsettlers.common.menu.IMultiplayerListener;
 import jsettlers.common.menu.IMultiplayerPlayer;
+import jsettlers.common.menu.IMultiplayerSlot;
 import jsettlers.common.menu.IOpenMultiplayerGameInfo;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.utils.collections.ChangingList;
@@ -35,14 +37,17 @@ import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.logic.map.loading.list.MapList;
 import jsettlers.logic.player.PlayerSetting;
 import jsettlers.main.datatypes.MultiplayerPlayer;
+import jsettlers.main.datatypes.MultiplayerSlot;
 import jsettlers.network.NetworkConstants;
 import jsettlers.network.client.interfaces.INetworkClient;
 import jsettlers.network.client.receiver.IPacketReceiver;
 import jsettlers.network.common.packets.ChatMessagePacket;
 import jsettlers.network.common.packets.MapInfoPacket;
+import jsettlers.network.common.packets.MatchInfoPacket;
 import jsettlers.network.common.packets.MatchInfoUpdatePacket;
 import jsettlers.network.common.packets.MatchStartPacket;
 import jsettlers.network.common.packets.PlayerInfoPacket;
+import jsettlers.network.common.packets.SlotInfoPacket;
 import jsettlers.network.server.match.EPlayerState;
 
 /**
@@ -54,6 +59,7 @@ public class MultiplayerGame {
 
 	private final AsyncNetworkClientConnector networkClientFactory;
 	private final ChangingList<IMultiplayerPlayer> playersList = new ChangingList<>();
+	private final ChangingList<IMultiplayerSlot> slotList = new ChangingList<>();
 	private INetworkClient networkClient;
 
 	private IJoiningGameListener joiningGameListener;
@@ -120,7 +126,7 @@ public class MultiplayerGame {
 
 	private IPacketReceiver<MatchStartPacket> generateMatchStartedListener() {
 		return packet -> {
-			updatePlayersList(packet.getMatchInfo().getPlayers());
+			updateLists(packet.getMatchInfo());
 
 			MapLoader mapLoader = MapList.getDefaultList().getMapById(packet.getMatchInfo().getMapInfo().getId());
 			long randomSeed = packet.getRandomSeed();
@@ -180,17 +186,34 @@ public class MultiplayerGame {
 				joiningGameListener = null;
 			}
 
-			updatePlayersList(packet.getMatchInfo().getPlayers());
-			receiveSystemMessage(new MultiplayerPlayer(packet.getUpdatedPlayer()), getNetworkMessageById(packet.getUpdateReason()));
+			updateLists(packet.getMatchInfo());
+			if(packet.getUpdatedPlayer() != null) {
+				receiveSystemMessage(new MultiplayerPlayer(packet.getUpdatedPlayer()), getNetworkMessageById(packet.getUpdateReason()));
+			}
 		};
 	}
 
-	void updatePlayersList(PlayerInfoPacket[] playerInfoPackets) {
+	void updateLists(MatchInfoPacket matchInfo) {
 		List<IMultiplayerPlayer> players = new LinkedList<>();
-		for (PlayerInfoPacket playerInfoPacket : playerInfoPackets) {
+		for (PlayerInfoPacket playerInfoPacket : matchInfo.getPlayers()) {
 			players.add(new MultiplayerPlayer(playerInfoPacket));
 		}
 		playersList.setList(players);
+
+		List<IMultiplayerSlot> slots = new LinkedList<>();
+		SlotInfoPacket[] matchInfoSlots = matchInfo.getSlots();
+		Iterator<IMultiplayerPlayer> playerIter = players.iterator();
+		for (int i = 0, matchInfoSlotsLength = matchInfoSlots.length; i < matchInfoSlotsLength; i++) {
+			SlotInfoPacket slotInfoPacket = matchInfoSlots[i];
+			IMultiplayerSlot nextSlot;
+			if(playerIter.hasNext()) {
+				nextSlot = new MultiplayerSlot(slotInfoPacket, playerIter.next());
+			} else {
+				nextSlot = new MultiplayerSlot(slotInfoPacket);
+			}
+			slots.add(nextSlot);
+		}
+		slotList.setList(slots);
 	}
 
 	private ENetworkMessage getNetworkMessageById(NetworkConstants.ENetworkMessage errorMessageId) {
@@ -250,7 +273,7 @@ public class MultiplayerGame {
 
 			@Override
 			public void setTeam(byte slot, byte team) {
-				networkClient.setType(slot, team);
+				networkClient.setTeam(slot, team);
 			}
 
 			@Override
@@ -271,6 +294,11 @@ public class MultiplayerGame {
 			@Override
 			public ChangingList<IMultiplayerPlayer> getPlayers() {
 				return playersList;
+			}
+
+			@Override
+			public ChangingList<IMultiplayerSlot> getSlots() {
+				return slotList;
 			}
 
 			@Override
