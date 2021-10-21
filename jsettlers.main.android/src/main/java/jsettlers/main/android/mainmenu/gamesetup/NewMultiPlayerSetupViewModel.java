@@ -12,6 +12,8 @@ public class NewMultiPlayerSetupViewModel extends MultiPlayerSetupViewModel {
 
 	public NewMultiPlayerSetupViewModel(GameStarter gameStarter, AndroidPreferences androidPreferences, IJoinPhaseMultiplayerGameConnector connector, MapLoader mapLoader) {
 		super(gameStarter, androidPreferences, connector, mapLoader);
+
+		setAllPlayerSlotsEnabled(true);
 	}
 
 	@Override

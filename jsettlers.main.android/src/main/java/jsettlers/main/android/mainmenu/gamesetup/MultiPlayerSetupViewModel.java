@@ -89,11 +89,13 @@ public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMul
 		connector.setReady(ready);
 	}
 
+	protected void setAllPlayerSlotsEnabled(boolean enabled) {
+		for (PlayerSlotPresenter playerSlotPresenter : playerSlotPresenters) {
+			playerSlotPresenter.setControlsEnabled(enabled);
+		}
+	}
+
 	private void updateSlots() {
-		List<IMultiplayerPlayer> players = connector.getPlayers().getItems();
-		int numberOfConnectedPlayers = players.size();
-
-
 		Iterator<IMultiplayerSlot> slotIter = connector.getSlots().getItems().iterator();
 
 		for (int i = 0; i < playerSlotPresenters.size() && slotIter.hasNext(); i++) {
@@ -109,13 +111,7 @@ public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMul
 
 				boolean isMe = player.getId().equals(androidPreferences.getPlayerId());
 
-				if (isMe) {
-					playerSlotPresenter.setControlsEnabled(true);
-					playerSlotPresenter.setReadyListener(this);
-				} else {
-					playerSlotPresenter.setControlsEnabled(false);
-					playerSlotPresenter.setReadyListener(null);
-				}
+				playerSlotPresenter.setReadyListener(isMe ? this : null);
 			} else {
 				playerSlotPresenter.setName("Computer " + i);
 				playerSlotPresenter.setShowReadyControl(false);

@@ -60,10 +60,16 @@ public class PlayerSlotPresenter {
 			view.hideReadyControl();
 		}
 
-		if (controlsEnabled) {
-			view.setControlsEnabled();
+		if(readyListener != null) {
+			view.setReadyControlsEnabled();
 		} else {
-			view.setControlsDisabled();
+			view.setReadyControlsDisabled();
+		}
+
+		if (controlsEnabled) {
+			view.setPlayerControlsEnabled();
+		} else {
+			view.setPlayerControlsDisabled();
 		}
 
 		view.setPossibleCivilisations(possibleCivilisations);
