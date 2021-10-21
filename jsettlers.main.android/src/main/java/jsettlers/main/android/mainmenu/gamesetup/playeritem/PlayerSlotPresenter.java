@@ -123,9 +123,6 @@ public class PlayerSlotPresenter {
 
 	public void setStartPosition(StartPosition startPosition) {
 		this.startPosition = startPosition;
-		if (view != null) {
-			view.setStartPosition(startPosition);
-		}
 	}
 
 	public void startPositionSelected(StartPosition position) {
