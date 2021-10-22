@@ -124,4 +124,6 @@ public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMul
 			playerSlotPresenter.setStartPosition(new StartPosition(remoteSlot.getPosition()));
 		}
 	}
+
+	protected abstract boolean amITheHost();
 }

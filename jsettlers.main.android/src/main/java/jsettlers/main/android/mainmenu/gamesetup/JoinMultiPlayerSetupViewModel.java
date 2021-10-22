@@ -50,4 +50,9 @@ public class JoinMultiPlayerSetupViewModel extends MultiPlayerSetupViewModel {
 			throw new RuntimeException("JoinMultiPlayerSetupViewModel.Factory doesn't know how to create a: " + modelClass.toString());
 		}
 	}
+
+	@Override
+	protected boolean amITheHost() {
+		return false;
+	}
 }
