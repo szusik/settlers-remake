@@ -1,13 +1,14 @@
 package jsettlers.main.android.mainmenu.gamesetup;
 
 import java.util.Iterator;
-import java.util.List;
 
+import jsettlers.common.ai.EPlayerType;
 import jsettlers.common.menu.IJoinPhaseMultiplayerGameConnector;
 import jsettlers.common.menu.IMultiplayerListener;
 import jsettlers.common.menu.IMultiplayerPlayer;
 import jsettlers.common.menu.IMultiplayerSlot;
 import jsettlers.common.menu.IStartingGame;
+import jsettlers.common.player.ECivilisation;
 import jsettlers.common.utils.collections.ChangingList;
 import jsettlers.common.utils.collections.IChangingListListener;
 import jsettlers.logic.map.loading.MapLoader;
@@ -16,7 +17,7 @@ import jsettlers.main.android.core.GameStarter;
 import jsettlers.main.android.mainmenu.gamesetup.playeritem.Civilisation;
 import jsettlers.main.android.mainmenu.gamesetup.playeritem.PlayerSlotPresenter;
 import jsettlers.main.android.mainmenu.gamesetup.playeritem.PlayerType;
-import jsettlers.main.android.mainmenu.gamesetup.playeritem.ReadyListener;
+import jsettlers.main.android.mainmenu.gamesetup.playeritem.SlotStateListener;
 import jsettlers.main.android.mainmenu.gamesetup.playeritem.StartPosition;
 import jsettlers.main.android.mainmenu.gamesetup.playeritem.Team;
 
@@ -24,7 +25,7 @@ import jsettlers.main.android.mainmenu.gamesetup.playeritem.Team;
  * Created by Tom Pratt on 07/10/2017.
  */
 
-public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMultiplayerListener, IChangingListListener<IMultiplayerSlot>, ReadyListener {
+public abstract class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMultiplayerListener, IChangingListListener<IMultiplayerSlot>, SlotStateListener {
 
 	private final GameStarter gameStarter;
 	private final AndroidPreferences androidPreferences;
@@ -89,6 +90,26 @@ public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMul
 		connector.setReady(ready);
 	}
 
+	@Override
+	public void playerTypeChanged(byte slot, EPlayerType type) {
+		connector.setType(slot, type);
+	}
+
+	@Override
+	public void positionChanged(byte slot, byte position) {
+		connector.setPosition(slot, position);
+	}
+
+	@Override
+	public void teamChanged(byte slot, byte team) {
+		connector.setTeam(slot, team);
+	}
+
+	@Override
+	public void civilisationChanged(byte slot, ECivilisation civilisation) {
+		connector.setCivilisation(slot, civilisation);
+	}
+
 	protected void setAllPlayerSlotsEnabled(boolean enabled) {
 		for (PlayerSlotPresenter playerSlotPresenter : playerSlotPresenters) {
 			playerSlotPresenter.setControlsEnabled(enabled);
@@ -111,11 +132,19 @@ public class MultiPlayerSetupViewModel extends MapSetupViewModel implements IMul
 
 				boolean isMe = player.getId().equals(androidPreferences.getPlayerId());
 
-				playerSlotPresenter.setReadyListener(isMe ? this : null);
+				if(isMe || amITheHost()) {
+					playerSlotPresenter.setSlotStateListener(this, isMe, amITheHost());
+				} else {
+					playerSlotPresenter.setSlotStateListener(null, false, false);
+				}
 			} else {
 				playerSlotPresenter.setName("Computer " + i);
 				playerSlotPresenter.setShowReadyControl(false);
-				playerSlotPresenter.setReadyListener(null);
+				if(amITheHost()) {
+					playerSlotPresenter.setSlotStateListener(this, false, amITheHost());
+				} else {
+					playerSlotPresenter.setSlotStateListener(null, false, false);
+				}
 			}
 
 			playerSlotPresenter.setPlayerType(new PlayerType(remoteSlot.getType()));

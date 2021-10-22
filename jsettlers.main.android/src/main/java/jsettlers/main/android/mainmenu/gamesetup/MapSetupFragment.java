@@ -245,7 +245,7 @@ public abstract class MapSetupFragment extends Fragment {
 				@Override
 				public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
 					Civilisation civilisation = civilisationsAdapter.getItem(position);
-					presenter.setCivilisation(civilisation);
+					presenter.civilisationSelected(civilisation);
 				}
 			});
 
@@ -253,7 +253,7 @@ public abstract class MapSetupFragment extends Fragment {
 				@Override
 				public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
 					PlayerType playerType = playerTypesAdapter.getItem(position);
-					presenter.setPlayerType(playerType);
+					presenter.playerTypeSelected(playerType);
 				}
 			});
 

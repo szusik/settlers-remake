@@ -15,9 +15,20 @@
 
 package jsettlers.main.android.mainmenu.gamesetup.playeritem;
 
+import jsettlers.common.ai.EPlayerType;
+import jsettlers.common.player.ECivilisation;
+
 /**
  * Created by tompr on 01/03/2017.
  */
-public interface ReadyListener {
+public interface SlotStateListener {
 	void readyChanged(boolean ready);
+
+	void playerTypeChanged(byte slot, EPlayerType type);
+
+	void civilisationChanged(byte slot, ECivilisation civilisation);
+
+	void positionChanged(byte slot, byte position);
+
+	void teamChanged(byte slot, byte team);
 }

@@ -150,7 +150,7 @@ public abstract class MapSetupViewModel extends ViewModel implements PositionCha
 		int playerCountValue = mapLoader.getMaxPlayers();
 
 		for (byte i = 0; i < playerCountValue; i++) {
-			PlayerSlotPresenter playerSlotPresenter = new PlayerSlotPresenter(this);
+			PlayerSlotPresenter playerSlotPresenter = new PlayerSlotPresenter(i, this);
 			PlayerSetting playerSetting = playerSettings[i];
 
 			playerSlotPresenter.setName("Computer " + i);
