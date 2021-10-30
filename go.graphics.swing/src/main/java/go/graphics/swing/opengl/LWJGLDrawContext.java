@@ -508,8 +508,9 @@ public class LWJGLDrawContext extends GLDrawContext {
 				glBindAttribLocation(program, i, attributes.get(i));
 			}
 
-			glLinkProgram(program);
-			glValidateProgram(program);
+			link(name);
+
+			validate(name);
 
 			glDetachShader(program, vertexShader);
 			glDetachShader(program, fragmentShader);
@@ -545,6 +546,34 @@ public class LWJGLDrawContext extends GLDrawContext {
 			if(tex != -1) glUniform1i(tex, 0);
 
 			shaders.add(this);
+		}
+
+		private void link(String name) {
+			glLinkProgram(program);
+
+			String log = glGetProgramInfoLog(program);
+			if(!log.isEmpty()) System.out.print("linker info log of " + name + "=====\n" + log + "==== end\n");
+
+			int[] link_status = new int[1];
+			glGetProgramiv(program, GL_LINK_STATUS, link_status);
+			if(link_status[0] == 0) {
+				glDeleteProgram(program);
+				throw new Error("Could not link " + name);
+			}
+		}
+
+		private void validate(String name) {
+			glValidateProgram(program);
+
+			String log = glGetProgramInfoLog(program);
+			if(!log.isEmpty()) System.out.print("validation info log of " + name + "=====\n" + log + "==== end\n");
+
+			int[] validate_status = new int[1];
+			glGetProgramiv(program, GL_VALIDATE_STATUS, validate_status);
+			if(validate_status[0] == 0) {
+				glDeleteProgram(program);
+				throw new Error("Could not validate " + name);
+			}
 		}
 
 		private ArrayList<String> attributes = new ArrayList<>();
