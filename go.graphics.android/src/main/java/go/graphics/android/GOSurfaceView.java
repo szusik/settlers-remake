@@ -236,12 +236,10 @@ public class GOSurfaceView extends GLSurfaceView implements RedrawListener, GOEv
 			int minor = version.charAt(2)-'0';
 
 			if(major >= 2) {
-				try {
-					return new GLESDrawContext(ctx, major == 3);
-				} catch(Throwable thrown) {thrown.printStackTrace();};
+				return new GLESDrawContext(ctx, major >= 3);
+			} else {
+				throw new Error("wrong Opengl ES version: " + version);
 			}
-
-			return null;
 		}
 
 		@Override

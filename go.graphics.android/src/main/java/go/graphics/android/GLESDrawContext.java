@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +36,7 @@ import go.graphics.ManagedHandle;
 import go.graphics.MultiDrawHandle;
 import go.graphics.TextureHandle;
 import go.graphics.UnifiedDrawHandle;
+import java.util.List;
 
 import static android.opengl.GLES20.*;
 
@@ -500,23 +500,14 @@ public class GLESDrawContext extends GLDrawContext {
 				glBindAttribLocation(program, i, attributes.get(i));
 			}
 
-			glLinkProgram(program);
-			glValidateProgram(program);
+			link(name);
+
+			validate(name);
 
 			glDetachShader(program, vertexShader);
 			glDetachShader(program, fragmentShader);
 			glDeleteShader(vertexShader);
 			glDeleteShader(fragmentShader);
-
-			String log = glGetProgramInfoLog(program);
-			if(!log.isEmpty()) System.out.print("info log of " + name + "=====\n" + log + "==== end\n");
-
-			int[] link_status = new int[1];
-			glGetProgramiv(program, GL_LINK_STATUS, link_status, 0);
-			if(link_status[0] == 0) {
-				glDeleteProgram(program);
-				throw new Error("Could not link " + name);
-			}
 
 			proj = glGetUniformLocation(program, "projection");
 			global = glGetUniformLocation(program, "globalTransform");
@@ -538,6 +529,34 @@ public class GLESDrawContext extends GLDrawContext {
 			if(tex != -1) glUniform1i(tex, 0);
 
 			shaders.add(this);
+		}
+
+		private void link(String name) {
+			glLinkProgram(program);
+
+			String log = glGetProgramInfoLog(program);
+			if(!log.isEmpty()) System.out.print("linker info log of " + name + "=====\n" + log + "==== end\n");
+
+			int[] link_status = new int[1];
+			glGetProgramiv(program, GL_LINK_STATUS, link_status, 0);
+			if(link_status[0] == 0) {
+				glDeleteProgram(program);
+				throw new Error("Could not link " + name);
+			}
+		}
+
+		private void validate(String name) {
+			glValidateProgram(program);
+
+			String log = glGetProgramInfoLog(program);
+			if(!log.isEmpty()) System.out.print("validation info log of " + name + "=====\n" + log + "==== end\n");
+
+			int[] validate_status = new int[1];
+			glGetProgramiv(program, GL_VALIDATE_STATUS, validate_status, 0);
+			if(validate_status[0] == 0) {
+				glDeleteProgram(program);
+				throw new Error("Could not validate " + name);
+			}
 		}
 
 		private ArrayList<String> attributes = new ArrayList<>();
