@@ -332,7 +332,7 @@ public class MapData implements IMapData {
 
 	private static boolean landscapeAllowsObjects(ELandscapeType type) {
 		return !type.isWater() && type != ELandscapeType.SNOW && type != ELandscapeType.RIVER1 && type != ELandscapeType.RIVER2
-			&& type != ELandscapeType.RIVER3 && type != ELandscapeType.RIVER4 && type != ELandscapeType.MOOR;
+			&& type != ELandscapeType.RIVER3 && type != ELandscapeType.RIVER4;
 	}
 
 	@Override

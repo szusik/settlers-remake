@@ -161,7 +161,10 @@ public enum EMapObjectType {
 
 	HIVE_EMPTY,
 	HIVE_GROWING,
-	HIVE_HARVESTABLE;
+	HIVE_HARVESTABLE,
+
+	SWAMP_DECORATION,
+	;
 
 	public static final EMapObjectType[] VALUES = EMapObjectType.values();
 	public final byte ordinal;
@@ -181,6 +184,7 @@ public enum EMapObjectType {
 			EMapObjectType.CUT_OFF_STONE,
 			EMapObjectType.DESERT_DECORATION,
 			EMapObjectType.PLANT_DECORATION,
+			EMapObjectType.SWAMP_DECORATION,
 			EMapObjectType.TREE_DEAD);
 
 	EMapObjectType() {

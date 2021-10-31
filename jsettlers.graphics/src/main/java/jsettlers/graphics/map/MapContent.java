@@ -618,7 +618,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			}
 		}
 
-		if(fow > CommonConstants.FOG_OF_WAR_EXPLORED) {
+		if(fogClear) {
 			IGraphicsMovable movable = movableGrid != null ? movableGrid[tileIndex] : map.getMovableAt(x, y);
 			if (movable != null) {
 				this.objectDrawer.draw(movable);

@@ -606,6 +606,10 @@ public class MapObjectDrawer {
 				drawDesertDecoration(x, y, color);
 				break;
 
+			case SWAMP_DECORATION:
+				drawSwampDecoration(x, y, color);
+				break;
+
 			case PIG:
 				drawPig(x, y, color);
 				break;
@@ -657,6 +661,12 @@ public class MapObjectDrawer {
 		int step = (x * 13 + y * 233) % 5 + 10;
 		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(1, 27);
 		draw(seq.getImageSafe(step, () -> "desert-decoration"), x, y, 0, color);
+	}
+
+	private void drawSwampDecoration(int x, int y, float color) {
+		int step = (x * 13 + y * 233) % 6 + 27;
+		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(1, 27);
+		draw(seq.getImageSafe(step, () -> "swamp-decoration"), x, y, 0, color);
 	}
 
 	private void drawPig(int x, int y, float color) {
