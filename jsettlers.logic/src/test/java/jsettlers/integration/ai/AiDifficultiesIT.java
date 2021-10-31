@@ -91,6 +91,7 @@ public class AiDifficultiesIT {
 		} else {
 			System.out.println("The ai produced " + producedSoldiers + " soldiers.");
 		}
+		ReplayUtils.awaitShutdown(startedGame);
 		ensureRuntimePerformance("to apply light rules", startingGame.getAiExecutor().getApplyLightRulesStopWatch(), 20, 250);
 		ensureRuntimePerformance("to apply heavy rules", startingGame.getAiExecutor().getApplyHeavyRulesStopWatch(), 200, 2500);
 		ensureRuntimePerformance("to update statistics", startingGame.getAiExecutor().getUpdateStatisticsStopWatch(), 100, 2500);
