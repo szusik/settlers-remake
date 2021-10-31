@@ -202,7 +202,7 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		final int index = x + y * width;
 
 		this.heightGrid[x][y] += Math.signum(targetHeight - this.heightGrid[x][y]);
-		if(landscapeGrid[index] == ELandscapeType.GRASS.ordinal || landscapeGrid[index] == ELandscapeType.FLATTENED.ordinal) {
+		if(canChangeLandscapeTo(x, y, ELandscapeType.FLATTENED)) {
 			setLandscapeTypeAt(x, y, ELandscapeType.FLATTENED, true);
 		} else {
 			setLandscapeTypeAt(x, y, ELandscapeType.FLATTENED_DESERT, true);
