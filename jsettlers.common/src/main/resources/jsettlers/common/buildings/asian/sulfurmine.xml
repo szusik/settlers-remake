@@ -7,7 +7,7 @@
 	<ground groundtype="GRASS"/>
 	<ground groundtype="EARTH"/>
 	<ground groundtype="FLATTENED"/>
-	
+
 	<blocked dx="2" dy="2" />
 	<blocked dx="2" dy="0" />
 	<blocked dx="1" dy="-1" />
@@ -64,7 +64,6 @@
 
 	<offerStack dx="-1" dy="2" material="SULFUR" />
 
-	<bricklayer dx="-2" dy="2" direction="NORTH_EAST" />
 	<bricklayer dx="-2" dy="0" direction="NORTH_EAST" />
 	<bricklayer dx="0" dy="2" direction="NORTH_EAST" />
 	<bricklayer dx="3" dy="2" direction="NORTH_WEST" />
