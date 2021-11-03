@@ -4,6 +4,7 @@
 	<ground groundtype="GRASS" />
 	<ground groundtype="EARTH" />
 	<ground groundtype="FLATTENED" />
+
 	<blocked dx="-2" dy="-3" />
 	<blocked dx="-2" dy="-2" />
 	<blocked dx="-2" dy="-1" />
@@ -119,6 +120,8 @@
 	<blocked dx="0" dy="5" block="false" />
 	<blocked dx="1" dy="6" block="false" />
 	<blocked dx="2" dy="7" block="false" />
+	<blocked dx="-5" dy="0" block="false" />
+	<blocked dx="-5" dy="-3" block="false" />
 
 	<door dx="-2" dy="2" />
 

@@ -63,7 +63,6 @@
 
 	<offerStack dx="3" dy="2" material="SULFUR" />
 
-	<bricklayer dx="-2" dy="2" direction="NORTH_EAST" />
 	<bricklayer dx="-2" dy="1" direction="NORTH_EAST" />
 	<bricklayer dx="0" dy="2" direction="NORTH_EAST" />
 	<bricklayer dx="3" dy="2" direction="NORTH_WEST" />
