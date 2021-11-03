@@ -5,7 +5,7 @@
 	<ground groundtype="EARTH"/>
 	<ground groundtype="FLATTENED"/>
 
-    <blocked dx="-2" dy="3" />
+	<blocked dx="-2" dy="3" />
 	<blocked dx="-3" dy="2" />
 	<blocked dx="-3" dy="1" />
 	<blocked dx="-3" dy="0" />
@@ -72,6 +72,7 @@
 	<blocked dx="-3" dy="-4" />
 	<blocked dx="-4" dy="-5" />
 	<blocked dx="-3" dy="-5" />
+
 	<blocked dx="-3" dy="3" block="false" />
 	<blocked dx="-2" dy="4" block="false" />
 	<blocked dx="-1" dy="5" block="false" />
@@ -114,12 +115,15 @@
 	<blocked dx="-4" dy="0" block="false" />
 	<blocked dx="-4" dy="1" block="false" />
 	<blocked dx="0" dy="5" block="false" />
+	<blocked dx="7" dy="3" block="false" />
+	<blocked dx="6" dy="1" block="false" />
+	<blocked dx="-4" dy="2" block="false" />
+	<blocked dx="-5" dy="0" block="false" />
 
 	<door dx="-1" dy="4" />
 
-
-	<constructionStack dx="1" dy="6" material="PLANK" buildrequired="7" />
-	<constructionStack dx="4" dy="6" material="STONE" buildrequired="3" />
+	<constructionStack dx="1" dy="6" material="PLANK" buildrequired="6" />
+	<constructionStack dx="4" dy="6" material="STONE" buildrequired="6" />
 	<offerStack dx="3" dy="6" material="CROP" />
 
 	<bricklayer dx="-2" dy="4" direction="NORTH_EAST" />
@@ -129,7 +133,7 @@
 	<bricklayer dx="7" dy="5" direction="NORTH_WEST" />
 	<bricklayer dx="6" dy="2" direction="WEST" />
 
-	<flag dx="-4" dy="1" />
+	<flag dx="-4" dy="-1" />
 
 	<buildmark dx="-3" dy="2" />
 	<buildmark dx="0" dy="4" />
@@ -142,6 +146,6 @@
 	<workcenter dx="2" dy="10"/>
 
 	<image file="14" for="GUI" type="GUI" sequence="69" image="0"/>
-    <image file="13" type="SETTLER" for="FINAL" image="0" sequence="21"/>
-    <image file="13" type="SETTLER" for="BUILD" image="1" sequence="21"/>
- </building>
+	<image file="13" type="SETTLER" for="FINAL" image="0" sequence="21"/>
+	<image file="13" type="SETTLER" for="BUILD" image="1" sequence="21"/>
+</building>
