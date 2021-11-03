@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE building SYSTEM "../building.dtd" >
-
 <building worker="">
-
 	<ground groundtype="GRASS" />
 	<ground groundtype="EARTH" />
 	<ground groundtype="DESERT" />
@@ -104,6 +102,7 @@
 	<blocked dx="5" dy="1" />
 	<blocked dx="5" dy="0" />
 	<blocked dx="4" dy="-1" />
+	<blocked dx="-2" dy="-3" />
 
 	<blocked dx="4" dy="7" block="false" />
 	<blocked dx="3" dy="7" block="false" />
