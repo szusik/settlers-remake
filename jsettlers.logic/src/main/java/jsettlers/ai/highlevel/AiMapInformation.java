@@ -126,6 +126,10 @@ public class AiMapInformation {
 		int numberOfRemainingWeaponSmiths = Math.max(0, numberOfWeaponSmiths - (int) (numberOfFisher * WEAPON_SMITH_TO_FISHER_HUT_RATIO));
 
 		int numberOfFarms = (int) Math.ceil(numberOfRemainingWeaponSmiths / WEAPON_SMITH_TO_FARM_RATIO);
+		if(civilisation == ECivilisation.EGYPTIAN) {
+			numberOfFarms += maxMannaProducers;
+		}
+
 		buildingCounts[EBuildingType.FARM.ordinal] = numberOfFarms;
 		buildingCounts[EBuildingType.BAKER.ordinal] = (int) Math.ceil(numberOfFarms / FARM_TO_BAKER_RATIO);
 		buildingCounts[EBuildingType.MILL.ordinal] = (int) Math.ceil(numberOfFarms / FARM_TO_MILL_RATIO);
