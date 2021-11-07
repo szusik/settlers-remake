@@ -71,6 +71,7 @@ public class ConfigurableGeneral implements ArmyGeneral {
 	private static final float SOLDIERS_MIN_HEALTH = 0.6f;
 	private static final float HEALING_DISTANCE_WEIGHT = -1;
 	private static final float HEALING_USAGE_WEIGHT = -10;
+	private static final float MAX_WOUNDED_RATIO_FOR_ATTACK = 0.5f;
 
 	private final AiStatistics aiStatistics;
 	private final Player player;
@@ -115,7 +116,8 @@ public class ConfigurableGeneral implements ArmyGeneral {
 			IPlayer weakestEnemy = getWeakestEnemy();
 			SoldierPositions enemySoldierPositions = calculateSituation(weakestEnemy.getPlayerId());
 			boolean infantryWouldDie = wouldInfantryDie(enemySoldierPositions);
-			if (attackIsPossible(soldierPositions, enemySoldierPositions, infantryWouldDie)) {
+			if (woundedSoldiers.size()/(float)soldierPositions.getSoldiersCount() <= MAX_WOUNDED_RATIO_FOR_ATTACK &&
+					attackIsPossible(soldierPositions, enemySoldierPositions, infantryWouldDie)) {
 				attack(soldierPositions, infantryWouldDie, soldiersWithOrders);
 			}
 		}
