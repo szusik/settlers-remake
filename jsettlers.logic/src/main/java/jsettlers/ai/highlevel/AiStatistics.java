@@ -71,6 +71,7 @@ import static jsettlers.common.buildings.EBuildingType.BIG_TOWER;
 import static jsettlers.common.buildings.EBuildingType.CASTLE;
 import static jsettlers.common.buildings.EBuildingType.LUMBERJACK;
 import static jsettlers.common.buildings.EBuildingType.TOWER;
+import static jsettlers.common.mapobject.EMapObjectType.CUT_OFF_STONE;
 import static jsettlers.common.mapobject.EMapObjectType.STONE;
 import static jsettlers.common.mapobject.EMapObjectType.TREE_ADULT;
 import static jsettlers.common.mapobject.EMapObjectType.TREE_GROWING;
@@ -414,6 +415,10 @@ public class AiStatistics {
 				} else if (o.hasMapObjectTypes(TREE_GROWING, TREE_ADULT) && isCuttableByPlayer(x, y, player.playerId)) {
 					playerStatistic.trees.addNoCollission(x, y);
 				}
+
+				if(o.hasMapObjectTypes(STONE, CUT_OFF_STONE)) {
+					aiMapInformation.stoneCount[playerId]++;
+				}
 			}
 		} else {
 			playerStatistic.landToBuildOn.addNoCollission(x, y);
@@ -458,6 +463,9 @@ public class AiStatistics {
 			}
 			stones.addNoCollission(x, y);
 			updateNearStones(x, y);
+		}
+		if (objectsGrid.hasMapObjectType(x, y, STONE, CUT_OFF_STONE)) {
+			aiMapInformation.stoneCount[aiMapInformation.stoneCount.length - 1]++;
 		}
 		ELandscapeType landscape = landscapeGrid.getLandscapeTypeAt(x, y);
 		if (landscape.isRiver()) {
