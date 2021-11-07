@@ -24,14 +24,14 @@ public class AiTestUtils {
 	static final int JUMP_FORWARD = 2 * MINUTES;
 	static final String LOW_PERFORMANCE_FAILURE_MESSAGE = "%s's %s is higher than %d. It was %d\nSome code change caused the AI to have a worse runtime performance.";
 
-	public static void holdBattleBetween(EPlayerType expectedWinner, EPlayerType expectedLooser, ECivilisation civilisation, int maximumTimeToWin) throws MapLoadException {
+	public static void holdBattleBetween(EPlayerType expectedWinner, EPlayerType expectedLooser, ECivilisation civilisation, int maximumTimeToWin, MapLoader map) throws MapLoadException {
 		byte expectedWinnerSlotId = 9;
 		byte expectedLooserSlotId = 7;
 		PlayerSetting[] playerSettings = getDefaultPlayerSettings(12);
 		playerSettings[expectedWinnerSlotId] = new PlayerSetting(expectedWinner, civilisation, (byte) 0);
 		playerSettings[expectedLooserSlotId] = new PlayerSetting(expectedLooser, civilisation, (byte) 1);
 
-		JSettlersGame.GameRunner startingGame = createStartingGame(playerSettings);
+		JSettlersGame.GameRunner startingGame = createStartingGame(playerSettings, map);
 		IStartedGame startedGame = ReplayUtils.waitForGameStartup(startingGame);
 		AiStatistics aiStatistics = new AiStatistics(startingGame.getMainGrid(), Executors.newWorkStealingPool());
 
@@ -73,7 +73,7 @@ public class AiTestUtils {
 		}
 	}
 
-	public static JSettlersGame.GameRunner createStartingGame(PlayerSetting[] playerSettings) throws MapLoadException {
+	public static JSettlersGame.GameRunner createStartingGame(PlayerSetting[] playerSettings, MapLoader map) throws MapLoadException {
 		byte playerId = 0;
 		for (byte i = 0; i < playerSettings.length; i++) {
 			if (playerSettings[i].isAvailable()) {
@@ -82,8 +82,7 @@ public class AiTestUtils {
 			}
 		}
 
-		MapLoader mapCreator = MapUtils.getSpezialSumpf();
-		JSettlersGame game = new JSettlersGame(mapCreator, 1L, new OfflineNetworkConnector(), playerId, playerSettings);
+		JSettlersGame game = new JSettlersGame(map, 1L, new OfflineNetworkConnector(), playerId, playerSettings);
 		return (JSettlersGame.GameRunner) game.start();
 	}
 
