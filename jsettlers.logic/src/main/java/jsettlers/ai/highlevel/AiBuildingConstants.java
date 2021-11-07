@@ -30,7 +30,6 @@ class AiBuildingConstants {
 	static final float FARM_TO_PIG_FARM_RATIO = 3F / 1F;
 	static final float FARM_TO_SLAUGHTER_RATIO = 6F / 1F;
 	static final float WEAPON_SMITH_TO_LUMBERJACK_RATIO = 20F / 8F;
-	static final float WEAPON_SMITH_TO_STONECUTTER_RATIO = 20F / 8F;
 	static final float LUMBERJACK_TO_SAWMILL_RATIO = 2F / 1F;
 	static final float LUMBERJACK_TO_FORESTER_RATIO = 2F / 1F;
 	static final float COAL_MINE_TO_SMITH_RATIO = 1F / 1.8F;

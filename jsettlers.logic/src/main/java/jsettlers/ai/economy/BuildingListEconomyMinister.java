@@ -141,7 +141,11 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 			}
 		}
 
-		numberOfMidGameStoneCutters = (currentCountOf(STONECUTTER) / 2);
+		if(player.getCivilisation() != ECivilisation.EGYPTIAN) {
+			numberOfMidGameStoneCutters = (currentCountOf(STONECUTTER) / 2);
+		} else {
+			numberOfMidGameStoneCutters = currentCountOf(STONECUTTER);
+		}
 	}
 
 	private List<EBuildingType> determineBuildingMaterialBuildings() {
