@@ -1,10 +1,6 @@
-#version 100
+#version 330
 
-#extension GL_NV_fragdepth : enable
-
-precision mediump float;
-
-varying vec2 frag_texcoord;
+in vec2 frag_texcoord;
 
 uniform sampler2D texHandle;
 uniform float shadow_depth;
@@ -12,9 +8,11 @@ uniform float shadow_depth;
 uniform lowp int mode;
 uniform float color[5]; // r,g,b,a, intensity
 
+out vec4 fragColor;
+
 void main() {
 	float fragDepth = gl_FragCoord.z;
-	vec4 fragColor = vec4(color[0], color[1], color[2], color[3]);
+	fragColor = vec4(color[0], color[1], color[2], color[3]);
 
 	bool textured = mode!=0;
 
@@ -23,9 +21,9 @@ void main() {
 
 		vec4 tex_color;
 		if(progress_fence) {
-			tex_color = texture2D(texHandle, fragColor.rg+(fragColor.ba-fragColor.rg)*frag_texcoord);
+			tex_color = texture(texHandle, fragColor.rg+(fragColor.ba-fragColor.rg)*frag_texcoord);
 		} else {
-			tex_color = texture2D(texHandle, frag_texcoord);
+			tex_color = texture(texHandle, frag_texcoord);
 		}
 
 		bool image_fence = mode>0;
@@ -50,13 +48,5 @@ void main() {
 
 	fragColor.rgb *= color[4];
 
-	gl_FragColor = fragColor;
-
-	#ifdef GL_NV_fragdepth
 	gl_FragDepth = fragDepth;
-	#else
-	#ifndef GL_ES
-	gl_FragDepth = fragDepth;
-	#endif
-	#endif
 }

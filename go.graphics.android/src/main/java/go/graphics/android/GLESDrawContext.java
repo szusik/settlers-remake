@@ -393,7 +393,7 @@ public class GLESDrawContext extends GLDrawContext {
 				float intensity = (int_mode-mode)*10-1;
 
 				glUniform1i(prog_unified.mode, mode);
-				glUniform1fv(prog_unified.color, 4, new float[] {colors[i*4], colors[i*4+1], colors[i*4+2], colors[i*4+3], intensity}, i * 4);
+				glUniform1fv(prog_unified.color, 5, new float[] {colors[i*4], colors[i*4+1], colors[i*4+2], colors[i*4+3], intensity}, 0);
 				glUniform3fv(prog_unified.trans, 2, new float[] {trans[i*4], trans[i*4+1], trans[i*4+2], 1, 1, 0}, 0);
 
 				glDrawArrays(primitive, call.offset, vertexCount);
@@ -571,8 +571,14 @@ public class GLESDrawContext extends GLDrawContext {
 		private final String vendor_id = "//VENDOR=" + glGetString(GL_VENDOR) + " ";
 
 		private int createShader(String name, int type) throws IOException {
+			if(gles3) {
+				name = "gles3/" + name;
+			} else {
+				name = "gles2/" + name;
+			}
+
 			StringBuilder source = new StringBuilder();
-			try(InputStream shaderFile = GLESDrawContext.class.getResourceAsStream("/go/graphics/"+name)) {
+			try(InputStream shaderFile = GLESDrawContext.class.getResourceAsStream("/go/graphics/android/" + name)) {
 				if (shaderFile == null) return -1;
 				BufferedReader is = new BufferedReader(new InputStreamReader(shaderFile));
 

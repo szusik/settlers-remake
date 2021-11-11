@@ -1,37 +1,34 @@
-#version 300 es
-
-#extension GL_NV_fragdepth : enable
+#version 100
 
 precision mediump float;
 
-in vec2 frag_texcoord;
-flat in int frag_mode;
-in float frag_color[5];
+varying vec2 frag_texcoord;
 
 uniform sampler2D texHandle;
 uniform float shadow_depth;
 
-out vec4 fragColor;
+uniform lowp int mode;
+uniform float color[5]; // r,g,b,a, intensity
 
 void main() {
 	float fragDepth = gl_FragCoord.z;
-	fragColor = vec4(frag_color[0], frag_color[1], frag_color[2], frag_color[3]);
+	vec4 fragColor = vec4(color[0], color[1], color[2], color[3]);
 
-	bool textured = frag_mode!=0;
+	bool textured = mode!=0;
 
 	if(textured) {
-		bool progress_fence = frag_mode>3;
+		bool progress_fence = mode > 3;
 
 		vec4 tex_color;
 		if(progress_fence) {
-			tex_color = texture(texHandle, fragColor.rg+(fragColor.ba-fragColor.rg)*frag_texcoord);
+			tex_color = texture2D(texHandle, fragColor.rg+(fragColor.ba-fragColor.rg)*frag_texcoord);
 		} else {
-			tex_color = texture(texHandle, frag_texcoord);
+			tex_color = texture2D(texHandle, frag_texcoord);
 		}
 
-		bool image_fence = frag_mode>0;
-		bool torso_fence = frag_mode>1 && !progress_fence;
-		bool shadow_fence = abs(float(frag_mode))>2.0 && !progress_fence;
+		bool image_fence = mode>0;
+		bool torso_fence = mode>1 && !progress_fence;
+		bool shadow_fence = abs(float(mode))>2.0 && !progress_fence;
 
 		if(torso_fence && tex_color.a < 0.1 && tex_color.r > 0.1) { // torso pixel
 			fragColor.rgb *= tex_color.b;
@@ -49,7 +46,7 @@ void main() {
 
 	if(fragColor.a < 0.5) discard;
 
-	fragColor.rgb *= frag_color[4];
+	fragColor.rgb *= color[4];
 
-	gl_FragDepth = fragDepth;
+	gl_FragColor = fragColor;
 }

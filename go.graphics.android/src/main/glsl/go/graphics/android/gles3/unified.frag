@@ -1,6 +1,6 @@
-#version 330
+#version 300 es
 
-#extension GL_NV_fragdepth : enable
+precision mediump float;
 
 in vec2 frag_texcoord;
 
@@ -50,11 +50,5 @@ void main() {
 
 	fragColor.rgb *= color[4];
 
-	#ifdef GL_NV_fragdepth
 	gl_FragDepth = fragDepth;
-	#else
-	#ifndef GL_ES
-	gl_FragDepth = fragDepth;
-	#endif
-	#endif
 }

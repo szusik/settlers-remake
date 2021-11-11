@@ -1,7 +1,5 @@
 #version 330
 
-#extension GL_NV_fragdepth : enable
-
 in vec4 frag_color;
 flat in int frag_mode;
 in float frag_intensity;

@@ -582,10 +582,14 @@ public class LWJGLDrawContext extends GLDrawContext {
 		private ArrayList<String> attributes = new ArrayList<>();
 
 		private int createShader(String name, int type) throws IOException {
-			if(Platform.get() == Platform.MACOSX) name = "swing/apple/" + name;
+			if(glcaps.OpenGL33) {
+				name = "gl33/" + name;
+			} else {
+				name = "gl/" + name;
+			}
 
 			StringBuilder source = new StringBuilder();
-			try(InputStream shaderFile = getClass().getResourceAsStream("/go/graphics/" + name)) {
+			try(InputStream shaderFile = getClass().getResourceAsStream("/go/graphics/swing/" + name)) {
 				if (shaderFile == null) return -1;
 				BufferedReader is = new BufferedReader(new InputStreamReader(shaderFile));
 

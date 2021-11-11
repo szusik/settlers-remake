@@ -1,6 +1,4 @@
-#version 300 es
-
-#extension GL_NV_fragdepth : enable
+#version 140
 
 precision mediump float;
 
