@@ -14,10 +14,14 @@
  *******************************************************************************/
 package go.graphics.swing.contextcreator;
 
+import java.nio.ByteBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Platform;
+import org.lwjgl.system.macosx.ObjCRuntime;
 import org.lwjgl.system.windows.WinBase;
+import org.lwjgl.vulkan.EXTMetalSurface;
 import org.lwjgl.vulkan.VkInstance;
+import org.lwjgl.vulkan.VkMetalSurfaceCreateInfoEXT;
 import org.lwjgl.vulkan.VkWin32SurfaceCreateInfoKHR;
 import org.lwjgl.vulkan.VkXlibSurfaceCreateInfoKHR;
 
@@ -28,6 +32,7 @@ import go.graphics.swing.ContextContainer;
 import go.graphics.swing.vulkan.VulkanUtils;
 
 import static org.lwjgl.vulkan.EXTDebugReport.*;
+import static org.lwjgl.vulkan.EXTMetalSurface.VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
 import static org.lwjgl.vulkan.KHRSurface.*;
 import static org.lwjgl.vulkan.KHRWin32Surface.*;
 import static org.lwjgl.vulkan.KHRXlibSurface.*;
@@ -87,8 +92,29 @@ public class VulkanContextCreator extends JAWTContextCreator {
 					error("Could not create a surface via VK_KHR_xlib_surface.");
 				}
 			} else if (Platform.get() == Platform.MACOSX) {
+				// TODO this can't happen because onNewConnection won't be triggered on macos
 				error("OSX support is not implemented.");
-				//if(!instance.getCapabilities().VK_MVK_macos_surface) error("VK_MVK_macos_surface is missing.");
+
+				long metalLayer = 0L;
+
+				long caMetalLayerClass = ObjCRuntime.objc_getClass("CAMetalLayer");
+				long metalLayerInstance = ObjCRuntime.class_createInstance(caMetalLayerClass, 0);
+
+
+				// TODO configure the layer
+
+				ByteBuffer layerBuffer = stack.calloc(4);
+				layerBuffer.asLongBuffer().put(0, metalLayer);
+
+				ObjCRuntime.object_setInstanceVariable(windowConnection, "layer", layerBuffer);
+
+				VkMetalSurfaceCreateInfoEXT surfaceCreateInfoEXT = VkMetalSurfaceCreateInfoEXT.callocStack(stack)
+								.sType(VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT)
+								.pLayer(stack.pointers(metalLayer));
+
+				if(EXTMetalSurface.vkCreateMetalSurfaceEXT(instance, surfaceCreateInfoEXT, null, surfacePtr)  != VK_SUCCESS) {
+					error("Could not create a surface via VK_EXT_metal_surface");
+				}
 			}
 			surface = surfacePtr.get(0);
 		}

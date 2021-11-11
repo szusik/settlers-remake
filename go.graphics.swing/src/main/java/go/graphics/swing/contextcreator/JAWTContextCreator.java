@@ -40,7 +40,7 @@ public abstract class JAWTContextCreator extends ContextCreator {
 	public JAWTContextCreator(ContextContainer container, boolean debug) {
 		super(container, debug);
 
-		jawt.version(JAWTFunctions.JAWT_VERSION_1_4);
+		jawt.version(JAWTFunctions.JAWT_VERSION_1_7);
 		JAWTFunctions.JAWT_GetAWT(jawt);
 
 	}
@@ -49,16 +49,19 @@ public abstract class JAWTContextCreator extends ContextCreator {
 	public abstract void stop();
 
 	private void regenerateWindowInfo() throws ContextException {
+
 		long oldWindowConnection = windowConnection;
 		long oldWindowDrawable = windowDrawable;
 		if(currentPlatform == Platform.LINUX) {
 			JAWTX11DrawingSurfaceInfo dsi = JAWTX11DrawingSurfaceInfo.create(surfaceinfo.platformInfo());
 			windowConnection = dsi.display();
 			windowDrawable = dsi.drawable();
-		} else {
+		} else if(currentPlatform == Platform.WINDOWS){
 			JAWTWin32DrawingSurfaceInfo dsi = JAWTWin32DrawingSurfaceInfo.create(surfaceinfo.platformInfo());
 			windowConnection = dsi.hwnd();
 			windowDrawable = dsi.hdc();
+		} else {
+			windowConnection = surfaceinfo.platformInfo();
 		}
 
 		if(windowDrawable != oldWindowDrawable) onNewDrawable();
