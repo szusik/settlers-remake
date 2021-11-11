@@ -110,23 +110,26 @@ public abstract class GLDrawContext {
 	}
 
 	private void addNewHandle() {
-		TextureHandle tex = generateTexture(ManagedHandle.TEX_DIM, ManagedHandle.TEX_DIM, null, "managed" + ManagedHandle.instance_count);
-		UnifiedDrawHandle parent = createUnifiedDrawCall(ManagedHandle.MAX_QUADS*4, "managed" + ManagedHandle.instance_count, tex, null);
-		managedHandles.add(new ManagedHandle(parent));
+		int quad_count = 1024;
+		int texture_size = 2048;
+
+		TextureHandle tex = generateTexture(texture_size, texture_size, null, "managed" + ManagedHandle.instance_count);
+		UnifiedDrawHandle parent = createUnifiedDrawCall(quad_count*4, "managed" + ManagedHandle.instance_count, tex, null);
+		managedHandles.add(new ManagedHandle(parent, quad_count, texture_size));
 	}
 
 	public ManagedUnifiedDrawHandle createManagedUnifiedDrawCall(ShortBuffer texData, float offsetX, float offsetY, int width, int height) {
 		for(ManagedHandle handle : managedHandles) {
 			int position;
-			if(handle.quad_index != ManagedHandle.MAX_QUADS && (position = handle.findTextureHole(width, height)) != -1) {
+			if(handle.quad_index != handle.quad_count && (position = handle.findTextureHole(width, height)) != -1) {
 				UIPoint corner;
 				if((corner = handle.addTexture(texData, width, height, position)) == null) continue;
 
 
 				float lu = (float) corner.getX();
 				float lv = (float) corner.getY();
-				float hu = lu + width/(float) ManagedHandle.TEX_DIM;
-				float hv = lv + height/(float) ManagedHandle.TEX_DIM;
+				float hu = lu + width/(float) handle.texture_size;
+				float hv = lv + height/(float) handle.texture_size;
 
 				float[] data = createQuadGeometry(offsetX, -offsetY, offsetX+width, -offsetY-height, lu, lv, hu, hv);
 

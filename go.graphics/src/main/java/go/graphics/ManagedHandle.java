@@ -7,29 +7,29 @@ import java.util.Arrays;
 
 public class ManagedHandle {
 
-	// also change buffer size in shaders.
-	// check minimum device limits first.
-	public static final int MAX_QUADS = 1024;
-	public static final int TEX_DIM = 2048;
-
 	protected static int instance_count = 0;
 
+	protected int quad_count;
 	protected int quad_index = 0;
-	private final int[] remaining_pixels = new int[TEX_DIM];
+	protected int texture_size;
+	private final int[] remaining_pixels;
 
 	public final UnifiedDrawHandle bufferHolder;
 	protected final MultiDrawHandle multiCache;
 
-	protected ManagedHandle(UnifiedDrawHandle bufferHolder) {
+	protected ManagedHandle(UnifiedDrawHandle bufferHolder, int quad_count, int texture_size) {
 		this.bufferHolder = bufferHolder;
+		this.quad_count = quad_count;
+		this.texture_size = texture_size;
+		remaining_pixels = new int[texture_size];
 		multiCache = bufferHolder.dc.createMultiDrawCall("managed" + instance_count, this);
 
-		Arrays.fill(remaining_pixels, TEX_DIM);
+		Arrays.fill(remaining_pixels, texture_size);
 		ManagedHandle.instance_count++;
 	}
 
 	protected int findTextureHole(int width, int height) {
-		int placement_count = TEX_DIM - width;
+		int placement_count = texture_size - width;
 
 		int[] placements = new int[placement_count];
 
@@ -77,9 +77,9 @@ public class ManagedHandle {
 
 		// ...and populate it
 		try {
-			bufferHolder.dc.updateTexture(bufferHolder.texture, start, TEX_DIM-leastRemaining, width, height, texData);
+			bufferHolder.dc.updateTexture(bufferHolder.texture, start, texture_size-leastRemaining, width, height, texData);
 		} catch(IllegalBufferException e) {}
-		return new UIPoint(start/(float)TEX_DIM, (TEX_DIM-leastRemaining)/(float)TEX_DIM);
+		return new UIPoint(start/(float)texture_size, (texture_size-leastRemaining)/(float)texture_size);
 	}
 
 	private static final ByteBuffer dataBuffer = ByteBuffer.allocateDirect(4*4*4).order(ByteOrder.nativeOrder());
