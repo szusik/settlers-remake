@@ -7,6 +7,7 @@ layout(location=2) in vec4 color;
 layout(location=3) in vec3 additional; // intensity,index,mode
 
 layout(constant_id=0) const int MAX_GLOBALTRANS_COUNT = 4;
+layout(constant_id=1) const int MAX_GEOMETRY_DATA_QUAD_COUNT = 256;
 
 layout(set=0, binding=0) uniform GlobalData {
     mat4 projection;
@@ -14,7 +15,7 @@ layout(set=0, binding=0) uniform GlobalData {
 } global;
 
 layout(set=2, binding=0) uniform GeometryData {
-    vec4 geometryData[4*1024];
+    vec4 geometryData[4*MAX_GEOMETRY_DATA_QUAD_COUNT];
 } geomtryBuffer;
 
 layout(push_constant) uniform UnifiedPerCall {

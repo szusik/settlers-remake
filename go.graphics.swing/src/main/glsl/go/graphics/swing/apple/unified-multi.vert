@@ -8,8 +8,12 @@ in vec3 additional; //attribute
 uniform mat4 globalTransform;
 uniform mat4 projection;
 
+#ifndef MAX_GEOMETRY_DATA_QUAD_COUNT
+#define MAX_GEOMETRY_DATA_QUAD_COUNT 256
+#endif
+
 layout(std140) uniform geometryDataBuffer {
-	vec4 geometryData[4*1024];
+	vec4 geometryData[4*MAX_GEOMETRY_DATA_QUAD_COUNT];
 };
 
 out vec4 frag_color;

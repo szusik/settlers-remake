@@ -110,7 +110,7 @@ public abstract class GLDrawContext {
 	}
 
 	private void addNewHandle() {
-		int quad_count = 1024;
+		int quad_count = 256;
 		int texture_size = 2048;
 
 		TextureHandle tex = generateTexture(texture_size, texture_size, null, "managed" + ManagedHandle.instance_count);
