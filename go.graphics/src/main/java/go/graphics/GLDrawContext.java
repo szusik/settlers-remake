@@ -17,6 +17,9 @@ public abstract class GLDrawContext {
 
 	protected List<ManagedHandle> managedHandles = new ArrayList<>();
 
+	protected int maxUniformBlockSize;
+	protected int maxTextureSize;
+
 	public abstract void setShadowDepthOffset(float depth);
 
 	/**
@@ -110,8 +113,8 @@ public abstract class GLDrawContext {
 	}
 
 	private void addNewHandle() {
-		int quad_count = 256;
-		int texture_size = 2048;
+		int quad_count = getMaxManagedQuads();
+		int texture_size = getMaxManagedTextureSize();
 
 		TextureHandle tex = generateTexture(texture_size, texture_size, null, "managed" + ManagedHandle.instance_count);
 		UnifiedDrawHandle parent = createUnifiedDrawCall(quad_count*4, "managed" + ManagedHandle.instance_count, tex, null);
@@ -182,4 +185,28 @@ public abstract class GLDrawContext {
 	}
 
     public abstract void resize(int width, int height);
+
+	protected int getMaxManagedQuads() {
+		int maxManagedHandleQuads = maxUniformBlockSize / (4*4*4) /*size of one quad*/;
+
+		if (maxManagedHandleQuads >= ManagedHandle.MAX_QUADS) {
+			return ManagedHandle.MAX_QUADS;
+		}
+
+		return maxManagedHandleQuads;
+	}
+
+	protected int getMaxManagedTextureSize() {
+		int maxManagedHandleTextureSize = maxTextureSize;
+
+		if (maxManagedHandleTextureSize >= ManagedHandle.MAX_TEXTURE_SIZE) {
+			return ManagedHandle.MAX_TEXTURE_SIZE;
+		}
+
+		return maxManagedHandleTextureSize;
+	}
+
+	protected String getManagedHandleDefine() {
+		return "#define MAX_GEOMETRY_DATA_QUAD_COUNT " + getMaxManagedQuads();
+	}
 }

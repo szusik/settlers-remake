@@ -36,7 +36,6 @@ import go.graphics.ManagedHandle;
 import go.graphics.MultiDrawHandle;
 import go.graphics.TextureHandle;
 import go.graphics.UnifiedDrawHandle;
-import java.util.List;
 
 import static android.opengl.GLES20.*;
 
@@ -49,6 +48,14 @@ public class GLESDrawContext extends GLDrawContext {
 		this.context = ctx;
 		this.gles3 = gles3;
 		shaders = new ArrayList<>();
+
+		int[] textureSize = new int[1];
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, textureSize, 0);
+		maxTextureSize = textureSize[0];
+
+		int[] uniformBlockSize = new int[1];
+		glGetIntegerv(GLES30.GL_MAX_UNIFORM_BLOCK_SIZE, uniformBlockSize, 0);
+		maxUniformBlockSize = uniformBlockSize[0];
 
 		glClearColor(0, 0, 0, 1);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -573,6 +580,8 @@ public class GLESDrawContext extends GLDrawContext {
 				while ((line = is.readLine()) != null) {
 					if (line.startsWith("attribute") || line.endsWith("//attribute")) {
 						attributes.add(line.split(" ")[2].replaceAll(";", ""));
+					} else if(line.equals("//define MAX_GEOMETRY_DATA_QUAD_COUNT")) {
+						line = getManagedHandleDefine();
 					}
 
 					int vendor_index = line.indexOf(vendor_id);

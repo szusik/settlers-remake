@@ -7,6 +7,9 @@ import java.util.Arrays;
 
 public class ManagedHandle {
 
+	public static final int MAX_QUADS = 1024;
+	public static final int MAX_TEXTURE_SIZE = 2048;
+
 	protected static int instance_count = 0;
 
 	protected int quad_count;

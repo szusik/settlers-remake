@@ -86,7 +86,7 @@ public abstract class VulkanPipeline {
 			Arrays.fill(writtenBfrs, VK_NULL_HANDLE);
 
 			pipelineLayout = VulkanUtils.createPipelineLayout(stack, dc.device, pipelineLayoutCreateInfo);
-			pipeline = VulkanUtils.createPipeline(stack, dc.device, primitive, pipelineLayout, renderPass, vertShader, fragShader, inputStateCreateInfo);
+			pipeline = VulkanUtils.createPipeline(stack, dc.device, primitive, pipelineLayout, renderPass, vertShader, fragShader, inputStateCreateInfo, dc.getMaxManagedQuads());
 
 			descSet = descPool.createNewSet(ownDescriptorSetLayout);
 

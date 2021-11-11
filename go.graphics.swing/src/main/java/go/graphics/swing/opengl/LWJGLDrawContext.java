@@ -44,6 +44,9 @@ public class LWJGLDrawContext extends GLDrawContext {
 		this.glcaps = glcaps;
 		shaders = new ArrayList<>();
 
+		maxTextureSize = glGetInteger(GL_MAX_TEXTURE_SIZE);
+		maxUniformBlockSize = glGetInteger(GL_MAX_UNIFORM_BLOCK_SIZE);
+
 		if(debug) debugOutput = new LWJGLDebugOutput(this);
 
 		glEnable(GL_BLEND);
@@ -590,6 +593,8 @@ public class LWJGLDrawContext extends GLDrawContext {
 				while ((line = is.readLine()) != null) {
 					if (line.startsWith("attribute") || line.endsWith("//attribute")) {
 						attributes.add(line.split(" ")[2].replaceAll(";", ""));
+					} else if(line.equals("//define MAX_GEOMETRY_DATA_QUAD_COUNT")) {
+						line = getManagedHandleDefine();
 					}
 
 					source.append(line).append("\n");

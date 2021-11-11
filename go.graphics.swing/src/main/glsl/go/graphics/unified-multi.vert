@@ -12,6 +12,7 @@ in vec3 additional; //attribute
 uniform mat4 globalTransform;
 uniform mat4 projection;
 
+//define MAX_GEOMETRY_DATA_QUAD_COUNT
 #ifndef MAX_GEOMETRY_DATA_QUAD_COUNT
 #define MAX_GEOMETRY_DATA_QUAD_COUNT 256
 #endif

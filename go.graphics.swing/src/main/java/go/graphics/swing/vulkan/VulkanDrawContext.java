@@ -40,6 +40,7 @@ import org.lwjgl.vulkan.VkImageSubresourceRange;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkPhysicalDevice;
+import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
@@ -152,6 +153,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		try(MemoryStack stack = MemoryStack.stackPush()) {
 			VkPhysicalDevice[] allPhysicalDevices = VulkanUtils.listPhysicalDevices(stack, instance);
 			physicalDevice = VulkanUtils.findPhysicalDevice(allPhysicalDevices);
+
+			VkPhysicalDeviceProperties props = VkPhysicalDeviceProperties.callocStack(stack);
+			vkGetPhysicalDeviceProperties(physicalDevice, props);
+			maxTextureSize = props.limits().maxImageDimension2D();
+			maxUniformBlockSize = Integer.MAX_VALUE;
 
 			VkQueueFamilyProperties.Buffer allQueueFamilies = VulkanUtils.listQueueFamilies(stack, physicalDevice);
 			universalQueueIndex = VulkanUtils.findQueue(allQueueFamilies, (queue, index) -> graphicsQueueCond.apply(queue, index)&&presentQueueCond.apply(queue, index));
@@ -1361,5 +1367,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		vkUpdateDescriptorSets(device, install_uniform_buffer_write, null);
 
 		return descSet;
+	}
+
+	@Override
+	public int getMaxManagedQuads() {
+		return super.getMaxManagedQuads();
 	}
 }

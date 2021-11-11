@@ -392,7 +392,7 @@ public class VulkanUtils {
 		return renderPassBfr.get(0);
 	}
 
-	public static long createPipeline(MemoryStack stack, VkDevice device, int primitive, long pipelineLayout, long renderPass, long vertShader, long fragShader, VkPipelineVertexInputStateCreateInfo vertexInputState) {
+	public static long createPipeline(MemoryStack stack, VkDevice device, int primitive, long pipelineLayout, long renderPass, long vertShader, long fragShader, VkPipelineVertexInputStateCreateInfo vertexInputState, int maxManagedQuads) {
 		int topology = primitive-1;
 		if(primitive == EPrimitiveType.Line) topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 
@@ -402,8 +402,10 @@ public class VulkanUtils {
 
 		VkSpecializationMapEntry.Buffer max_globalattr_count_at = VkSpecializationMapEntry.callocStack(2, stack);
 		max_globalattr_count_at.get(0).set(0, 0, 4);
+		max_globalattr_count_at.get(1).set(1, 4, 4);
 		VkSpecializationInfo max_globalattr_count = VkSpecializationInfo.callocStack(stack)
-				.pData(stack.calloc(4).putInt(0, MAX_GLOBALTRANS_COUNT))
+				.pData(stack.calloc(8).putInt(0, MAX_GLOBALTRANS_COUNT)
+						.putInt(1, maxManagedQuads))
 				.pMapEntries(max_globalattr_count_at);
 
 
