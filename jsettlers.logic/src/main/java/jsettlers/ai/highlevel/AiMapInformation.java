@@ -48,6 +48,7 @@ public class AiMapInformation {
 	private static final double GEMSTONE_TO_GEM_MINES_RATIO = 100F / 1F;
 	private static final double IRONORE_TO_IRON_MINES_RATIO = 100F / 1F;
 	private static final float GRASS_TO_LUMBERJACK_RATIO = 1360F;
+	private static final float GRASS_TO_FARM_RATIO = 6200F;
 	private static final float STONE_TO_STONECUTTER_RATIO = 10F;
 	private static final int MIN_SMITHS_BEFORE_MANNA_AND_GOLD_REDUCTION = 10;
 	private static final int MIN_MANNA_PRODUCERS_BEFORE_GOLD_REDUCTION = 2;
@@ -134,6 +135,10 @@ public class AiMapInformation {
 		if(civilisation == ECivilisation.EGYPTIAN) {
 			numberOfFarms += maxMannaProducers;
 		}
+
+		int minFarmsForMap = Math.round(grassTiles / GRASS_TO_FARM_RATIO);
+
+		numberOfFarms = Math.max(minFarmsForMap, numberOfFarms);
 
 		buildingCounts[EBuildingType.FARM.ordinal] = numberOfFarms;
 		buildingCounts[EBuildingType.BAKER.ordinal] = (int) Math.ceil(numberOfFarms / FARM_TO_BAKER_RATIO);
