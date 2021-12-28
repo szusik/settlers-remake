@@ -28,8 +28,12 @@ import jsettlers.network.server.match.Match;
  */
 public class DedicatedServerApp {
 
-	public static void main(String args[]) throws IOException {
-		GameServerThread gameServer = new GameServerThread(false);
+	public static void main(String[] args) throws IOException {
+		boolean lan = false;
+		if(args.length == 1 && args[0].equals("--broadcast")) {
+			lan = true;
+		}
+		GameServerThread gameServer = new GameServerThread(lan);
 		gameServer.start();
 
 		Scanner s = new Scanner(System.in);

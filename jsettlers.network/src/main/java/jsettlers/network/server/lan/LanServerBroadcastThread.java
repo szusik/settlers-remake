@@ -18,9 +18,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Collections;
 
 import jsettlers.network.NetworkConstants;
 
@@ -47,7 +45,7 @@ public final class LanServerBroadcastThread extends Thread {
 
 			while (!canceled) {
 				try {
-					Thread.sleep(500L);
+					Thread.sleep(NetworkConstants.Server.BROADCAST_DELAY);
 
 					byte[] data = NetworkConstants.Server.BROADCAST_MESSAGE.getBytes();
 
@@ -66,18 +64,11 @@ public final class LanServerBroadcastThread extends Thread {
 	}
 
 	private void broadcast(int udpPort, DatagramSocket socket, byte[] data) throws IOException {
-		for (NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-			for (InetAddress address : Collections.list(iface.getInetAddresses())) {
-				if (!address.isSiteLocalAddress())
-					continue;
-				// Java 1.5 doesn't support getting the subnet mask, so try the two most common.
-				byte[] ip = address.getAddress();
-				ip[3] = -1; // 255.255.255.0
-				socket.send(new DatagramPacket(data, data.length, InetAddress.getByAddress(ip), udpPort));
-				ip[2] = -1; // 255.255.0.0
-				socket.send(new DatagramPacket(data, data.length, InetAddress.getByAddress(ip), udpPort));
-			}
-		}
+		InetAddress dst6 = InetAddress.getByAddress(NetworkConstants.Server.MULTICAST_IP6);
+		InetAddress dst4 = InetAddress.getByAddress(new byte[]{-1, -1, -1, -1});
+
+		socket.send(new DatagramPacket(data, data.length, dst6, udpPort));
+		socket.send(new DatagramPacket(data, data.length, dst4, udpPort));
 	}
 
 	public void shutdown() {

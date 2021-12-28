@@ -52,6 +52,16 @@ public final class NetworkConstants {
 		public static final int BROADCAST_BUFFER_LENGTH = BROADCAST_MESSAGE.length();
 		public static final int BROADCAST_DELAY = 2000;
 
+		/**
+		 * fd02::1
+		 */
+		public static final byte[] MULTICAST_IP6 = new byte[16];
+		static {
+			MULTICAST_IP6[0] = -1;
+			MULTICAST_IP6[1] = 2;
+			MULTICAST_IP6[15] = 1;
+		}
+
 		public static final long OPEN_MATCHES_SEND_INTERVAL_MS = 5 * 1000;
 	}
 
