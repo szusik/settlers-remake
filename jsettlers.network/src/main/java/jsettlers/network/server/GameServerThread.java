@@ -15,6 +15,7 @@
 package jsettlers.network.server;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -83,27 +84,25 @@ public final class GameServerThread extends Thread {
 	/**
 	 * NOTE: THIS METHOD IS BLOCKING for the given time
 	 * 
-	 * @param seconds
-	 *            block at maximum the given number of seconds to find the address
+	 * @param waitMS
+	 *            block at maximum the given number of milliseconds to find the address
 	 * 
 	 * @return
 	 */
-	public static String retrieveLanServerAddress(int seconds) {
+	public static InetAddress retrieveLanServerAddress(int waitMS) {
 		LanServerAddressBroadcastListener serverAddressReceiver = new LanServerAddressBroadcastListener();
 		try {
 			serverAddressReceiver.start();
 
-			for (int i = 0; i < 2 * seconds && !serverAddressReceiver.hasFoundServer(); i++) { // wait at max 5 sek
-				try {
-					Thread.sleep(500L);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			try {
+				serverAddressReceiver.join(waitMS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 
 			if (serverAddressReceiver.hasFoundServer()) {
 				System.out.println("found server!");
-				return serverAddressReceiver.getServerAddress().getHostAddress();
+				return serverAddressReceiver.getServerAddress();
 			} else {
 				return null;
 			}

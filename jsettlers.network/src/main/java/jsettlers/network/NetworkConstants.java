@@ -50,6 +50,7 @@ public final class NetworkConstants {
 		public static final int BROADCAST_PORT = 10233;
 		public static final String BROADCAST_MESSAGE = "JSETTLERS-LAN-SERVER-BROADCAST-V1";
 		public static final int BROADCAST_BUFFER_LENGTH = BROADCAST_MESSAGE.length();
+		public static final int BROADCAST_DELAY = 2000;
 
 		public static final long OPEN_MATCHES_SEND_INTERVAL_MS = 5 * 1000;
 	}
