@@ -15,6 +15,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jsettlers.main.android.R;
 import jsettlers.main.android.databinding.VhMultiPlayerBinding;
@@ -44,7 +45,7 @@ public class MultiPlayerViewHolder extends RecyclerView.ViewHolder {
 
 				connectionStatus.setText("");
 			} else {
-				String ip = null;
+				List<InetAddress> ips = new ArrayList<>();
 				try {
 					Enumeration<NetworkInterface> netIter = NetworkInterface.getNetworkInterfaces();
 					while(netIter.hasMoreElements()) {
@@ -56,8 +57,8 @@ public class MultiPlayerViewHolder extends RecyclerView.ViewHolder {
 						while(addresses.hasMoreElements()) {
 							InetAddress address = addresses.nextElement();
 
-							if(address instanceof Inet4Address) {
-								ip = address.getHostAddress();
+							if(address instanceof Inet4Address && address.isSiteLocalAddress()) {
+								ips.add(address);
 								break;
 							}
 						}
@@ -66,9 +67,14 @@ public class MultiPlayerViewHolder extends RecyclerView.ViewHolder {
 					e.printStackTrace();
 				}
 
-				if(ip == null) ip = "unknown";
+				String ipString;
+				if(ips.isEmpty()) {
+					ipString = "unknown";
+				} else {
+					ipString = ips.stream().map(InetAddress::getHostAddress).collect(Collectors.joining(", "));
+				}
 
-				connectionStatus.setText("Server running (ip: " + ip + ")");
+				connectionStatus.setText("Server running (possible ips: " + ipString + ")");
 
 				connectButton.setText(R.string.menu_multi_player_stop_server);
 			}
