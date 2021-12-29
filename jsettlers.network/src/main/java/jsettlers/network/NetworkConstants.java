@@ -53,6 +53,11 @@ public final class NetworkConstants {
 		public static final int BROADCAST_DELAY = 2000;
 
 		/**
+		 * Only increase
+		 */
+		public static final int MAX_BROADCAST_DELAY = 2000;
+
+		/**
 		 * fd02::1
 		 */
 		public static final byte[] MULTICAST_IP6 = new byte[16];

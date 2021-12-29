@@ -1,6 +1,5 @@
-package jsettlers.main.swing.menu.multiplayer;
+package jsettlers.main.swing.menu.multiplayer.lan;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -8,13 +7,12 @@ import javax.swing.JTextPane;
 import jsettlers.graphics.localization.Labels;
 import jsettlers.main.MultiplayerConnector;
 import jsettlers.main.swing.JSettlersFrame;
+import jsettlers.main.swing.menu.multiplayer.ServerConnectionPanel;
 import jsettlers.main.swing.settings.SettingsManager;
 import jsettlers.network.client.IClientConnection;
 import jsettlers.network.infrastructure.log.ConsoleConsumerLogger;
 import jsettlers.network.infrastructure.log.Logger;
-import jsettlers.network.server.lan.LanServerAddressBroadcastListener;
 
-import java.awt.BorderLayout;
 import java.awt.GridLayout;
 
 public class ConnectLanPanel extends ServerConnectionPanel {
@@ -25,6 +23,8 @@ public class ConnectLanPanel extends ServerConnectionPanel {
 	private final StringBuffer logText = new StringBuffer();
 
 	private final JTextPane logPane = new JTextPane();
+
+	private final FindLanServerPanel findServerPanel;
 
 	public ConnectLanPanel(JSettlersFrame settlersFrame) {
 		super(settlersFrame, null);
@@ -41,8 +41,8 @@ public class ConnectLanPanel extends ServerConnectionPanel {
 			}
 		});
 
-		JPanel connectPanel = new JPanel();
-		topPanel.add(connectPanel);
+		findServerPanel = new FindLanServerPanel(this::openConnection);
+		topPanel.add(findServerPanel);
 
 		JPanel startServerPanel = new JPanel();
 		topPanel.add(startServerPanel);
@@ -76,6 +76,7 @@ public class ConnectLanPanel extends ServerConnectionPanel {
 
 	@Override
 	protected int updateBefore(IClientConnection connection, int i) {
+		findServerPanel.update();
 		return 1;
 	}
 

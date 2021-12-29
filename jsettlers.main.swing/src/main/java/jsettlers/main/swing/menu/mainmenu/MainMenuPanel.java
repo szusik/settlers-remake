@@ -43,7 +43,7 @@ import jsettlers.main.JSettlersGame;
 import jsettlers.main.swing.JSettlersFrame;
 import jsettlers.main.swing.lookandfeel.ELFStyle;
 import jsettlers.main.swing.lookandfeel.components.SplitedBackgroundPanel;
-import jsettlers.main.swing.menu.multiplayer.ConnectLanPanel;
+import jsettlers.main.swing.menu.multiplayer.lan.ConnectLanPanel;
 import jsettlers.main.swing.menu.multiplayer.EditServerEntryPanel;
 import jsettlers.main.swing.menu.multiplayer.ServerConnectionPanel;
 import jsettlers.main.swing.menu.multiplayer.ServerListConnectionPanel;
