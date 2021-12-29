@@ -34,5 +34,6 @@ compileJava {
 }
 
 test {
+	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
 	maxHeapSize = "4G"
 }
