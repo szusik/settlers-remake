@@ -29,6 +29,7 @@ import jsettlers.network.server.db.IDBFacade;
 import jsettlers.network.server.db.inMemory.InMemoryDB;
 import jsettlers.network.server.lan.LanServerAddressBroadcastListener;
 import jsettlers.network.server.lan.LanServerBroadcastThread;
+import jsettlers.network.server.lan.SingleLanServerAddressListener;
 
 /**
  * 
@@ -90,7 +91,8 @@ public final class GameServerThread extends Thread {
 	 * @return
 	 */
 	public static InetAddress retrieveLanServerAddress(int waitMS) {
-		LanServerAddressBroadcastListener serverAddressReceiver = new LanServerAddressBroadcastListener();
+		SingleLanServerAddressListener listener = new SingleLanServerAddressListener();
+		LanServerAddressBroadcastListener serverAddressReceiver = new LanServerAddressBroadcastListener(listener);
 		try {
 			serverAddressReceiver.start();
 
@@ -100,9 +102,10 @@ public final class GameServerThread extends Thread {
 				e.printStackTrace();
 			}
 
-			if (serverAddressReceiver.hasFoundServer()) {
+			InetAddress address = listener.getAddress();
+			if (address != null) {
 				System.out.println("found server!");
-				return serverAddressReceiver.getServerAddress();
+				return address;
 			} else {
 				return null;
 			}
