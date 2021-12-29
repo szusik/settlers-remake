@@ -20,8 +20,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.WeakHashMap;
 
 import javax.swing.ButtonGroup;
@@ -31,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import jsettlers.common.menu.IStartingGame;
 import jsettlers.graphics.localization.Labels;
@@ -94,17 +93,16 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 		SwingUtilities.updateComponentTreeUI(this);
 
 
-		Timer updateServerTimer = new Timer("update-server-ui");
-		updateServerTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
+		Timer updateServerTimer = new Timer(0, action -> {
 				Component mainPanel = getComponent(2);
 				if(mainPanel instanceof ServerConnectionPanel) {
 					((ServerConnectionPanel)mainPanel).update();
 				}
 				repaint();
-			}
-		}, 0, 250);
+		});
+		updateServerTimer.setRepeats(true);
+		updateServerTimer.setDelay(250);
+		updateServerTimer.start();
 	}
 
 	private void initButtonPanel() {
