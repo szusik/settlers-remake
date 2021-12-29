@@ -57,11 +57,7 @@ public final class LanServerAddressBroadcastListener extends Thread {
 
 					String receivedMessage = new String(packet.getData(), packet.getOffset(), packet.getLength());
 
-					System.out.println("sender: " + packet.getAddress() + " port: " + packet.getPort() + " length: " + packet.getData().length
-							+ " data: " + receivedMessage);
-
 					if (NetworkConstants.Server.BROADCAST_MESSAGE.equals(receivedMessage)) {
-						System.out.println("received broadcast info for jsettlers");
 
 						if (listener != null) {
 							cancelListener = listener.foundServerAddress(packet.getAddress());
