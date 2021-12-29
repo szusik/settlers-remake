@@ -43,8 +43,10 @@ import jsettlers.main.JSettlersGame;
 import jsettlers.main.swing.JSettlersFrame;
 import jsettlers.main.swing.lookandfeel.ELFStyle;
 import jsettlers.main.swing.lookandfeel.components.SplitedBackgroundPanel;
+import jsettlers.main.swing.menu.multiplayer.ConnectLanPanel;
 import jsettlers.main.swing.menu.multiplayer.EditServerEntryPanel;
 import jsettlers.main.swing.menu.multiplayer.ServerConnectionPanel;
+import jsettlers.main.swing.menu.multiplayer.ServerListConnectionPanel;
 import jsettlers.main.swing.menu.openpanel.OpenPanel;
 import jsettlers.main.swing.menu.settingsmenu.SettingsMenuPanel;
 import jsettlers.main.swing.settings.ServerEntry;
@@ -133,7 +135,7 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 			buttonGroup.clearSelection();
 			ServerConnectionPanel connPanel = serverConnectionPanels.get(selected);
 			if(connPanel == null) {
-				connPanel = new ServerConnectionPanel(selected, this::reset, settlersFrame, openSinglePlayerPanel);
+				connPanel = new ServerListConnectionPanel(selected, this::reset, settlersFrame, openSinglePlayerPanel);
 				serverConnectionPanels.put(selected, connPanel);
 			}
 			setCenter(selected.getAlias(), connPanel);
@@ -144,13 +146,25 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 		serverOverviewScroll.setPreferredSize(new Dimension(230, 300));
 
 		EditServerEntryPanel addServerPanel = new EditServerEntryPanel(this::reset);
+		ConnectLanPanel connectLanPanel = new ConnectLanPanel(settlersFrame);
+
+		JPanel serverTopPanel = new JPanel();
+		serverTopPanel.setLayout(new BorderLayout());
 
 		JToggleButton addServer = new JToggleButton(Labels.getString("multiplayer-addserver"));
 		addServer.putClientProperty(ELFStyle.KEY, ELFStyle.BUTTON_MENU);
 		buttonGroup.add(addServer);
 		addServer.addActionListener(e -> setCenter("multiplayer-addserver", addServerPanel));
 
-		serverPanel.add(addServer);
+		JToggleButton connectLan = new JToggleButton(Labels.getString("multiplayer-lanpanel"));
+		connectLan.putClientProperty(ELFStyle.KEY, ELFStyle.BUTTON_MENU);
+		buttonGroup.add(connectLan);
+		connectLan.addActionListener(e -> setCenter("multiplayer-lanpanel", connectLanPanel));
+
+		serverTopPanel.add(addServer, BorderLayout.LINE_START);
+		serverTopPanel.add(connectLan, BorderLayout.LINE_END);
+
+		serverPanel.add(serverTopPanel);
 		serverPanel.add(serverOverviewScroll);
 
 		mainButtonPanel.add(serverPanel);
