@@ -1,23 +1,21 @@
 package jsettlers.main.swing.menu.multiplayer.lan;
 
-import go.graphics.swing.util.MutableListModel;
 import jsettlers.network.NetworkConstants;
 import jsettlers.network.server.lan.LanServerAddressBroadcastListener;
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.net.InetAddress;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -25,8 +23,7 @@ public class FindLanServerPanel extends JPanel {
 
 	private final Consumer<String> openConnection;
 	private final AgingServerListener listener = new AgingServerListener();
-	private final JList<Map.Entry<InetAddress, Long>> connectionList;
-	private final MutableListModel<Map.Entry<InetAddress, Long>> serverListModel = new MutableListModel<>();
+	private final DefaultListModel<InetAddress> serverListModel = new DefaultListModel<>();
 
 	public FindLanServerPanel(Consumer<String> openConnection) {
 		this.openConnection = openConnection;
@@ -34,8 +31,7 @@ public class FindLanServerPanel extends JPanel {
 		LanServerAddressBroadcastListener broadcastListener = new LanServerAddressBroadcastListener(listener);
 		broadcastListener.start();
 
-		connectionList = new JList<>(serverListModel);
-		connectionList.setBorder(new LineBorder(Color.RED));
+		JList<InetAddress> connectionList = new JList<>(serverListModel);
 		connectionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		connectionList.setCellRenderer(new ServerEntryRenderer());
 
@@ -44,14 +40,17 @@ public class FindLanServerPanel extends JPanel {
 	}
 
 	public void update() {
-		final long removeTime = System.nanoTime() - NetworkConstants.Server.MAX_BROADCAST_DELAY*1000L*1000L;
+		final long removeTime = System.nanoTime() - 3*NetworkConstants.Server.MAX_BROADCAST_DELAY*1000L*1000L;
 		synchronized (listener.servers) {
-			listener.servers.entrySet().removeIf(entry -> entry.getValue() <= removeTime);
+			Iterator<Map.Entry<InetAddress, Long>> iter = listener.servers.entrySet().iterator();
+			while(iter.hasNext()) {
+				Map.Entry<InetAddress, Long> entry = iter.next();
+				if(entry.getValue() <= removeTime) {
+					serverListModel.removeElement(entry.getKey());
+					iter.remove();
+				}
+			}
 		}
-
-		serverListModel.setData(listener.servers.entrySet(), Map.Entry.comparingByKey(Comparator.comparing(InetAddress::getHostAddress)));
-
-		invalidate();
 	}
 
 	private class AgingServerListener implements LanServerAddressBroadcastListener.ILanServerAddressListener {
@@ -60,9 +59,11 @@ public class FindLanServerPanel extends JPanel {
 
 		@Override
 		public boolean foundServerAddress(InetAddress address) {
-			servers.put(address, System.nanoTime());
+			Object prev = servers.put(address, System.nanoTime());
 
-			SwingUtilities.invokeLater(FindLanServerPanel.this::update);
+			if(prev == null) {
+				SwingUtilities.invokeLater(() -> serverListModel.addElement(address));
+			}
 			return false;
 		}
 	}
@@ -77,10 +78,10 @@ public class FindLanServerPanel extends JPanel {
 													  boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, val, index, isSelected, cellHasFocus);
 
-			Map.Entry<InetAddress, Long> value = (Map.Entry<InetAddress, Long>) val;
+			InetAddress value = (InetAddress) val;
 
-			String hostAddr = value.getKey().getHostAddress();
-			String hostname = value.getKey().getCanonicalHostName();
+			String hostAddr = value.getHostAddress();
+			String hostname = value.getCanonicalHostName();
 
 			String ipString = hostAddr;
 			if(!hostAddr.equals(hostname)) {
@@ -88,7 +89,7 @@ public class FindLanServerPanel extends JPanel {
 			}
 
 			String timeString = "";
-			long since = (System.nanoTime() - value.getValue())/(1000L*1000L*1000L);
+			long since = (System.nanoTime() - listener.servers.get(value))/(1000L*1000L*1000L);
 			if(since > NetworkConstants.Server.MAX_BROADCAST_DELAY/1000) {
 				timeString = " / (" + since + "s ago)";
 			}
