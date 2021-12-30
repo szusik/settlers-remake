@@ -10,6 +10,7 @@ import jsettlers.main.swing.JSettlersFrame;
 import jsettlers.main.swing.menu.multiplayer.ServerConnectionPanel;
 import jsettlers.main.swing.settings.SettingsManager;
 import jsettlers.network.client.IClientConnection;
+import jsettlers.network.client.NullConnection;
 import jsettlers.network.infrastructure.log.ConsoleConsumerLogger;
 import jsettlers.network.infrastructure.log.Logger;
 
@@ -44,7 +45,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		findServerPanel = new FindLanServerPanel(this::openConnection);
 		topPanel.add(findServerPanel);
 
-		StartLanServerPanel startServerPanel = new StartLanServerPanel();
+		StartLanServerPanel startServerPanel = new StartLanServerPanel(log, this::setServeActive);
 		topPanel.add(startServerPanel);
 
 		overviewPanel.add(topPanel);
@@ -52,21 +53,29 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		logPane.setEditable(false);
 		overviewPanel.add(new JScrollPane(logPane));
 
-		root.addTab(Labels.getString("multiplayer-lan-settings"), overviewPanel);
+		closeConnection();
 
+		root.addTab(Labels.getString("multiplayer-lan-settings"), overviewPanel);
+	}
+
+	private void setServeActive(boolean active) {
 		openConnection(null);
 	}
 
 	private void openConnection(String host) {
-		if(connection != null) {
-			connection.action(IClientConnection.EClientAction.CLOSE, null);
-			connection = null;
-		}
+		closeConnection();
 
 		connection = new MultiplayerConnector(host,
 				SettingsManager.getInstance().getUUID(),
 				SettingsManager.getInstance().getUserName(),
 				log);
+	}
+
+	private void closeConnection() {
+		if(connection != null) {
+			connection.action(IClientConnection.EClientAction.CLOSE, null);
+		}
+		connection = new NullConnection();
 	}
 
 	@Override
