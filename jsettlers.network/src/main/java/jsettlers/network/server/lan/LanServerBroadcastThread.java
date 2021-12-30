@@ -19,6 +19,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import jsettlers.network.NetworkConstants;
 
@@ -30,7 +31,7 @@ import jsettlers.network.NetworkConstants;
  */
 public final class LanServerBroadcastThread extends Thread {
 
-	private boolean canceled = false;
+	private final AtomicBoolean canceled = new AtomicBoolean(false);
 	private DatagramSocket socket;
 
 	public LanServerBroadcastThread() {
@@ -43,7 +44,7 @@ public final class LanServerBroadcastThread extends Thread {
 		try {
 			socket = new DatagramSocket();
 
-			while (!canceled) {
+			while (!canceled.get()) {
 				try {
 					Thread.sleep(NetworkConstants.Server.BROADCAST_DELAY);
 
@@ -72,7 +73,7 @@ public final class LanServerBroadcastThread extends Thread {
 	}
 
 	public void shutdown() {
-		canceled = true;
+		canceled.set(true);
 		socket.close();
 		this.interrupt();
 	}
