@@ -38,17 +38,21 @@ import jsettlers.network.server.lan.SingleLanServerAddressListener;
  */
 public final class GameServerThread extends Thread {
 
-	private static final Logger LOGGER = LoggerManager.ROOT_LOGGER;
-
 	private final ServerSocket serverSocket;
 	private final ServerManager manager;
 	private final LanServerBroadcastThread lanBroadcastThread;
+	private final Logger logger;
 
 	private long counter = 0;
 	private boolean canceled = false;
 
 	public GameServerThread(boolean lan) throws IOException {
+		this(lan, LoggerManager.ROOT_LOGGER);
+	}
+
+	public GameServerThread(boolean lan, Logger logger) throws IOException {
 		super("GameServer");
+		this.logger = logger;
 		this.serverSocket = new ServerSocket(NetworkConstants.Server.SERVER_PORT);
 		this.manager = new ServerManager(new InMemoryDB());
 
@@ -63,17 +67,17 @@ public final class GameServerThread extends Thread {
 
 	@Override
 	public void run() {
-		LOGGER.log("Server up and running!\n");
+		logger.log("Server up and running!\n");
 		System.out.println("Server up and running!");
 		while (!canceled) {
 			try {
 				Socket clientSocket = serverSocket.accept();
 
-				Channel clientChannel = new Channel(LOGGER, ISocketFactory.DEFAULT_FACTORY.generateSocket(clientSocket));
+				Channel clientChannel = new Channel(logger, ISocketFactory.DEFAULT_FACTORY.generateSocket(clientSocket));
 				manager.identifyNewChannel(clientChannel);
 				clientChannel.start();
 
-				LOGGER.log("accepted new client (" + ++counter + "): " + clientSocket);
+				logger.log("accepted new client (" + ++counter + "): " + clientSocket);
 			} catch (SocketException e) {
 			} catch (IOException e) {
 				e.printStackTrace();
