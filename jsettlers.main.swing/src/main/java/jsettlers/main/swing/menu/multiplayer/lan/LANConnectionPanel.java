@@ -20,7 +20,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 
 	private IClientConnection connection;
 
-	private final Logger log;
+	private final Logger logger;
 	private final StringBuffer logText = new StringBuffer();
 
 	private final JTextPane logPane = new JTextPane();
@@ -35,7 +35,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new GridLayout(1, 2));
 
-		log = new ConsoleConsumerLogger("jsettlers-swing-lan", line -> {
+		logger = new ConsoleConsumerLogger("jsettlers-swing-lan", line -> {
 			logText.append(line);
 			synchronized (LANConnectionPanel.this) {
 				logPane.setText(logText.toString());
@@ -45,7 +45,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		findServerPanel = new FindLanServerPanel(this::openConnection);
 		topPanel.add(findServerPanel);
 
-		StartLanServerPanel startServerPanel = new StartLanServerPanel(log, this::setServeActive);
+		StartLanServerPanel startServerPanel = new StartLanServerPanel(logger, this::setServeActive);
 		topPanel.add(startServerPanel);
 
 		overviewPanel.add(topPanel);
@@ -68,7 +68,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		connection = new MultiplayerConnector(host,
 				SettingsManager.getInstance().getUUID(),
 				SettingsManager.getInstance().getUserName(),
-				log);
+				logger);
 	}
 
 	private void closeConnection() {

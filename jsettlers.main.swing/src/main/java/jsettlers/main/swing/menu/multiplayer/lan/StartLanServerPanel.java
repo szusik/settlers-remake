@@ -12,12 +12,12 @@ import java.util.function.Consumer;
 public class StartLanServerPanel extends JPanel {
 
 	private GameServerThread serverHandle;
-	private final Logger log;
+	private final Logger logger;
 	private final Consumer<Boolean> serverActive;
 
-	public StartLanServerPanel(Logger log, Consumer<Boolean> serverActive) {
+	public StartLanServerPanel(Logger logger, Consumer<Boolean> serverActive) {
 		this.serverActive = serverActive;
-		this.log = log;
+		this.logger = logger;
 		setLayout(new FlowLayout());
 
 		JToggleButton startServer = new JToggleButton("server active");
@@ -33,7 +33,7 @@ public class StartLanServerPanel extends JPanel {
 			try {
 				serverHandle = new GameServerThread(true);
 			} catch (IOException e) {
-				log.error(e);
+				logger.error(e);
 			}
 			serverHandle.start();
 		} else {
