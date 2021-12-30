@@ -31,7 +31,7 @@ public class StartLanServerPanel extends JPanel {
 
 		if(active) {
 			try {
-				serverHandle = new GameServerThread(true);
+				serverHandle = new GameServerThread(true, logger);
 			} catch (IOException e) {
 				logger.error(e);
 			}
