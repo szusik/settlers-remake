@@ -59,7 +59,7 @@ public final class GameServerThread extends Thread {
 		this.setDaemon(true);
 
 		if (lan) {
-			lanBroadcastThread = new LanServerBroadcastThread();
+			lanBroadcastThread = new LanServerBroadcastThread(logger);
 		} else {
 			lanBroadcastThread = null;
 		}

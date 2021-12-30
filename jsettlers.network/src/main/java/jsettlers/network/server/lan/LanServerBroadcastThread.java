@@ -19,9 +19,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import jsettlers.network.NetworkConstants;
+import jsettlers.network.infrastructure.log.Logger;
 
 /**
  * This thread broadcasts a small package over the network to inform LAN members of the server address
@@ -29,38 +31,36 @@ import jsettlers.network.NetworkConstants;
  * @author Andreas Eberle
  * 
  */
-public final class LanServerBroadcastThread extends Thread {
+public final class LanServerBroadcastThread {
 
-	private final AtomicBoolean canceled = new AtomicBoolean(false);
-	private DatagramSocket socket;
+	private final DatagramSocket socket;
+	private final Timer broadcastTimer;
+	private final TimerTask broadcastTask;
+	private final Logger logger;
 
-	public LanServerBroadcastThread() {
-		super("LanServerBroadcastThread");
-		super.setDaemon(true);
+	public LanServerBroadcastThread(Logger logger) throws SocketException {
+		this.logger = logger;
+		socket = new DatagramSocket();
+
+		broadcastTask = new TimerTask() {
+			@Override
+			public void run() {
+				broadcast();
+			}
+		};
+
+		broadcastTimer = new Timer("LanServerBroadcastThread", true);
 	}
 
-	@Override
-	public void run() {
+	private void broadcast() {
+		byte[] data = NetworkConstants.Server.BROADCAST_MESSAGE.getBytes();
+
 		try {
-			socket = new DatagramSocket();
-
-			while (!canceled.get()) {
-				try {
-					Thread.sleep(NetworkConstants.Server.BROADCAST_DELAY);
-
-					byte[] data = NetworkConstants.Server.BROADCAST_MESSAGE.getBytes();
-
-					broadcast(NetworkConstants.Server.BROADCAST_PORT, socket, data);
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-				}
-			}
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} finally {
-			if (socket != null)
-				socket.close();
+			broadcast(NetworkConstants.Server.BROADCAST_PORT, socket, data);
+		} catch (IOException e) {
+			logger.error(e);
+			logger.warn("Stopped server broadcasting due to exception.");
+			shutdown();
 		}
 	}
 
@@ -72,9 +72,16 @@ public final class LanServerBroadcastThread extends Thread {
 		socket.send(new DatagramPacket(data, data.length, dst4, udpPort));
 	}
 
+	public void start() {
+		broadcastTimer.schedule(broadcastTask, 0, NetworkConstants.Server.BROADCAST_DELAY);
+	}
+
 	public void shutdown() {
-		canceled.set(true);
+		broadcastTimer.cancel();
 		socket.close();
-		this.interrupt();
+	}
+
+	public boolean isAlive() {
+		return false;
 	}
 }
