@@ -3,7 +3,9 @@ package jsettlers.main.swing.menu.multiplayer.lan;
 import jsettlers.graphics.localization.Labels;
 import jsettlers.network.infrastructure.log.Logger;
 import jsettlers.network.server.GameServerThread;
+import jsettlers.network.server.match.EPlayerState;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
@@ -11,21 +13,18 @@ import java.awt.FlowLayout;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-public class StartLanServerPanel extends JPanel {
+public class StartLanServerButton extends JToggleButton {
 
 	private GameServerThread serverHandle;
 	private final Logger logger;
 	private final Consumer<Boolean> serverActive;
 
-	public StartLanServerPanel(Logger logger, Consumer<Boolean> serverActive) {
+	public StartLanServerButton(Logger logger, Consumer<Boolean> serverActive) {
+		super("server active");
 		this.serverActive = serverActive;
 		this.logger = logger;
-		setLayout(new FlowLayout());
-		setBorder(new TitledBorder(Labels.getString("multiplayer-lan-start-server")));
 
-		JToggleButton startServer = new JToggleButton("server active");
-		startServer.addActionListener(e -> startServer.setSelected(setServerState(startServer.isSelected())));
-		add(startServer);
+		addActionListener(e -> setSelected(setServerState(isSelected())));
 	}
 
 	private boolean setServerState(boolean active) {
@@ -49,7 +48,11 @@ public class StartLanServerPanel extends JPanel {
 		return activeAfter;
 	}
 
-	public void update() {
+	public int getPlayerCount() {
+		if(serverHandle == null) {
+			return -1;
+		}
 
+		return serverHandle.getDatabase().getPlayers(EPlayerState.values()).size();
 	}
 }

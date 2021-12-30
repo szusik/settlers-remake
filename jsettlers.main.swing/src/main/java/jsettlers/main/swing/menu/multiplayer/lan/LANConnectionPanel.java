@@ -45,7 +45,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		findServerPanel = new FindLanServerPanel(this::openConnection);
 		topPanel.add(findServerPanel);
 
-		StartLanServerPanel startServerPanel = new StartLanServerPanel(logger, this::setServeActive);
+		StartLanServerButton startServerPanel = new StartLanServerButton(logger, this::setServeActive);
 		topPanel.add(startServerPanel);
 
 		overviewPanel.add(topPanel);
