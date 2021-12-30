@@ -56,7 +56,6 @@ public final class GameServerThread extends Thread {
 
 		if (lan) {
 			lanBroadcastThread = new LanServerBroadcastThread();
-			lanBroadcastThread.start();
 		} else {
 			lanBroadcastThread = null;
 		}
@@ -118,6 +117,9 @@ public final class GameServerThread extends Thread {
 	public synchronized void start() {
 		super.start();
 		manager.start();
+		if(lanBroadcastThread != null) {
+			lanBroadcastThread.start();
+		}
 	}
 
 	public synchronized void shutdown() {
@@ -127,8 +129,9 @@ public final class GameServerThread extends Thread {
 		} catch (IOException e) {
 		}
 
-		if (lanBroadcastThread != null)
+		if(lanBroadcastThread != null) {
 			lanBroadcastThread.shutdown();
+		}
 
 		manager.shutdown();
 	}
