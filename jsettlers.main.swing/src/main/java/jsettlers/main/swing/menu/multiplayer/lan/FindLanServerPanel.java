@@ -1,5 +1,6 @@
 package jsettlers.main.swing.menu.multiplayer.lan;
 
+import jsettlers.graphics.localization.Labels;
 import jsettlers.network.NetworkConstants;
 import jsettlers.network.server.lan.LanServerAddressBroadcastListener;
 
@@ -10,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.net.InetAddress;
@@ -28,6 +30,7 @@ public class FindLanServerPanel extends JPanel {
 	public FindLanServerPanel(Consumer<String> openConnection) {
 		this.openConnection = openConnection;
 
+		setBorder(new TitledBorder(Labels.getString("multiplayer-lan-find-server")));
 		LanServerAddressBroadcastListener broadcastListener = new LanServerAddressBroadcastListener(listener);
 		broadcastListener.start();
 

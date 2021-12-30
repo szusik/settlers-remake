@@ -42,7 +42,7 @@ import jsettlers.main.JSettlersGame;
 import jsettlers.main.swing.JSettlersFrame;
 import jsettlers.main.swing.lookandfeel.ELFStyle;
 import jsettlers.main.swing.lookandfeel.components.SplitedBackgroundPanel;
-import jsettlers.main.swing.menu.multiplayer.lan.ConnectLanPanel;
+import jsettlers.main.swing.menu.multiplayer.lan.LANConnectionPanel;
 import jsettlers.main.swing.menu.multiplayer.EditServerEntryPanel;
 import jsettlers.main.swing.menu.multiplayer.ServerConnectionPanel;
 import jsettlers.main.swing.menu.multiplayer.ServerListConnectionPanel;
@@ -144,7 +144,7 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 		serverOverviewScroll.setPreferredSize(new Dimension(230, 300));
 
 		EditServerEntryPanel addServerPanel = new EditServerEntryPanel(this::reset);
-		ConnectLanPanel connectLanPanel = new ConnectLanPanel(settlersFrame);
+		LANConnectionPanel lanConnectionPanel = new LANConnectionPanel(settlersFrame);
 
 		JPanel serverTopPanel = new JPanel();
 		serverTopPanel.setLayout(new BorderLayout());
@@ -157,7 +157,7 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 		JToggleButton connectLan = new JToggleButton(Labels.getString("multiplayer-lanpanel"));
 		connectLan.putClientProperty(ELFStyle.KEY, ELFStyle.BUTTON_MENU);
 		buttonGroup.add(connectLan);
-		connectLan.addActionListener(e -> setCenter("multiplayer-lanpanel", connectLanPanel));
+		connectLan.addActionListener(e -> setCenter("multiplayer-lanpanel", lanConnectionPanel));
 
 		serverTopPanel.add(addServer, BorderLayout.LINE_START);
 		serverTopPanel.add(connectLan, BorderLayout.LINE_END);

@@ -15,7 +15,7 @@ import jsettlers.network.infrastructure.log.Logger;
 
 import java.awt.GridLayout;
 
-public class ConnectLanPanel extends ServerConnectionPanel {
+public class LANConnectionPanel extends ServerConnectionPanel {
 
 	private IClientConnection connection;
 
@@ -26,7 +26,7 @@ public class ConnectLanPanel extends ServerConnectionPanel {
 
 	private final FindLanServerPanel findServerPanel;
 
-	public ConnectLanPanel(JSettlersFrame settlersFrame) {
+	public LANConnectionPanel(JSettlersFrame settlersFrame) {
 		super(settlersFrame, null);
 
 		JPanel overviewPanel = new JPanel();
@@ -36,7 +36,7 @@ public class ConnectLanPanel extends ServerConnectionPanel {
 
 		log = new ConsoleConsumerLogger("jsettlers-swing-lan", line -> {
 			logText.append(line);
-			synchronized (ConnectLanPanel.this) {
+			synchronized (LANConnectionPanel.this) {
 				logPane.setText(logText.toString());
 			}
 		});
@@ -44,7 +44,7 @@ public class ConnectLanPanel extends ServerConnectionPanel {
 		findServerPanel = new FindLanServerPanel(this::openConnection);
 		topPanel.add(findServerPanel);
 
-		JPanel startServerPanel = new JPanel();
+		StartLanServerPanel startServerPanel = new StartLanServerPanel();
 		topPanel.add(startServerPanel);
 
 		overviewPanel.add(topPanel);
