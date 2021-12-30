@@ -37,10 +37,12 @@ public final class LanServerBroadcastThread {
 	private final Timer broadcastTimer;
 	private final TimerTask broadcastTask;
 	private final Logger logger;
+	private boolean active;
 
 	public LanServerBroadcastThread(Logger logger) throws SocketException {
 		this.logger = logger;
 		socket = new DatagramSocket();
+		active = false;
 
 		broadcastTask = new TimerTask() {
 			@Override
@@ -73,15 +75,20 @@ public final class LanServerBroadcastThread {
 	}
 
 	public void start() {
+		assert !active;
+
+		active = true;
 		broadcastTimer.schedule(broadcastTask, 0, NetworkConstants.Server.BROADCAST_DELAY);
 	}
 
 	public void shutdown() {
+		if(!active) return;
 		broadcastTimer.cancel();
 		socket.close();
+		active = false;
 	}
 
 	public boolean isAlive() {
-		return false;
+		return active;
 	}
 }
