@@ -1,10 +1,12 @@
 package jsettlers.main.swing.menu.multiplayer.lan;
 
+import jsettlers.graphics.localization.Labels;
 import jsettlers.network.infrastructure.log.Logger;
 import jsettlers.network.server.GameServerThread;
 
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.border.TitledBorder;
 import java.awt.FlowLayout;
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -19,6 +21,7 @@ public class StartLanServerPanel extends JPanel {
 		this.serverActive = serverActive;
 		this.logger = logger;
 		setLayout(new FlowLayout());
+		setBorder(new TitledBorder(Labels.getString("multiplayer-lan-start-server")));
 
 		JToggleButton startServer = new JToggleButton("server active");
 		startServer.addActionListener(e -> startServer.setSelected(setServerState(startServer.isSelected())));
