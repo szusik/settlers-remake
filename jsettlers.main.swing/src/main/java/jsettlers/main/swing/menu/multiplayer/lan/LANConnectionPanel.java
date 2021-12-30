@@ -59,7 +59,11 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 	}
 
 	private void setServeActive(boolean active) {
-		openConnection(null);
+		if(active) {
+			openConnection(null);
+		} else {
+			closeConnection();
+		}
 	}
 
 	private void openConnection(String host) {
