@@ -1,8 +1,10 @@
 package jsettlers.main.swing.menu.multiplayer.lan;
 
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.ListSelectionModel;
 
 import jsettlers.graphics.localization.Labels;
 import jsettlers.main.MultiplayerConnector;
@@ -13,8 +15,11 @@ import jsettlers.network.client.IClientConnection;
 import jsettlers.network.client.NullConnection;
 import jsettlers.network.infrastructure.log.ConsoleConsumerLogger;
 import jsettlers.network.infrastructure.log.Logger;
+import jsettlers.network.server.lan.LanServerAddressBroadcastListener;
 
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.net.InetAddress;
 
 public class LANConnectionPanel extends ServerConnectionPanel {
 
@@ -25,7 +30,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 
 	private final JTextPane logPane = new JTextPane();
 
-	private final FindLanServerPanel findServerPanel;
+	private final JList<InetAddress> localServerList;
 
 	public LANConnectionPanel(JSettlersFrame settlersFrame) {
 		super(settlersFrame, null);
@@ -33,7 +38,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		JPanel overviewPanel = new JPanel();
 		overviewPanel.setLayout(new GridLayout(2, 1));
 		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new GridLayout(1, 2));
+		topPanel.setLayout(new FlowLayout());
 
 		logger = new ConsoleConsumerLogger("jsettlers-swing-lan", line -> {
 			logText.append(line);
@@ -42,8 +47,13 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 			}
 		});
 
-		findServerPanel = new FindLanServerPanel(this::openConnection);
-		topPanel.add(findServerPanel);
+
+		AgingServerList serverList = new AgingServerList();
+		LanServerAddressBroadcastListener broadcastListener = new LanServerAddressBroadcastListener(serverList);
+		broadcastListener.start();
+		localServerList = serverList.createSwingComponent();
+		localServerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		topPanel.add(localServerList);
 
 		StartLanServerButton startServerPanel = new StartLanServerButton(logger, this::setServeActive);
 		topPanel.add(startServerPanel);
