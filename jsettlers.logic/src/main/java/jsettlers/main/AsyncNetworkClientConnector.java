@@ -42,7 +42,10 @@ public class AsyncNetworkClientConnector {
 			@Override
 			public void run() {
 				try {
-					networkClient = new NetworkClient(serverAddress, null);
+					networkClient = new NetworkClient(serverAddress, () -> {
+						log.info("client disconnected");
+						setState(AsyncNetworkClientFactoryState.CLOSED);
+					});
 					networkClient.registerRejectReceiver(generateRejectReceiver());
 					networkClient.logIn(userId, userName, generateMatchesRetriever(matchesRetriever));
 				} catch (IllegalStateException e) {
