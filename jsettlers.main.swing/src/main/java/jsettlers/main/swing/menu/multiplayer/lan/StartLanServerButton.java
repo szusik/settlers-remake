@@ -1,5 +1,6 @@
 package jsettlers.main.swing.menu.multiplayer.lan;
 
+import jsettlers.main.swing.lookandfeel.ELFStyle;
 import jsettlers.network.infrastructure.log.Logger;
 import jsettlers.network.server.GameServerThread;
 import jsettlers.network.server.match.EPlayerState;
@@ -18,6 +19,7 @@ public class StartLanServerButton extends JToggleButton {
 		this.serverActive = serverActive;
 		this.logger = logger;
 
+		putClientProperty(ELFStyle.KEY, ELFStyle.TOGGLE_BUTTON_STONE);
 		addActionListener(e -> setSelected(setServerState(isSelected())));
 	}
 

@@ -1,5 +1,6 @@
 package jsettlers.main.swing.menu.multiplayer.lan;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -7,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 
 import jsettlers.graphics.localization.Labels;
 import jsettlers.main.MultiplayerConnector;
@@ -45,15 +47,15 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		super(settlersFrame, null);
 
 		JPanel overviewPanel = new JPanel();
-		overviewPanel.setLayout(new GridLayout(2, 1));
+		overviewPanel.setLayout(new BoxLayout(overviewPanel, BoxLayout.Y_AXIS));
 		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new FlowLayout());
+		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new GridLayout(2, 1));
 
 		logger = new ConsoleConsumerLogger("jsettlers-swing-lan", line -> {
 			logText.append(line);
-			synchronized (LANConnectionPanel.this) {
-				logPane.setText(logText.toString());
-			}
+			SwingUtilities.invokeLater(() -> logPane.setText(logText.toString()));
 		});
 
 
@@ -63,7 +65,6 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		localServerList = serverList.createSwingComponent();
 		localServerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		localServerList.addListSelectionListener(e -> updateGUIState());
-		topPanel.add(localServerList);
 
 
 		toggleClientButton = new JButton();
@@ -75,12 +76,18 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		topPanel.add(toggleServerButton);
 
 		statusLabel = new JLabel();
+		statusLabel.putClientProperty(ELFStyle.KEY, ELFStyle.LABEL_DYNAMIC);
 		topPanel.add(statusLabel);
 
 		overviewPanel.add(topPanel);
 
+
+		bottomPanel.add(new JScrollPane(localServerList));
+
 		logPane.setEditable(false);
-		overviewPanel.add(new JScrollPane(logPane));
+		bottomPanel.add(new JScrollPane(logPane));
+
+		overviewPanel.add(bottomPanel);
 
 		closeConnection();
 
@@ -121,24 +128,34 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 	}
 
 	private void updateGUIState() {
-		boolean serverEnabled = state != ELANState.CLIENT;
-		boolean clientEnabled = state != ELANState.HOST;
 		boolean toggleClientEnabled = state == ELANState.NONE && localServerList.getSelectedValue() != null || state == ELANState.CLIENT;
 
-		localServerList.setEnabled(clientEnabled);
-		if(clientEnabled) {
+		localServerList.setEnabled(state == ELANState.NONE);
+
+		if(state == ELANState.CLIENT) {
 			toggleClientButton.setText(Labels.getString("multiplayer-lan-disconnect"));
 		} else {
 			toggleClientButton.setText(Labels.getString("multiplayer-lan-connect"));
 		}
 		toggleClientButton.setEnabled(toggleClientEnabled);
-		toggleServerButton.setEnabled(serverEnabled);
+
+		if(state == ELANState.HOST) {
+			toggleServerButton.setText(Labels.getString("multiplayer-lan-stop-server"));
+		} else {
+			toggleServerButton.setText(Labels.getString("multiplayer-lan-start-server"));
+		}
+		toggleServerButton.setEnabled(state != ELANState.CLIENT);
 
 		switch (state) {
 			case CLIENT:
-				statusLabel.setText("Connected to " + serverIP.getHostAddress());
+				statusLabel.setText(Labels.getString("multiplayer-lan-client-label", serverIP.getHostAddress()));
+				break;
 			case HOST:
-				statusLabel.setText("Hosting server (%d players connected)");
+				statusLabel.setText(Labels.getString("multiplayer-lan-server-label", toggleServerButton.getPlayerCount()));
+				break;
+			case NONE:
+				statusLabel.setText(Labels.getString("multiplayer-lan-search-label", serverList.getSize()));
+				break;
 		}
 	}
 
@@ -167,10 +184,12 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 	protected int updateBefore(IClientConnection connection, int i) {
 		serverList.update();
 
-		if(state != ELANState.NONE && connection.hasConnectionFailed() && connection.isConnected()) {
+		if(state != ELANState.NONE && connection.hasConnectionFailed()) {
 			closeConnection();
 			setState(state, ELANState.NONE);
 		}
+
+		updateGUIState();
 		return 1;
 	}
 
