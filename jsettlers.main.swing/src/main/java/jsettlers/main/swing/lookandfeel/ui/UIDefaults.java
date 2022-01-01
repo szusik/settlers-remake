@@ -41,6 +41,11 @@ public final class UIDefaults {
 	public static final Color LABEL_TEXT_COLOR = Color.YELLOW;
 
 	/**
+	 * Label color if disabled
+	 */
+	public static final Color LABEL_DISABLED_TEXT_COLOR = Color.LIGHT_GRAY;
+
+	/**
 	 * Default font
 	 */
 	public static final Font FONT = new Font("Sans", Font.BOLD, (int)(14*SettingsManager.getInstance().getGuiScale()));
