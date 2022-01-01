@@ -5,6 +5,7 @@ import javax.swing.JTextArea;
 
 import jsettlers.graphics.localization.Labels;
 import jsettlers.main.swing.JSettlersFrame;
+import jsettlers.main.swing.lookandfeel.ELFStyle;
 import jsettlers.main.swing.menu.openpanel.OpenPanel;
 import jsettlers.main.swing.settings.ServerEntry;
 import jsettlers.network.client.IClientConnection;
@@ -19,6 +20,7 @@ public class ServerListConnectionPanel extends ServerConnectionPanel {
 		this.entry = entry;
 
 		JTextArea logText = new JTextArea();
+		logText.putClientProperty(ELFStyle.KEY, ELFStyle.TEXT_DEFAULT);
 		logText.setEditable(false);
 		root.addTab(Labels.getString("multiplayer-log-title"), new JScrollPane(logText));
 		entry.setConnectionLogListener(logText::setText);

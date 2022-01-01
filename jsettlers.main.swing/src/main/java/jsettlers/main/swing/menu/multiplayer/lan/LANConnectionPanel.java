@@ -6,7 +6,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
@@ -22,7 +22,6 @@ import jsettlers.network.infrastructure.log.ConsoleConsumerLogger;
 import jsettlers.network.infrastructure.log.Logger;
 import jsettlers.network.server.lan.LanServerAddressBroadcastListener;
 
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.net.InetAddress;
 
@@ -36,7 +35,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 	private final Logger logger;
 	private final StringBuffer logText = new StringBuffer();
 
-	private final JTextPane logPane = new JTextPane();
+	private final JTextArea logPane;
 	private final AgingServerList serverList;
 	private final JLabel statusLabel;
 	private InetAddress serverIP = null;
@@ -53,6 +52,8 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setLayout(new GridLayout(2, 1));
 
+		logPane = new JTextArea();
+		logPane.putClientProperty(ELFStyle.KEY, ELFStyle.TEXT_DEFAULT);
 		logger = new ConsoleConsumerLogger("jsettlers-swing-lan", line -> {
 			logText.append(line);
 			SwingUtilities.invokeLater(() -> logPane.setText(logText.toString()));
