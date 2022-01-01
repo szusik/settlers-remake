@@ -93,7 +93,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 
 		closeConnection();
 
-		root.addTab(Labels.getString("multiplayer-lan-settings"), overviewPanel);
+		root.addTab(Labels.getString("multiplayer-lan-overview"), overviewPanel);
 
 		updateGUIState();
 	}

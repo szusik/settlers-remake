@@ -20,6 +20,7 @@ import java.awt.Insets;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import jsettlers.main.swing.lookandfeel.factory.BackgroundPanelUiFactory;
 import jsettlers.main.swing.lookandfeel.factory.ButtonUiFactory;
@@ -92,6 +93,9 @@ public class JSettlersLookAndFeel {
 			UIManager.put("ComboBox.squareButton", true);
 			UIManager.put("ComboBox.padding", new Insets(2, 2, 2, 2));
 
+			UIManager.put("TabbedPane.foreground", UIDefaults.LABEL_TEXT_COLOR);
+			UIManager.put("TabbedPane.font", UIDefaults.FONT_SMALL);
+
 			Object[] uiFactories = {
 					"ScrollBarUI", ScrollbarUiFactory.class.getName(),
 					"BackgroundPanelUI", BackgroundPanelUiFactory.class.getName(),
@@ -105,11 +109,12 @@ public class JSettlersLookAndFeel {
 					"TextAreaUI", TextAreaUiFactory.class.getName(),
 					"ComboBoxUI", ComboboxUiFactory.class.getName(),
 					"TableUI", TableUiFactory.class.getName(),
+					"TabbedPaneUI", BasicTabbedPaneUI.class.getName(),
 			};
 			UIManager.getDefaults().putDefaults(uiFactories);
 
 			// Map Cell renderer
-			UIManager.put("MapListCellRenderer.backgroundColor1", new Color(0xff, 0xff, 0xff, 40));
+			UIManager.put("MapListCellRenderer.backgroundColor1", new Color(0xff, 120, 120, 40));
 			UIManager.put("MapListCellRenderer.backgroundColor2", new Color(0, 0, 0, 60));
 			UIManager.put("MapListCellRenderer.backgroundSelected", new Color(0xff, 0xff, 0, 80));
 			UIManager.put("MapListCellRenderer.foregroundColor", Color.WHITE);

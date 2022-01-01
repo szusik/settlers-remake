@@ -20,9 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import java8.util.stream.Collectors;
