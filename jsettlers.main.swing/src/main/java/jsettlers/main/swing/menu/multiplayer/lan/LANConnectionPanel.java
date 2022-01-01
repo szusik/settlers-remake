@@ -64,6 +64,7 @@ public class LANConnectionPanel extends ServerConnectionPanel {
 		LanServerAddressBroadcastListener broadcastListener = new LanServerAddressBroadcastListener(serverList);
 		broadcastListener.start();
 		localServerList = serverList.createSwingComponent();
+		localServerList.setOpaque(false);
 		localServerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		localServerList.addListSelectionListener(e -> updateGUIState());
 

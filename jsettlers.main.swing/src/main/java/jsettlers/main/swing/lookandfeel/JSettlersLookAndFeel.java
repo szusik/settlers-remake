@@ -123,6 +123,12 @@ public class JSettlersLookAndFeel {
 			UIManager.put("ServerEntryCellRenderer.featureMissing", Color.GRAY);
 			UIManager.put("ServerEntryCellRenderer.featurePresent", Color.GREEN);
 
+			// AgingServerList Cell renderer (ServerListCellRenderer)
+			UIManager.put("ServerListCellRenderer.backgroundColorEven", new Color(0xff, 0xff, 0xff, 40));
+			UIManager.put("ServerListCellRenderer.backgroundColorOdd", new Color(0, 0, 0, 60));
+			UIManager.put("ServerListCellRenderer.backgroundSelected", new Color(0xff, 0xff, 0, 80));
+			UIManager.put("ServerListCellRenderer.foregroundColor", Color.WHITE);
+
 			// Search Field
 			UIManager.put("ClearSearchIcon.foregroundColor", Color.WHITE);
 			UIManager.put("ClearSearchIcon.backgroundColor", null);

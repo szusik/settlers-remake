@@ -1,30 +1,58 @@
 package jsettlers.main.swing.menu.multiplayer.lan;
 
 
+import jsettlers.main.swing.lookandfeel.ELFStyle;
 import jsettlers.network.NetworkConstants;
 
-import javax.swing.DefaultListCellRenderer;
+import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.net.InetAddress;
 
-public class ServerListCellRenderer extends DefaultListCellRenderer {
+public class ServerListCellRenderer implements ListCellRenderer<InetAddress> {
 
 	private final AgingServerList serverList;
 
+	private final JPanel content = new JPanel();
+	private final JLabel label = new JLabel();
+
+
+	private final Color SELECTION_BACKGROUND = UIManager.getColor("ServerListCellRenderer.backgroundSelected");
+	private final Color BACKGROUND_EVEN = UIManager.getColor("ServerListCellRenderer.backgroundColorEven");
+	private final Color BACKGROUND_ODD = UIManager.getColor("ServerListCellRenderer.backgroundColorOdd");
+
+	private final Color FONT_COLOR = UIManager.getColor("ServerListCellRenderer.foregroundColor");
+
 	public ServerListCellRenderer(AgingServerList serverList) {
 		this.serverList = serverList;
+
+		content.putClientProperty(ELFStyle.KEY, ELFStyle.PANEL_DRAW_BG_CUSTOM);
+		label.setForeground(FONT_COLOR);
+		content.setLayout(new BorderLayout());
+		content.add(label, BorderLayout.CENTER);
+		SwingUtilities.updateComponentTreeUI(content);
 	}
 
 	@Override
 	public Component getListCellRendererComponent(JList list,
-												  Object val,
+												  InetAddress value,
 												  int index,
 												  boolean isSelected,
 												  boolean cellHasFocus) {
-		super.getListCellRendererComponent(list, val, index, isSelected, cellHasFocus);
 
-		InetAddress value = (InetAddress) val;
+		if(isSelected) {
+			content.setBackground(SELECTION_BACKGROUND);
+		} else if(index % 2 == 0) {
+			content.setBackground(BACKGROUND_EVEN);
+		} else {
+			content.setBackground(BACKGROUND_ODD);
+		}
 
 		String hostAddr = value.getHostAddress();
 		String hostname = value.getCanonicalHostName();
@@ -40,7 +68,7 @@ public class ServerListCellRenderer extends DefaultListCellRenderer {
 			timeString = " / (" + since + "s ago)";
 		}
 
-		setText(ipString + timeString);
-		return this;
+		label.setText(ipString + timeString);
+		return content;
 	}
 }
