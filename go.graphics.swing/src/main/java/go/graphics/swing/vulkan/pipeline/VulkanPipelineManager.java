@@ -1,5 +1,8 @@
-package go.graphics.swing.vulkan;
+package go.graphics.swing.vulkan.pipeline;
 
+import go.graphics.swing.vulkan.VulkanBufferHandle;
+import go.graphics.swing.vulkan.VulkanDescriptorPool;
+import go.graphics.swing.vulkan.VulkanDrawContext;
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
 import java.util.Map;

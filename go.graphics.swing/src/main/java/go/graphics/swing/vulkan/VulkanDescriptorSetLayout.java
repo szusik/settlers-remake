@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-class VulkanDescriptorSetLayout {
+public class VulkanDescriptorSetLayout {
 
 	private final long layout;
 

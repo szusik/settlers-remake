@@ -14,6 +14,8 @@
  *******************************************************************************/
 package go.graphics.swing.vulkan;
 
+import go.graphics.swing.vulkan.pipeline.EVulkanPipelineType;
+import go.graphics.swing.vulkan.pipeline.VulkanPipelineManager;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
@@ -1308,5 +1310,13 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	@Override
 	public int getMaxManagedQuads() {
 		return super.getMaxManagedQuads();
+	}
+
+	public VkDevice getDevice() {
+		return device;
+	}
+
+	public int getGlobalAttrIndex() {
+		return globalAttrIndex;
 	}
 }

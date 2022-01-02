@@ -1,5 +1,9 @@
-package go.graphics.swing.vulkan;
+package go.graphics.swing.vulkan.pipeline;
 
+import go.graphics.swing.vulkan.VulkanDescriptorPool;
+import go.graphics.swing.vulkan.VulkanDescriptorSetLayout;
+import go.graphics.swing.vulkan.VulkanDrawContext;
+import go.graphics.swing.vulkan.VulkanUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
@@ -57,8 +61,8 @@ public abstract class VulkanPipeline {
 		setLayouts.rewind();
 
 		try {
-			vertShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".vert.spv");
-			fragShader = VulkanUtils.createShaderModule(stack, dc.device, prefix + ".frag.spv");
+			vertShader = VulkanUtils.createShaderModule(stack, dc.getDevice(), prefix + ".vert.spv");
+			fragShader = VulkanUtils.createShaderModule(stack, dc.getDevice(), prefix + ".frag.spv");
 
 			int pushConstantSize = getPushConstantSize();
 
@@ -77,7 +81,7 @@ public abstract class VulkanPipeline {
 				writtenPushConstantBfr = BufferUtils.createByteBuffer(pushConstantSize - 4);
 			}
 
-			ownDescriptorSetLayout = new VulkanDescriptorSetLayout(dc.device, getDescriptorSetLayoutBindings());
+			ownDescriptorSetLayout = new VulkanDescriptorSetLayout(dc.getDevice(), getDescriptorSetLayoutBindings());
 			setLayouts.put(0, ownDescriptorSetLayout.getLayout());
 			pipelineLayoutCreateInfo.pSetLayouts(setLayouts);
 
@@ -85,16 +89,16 @@ public abstract class VulkanPipeline {
 			writtenBfrs = new long[inputStateCreateInfo.vertexBindingDescriptionCount()];
 			Arrays.fill(writtenBfrs, VK_NULL_HANDLE);
 
-			pipelineLayout = VulkanUtils.createPipelineLayout(stack, dc.device, pipelineLayoutCreateInfo);
-			pipeline = VulkanUtils.createPipeline(stack, dc.device, primitive, pipelineLayout, renderPass, vertShader, fragShader, inputStateCreateInfo, dc.getMaxManagedQuads());
+			pipelineLayout = VulkanUtils.createPipelineLayout(stack, dc.getDevice(), pipelineLayoutCreateInfo);
+			pipeline = VulkanUtils.createPipeline(stack, dc.getDevice(), primitive, pipelineLayout, renderPass, vertShader, fragShader, inputStateCreateInfo, dc.getMaxManagedQuads());
 
 			descSet = descPool.createNewSet(ownDescriptorSetLayout);
 
 			writtenDescSets = new long[1];
 			writtenDescSets[0] = descSet;
 		} finally {
-			if(vertShader != VK_NULL_HANDLE) VK10.vkDestroyShaderModule(dc.device, vertShader, null);
-			if(fragShader != VK_NULL_HANDLE) VK10.vkDestroyShaderModule(dc.device, fragShader, null);
+			if(vertShader != VK_NULL_HANDLE) VK10.vkDestroyShaderModule(dc.getDevice(), vertShader, null);
+			if(fragShader != VK_NULL_HANDLE) VK10.vkDestroyShaderModule(dc.getDevice(), fragShader, null);
 
 			if(pipeline == VK_NULL_HANDLE) destroy();
 		}
@@ -105,8 +109,8 @@ public abstract class VulkanPipeline {
 	protected abstract VkDescriptorSetLayoutBinding.Buffer getDescriptorSetLayoutBindings();
 
 	public void destroy() {
-		if(pipeline != VK_NULL_HANDLE) vkDestroyPipeline(dc.device, pipeline, null);
-		if(pipelineLayout != VK_NULL_HANDLE) vkDestroyPipelineLayout(dc.device, pipelineLayout, null);
+		if(pipeline != VK_NULL_HANDLE) vkDestroyPipeline(dc.getDevice(), pipeline, null);
+		if(pipelineLayout != VK_NULL_HANDLE) vkDestroyPipelineLayout(dc.getDevice(), pipelineLayout, null);
 		if(ownDescriptorSetLayout != null) ownDescriptorSetLayout.destroy();
 	}
 
@@ -140,7 +144,7 @@ public abstract class VulkanPipeline {
 	}
 
 	public void pushGlobalAttr(VkCommandBuffer commandBuffer) {
-		vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 0, new int[] {dc.globalAttrIndex});
+		vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 0, new int[] {dc.getGlobalAttrIndex()});
 	}
 
 	public void pushConstants(VkCommandBuffer commandBuffer) {
@@ -159,7 +163,7 @@ public abstract class VulkanPipeline {
 		int count = write.remaining();
 		for(int i = 0; i != count; i++) write.get(i+pos).dstSet(descSet);
 
-		vkUpdateDescriptorSets(dc.device, write, null);
+		vkUpdateDescriptorSets(dc.getDevice(), write, null);
 	}
 
 	public void bindVertexBuffers(VkCommandBuffer commandBuffer, long... bfrs) {

@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-class VulkanDescriptorPool {
+public class VulkanDescriptorPool {
 	private final VkDevice device;
 	private final int setCount;
 	private final Map<Integer, Integer> allocateCounts;

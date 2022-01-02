@@ -1,5 +1,7 @@
-package go.graphics.swing.vulkan;
+package go.graphics.swing.vulkan.pipeline;
 
+import go.graphics.swing.vulkan.VulkanDescriptorPool;
+import go.graphics.swing.vulkan.VulkanDrawContext;
 import java.util.Set;
 import java8.util.Sets2;
 import org.lwjgl.system.MemoryStack;
