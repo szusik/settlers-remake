@@ -133,10 +133,14 @@ public abstract class VulkanPipeline {
 			this.frame = frame;
 		}
 
-		vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 0, new int[] {dc.globalAttrIndex});
+		pushGlobalAttr(commandBuffer);
 		if(writtenPushConstantBfr != null) {
 			vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 4, writtenPushConstantBfr);
 		}
+	}
+
+	public void pushGlobalAttr(VkCommandBuffer commandBuffer) {
+		vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 0, new int[] {dc.globalAttrIndex});
 	}
 
 	public void pushConstants(VkCommandBuffer commandBuffer) {
@@ -246,6 +250,14 @@ public abstract class VulkanPipeline {
 					.sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
 					.pVertexAttributeDescriptions(attributes)
 					.pVertexBindingDescriptions(bindings);
+		}
+
+		public static UnifiedPipeline createLine(MemoryStack stack, VulkanDrawContext dc, VulkanDescriptorPool descPool, long renderPass) {
+			return new UnifiedPipeline(stack, dc, descPool, renderPass, EPrimitiveType.Line);
+		}
+
+		public static UnifiedPipeline createQuad(MemoryStack stack, VulkanDrawContext dc, VulkanDescriptorPool descPool, long renderPass) {
+			return new UnifiedPipeline(stack, dc, descPool, renderPass, EPrimitiveType.Quad);
 		}
 
 		public UnifiedPipeline(MemoryStack stack, VulkanDrawContext dc, VulkanDescriptorPool descPool, long renderPass, int primitive) {

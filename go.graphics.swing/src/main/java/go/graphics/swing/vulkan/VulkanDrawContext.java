@@ -121,11 +121,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	public VulkanDescriptorSetLayout textureDescLayout = null;
 	public VulkanDescriptorSetLayout multiDescLayout = null;
 
-	private VulkanPipeline backgroundPipeline = null;
-	private VulkanPipeline lineUnifiedPipeline = null;
-	private VulkanPipeline unifiedArrayPipeline = null;
-	private VulkanPipeline unifiedMultiPipeline = null;
-	private VulkanPipeline unifiedPipeline = null;
+	private VulkanPipelineManager pipelineManager;
 
 	final long[] samplers = new long[ETextureType.values().length];
 
@@ -247,11 +243,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			multiDescLayout = new VulkanDescriptorSetLayout(device, multiBindings);
 
 
-			unifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, universalDescPool, renderPass, EPrimitiveType.Quad);
-			lineUnifiedPipeline = new VulkanPipeline.UnifiedPipeline(stack, this, universalDescPool, renderPass, EPrimitiveType.Line);
-			unifiedArrayPipeline = new VulkanPipeline.UnifiedArrayPipeline(stack, this, universalDescPool, renderPass);
-			unifiedMultiPipeline = new VulkanPipeline.UnifiedMultiPipeline(stack, this, universalDescPool, renderPass);
-			backgroundPipeline = new VulkanPipeline.BackgroundPipeline(stack, this, universalDescPool, renderPass);
+			pipelineManager = new VulkanPipelineManager(stack, this, universalDescPool, renderPass, graphCommandBuffer);
 
 
 			LongBuffer semaphoreBfr = stack.callocLong(1);
@@ -287,13 +279,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			if(globalUniformBuffer == null || backgroundUniformBfr == null || unifiedUniformBfr == null) throw new Error("Could not create uniform buffers.");
 
-			installUniformBuffer(globalUniformBuffer, 0);
-
-			installUniformBuffer(backgroundUniformBfr, 1, 0, backgroundPipeline);
-			installUniformBuffer(unifiedUniformBfr, 1, 0, lineUnifiedPipeline);
-			installUniformBuffer(unifiedUniformBfr, 1, 0, unifiedArrayPipeline);
-			installUniformBuffer(unifiedUniformBfr, 1, 0, unifiedMultiPipeline);
-			installUniformBuffer(unifiedUniformBfr, 1, 0, unifiedPipeline);
+			pipelineManager.installUniformBuffers(globalUniformBuffer, backgroundUniformBfr, unifiedUniformBfr);
 
 		} finally {
 			if(unifiedUniformBfr == null) invalidate();
@@ -321,11 +307,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			vkDestroySwapchainKHR(device, swapchain, null);
 		}
 
-		if(backgroundPipeline != null) backgroundPipeline.destroy();
-		if(lineUnifiedPipeline != null) lineUnifiedPipeline.destroy();
-		if(unifiedArrayPipeline != null) unifiedArrayPipeline.destroy();
-		if(unifiedMultiPipeline != null) unifiedMultiPipeline.destroy();
-		if(unifiedPipeline != null) unifiedPipeline.destroy();
+		if(pipelineManager != null) pipelineManager.destroy();
 		if(multiDescLayout != null) multiDescLayout.destroy();
 		if(textureDescLayout != null) textureDescLayout.destroy();
 		if(multiDescPool != null) multiDescPool.destroy();
@@ -406,15 +388,15 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		VulkanBufferHandle vkDrawCalls = (VulkanBufferHandle) call.drawCalls;
 
-		bind(unifiedMultiPipeline);
+		pipelineManager.bind(EVulkanPipelineType.UNIFIED_MULTI);
 
 		VulkanBufferHandle vkQuads = (VulkanBufferHandle)call.sourceQuads.vertices;
 
 		long verticesDescSet = multiDescriptorSets.computeIfAbsent(vkQuads, this::createMultiDescriptorSet);
 
-		bindDescSets(getTextureDescSet(call.sourceQuads.texture), verticesDescSet);
+		pipelineManager.bindDescSets(getTextureDescSet(call.sourceQuads.texture), verticesDescSet);
 
-		unifiedMultiPipeline.bindVertexBuffers(graphCommandBuffer, vkDrawCalls.getBufferIdVk());
+		pipelineManager.bindVertexBuffers(vkDrawCalls.getBufferIdVk());
 
 		vkCmdDraw(graphCommandBuffer, 4, call.used, 0, 0);
 
@@ -441,11 +423,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		data.put(trans, 0, array_len*4);
 		updateBufferAt(unifiedArrayBfr, 0, unifiedArrayStaging);
 
-		bind(unifiedArrayPipeline);
+		pipelineManager.bind(EVulkanPipelineType.UNIFIED_ARRAY);
 
 		long vb = ((VulkanBufferHandle)call.vertices).getBufferIdVk();
-		unifiedArrayPipeline.bindVertexBuffers(graphCommandBuffer, vb, vb, unifiedArrayBfr.getBufferIdVk());
-		bindDescSets(getTextureDescSet(call.texture));
+		pipelineManager.bindVertexBuffers(vb, vb, unifiedArrayBfr.getBufferIdVk());
+		pipelineManager.bindDescSets(getTextureDescSet(call.texture));
 
 		vkCmdDraw(graphCommandBuffer, vertexCount, array_len, call.offset, 0);
 		unifiedArrayBfr.inc();
@@ -460,17 +442,17 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		updateUnifiedStatic();
 
 		if(primitive == EPrimitiveType.Triangle || primitive == EPrimitiveType.Quad) {
-			bind(unifiedPipeline);
+			pipelineManager.bind(EVulkanPipelineType.UNIFIED_QUAD);
 		} else {
-			bind(lineUnifiedPipeline);
+			pipelineManager.bind(EVulkanPipelineType.UNIFIED_LINE);
 		}
 
-		bindDescSets(getTextureDescSet(call.texture));
+		pipelineManager.bindDescSets(getTextureDescSet(call.texture));
 
 		long vb = ((VulkanBufferHandle)call.vertices).getBufferIdVk();
-		lastPipeline.bindVertexBuffers(graphCommandBuffer, vb, vb);
+		pipelineManager.bindVertexBuffers(vb, vb);
 
-		ByteBuffer unifiedPushConstants = lastPipeline.pushConstantBfr;
+		ByteBuffer unifiedPushConstants = pipelineManager.getPushConstantBfr();
 		// 4 padding bytes
 
 		unifiedPushConstants.putFloat(4, sx);
@@ -494,7 +476,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		unifiedPushConstants.putFloat(44, intensity);
 		unifiedPushConstants.putInt(48, mode);
 
-		lastPipeline.pushConstants(graphCommandBuffer);
+		pipelineManager.pushConstants();
 
 		if(primitive == EPrimitiveType.Triangle) {
 			vkCmdDraw(graphCommandBuffer, vertices, 1, call.offset, 0);
@@ -530,16 +512,16 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		VulkanBufferHandle vkShape = (VulkanBufferHandle) call.vertices;
 		VulkanBufferHandle vkColor = (VulkanBufferHandle) call.colors;
 
-		bind(backgroundPipeline);
+		pipelineManager.bind(EVulkanPipelineType.BACKGROUND);
 
 		if(backgroundDataUpdated) {
 			updateBufferAt(backgroundUniformBfr, 0, backgroundUniformBfrData);
 			backgroundDataUpdated = false;
 		}
 
-		bindDescSets(getTextureDescSet(call.texture));
+		pipelineManager.bindDescSets(getTextureDescSet(call.texture));
 
-		backgroundPipeline.bindVertexBuffers(graphCommandBuffer, vkShape.getBufferIdVk(), vkColor.getBufferIdVk());
+		pipelineManager.bindVertexBuffers(vkShape.getBufferIdVk(), vkColor.getBufferIdVk());
 
 		int starti = call.offset < 0 ? (int)Math.ceil(-call.offset/(float)call.stride) : 0;
 		int draw_lines = call.lines-starti;
@@ -584,7 +566,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		global.translate(x, y, z);
 		global.get(4*4*4*(globalAttrIndex+1), globalUniformBufferData);
 
-		if(lastPipeline != null) vkCmdPushConstants(graphCommandBuffer, lastPipeline.pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 0, new int[]{globalAttrIndex});
+		if(pipelineManager.isPipelineBound()) pipelineManager.pushGlobalAttr();
 	}
 
 	@Override
@@ -1074,11 +1056,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				framebuffers[i] = framebufferBfr.get(0);
 			}
 
-			backgroundPipeline.resize(fbWidth, fbHeight);
-			lineUnifiedPipeline.resize(fbWidth, fbHeight);
-			unifiedMultiPipeline.resize(fbWidth, fbHeight);
-			unifiedArrayPipeline.resize(fbWidth, fbHeight);
-			unifiedPipeline.resize(fbWidth, fbHeight);
+			pipelineManager.resize(fbWidth, fbHeight);
 			renderPassBeginInfo.renderArea().extent().width(fbWidth).height(fbHeight);
 
 			projMatrix.identity();
@@ -1149,7 +1127,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			multiBuffers.forEach(VulkanMultiBufferHandle::reset);
 
 			vkCmdBeginRenderPass(graphCommandBuffer, renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-			lastPipeline = null;
+			pipelineManager.clearLastPipeline();
 
 			update_buffer_region.dstOffset(0).srcOffset(0).size(globalUniformBuffer.getSize());
 			vkCmdCopyBuffer(memCommandBuffer, globalUniformStagingBuffer.getBufferIdVk(), globalUniformBuffer.getBufferIdVk(), update_buffer_region);
@@ -1296,18 +1274,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 	}
 
-	private VulkanPipeline lastPipeline = null;
-
-	private void bind(VulkanPipeline pipeline) {
-		if(pipeline != lastPipeline) {
-			pipeline.bind(graphCommandBuffer, frameIndex);
-			lastPipeline = pipeline;
-		}
-	}
-
-	private void bindDescSets(long... descSets) {
-		lastPipeline.bindDescSets(graphCommandBuffer, descSets);
-	}
 
 	private long getTextureDescSet(TextureHandle texture) {
 		if(texture == null) {
@@ -1317,36 +1283,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 	}
 
-
-	private final VkDescriptorBufferInfo.Buffer install_uniform_buffer = VkDescriptorBufferInfo.create(1).range(VK_WHOLE_SIZE);
-
-	private final VkWriteDescriptorSet.Buffer install_uniform_buffer_write = VkWriteDescriptorSet.create(1)
-			.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET)
-			.descriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
-			.pBufferInfo(install_uniform_buffer)
-			.descriptorCount(1)
-			.dstArrayElement(0);
-
-	private void installUniformBuffer(VulkanBufferHandle buffer, int binding) {
-		install_uniform_buffer_write.dstBinding(binding);
-		install_uniform_buffer.buffer(buffer.getBufferIdVk());
-
-		backgroundPipeline.update(install_uniform_buffer_write);
-		lineUnifiedPipeline.update(install_uniform_buffer_write);
-		unifiedArrayPipeline.update(install_uniform_buffer_write);
-		unifiedMultiPipeline.update(install_uniform_buffer_write);
-		unifiedPipeline.update(install_uniform_buffer_write);
-
-	}
-
-	private void installUniformBuffer(VulkanBufferHandle buffer, int binding, int index, VulkanPipeline pipeline) {
-		install_uniform_buffer_write.dstBinding(binding);
-		install_uniform_buffer_write.dstArrayElement(index);
-		install_uniform_buffer.buffer(buffer.getBufferIdVk());
-
-		pipeline.update(install_uniform_buffer_write);
-
-	}
 
 	private long createMultiDescriptorSet(VulkanBufferHandle multiBuffer) {
 		long descSet = multiDescPool.createNewSet(multiDescLayout);

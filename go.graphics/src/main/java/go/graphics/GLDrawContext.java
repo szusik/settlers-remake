@@ -180,6 +180,10 @@ public abstract class GLDrawContext {
 
 	protected long frameIndex = 0;
 
+	public long getFrameIndex() {
+		return frameIndex;
+	}
+
 	public void startFrame() {
 		frameIndex++;
 	}
