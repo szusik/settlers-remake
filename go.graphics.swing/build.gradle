@@ -4,9 +4,13 @@ import jsettlers.shaders.compile.ShaderCompilationTask
 
 String[] variants = new String[] {
 		"natives-linux",
+		"natives-linux-arm32",
+		"natives-linux-arm64",
 		"natives-macos",
+		"natives-macos-arm64",
 		"natives-windows",
-		"natives-windows-x86"
+		"natives-windows-x86",
+		"natives-windows-arm64",
 };
 
 String[] modules = new String[] {
