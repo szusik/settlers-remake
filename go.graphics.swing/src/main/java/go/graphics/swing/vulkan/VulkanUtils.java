@@ -633,6 +633,7 @@ public class VulkanUtils {
 		VmaAllocatorCreateInfo allocCreateInfo = VmaAllocatorCreateInfo.calloc(stack)
 				.pVulkanFunctions(VmaVulkanFunctions.calloc(stack).set(instance, device))
 				.physicalDevice(physicalDevice)
+				.instance(instance)
 				.frameInUseCount(1)
 				.device(device);
 
