@@ -154,7 +154,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			VkPhysicalDevice[] allPhysicalDevices = VulkanUtils.listPhysicalDevices(stack, instance);
 			physicalDevice = VulkanUtils.findPhysicalDevice(allPhysicalDevices);
 
-			VkPhysicalDeviceProperties props = VkPhysicalDeviceProperties.callocStack(stack);
+			VkPhysicalDeviceProperties props = VkPhysicalDeviceProperties.calloc(stack);
 			vkGetPhysicalDeviceProperties(physicalDevice, props);
 			maxTextureSize = props.limits().maxImageDimension2D();
 			maxUniformBlockSize = Integer.MAX_VALUE;
@@ -235,13 +235,13 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			multiDescPool = new VulkanDescriptorPool(device, VulkanUtils.MULTI_POOL_SIZE, multiAllocateAmounts);
 
 
-			VkDescriptorSetLayoutBinding.Buffer textureBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
+			VkDescriptorSetLayoutBinding.Buffer textureBindings = VkDescriptorSetLayoutBinding.calloc(1, stack);
 			textureBindings.get(0).set(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, null);
 
 			textureDescLayout = new VulkanDescriptorSetLayout(device, textureBindings);
 
 
-			VkDescriptorSetLayoutBinding.Buffer multiBindings = VkDescriptorSetLayoutBinding.callocStack(1, stack);
+			VkDescriptorSetLayoutBinding.Buffer multiBindings = VkDescriptorSetLayoutBinding.calloc(1, stack);
 			multiBindings.get(0).set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, null);
 
 			multiDescLayout = new VulkanDescriptorSetLayout(device, multiBindings);
@@ -259,7 +259,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			presentFramebufferSemaphore = VulkanUtils.createSemaphore(semaphoreBfr, device);
 
 
-			VkSamplerCreateInfo samplerCreateInfo = VkSamplerCreateInfo.callocStack(stack)
+			VkSamplerCreateInfo samplerCreateInfo = VkSamplerCreateInfo.calloc(stack)
 					.sType(VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO)
 					.magFilter(VK_FILTER_NEAREST)
 					.minFilter(VK_FILTER_NEAREST)
@@ -1253,7 +1253,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				if(fbCBrecording) vkEndCommandBuffer(fbCommandBuffer);
 				commandBufferRecording = false;
 
-				VkSubmitInfo graphSubmitInfo = VkSubmitInfo.callocStack(stack)
+				VkSubmitInfo graphSubmitInfo = VkSubmitInfo.calloc(stack)
 						.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO)
 						.pSignalSemaphores(stack.longs(presentFramebufferSemaphore));
 				if(fbCBrecording) {
@@ -1279,7 +1279,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			}
 
 			if(swapchainImageIndex != -1) {
-				VkPresentInfoKHR presentInfo = VkPresentInfoKHR.callocStack(stack)
+				VkPresentInfoKHR presentInfo = VkPresentInfoKHR.calloc(stack)
 						.sType(VK_STRUCTURE_TYPE_PRESENT_INFO_KHR)
 						.pImageIndices(stack.ints(swapchainImageIndex))
 						.swapchainCount(1)

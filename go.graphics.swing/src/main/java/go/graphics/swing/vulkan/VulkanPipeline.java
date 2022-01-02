@@ -196,16 +196,16 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkPipelineVertexInputStateCreateInfo getVertexInputState(MemoryStack stack) {
-			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.callocStack(2, stack);
+			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.calloc(2, stack);
 			bindings.get(0).set(0, 5*4, VK_VERTEX_INPUT_RATE_VERTEX);
 			bindings.get(1).set(1, 1*4, VK_VERTEX_INPUT_RATE_VERTEX);
 
-			VkVertexInputAttributeDescription.Buffer attributes = VkVertexInputAttributeDescription.callocStack(3, stack);
+			VkVertexInputAttributeDescription.Buffer attributes = VkVertexInputAttributeDescription.calloc(3, stack);
 			attributes.get(0).set(0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0);
 			attributes.get(1).set(1, 0, VK_FORMAT_R32G32_SFLOAT, 3*4);
 			attributes.get(2).set(2, 1, VK_FORMAT_R32_SFLOAT, 0);
 
-			return VkPipelineVertexInputStateCreateInfo.callocStack(stack)
+			return VkPipelineVertexInputStateCreateInfo.calloc(stack)
 					.sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
 					.pVertexAttributeDescriptions(attributes)
 					.pVertexBindingDescriptions(bindings);
@@ -233,16 +233,16 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkPipelineVertexInputStateCreateInfo getVertexInputState(MemoryStack stack) {
-			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.callocStack(2, stack);
+			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.calloc(2, stack);
 			bindings.get(0).set(0, 4*4, VK_VERTEX_INPUT_RATE_VERTEX);
 			bindings.get(1).set(1, 2*4, VK_VERTEX_INPUT_RATE_VERTEX);
 
-			VkVertexInputAttributeDescription.Buffer attributes = VkVertexInputAttributeDescription.callocStack(3, stack);
+			VkVertexInputAttributeDescription.Buffer attributes = VkVertexInputAttributeDescription.calloc(3, stack);
 			attributes.get(0).set(0, 0, VK_FORMAT_R32G32_SFLOAT, 0);
 			attributes.get(1).set(1, 0, VK_FORMAT_R32G32_SFLOAT, 2*4);
 			attributes.get(2).set(2, 1, VK_FORMAT_R32G32_SFLOAT, 0);
 
-			return VkPipelineVertexInputStateCreateInfo.callocStack(stack)
+			return VkPipelineVertexInputStateCreateInfo.calloc(stack)
 					.sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
 					.pVertexAttributeDescriptions(attributes)
 					.pVertexBindingDescriptions(bindings);
@@ -262,19 +262,19 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkPipelineVertexInputStateCreateInfo getVertexInputState(MemoryStack stack) {
-			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.callocStack(3, stack);
+			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.calloc(3, stack);
 			bindings.get(0).set(0, 4*4, VK_VERTEX_INPUT_RATE_VERTEX);
 			bindings.get(1).set(1, 2*4, VK_VERTEX_INPUT_RATE_VERTEX);
 			bindings.get(2).set(2, 4*4, VK_VERTEX_INPUT_RATE_INSTANCE);
 
-			VkVertexInputAttributeDescription.Buffer attributes = VkVertexInputAttributeDescription.callocStack(5, stack);
+			VkVertexInputAttributeDescription.Buffer attributes = VkVertexInputAttributeDescription.calloc(5, stack);
 			attributes.get(0).set(0, 0, VK_FORMAT_R32G32_SFLOAT, 0);
 			attributes.get(1).set(1, 0, VK_FORMAT_R32G32_SFLOAT, 2*4);
 			attributes.get(2).set(2, 1, VK_FORMAT_R32G32_SFLOAT, 0);
 			attributes.get(3).set(3, 2, VK_FORMAT_R32G32B32A32_SFLOAT, 0);
 			attributes.get(4).set(4, 2, VK_FORMAT_R32G32B32A32_SFLOAT, 4*4*100);
 
-			return VkPipelineVertexInputStateCreateInfo.callocStack(stack)
+			return VkPipelineVertexInputStateCreateInfo.calloc(stack)
 					.sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
 					.pVertexAttributeDescriptions(attributes)
 					.pVertexBindingDescriptions(bindings);
@@ -302,16 +302,16 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkPipelineVertexInputStateCreateInfo getVertexInputState(MemoryStack stack) {
-			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.callocStack(1, stack);
+			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.calloc(1, stack);
 			bindings.get(0).set(0, 12*4, VK_VERTEX_INPUT_RATE_INSTANCE);
 
-			VkVertexInputAttributeDescription.Buffer attributes = VkVertexInputAttributeDescription.callocStack(4, stack);
+			VkVertexInputAttributeDescription.Buffer attributes = VkVertexInputAttributeDescription.calloc(4, stack);
 			attributes.get(0).set(0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0);
 			attributes.get(1).set(1, 0, VK_FORMAT_R32G32_SFLOAT, 3*4);
 			attributes.get(2).set(2, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 5*4);
 			attributes.get(3).set(3, 0, VK_FORMAT_R32G32B32_SFLOAT, 9*4);
 
-			return VkPipelineVertexInputStateCreateInfo.callocStack(stack)
+			return VkPipelineVertexInputStateCreateInfo.calloc(stack)
 					.sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
 					.pVertexAttributeDescriptions(attributes)
 					.pVertexBindingDescriptions(bindings);

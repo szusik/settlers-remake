@@ -71,7 +71,7 @@ public class VulkanContextCreator extends JAWTContextCreator {
 				if (!instance.getCapabilities().VK_KHR_win32_surface)
 					error("VK_KHR_win32_surface is missing.");
 
-				VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = VkWin32SurfaceCreateInfoKHR.callocStack(stack)
+				VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = VkWin32SurfaceCreateInfoKHR.calloc(stack)
 						.sType(VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR)
 						.hwnd(windowConnection)
 						.hinstance(WinBase.GetModuleHandle((String) null));
@@ -83,7 +83,7 @@ public class VulkanContextCreator extends JAWTContextCreator {
 				if (!instance.getCapabilities().VK_KHR_xlib_surface)
 					error("VK_KHR_xlib_surface is missing.");
 
-				VkXlibSurfaceCreateInfoKHR surfaceCreateInfo = VkXlibSurfaceCreateInfoKHR.callocStack(stack)
+				VkXlibSurfaceCreateInfoKHR surfaceCreateInfo = VkXlibSurfaceCreateInfoKHR.calloc(stack)
 						.sType(VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR)
 						.dpy(windowConnection)
 						.window(windowDrawable);
@@ -108,7 +108,7 @@ public class VulkanContextCreator extends JAWTContextCreator {
 
 				ObjCRuntime.object_setInstanceVariable(windowConnection, "layer", layerBuffer);
 
-				VkMetalSurfaceCreateInfoEXT surfaceCreateInfoEXT = VkMetalSurfaceCreateInfoEXT.callocStack(stack)
+				VkMetalSurfaceCreateInfoEXT surfaceCreateInfoEXT = VkMetalSurfaceCreateInfoEXT.calloc(stack)
 								.sType(VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT)
 								.pLayer(stack.pointers(metalLayer));
 
