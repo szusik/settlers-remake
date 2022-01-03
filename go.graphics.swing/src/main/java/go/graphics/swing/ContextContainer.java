@@ -70,8 +70,8 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 		try {
 			context = new VulkanDrawContext(instance, surface, guiScale);
 		} catch(Throwable thrown) {
-			fatal(thrown.getLocalizedMessage());
 			thrown.printStackTrace();
+			fatal(thrown.getLocalizedMessage());
 		}
 	}
 
@@ -92,8 +92,8 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 				errorGLVersion();
 			}
 		} catch(Throwable thrown) {
-			fatal(thrown.getLocalizedMessage());
 			thrown.printStackTrace();
+			fatal(thrown.getLocalizedMessage());
 		}
 	}
 

@@ -40,6 +40,7 @@ dependencies {
 	implementation "org.lwjgl:lwjgl-jawt:" + lwjglVersion
 
 	implementation "org.joml:joml:1.9.17"
+	implementation "org.lwjglx:lwjgl3-awt:0.1.8"
 
 
 	// macos support
