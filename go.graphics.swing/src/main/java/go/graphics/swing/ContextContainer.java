@@ -87,7 +87,7 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 
 		try {
 			if(caps.OpenGL20) {
-				context = new LWJGLDrawContext(caps, cc::getScale, debug, guiScale);
+				context = new LWJGLDrawContext(caps, debug, guiScale);
 			} else {
 				errorGLVersion();
 			}

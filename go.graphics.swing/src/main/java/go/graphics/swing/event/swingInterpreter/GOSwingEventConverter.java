@@ -38,6 +38,7 @@ import go.graphics.UIPoint;
 import go.graphics.event.GOEventHandlerProvider;
 import go.graphics.event.command.EModifier;
 import go.graphics.event.interpreter.AbstractEventConverter;
+import java.util.function.Supplier;
 
 /**
  * This class listens to swing events, converts them to a go events and sends them to handlers.
@@ -56,7 +57,7 @@ public class GOSwingEventConverter extends AbstractEventConverter
 	 */
 	private boolean panWithButton3;
 
-	private int scaleFactor = 1;
+	private final Supplier<Double> scaleFactor;
 
 	private int modifiers;
 
@@ -70,6 +71,7 @@ public class GOSwingEventConverter extends AbstractEventConverter
 	 */
 	public GOSwingEventConverter(Component component, GOEventHandlerProvider provider) {
 		super(provider);
+		this.scaleFactor = () -> component.getGraphicsConfiguration().getDefaultTransform().getScaleX();
 
 		component.setFocusTraversalKeysEnabled(false);
 
@@ -84,7 +86,7 @@ public class GOSwingEventConverter extends AbstractEventConverter
 	}
 
 	private UIPoint convertToLocal(MouseEvent e) {
-		return new UIPoint(e.getX() * scaleFactor, (e.getComponent().getHeight() - e.getY()) * scaleFactor);
+		return new UIPoint(e.getX() * scaleFactor.get(), (e.getComponent().getHeight() - e.getY()) * scaleFactor.get());
 
 	}
 

@@ -124,12 +124,4 @@ public class WGLContextCreator extends JAWTContextCreator {
 		parent.wrapNewGLContext();
 	}
 
-	@Override
-	public float getScale() {
-		RECT rect = RECT.create();
-		User32.GetWindowRect(windowConnection, rect);
-		int realWidth = rect.right()-rect.left();
-		int swingWidth = SwingUtilities.windowForComponent(canvas).getWidth();
-		return realWidth/(float)swingWidth;
-	}
 }

@@ -70,8 +70,10 @@ public abstract class ContextCreator<T extends Component> implements ComponentLi
 		if(!SwingUtilities.windowForComponent(canvas).isFocused()) return;
 
 		synchronized (wnd_lock) {
-			new_width = canvas.getWidth();
-			new_height = canvas.getHeight();
+			double scaleX = canvas.getGraphicsConfiguration().getDefaultTransform().getScaleX();
+			double scaleY = canvas.getGraphicsConfiguration().getDefaultTransform().getScaleY();
+			new_width = (int) (canvas.getWidth()*scaleX);
+			new_height = (int) (canvas.getHeight()*scaleY);
 			change_res = true;
 
 			if(new_width == 0) new_width = 1;
@@ -90,9 +92,5 @@ public abstract class ContextCreator<T extends Component> implements ComponentLi
 
 	public void updateFPSLimit(int fpsLimit) {
 		this.fpsLimit = fpsLimit;
-	}
-
-	public float getScale() {
-		return 1;
 	}
 }
