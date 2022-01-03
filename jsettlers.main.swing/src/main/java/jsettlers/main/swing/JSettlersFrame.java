@@ -21,11 +21,10 @@ import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import go.graphics.area.Area;
@@ -117,7 +116,7 @@ public class JSettlersFrame extends JFrame {
 
 	private void abortRedrawTimerIfPresent() {
 		if (redrawTimer != null) {
-			redrawTimer.cancel();
+			redrawTimer.stop();
 			redrawTimer = null;
 		}
 	}
@@ -156,13 +155,9 @@ public class JSettlersFrame extends JFrame {
 
 		int fpsLimit = SettingsManager.getInstance().getFpsLimit();
 		if(fpsLimit != 0) {
-			redrawTimer = new Timer("opengl-redraw");
-			redrawTimer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					region.requestRedraw();
-				}
-			}, 100, (long) (1000.0 / fpsLimit));
+			redrawTimer = new Timer((int)(1000.0f/fpsLimit), e -> region.requestRedraw());
+			redrawTimer.setInitialDelay(0);
+			redrawTimer.start();
 		}
 
 		SwingUtilities.invokeLater(() -> {
