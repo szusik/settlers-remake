@@ -32,12 +32,12 @@ public enum EBackendType implements Comparable<EBackendType> {
 	GLX(GLXContextCreator::new, "glx", null, Platform.LINUX, X11::getLibrary),
 	EGL(EGLContextCreator::new, "egl", null, null, org.lwjgl.egl.EGL::getFunctionProvider),
 	WGL(WGLContextCreator::new, "wgl", null, Platform.WINDOWS, GDI32::getLibrary),
-	JOGL(JOGLContextCreator::new, "jogl", Platform.MACOSX, Platform.MACOSX, null),
+	JOGL(JOGLContextCreator::new, "jogl", Platform.MACOSX, null, null),
 	VULKAN(VulkanContextCreator::new, "vulkan", null, null, VK::getFunctionProvider),
 
 	GLFW(GLFWContextCreator::new, "glfw", null, null, org.lwjgl.glfw.GLFW::getLibrary),
 	GLFW_VULKAN(GLFWVulkanContextCreator::new, "glfw-vulkan", null, null, VK::getFunctionProvider),
-	LWJGLX_GL(LWJGLXContextCreator::new, "lwjglx-gl", null, null, null),
+	LWJGLX_GL(LWJGLXContextCreator::new, "lwjglx-gl", null, Platform.MACOSX, null),
 	LWJGLX_VK(VulkanLWJGLXContextCreator::new, "lwjglx-vk", null, null, VK::getFunctionProvider),
 	;
 
