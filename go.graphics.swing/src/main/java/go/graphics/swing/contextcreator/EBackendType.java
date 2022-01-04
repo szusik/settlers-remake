@@ -38,7 +38,7 @@ public enum EBackendType implements Comparable<EBackendType> {
 	GLFW(GLFWContextCreator::new, "glfw", null, null, org.lwjgl.glfw.GLFW::getLibrary),
 	GLFW_VULKAN(GLFWVulkanContextCreator::new, "glfw-vulkan", null, null, VK::getFunctionProvider),
 	LWJGLX_GL(LWJGLXContextCreator::new, "lwjglx-gl", null, Platform.MACOSX, null),
-	LWJGLX_VK(VulkanLWJGLXContextCreator::new, "lwjglx-vk", null, null, VK::getFunctionProvider),
+	LWJGLX_VK(VkLWJGLXContextCreator::new, "lwjglx-vk", null, null, VK::getFunctionProvider),
 	;
 
 	EBackendType(BiFunction<ContextContainer, Boolean, ContextCreator<?>> creator, String cc_name, Platform platform, Platform default_for, Supplier<?> probe_function) {

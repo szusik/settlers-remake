@@ -17,12 +17,12 @@ import static org.lwjgl.vulkan.KHRWin32Surface.VK_KHR_WIN32_SURFACE_EXTENSION_NA
 import static org.lwjgl.vulkan.KHRXlibSurface.VK_KHR_XLIB_SURFACE_EXTENSION_NAME;
 import static org.lwjgl.vulkan.VK10.vkDestroyInstance;
 
-public class VulkanLWJGLXContextCreator extends ContextCreator<AWTVKCanvas> {
+public class VkLWJGLXContextCreator extends ContextCreator<AWTVKCanvas> {
 
 	private VkInstance instance;
 	private long debugCallback;
 
-	public VulkanLWJGLXContextCreator(ContextContainer ac, boolean debug) {
+	public VkLWJGLXContextCreator(ContextContainer ac, boolean debug) {
 		super(ac, debug);
 
 		JOptionPane.showMessageDialog(parent, "Vulkan via LWJGLX is experimental!", "Warning", JOptionPane.ERROR_MESSAGE);
@@ -78,7 +78,6 @@ public class VulkanLWJGLXContextCreator extends ContextCreator<AWTVKCanvas> {
 					parent.swapBuffersVk();
 				} catch (ContextException e) {
 					e.printStackTrace();
-					System.exit(1);
 				}
 			}
 		};
