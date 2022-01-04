@@ -1,15 +1,16 @@
-package go.graphics.swing.vulkan;
+package go.graphics.swing.vulkan.memory;
 
 import go.graphics.BufferHandle;
 import go.graphics.GLDrawContext;
+import go.graphics.swing.vulkan.VulkanDrawContext;
 import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vma.Vma;
 
-public abstract class AbstractVulkanBufferHandle extends BufferHandle {
-	public AbstractVulkanBufferHandle(GLDrawContext dc, int vbo) {
+public abstract class AbstractVulkanBuffer extends BufferHandle {
+	public AbstractVulkanBuffer(GLDrawContext dc, int vbo) {
 		super(dc, vbo);
 	}
 
@@ -42,16 +43,16 @@ public abstract class AbstractVulkanBufferHandle extends BufferHandle {
 		assert start + mapSize <= getSize();
 
 		PointerBuffer ptr = BufferUtils.createPointerBuffer(1);
-		Vma.vmaMapMemory(getDC().allocator, getAllocation(), ptr);
+		Vma.vmaMapMemory(getDC().getAllocator(), getAllocation(), ptr);
 
 		return MemoryUtil.memByteBuffer(ptr.get() + start, mapSize);
 	}
 
 	public final void unmap() {
-		Vma.vmaUnmapMemory(getDC().allocator, getAllocation());
+		Vma.vmaUnmapMemory(getDC().getAllocator(), getAllocation());
 	}
 
 	public void flushChanges(int start, int size) {
-		Vma.vmaFlushAllocation(getDC().allocator, getAllocation(), start, size);
+		Vma.vmaFlushAllocation(getDC().getAllocator(), getAllocation(), start, size);
 	}
 }

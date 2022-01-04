@@ -14,14 +14,15 @@
  *******************************************************************************/
 package go.graphics.swing.vulkan;
 
+import go.graphics.swing.vulkan.memory.AbstractVulkanBuffer;
+import go.graphics.swing.vulkan.memory.VulkanBufferHandle;
+import go.graphics.swing.vulkan.memory.VulkanMultiBufferHandle;
 import go.graphics.swing.vulkan.pipeline.EVulkanPipelineType;
 import go.graphics.swing.vulkan.pipeline.VulkanPipelineManager;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocationCreateInfo;
 import org.lwjgl.vulkan.VkBufferCopy;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
@@ -354,7 +355,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 	}
 
-	protected VulkanBufferHandle unifiedUniformBfr = null;
+	protected AbstractVulkanBuffer unifiedUniformBfr = null;
 	private final ByteBuffer unifiedUniformBfrData = BufferUtils.createByteBuffer(4);
 	private boolean unifiedDataUpdated = false;
 
@@ -388,11 +389,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		updateUnifiedStatic();
 
-		VulkanBufferHandle vkDrawCalls = (VulkanBufferHandle) call.drawCalls;
+		AbstractVulkanBuffer vkDrawCalls = (AbstractVulkanBuffer) call.drawCalls;
 
 		pipelineManager.bind(EVulkanPipelineType.UNIFIED_MULTI);
 
-		VulkanBufferHandle vkQuads = (VulkanBufferHandle)call.sourceQuads.vertices;
+		AbstractVulkanBuffer vkQuads = (AbstractVulkanBuffer)call.sourceQuads.vertices;
 
 		long verticesDescSet = multiDescriptorSets.computeIfAbsent(vkQuads, this::createMultiDescriptorSet);
 
@@ -405,7 +406,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		((VulkanMultiBufferHandle)call.drawCalls).inc();
 	}
 
-	private final Map<VulkanBufferHandle, Long> multiDescriptorSets = new HashMap<>();
+	private final Map<AbstractVulkanBuffer, Long> multiDescriptorSets = new HashMap<>();
 
 	private final VulkanMultiBufferHandle unifiedArrayBfr = createMultiBuffer(2*100*4*4, DYNAMIC_BUFFER);
 	private final ByteBuffer unifiedArrayStaging = BufferUtils.createByteBuffer(2*100*4*4);
@@ -427,7 +428,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		pipelineManager.bind(EVulkanPipelineType.UNIFIED_ARRAY);
 
-		long vb = ((VulkanBufferHandle)call.vertices).getBufferIdVk();
+		long vb = ((AbstractVulkanBuffer)call.vertices).getBufferIdVk();
 		pipelineManager.bindVertexBuffers(vb, vb, unifiedArrayBfr.getBufferIdVk());
 		pipelineManager.bindDescSets(getTextureDescSet(call.texture));
 
@@ -451,7 +452,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		pipelineManager.bindDescSets(getTextureDescSet(call.texture));
 
-		long vb = ((VulkanBufferHandle)call.vertices).getBufferIdVk();
+		long vb = ((AbstractVulkanBuffer)call.vertices).getBufferIdVk();
 		pipelineManager.bindVertexBuffers(vb, vb);
 
 		ByteBuffer unifiedPushConstants = pipelineManager.getPushConstantBfr();
@@ -511,8 +512,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	public void drawBackground(BackgroundDrawHandle call) {
 		if(!commandBufferRecording || call == null || call.texture == null || call.vertices == null || call.colors == null) return;
 
-		VulkanBufferHandle vkShape = (VulkanBufferHandle) call.vertices;
-		VulkanBufferHandle vkColor = (VulkanBufferHandle) call.colors;
+		AbstractVulkanBuffer vkShape = (AbstractVulkanBuffer) call.vertices;
+		AbstractVulkanBuffer vkColor = (AbstractVulkanBuffer) call.colors;
 
 		pipelineManager.bind(EVulkanPipelineType.BACKGROUND);
 
@@ -528,7 +529,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		int starti = call.offset < 0 ? (int)Math.ceil(-call.offset/(float)call.stride) : 0;
 		int draw_lines = call.lines-starti;
 
-		int triangleCount = ((VulkanBufferHandle) call.vertices).getSize()/20;
+		int triangleCount = ((AbstractVulkanBuffer) call.vertices).getSize()/20;
 
 		for (int i = 0; i != draw_lines; i++) {
 			int lineStart = (call.offset+call.stride*(i+starti))*3;
@@ -546,7 +547,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		backgroundDataUpdated = true;
 	}
 
-	protected final VulkanBufferHandle backgroundUniformBfr;
+	protected final AbstractVulkanBuffer backgroundUniformBfr;
 	private final ByteBuffer backgroundUniformBfrData = BufferUtils.createByteBuffer((4*4+2*4+1)*4);
 	private boolean backgroundDataUpdated = false;
 
@@ -700,7 +701,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	public void updateBufferAt(BufferHandle handle, int pos, ByteBuffer data) {
 		if(!commandBufferRecording || handle == null || data.remaining() == 0) return;
 
-		VulkanBufferHandle vkBuffer = (VulkanBufferHandle)handle;
+		AbstractVulkanBuffer vkBuffer = (AbstractVulkanBuffer) handle;
 
 		if(vkBuffer.getType() == STATIC_BUFFER) {
 
@@ -726,7 +727,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	public void updateBufferAt(BufferHandle handle, List<Integer> pos, List<Integer> len, ByteBuffer data) {
 		if(!commandBufferRecording || handle == null) return;
 
-		VulkanBufferHandle vkBuffer = (VulkanBufferHandle)handle;
+		AbstractVulkanBuffer vkBuffer = (AbstractVulkanBuffer)handle;
 
 		int writePos = prepareStagingData(data);
 		int count = pos.size();
@@ -789,7 +790,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		return vkMultiBfrHandle;
 	}
 
-	protected VulkanBufferHandle createBuffer(int size, int type) {
+	public VulkanBufferHandle createBuffer(int size, int type) {
 		if(type == STAGING_BUFFER) {
 			bufferCreateInfo.usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 			bufferAllocInfo.usage(VMA_MEMORY_USAGE_CPU_ONLY);
@@ -842,8 +843,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	@Override
 	public BackgroundDrawHandle createBackgroundDrawCall(int vertices, TextureHandle texture) {
-		VulkanBufferHandle vertexBfr = createBuffer(vertices*5*4, STATIC_BUFFER);
-		VulkanBufferHandle colorBfr = createBuffer(vertices*4, STATIC_BUFFER);
+		AbstractVulkanBuffer vertexBfr = createBuffer(vertices*5*4, STATIC_BUFFER);
+		AbstractVulkanBuffer colorBfr = createBuffer(vertices*4, STATIC_BUFFER);
 		return new BackgroundDrawHandle(this, -1, texture, vertexBfr, colorBfr);
 	}
 
@@ -911,8 +912,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 	private VulkanTextureHandle depthImage = null;
-	protected final VulkanBufferHandle globalUniformStagingBuffer;
-	protected final VulkanBufferHandle globalUniformBuffer;
+	protected final AbstractVulkanBuffer globalUniformStagingBuffer;
+	protected final AbstractVulkanBuffer globalUniformBuffer;
 	private final ByteBuffer globalUniformBufferData;
 	private final Matrix4f projMatrix = new Matrix4f();
 
@@ -1139,7 +1140,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 	}
 
-	private VulkanBufferHandle framebufferReadBack = null;
+	private AbstractVulkanBuffer framebufferReadBack = null;
 	private final VkBufferImageCopy.Buffer readBackRegion = VkBufferImageCopy.create(1);
 	private int rbWidth = -1, rbHeight = -1;
 
@@ -1201,10 +1202,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		endFrame();
 
-		PointerBuffer ptr = BufferUtils.createPointerBuffer(1);
-		Vma.vmaMapMemory(allocator, framebufferReadBack.getAllocation(), ptr);
-		ByteBuffer mapped = MemoryUtil.memByteBuffer(ptr.get(0), framebufferReadBack.getSize());
-		IntBuffer mappedPixels = mapped.asIntBuffer();
+		IntBuffer mappedPixels = framebufferReadBack.map().asIntBuffer();
 		int[] line = new int[width];
 		for(int i = 0; i != height; i++) {
 			mappedPixels.position(i*width);
@@ -1213,7 +1211,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			pixels.put(line);
 		}
 		pixels.rewind();
-		Vma.vmaUnmapMemory(allocator, framebufferReadBack.getAllocation());
+		framebufferReadBack.unmap();
 	}
 
 	public void endFrame() {
@@ -1281,7 +1279,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 
-	private long createMultiDescriptorSet(VulkanBufferHandle multiBuffer) {
+	private long createMultiDescriptorSet(AbstractVulkanBuffer multiBuffer) {
 		long descSet = multiDescPool.createNewSet(multiDescLayout);
 
 		VkDescriptorBufferInfo.Buffer install_uniform_buffer = VkDescriptorBufferInfo.create(1);
@@ -1313,5 +1311,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	public int getGlobalAttrIndex() {
 		return globalAttrIndex;
+	}
+
+	public long getAllocator() {
+		return allocator;
 	}
 }

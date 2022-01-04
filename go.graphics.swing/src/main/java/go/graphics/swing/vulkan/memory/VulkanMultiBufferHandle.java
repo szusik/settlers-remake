@@ -1,9 +1,10 @@
-package go.graphics.swing.vulkan;
+package go.graphics.swing.vulkan.memory;
 
+import go.graphics.swing.vulkan.VulkanDrawContext;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VulkanMultiBufferHandle extends AbstractVulkanBufferHandle {
+public class VulkanMultiBufferHandle extends AbstractVulkanBuffer {
 
     private final int size;
     private final int type;

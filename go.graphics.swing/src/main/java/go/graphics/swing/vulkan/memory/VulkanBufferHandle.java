@@ -1,11 +1,11 @@
-package go.graphics.swing.vulkan;
+package go.graphics.swing.vulkan.memory;
 
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.vulkan.VK10;
 
 import go.graphics.GLDrawContext;
 
-public class VulkanBufferHandle extends AbstractVulkanBufferHandle {
+public class VulkanBufferHandle extends AbstractVulkanBuffer {
 
 	private final long bfr, allocation, event;
 	private final int size, type;
@@ -46,8 +46,8 @@ public class VulkanBufferHandle extends AbstractVulkanBufferHandle {
 
 	@Override
 	public void destroy() {
-		Vma.vmaDestroyBuffer(((VulkanDrawContext)dc).allocator, bfr, allocation);
-		VK10.vkDestroyEvent(((VulkanDrawContext) dc).device, event, null);
+		Vma.vmaDestroyBuffer(getDC().getAllocator(), bfr, allocation);
+		VK10.vkDestroyEvent(getDC().getDevice(), event, null);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package go.graphics.swing.vulkan.pipeline;
 
-import go.graphics.swing.vulkan.VulkanBufferHandle;
+import go.graphics.swing.vulkan.memory.AbstractVulkanBuffer;
 import go.graphics.swing.vulkan.VulkanDescriptorPool;
 import go.graphics.swing.vulkan.VulkanDrawContext;
 import java.nio.ByteBuffer;
@@ -32,7 +32,7 @@ public class VulkanPipelineManager {
 		this.graphCommandBuffer = graphCommandBuffer;
 	}
 
-	public void installUniformBuffers(VulkanBufferHandle globalUniformBuffer, VulkanBufferHandle backgroundUniformBfr, VulkanBufferHandle unifiedUniformBfr) {
+	public void installUniformBuffers(AbstractVulkanBuffer globalUniformBuffer, AbstractVulkanBuffer backgroundUniformBfr, AbstractVulkanBuffer unifiedUniformBfr) {
 		installUniformBuffer(globalUniformBuffer, 0);
 
 		for (EVulkanPipelineType type : EVulkanPipelineType.UNIFIED_TYPES) {
@@ -50,7 +50,7 @@ public class VulkanPipelineManager {
 			.descriptorCount(1)
 			.dstArrayElement(0);
 
-	private void installUniformBuffer(VulkanBufferHandle buffer, int binding, int index, VulkanPipeline pipeline) {
+	private void installUniformBuffer(AbstractVulkanBuffer buffer, int binding, int index, VulkanPipeline pipeline) {
 		install_uniform_buffer_write.dstBinding(binding);
 		install_uniform_buffer_write.dstArrayElement(index);
 		install_uniform_buffer.buffer(buffer.getBufferIdVk());
@@ -59,7 +59,7 @@ public class VulkanPipelineManager {
 
 	}
 
-	private void installUniformBuffer(VulkanBufferHandle buffer, int binding) {
+	private void installUniformBuffer(AbstractVulkanBuffer buffer, int binding) {
 		install_uniform_buffer_write.dstBinding(binding);
 		install_uniform_buffer.buffer(buffer.getBufferIdVk());
 
