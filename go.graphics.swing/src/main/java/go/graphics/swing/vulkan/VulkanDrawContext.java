@@ -199,14 +199,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				swapchainCreateInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT)
 						.pQueueFamilyIndices(stack.ints(graphicsQueueIndex, presentQueueIndex));
 			}
-			swapchainImageViewCreateInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO)
-					.viewType(VK_IMAGE_VIEW_TYPE_2D);
-			swapchainImageViewCreateInfo.subresourceRange()
-					.aspectMask(VK_IMAGE_ASPECT_COLOR_BIT)
-					.baseMipLevel(0)
-					.levelCount(1)
-					.baseArrayLayer(0)
-					.layerCount(1);
 
 			framebufferCreateInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
 					.layers(1);
@@ -838,7 +830,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private final VkSurfaceCapabilitiesKHR surfaceCapabilities = VkSurfaceCapabilitiesKHR.create();
 	private final VkSwapchainCreateInfoKHR swapchainCreateInfo = VkSwapchainCreateInfoKHR.create();
 	private final VkFramebufferCreateInfo framebufferCreateInfo = VkFramebufferCreateInfo.create();
-	private final VkImageViewCreateInfo swapchainImageViewCreateInfo = VkImageViewCreateInfo.create();
 
 	private void destroySwapchainViews(int count) {
 		if(swapchainViews == null) return;
@@ -910,8 +901,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			swapchainCreateInfo.surface(surface)
 					.imageColorSpace(surfaceFormat.colorSpace())
 					.imageFormat(surfaceFormat.format());
-
-			swapchainImageViewCreateInfo.format(surfaceFormat.format());
 		}
 	}
 
@@ -967,9 +956,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			LongBuffer imageViewBfr = stack.callocLong(1);
 			swapchainViews = new long[swapchainImages.length];
 			for (int i = 0; i != swapchainImages.length; i++) {
-				swapchainImageViewCreateInfo.image(swapchainImages[i]);
-
-
 				long imageView;
 				try {
 					imageView = VulkanUtils.createImageView(device, swapchainImages[i], surfaceFormat, true, imageViewBfr);
