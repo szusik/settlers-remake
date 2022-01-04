@@ -341,7 +341,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(height == 0) height = 1;
 
 		VulkanTextureHandle vkTexHandle = createTexture(width, height, descSet);
-		changeLayout(vkTexHandle.getImage(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, true);
+		vkTexHandle.getImage().changeLayout(memCommandBuffer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		if(data != null) updateTexture(vkTexHandle, 0, 0, width, height, data);
 		return vkTexHandle;
@@ -556,9 +556,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			imageCopy.bufferOffset(stagingPos+original[4]).bufferRowLength(original[2]);
 		}
 
-		changeLayout(vkTexture.getImage(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
+		vkTexture.getImage().changeLayout(memCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		vkCmdCopyBufferToImage(memCommandBuffer, stagingBuffers.get(stagingBufferIndex).getBufferIdVk(), vkTexture.getImage().getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, regions);
-		changeLayout(vkTexture.getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, true);
+		vkTexture.getImage().changeLayout(memCommandBuffer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 
 	@Override
@@ -576,9 +576,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		region.get(0).imageSubresource().set(VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1);
 		region.get(0).bufferOffset(stagingPos).bufferRowLength(width);
 
-		changeLayout(vkTexture.getImage(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
+		vkTexture.getImage().changeLayout(memCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		vkCmdCopyBufferToImage(memCommandBuffer, stagingBuffers.get(stagingBufferIndex).getBufferIdVk(), vkTexture.getImage().getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
-		changeLayout(vkTexture.getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, true);
+		vkTexture.getImage().changeLayout(memCommandBuffer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 
 	@Override
@@ -589,30 +589,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(!commandBufferRecording) return null;
 
 		return generateTextureInternal(width, height, data, ((VulkanTextureHandle)textureIndex).descSet);
-	}
-
-
-	private final VkImageMemoryBarrier.Buffer layoutTransition = VkImageMemoryBarrier.create(1)
-			.sType(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER)
-			.srcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.dstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.srcAccessMask(VK_ACCESS_MEMORY_WRITE_BIT|VK_ACCESS_MEMORY_READ_BIT)
-			.dstAccessMask(VK_ACCESS_MEMORY_WRITE_BIT|VK_ACCESS_MEMORY_READ_BIT);
-
-	private void changeLayout(VulkanImage texture, int oldLayout, int newLayout, boolean memOrFB) {
-		changeLayout(texture.getImage(), oldLayout, newLayout, memOrFB);
-	}
-
-	private void changeLayout(long texture, int oldLayout, int newLayout, boolean memOrFB) {
-		if(!commandBufferRecording) return;
-
-		layoutTransition.image(texture)
-				.oldLayout(oldLayout)
-				.newLayout(newLayout);
-
-		layoutTransition.subresourceRange().set(VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1);
-
-		vkCmdPipelineBarrier(memOrFB?memCommandBuffer:fbCommandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, null, null, layoutTransition);
 	}
 
 	protected int usedStagingMemory = 0;
@@ -789,21 +765,20 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 	private long swapchain = VK_NULL_HANDLE;
-	private long[] swapchainImages;
-	private long[] swapchainViews;
+	private VulkanImage[] swapchainImages;
 	private long[] framebuffers;
 	private final VkSurfaceCapabilitiesKHR surfaceCapabilities = VkSurfaceCapabilitiesKHR.create();
 	private final VkSwapchainCreateInfoKHR swapchainCreateInfo = VkSwapchainCreateInfoKHR.create();
 	private final VkFramebufferCreateInfo framebufferCreateInfo = VkFramebufferCreateInfo.create();
 
 	private void destroySwapchainViews(int count) {
-		if(swapchainViews == null) return;
-		if(count == -1) count = swapchainViews.length;
+		if(swapchainImages == null) return;
+		if(count == -1) count = swapchainImages.length;
 
 		for(int i = 0; i != count; i++) {
-			vkDestroyImageView(device, swapchainViews[i], null);
+			vkDestroyImageView(device, swapchainImages[i].getImageView(), null);
 		}
-		swapchainViews = null;
+		swapchainImages = null;
 	}
 
 	private void destroyFramebuffers(int count) {
@@ -908,8 +883,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				swapchain = swapchainBfr.get(0);
 			}
 
-			swapchainImages = VulkanUtils.getSwapchainImages(device, swapchain);
-			if (swapchainImages == null) {
+			long[] imageHandles = VulkanUtils.getSwapchainImages(device, swapchain);
+			if (imageHandles == null) {
 				vkDestroySwapchainKHR(device, swapchain, null);
 				swapchain = VK_NULL_HANDLE;
 				return;
@@ -920,11 +895,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			}
 			depthImage = memoryManager.createImage(fbWidth, fbHeight, EVulkanImageType.DEPTH_IMAGE);
 
-			swapchainViews = new long[swapchainImages.length];
+			swapchainImages = new VulkanImage[imageHandles.length];
 			for (int i = 0; i != swapchainImages.length; i++) {
-				long imageView;
+
 				try {
-					imageView = VulkanUtils.createImageView(device, swapchainImages[i], surfaceFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+					swapchainImages[i] = new VulkanImage(this, null, imageHandles[i], -1L, surfaceFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 				} catch(Throwable thrown) {
 					thrown.printStackTrace();
 					destroySwapchainViews(i);
@@ -932,18 +907,16 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 					swapchain = VK_NULL_HANDLE;
 					return;
 				}
-				swapchainViews[i] = imageView;
 			}
-
 
 
 			framebufferCreateInfo.width(fbWidth)
 					.height(fbHeight);
 
 			LongBuffer framebufferBfr = stack.callocLong(1);
-			framebuffers = new long[swapchainViews.length];
-			for (int i = 0; i != swapchainViews.length; i++) {
-				framebufferCreateInfo.pAttachments(stack.longs(swapchainViews[i], depthImage.getImageView()));
+			framebuffers = new long[swapchainImages.length];
+			for (int i = 0; i != swapchainImages.length; i++) {
+				framebufferCreateInfo.pAttachments(stack.longs(swapchainImages[i].getImageView(), depthImage.getImageView()));
 
 				if (vkCreateFramebuffer(device, framebufferCreateInfo, null, framebufferBfr) != VK_SUCCESS) {
 					destroyFramebuffers(i);
@@ -1057,11 +1030,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			fbCBrecording = true;
 		}
 
-		long image = swapchainImages[swapchainImageIndex];
+		VulkanImage image = swapchainImages[swapchainImageIndex];
 
-		changeLayout(image, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, false);
-		vkCmdClearColorImage(fbCommandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, CLEAR_VALUES.get(0).color(), CLEAR_SUBRESOURCE);
-		changeLayout(image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, false);
+		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		vkCmdClearColorImage(fbCommandBuffer, image.getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, CLEAR_VALUES.get(0).color(), CLEAR_SUBRESOURCE);
+		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 	}
 
 	public void readFramebuffer(IntBuffer pixels, int width, int height) {
@@ -1090,14 +1063,14 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 		fbCBrecording = true;
 
-		long image = swapchainImages[swapchainImageIndex];
+		VulkanImage image = swapchainImages[swapchainImageIndex];
 
-		changeLayout(image, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, false);
-		vkCmdCopyImageToBuffer(fbCommandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferReadBack.getBufferIdVk(), readBackRegion);
-		changeLayout(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, false);
+		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		vkCmdCopyImageToBuffer(fbCommandBuffer, image.getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferReadBack.getBufferIdVk(), readBackRegion);
+		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		vkCmdPipelineBarrier(fbCommandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, null, null, null);
-		vkCmdClearColorImage(fbCommandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, CLEAR_VALUES.get(0).color(), CLEAR_SUBRESOURCE);
-		changeLayout(image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, false);
+		vkCmdClearColorImage(fbCommandBuffer, image.getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, CLEAR_VALUES.get(0).color(), CLEAR_SUBRESOURCE);
+		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 		endFrame();
 
