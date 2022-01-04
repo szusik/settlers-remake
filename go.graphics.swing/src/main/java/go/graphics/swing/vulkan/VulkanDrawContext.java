@@ -121,6 +121,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private final Semaphore resourceMutex = new Semaphore(1);
 	private final Semaphore closeMutex = new Semaphore(1);
 
+	protected final List<VulkanTextureHandle> textures = new ArrayList<>();
+
 	private float guiScale;
 
 	public VulkanDrawContext(VkInstance instance, long surface, float guiScale) {
@@ -693,7 +695,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			textureDescSet = textureDescPool.createNewSet(textureDescLayout);
 		}
 
-		VulkanTextureHandle vkTexHandle = new VulkanTextureHandle(this, memoryManager, -1, image, textureDescSet);
+		VulkanTextureHandle vkTexHandle = new VulkanTextureHandle(this, memoryManager, image, textureDescSet);
 
 		if(descSet == 0) {
 			vkTexHandle.tick();
@@ -702,6 +704,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(firstTextureDescSet == 0) {
 			firstTextureDescSet = textureDescSet;
 		}
+
+		textures.add(vkTexHandle);
 		return vkTexHandle;
 	}
 

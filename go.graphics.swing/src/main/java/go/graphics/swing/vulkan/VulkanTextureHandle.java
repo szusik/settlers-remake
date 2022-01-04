@@ -19,8 +19,8 @@ public class VulkanTextureHandle extends TextureHandle {
 	private final VulkanMemoryManager manager;
 	private final VulkanImage image;
 
-	public VulkanTextureHandle(VulkanDrawContext dc, VulkanMemoryManager manager, int id, VulkanImage image, long descSet) {
-		super(dc, id);
+	public VulkanTextureHandle(VulkanDrawContext dc, VulkanMemoryManager manager, VulkanImage image, long descSet) {
+		super(dc, -1);
 		this.image = image;
 		this.descSet = descSet;
 		this.manager = manager;
