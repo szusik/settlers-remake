@@ -101,7 +101,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private int graphicsQueueIndex;
 	private int presentQueueIndex;
 
-	protected long[] allocators = new long[] {0, 0, 0, 0};
+	protected long allocator = 0;
 
 	private int fbWidth;
 	private int fbHeight;
@@ -181,7 +181,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			setSurface(surface);
 
-			for(int i = 0; i != allocators.length; i++) allocators[i] = VulkanUtils.createAllocator(stack, instance, device, physicalDevice);
+			allocator = VulkanUtils.createAllocator(stack, instance, device, physicalDevice);
 
 			commandPool = VulkanUtils.createCommandPool(stack, device, universalQueueIndex);
 			graphCommandBuffer = VulkanUtils.createCommandBuffer(stack, device, commandPool);
@@ -316,7 +316,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(textureDescPool != null) textureDescPool.destroy();
 		if(universalDescPool != null) universalDescPool.destroy();
 
-		for(long allocator : allocators) if(allocator != 0) vmaDestroyAllocator(allocator);
+		vmaDestroyAllocator(allocator);
 
 		if(renderPass != VK_NULL_HANDLE) vkDestroyRenderPass(device, renderPass, null);
 
@@ -682,13 +682,13 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		VulkanBufferHandle currentStagingBuffer = stagingBuffers.get(stagingBufferIndex);
 
-		vmaMapMemory(allocators[currentStagingBuffer.getType()], currentStagingBuffer.getAllocation(), map_buffer_bfr);
+		vmaMapMemory(allocator, currentStagingBuffer.getAllocation(), map_buffer_bfr);
 		ByteBuffer mapped = MemoryUtil.memByteBuffer(map_buffer_bfr.get(0)+usedStagingMemory, currentStagingBuffer.getSize()-usedStagingMemory);
 
 		if(bdata != null) mapped.put(bdata.asReadOnlyBuffer());
 		if(sdata != null) mapped.asShortBuffer().put(sdata.asReadOnlyBuffer());
 
-		vmaUnmapMemory(allocators[currentStagingBuffer.getType()], currentStagingBuffer.getAllocation());
+		vmaUnmapMemory(allocator, currentStagingBuffer.getAllocation());
 
 		int offset = usedStagingMemory;
 		usedStagingMemory += size;
@@ -718,12 +718,12 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			syncQueues(vkBuffer.getEvent(), vkBuffer.getBufferIdVk());
 		} else {
-			vmaMapMemory(allocators[vkBuffer.getType()], vkBuffer.getAllocation(), map_buffer_bfr);
+			vmaMapMemory(allocator, vkBuffer.getAllocation(), map_buffer_bfr);
 			ByteBuffer mapped = MemoryUtil.memByteBuffer(map_buffer_bfr.get(0), vkBuffer.getSize());
 			mapped.put(data.asReadOnlyBuffer());
 
-			vmaUnmapMemory(allocators[vkBuffer.getType()], vkBuffer.getAllocation());
-			vmaFlushAllocation(allocators[vkBuffer.getType()], vkBuffer.getAllocation(), pos, data.remaining());
+			vmaUnmapMemory(allocator, vkBuffer.getAllocation());
+			vmaFlushAllocation(allocator, vkBuffer.getAllocation(), pos, data.remaining());
 		}
 	}
 
@@ -818,7 +818,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			return null;
 		}
 
-		if(vmaCreateBuffer(allocators[type], bufferCreateInfo, bufferAllocInfo, bufferBfr, bufferAllocationBfr, null) < 0) {
+		if(vmaCreateBuffer(allocator, bufferCreateInfo, bufferAllocInfo, bufferBfr, bufferAllocationBfr, null) < 0) {
 			vkDestroyEvent(device, event, null);
 			return null;
 		}
@@ -1207,7 +1207,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		endFrame();
 
 		PointerBuffer ptr = BufferUtils.createPointerBuffer(1);
-		Vma.vmaMapMemory(allocators[READBACK_BUFFER], framebufferReadBack.getAllocation(), ptr);
+		Vma.vmaMapMemory(allocator, framebufferReadBack.getAllocation(), ptr);
 		ByteBuffer mapped = MemoryUtil.memByteBuffer(ptr.get(0), framebufferReadBack.getSize());
 		IntBuffer mappedPixels = mapped.asIntBuffer();
 		int[] line = new int[width];
@@ -1218,7 +1218,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			pixels.put(line);
 		}
 		pixels.rewind();
-		Vma.vmaUnmapMemory(allocators[READBACK_BUFFER], framebufferReadBack.getAllocation());
+		Vma.vmaUnmapMemory(allocator, framebufferReadBack.getAllocation());
 	}
 
 	public void endFrame() {

@@ -41,7 +41,7 @@ public class VulkanTextureHandle extends TextureHandle {
 		if(imageView == VK10.VK_NULL_HANDLE) return;
 
 		VK10.vkDestroyImageView(((VulkanDrawContext)dc).device, imageView, null);
-		Vma.vmaDestroyImage(((VulkanDrawContext)dc).allocators[VulkanDrawContext.TEXTUREDATA_BUFFER], bfr, allocation);
+		Vma.vmaDestroyImage(((VulkanDrawContext)dc).allocator, bfr, allocation);
 		imageView = VK10.VK_NULL_HANDLE;
 	}
 

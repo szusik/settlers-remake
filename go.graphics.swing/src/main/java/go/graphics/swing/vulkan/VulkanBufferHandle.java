@@ -41,7 +41,7 @@ public class VulkanBufferHandle extends BufferHandle {
 	}
 
 	public void destroy() {
-		Vma.vmaDestroyBuffer(((VulkanDrawContext)dc).allocators[type], bfr, allocation);
+		Vma.vmaDestroyBuffer(((VulkanDrawContext)dc).allocator, bfr, allocation);
 		VK10.vkDestroyEvent(((VulkanDrawContext) dc).device, event, null);
 	}
 

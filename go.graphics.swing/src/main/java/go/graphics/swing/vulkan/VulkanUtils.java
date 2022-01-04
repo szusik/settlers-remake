@@ -517,7 +517,7 @@ public class VulkanUtils {
 
 		imageCreateInfo.extent().set(width, height, 1);
 
-		if(vmaCreateImage(dc.allocators[VulkanDrawContext.TEXTUREDATA_BUFFER], imageCreateInfo, IMAGE_ALLOC_INFO, image, alloc, null) < 0) {
+		if(vmaCreateImage(dc.allocator, imageCreateInfo, IMAGE_ALLOC_INFO, image, alloc, null) < 0) {
 			throw new Error("Could not create Image.");
 		}
 
@@ -526,7 +526,7 @@ public class VulkanUtils {
 			imageViewValue = createImageView(dc.device, image.get(0), format, color, imageView);
 		} finally {
 			if(imageViewValue == VK_NULL_HANDLE) {
-				vmaDestroyImage(dc.allocators[VulkanDrawContext.TEXTUREDATA_BUFFER], image.get(0), alloc.get(0));
+				vmaDestroyImage(dc.allocator, image.get(0), alloc.get(0));
 			}
 		}
 	}
