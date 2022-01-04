@@ -1,5 +1,6 @@
 package go.graphics.swing.vulkan;
 
+import go.graphics.swing.vulkan.memory.VulkanMemoryManager;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkDescriptorImageInfo;
@@ -16,13 +17,15 @@ public class VulkanTextureHandle extends TextureHandle {
 	private boolean installed = false;
 	private boolean shouldDestroy = false;
 	final long descSet;
+	private final VulkanMemoryManager manager;
 
-	public VulkanTextureHandle(VulkanDrawContext dc, int id, long bfr, long allocation, long imageView, long descSet) {
+	public VulkanTextureHandle(VulkanDrawContext dc, VulkanMemoryManager manager, int id, long bfr, long allocation, long imageView, long descSet) {
 		super(dc, id);
 		this.allocation = allocation;
 		this.imageView = imageView;
 		this.bfr = bfr;
 		this.descSet = descSet;
+		this.manager = manager;
 	}
 
 	public long getImageViewId() {
@@ -33,15 +36,11 @@ public class VulkanTextureHandle extends TextureHandle {
 		return bfr;
 	}
 
-	public long getAllocation() {
-		return allocation;
-	}
-
 	public void destroy() {
 		if(imageView == VK10.VK_NULL_HANDLE) return;
 
-		VK10.vkDestroyImageView(((VulkanDrawContext)dc).device, imageView, null);
-		Vma.vmaDestroyImage(((VulkanDrawContext)dc).allocator, bfr, allocation);
+		VK10.vkDestroyImageView(((VulkanDrawContext)dc).getDevice(), imageView, null);
+		Vma.vmaDestroyImage(manager.getAllocator(), bfr, allocation);
 		imageView = VK10.VK_NULL_HANDLE;
 	}
 

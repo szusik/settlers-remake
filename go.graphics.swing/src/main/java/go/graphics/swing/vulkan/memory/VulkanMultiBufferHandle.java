@@ -7,23 +7,25 @@ import java.util.List;
 public class VulkanMultiBufferHandle extends AbstractVulkanBuffer {
 
     private final int size;
-    private final int type;
+    private final EVulkanMemoryType type;
+    private final EVulkanBufferUsage usage;
     private int bufferIndex = -1;
     private final List<VulkanBufferHandle> buffers = new ArrayList<>();
 
-    public VulkanMultiBufferHandle(VulkanDrawContext dc, int type, int size) {
-        super(dc, type);
+    public VulkanMultiBufferHandle(VulkanDrawContext dc, VulkanMemoryManager manager, EVulkanMemoryType type, EVulkanBufferUsage usage, int size) {
+        super(dc, manager, -1);
         this.size = size;
         this.type = type;
+        this.usage = usage;
     }
 
     public void inc() {
         bufferIndex++;
-        if(bufferIndex == buffers.size()) buffers.add(getDC().createBuffer(size, type));
+        if(bufferIndex == buffers.size()) buffers.add(memoryManager.createBuffer(size, type, usage));
     }
 
     public void reset() {
-        if(bufferIndex == -1) buffers.add(getDC().createBuffer(size, type));
+        if(bufferIndex == -1) buffers.add(memoryManager.createBuffer(size, type, usage));
         bufferIndex = 0;
     }
 
@@ -51,7 +53,7 @@ public class VulkanMultiBufferHandle extends AbstractVulkanBuffer {
     }
 
     @Override
-    public int getType() {
+    public EVulkanMemoryType getType() {
         return type;
     }
 

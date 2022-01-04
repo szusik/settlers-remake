@@ -1,5 +1,6 @@
 package go.graphics.swing.vulkan.memory;
 
+import go.graphics.swing.vulkan.VulkanDrawContext;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.vulkan.VK10;
 
@@ -8,10 +9,11 @@ import go.graphics.GLDrawContext;
 public class VulkanBufferHandle extends AbstractVulkanBuffer {
 
 	private final long bfr, allocation, event;
-	private final int size, type;
+	private final int size;
+	private final EVulkanMemoryType type;
 
-	public VulkanBufferHandle(GLDrawContext dc, int type, long bfr, long allocation, long event, int size) {
-		super(dc, -1);
+	public VulkanBufferHandle(GLDrawContext dc, VulkanMemoryManager manager, EVulkanMemoryType type, long bfr, long allocation, long event, int size) {
+		super(dc, manager, -1);
 		this.allocation = allocation;
 		this.event = event;
 		this.type = type;
@@ -20,7 +22,7 @@ public class VulkanBufferHandle extends AbstractVulkanBuffer {
 	}
 
 	@Override
-	public int getType() {
+	public EVulkanMemoryType getType() {
 		return type;
 	}
 
@@ -46,12 +48,17 @@ public class VulkanBufferHandle extends AbstractVulkanBuffer {
 
 	@Override
 	public void destroy() {
-		Vma.vmaDestroyBuffer(getDC().getAllocator(), bfr, allocation);
-		VK10.vkDestroyEvent(getDC().getDevice(), event, null);
+		free();
+		memoryManager.remove(this);
 	}
 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " [dc=" + dc + ", allocation=" + allocation + ", bfr=" + bfr + "]";
+	}
+
+	public void free() {
+		Vma.vmaDestroyBuffer(memoryManager.getAllocator(), bfr, allocation);
+		VK10.vkDestroyEvent(((VulkanDrawContext)dc).getDevice(), event, null);
 	}
 }

@@ -10,11 +10,16 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vma.Vma;
 
 public abstract class AbstractVulkanBuffer extends BufferHandle {
-	public AbstractVulkanBuffer(GLDrawContext dc, int vbo) {
+
+	protected final VulkanMemoryManager memoryManager;
+
+	public AbstractVulkanBuffer(GLDrawContext dc, VulkanMemoryManager manager, int vbo) {
 		super(dc, vbo);
+
+		this.memoryManager = manager;
 	}
 
-	public abstract int getType();
+	public abstract EVulkanMemoryType getType();
 
 	public abstract long getEvent();
 
@@ -25,10 +30,6 @@ public abstract class AbstractVulkanBuffer extends BufferHandle {
 	public abstract int getSize();
 
 	public abstract void destroy();
-
-	public VulkanDrawContext getDC() {
-		return (VulkanDrawContext) dc;
-	}
 
 	public final ByteBuffer map() {
 		return map(0, getSize());
@@ -43,16 +44,16 @@ public abstract class AbstractVulkanBuffer extends BufferHandle {
 		assert start + mapSize <= getSize();
 
 		PointerBuffer ptr = BufferUtils.createPointerBuffer(1);
-		Vma.vmaMapMemory(getDC().getAllocator(), getAllocation(), ptr);
+		Vma.vmaMapMemory(memoryManager.getAllocator(), getAllocation(), ptr);
 
 		return MemoryUtil.memByteBuffer(ptr.get() + start, mapSize);
 	}
 
 	public final void unmap() {
-		Vma.vmaUnmapMemory(getDC().getAllocator(), getAllocation());
+		Vma.vmaUnmapMemory(memoryManager.getAllocator(), getAllocation());
 	}
 
 	public void flushChanges(int start, int size) {
-		Vma.vmaFlushAllocation(getDC().getAllocator(), getAllocation(), start, size);
+		Vma.vmaFlushAllocation(memoryManager.getAllocator(), getAllocation(), start, size);
 	}
 }

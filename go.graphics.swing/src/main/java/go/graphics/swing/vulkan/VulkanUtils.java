@@ -502,7 +502,7 @@ public class VulkanUtils {
 
 	private static final VmaAllocationCreateInfo IMAGE_ALLOC_INFO = VmaAllocationCreateInfo.create().usage(VMA_MEMORY_USAGE_GPU_ONLY);
 
-	public static void createImage(VulkanDrawContext dc, int width, int height, int format, int usage, boolean color, LongBuffer image, LongBuffer imageView, PointerBuffer alloc) {
+	public static void createImage(VulkanDrawContext dc, long allocator, int width, int height, int format, int usage, boolean color, LongBuffer image, LongBuffer imageView, PointerBuffer alloc) {
 		VkImageCreateInfo imageCreateInfo = VkImageCreateInfo.create()
 				.sType(VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO)
 				.initialLayout(VK_IMAGE_LAYOUT_UNDEFINED)
@@ -517,7 +517,7 @@ public class VulkanUtils {
 
 		imageCreateInfo.extent().set(width, height, 1);
 
-		if(vmaCreateImage(dc.allocator, imageCreateInfo, IMAGE_ALLOC_INFO, image, alloc, null) < 0) {
+		if(vmaCreateImage(allocator, imageCreateInfo, IMAGE_ALLOC_INFO, image, alloc, null) < 0) {
 			throw new Error("Could not create Image.");
 		}
 
@@ -526,7 +526,7 @@ public class VulkanUtils {
 			imageViewValue = createImageView(dc.device, image.get(0), format, color, imageView);
 		} finally {
 			if(imageViewValue == VK_NULL_HANDLE) {
-				vmaDestroyImage(dc.allocator, image.get(0), alloc.get(0));
+				vmaDestroyImage(allocator, image.get(0), alloc.get(0));
 			}
 		}
 	}
