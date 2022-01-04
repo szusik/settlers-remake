@@ -39,7 +39,6 @@ import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkExtent2D;
 import org.lwjgl.vulkan.VkFramebufferCreateInfo;
-import org.lwjgl.vulkan.VkImageMemoryBarrier;
 import org.lwjgl.vulkan.VkImageSubresourceRange;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkPhysicalDevice;
@@ -121,8 +120,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	private final Semaphore resourceMutex = new Semaphore(1);
 	private final Semaphore closeMutex = new Semaphore(1);
-
-	protected final List<VulkanTextureHandle> textures = new ArrayList<>();
 
 	private float guiScale;
 
@@ -685,25 +682,26 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		syncQueues(vkBuffer.getEvent(), vkBuffer.getBufferIdVk());
 	}
 
-	private int consumedTexSlots = 0;
+	private long firstTextureDescSet = 0;
 
 	private VulkanTextureHandle createTexture(int width, int height, long descSet) {
 		VulkanImage image = memoryManager.createImage(width, height, EVulkanImageType.COLOR_IMAGE);
 
 		long textureDescSet = descSet;
 
-		if(textureDescSet == 0) { // only color images can be used
+		if(textureDescSet == 0) {
 			textureDescSet = textureDescPool.createNewSet(textureDescLayout);
 		}
 
-		VulkanTextureHandle vkTexHandle = new VulkanTextureHandle(this, memoryManager, consumedTexSlots, image, textureDescSet);
+		VulkanTextureHandle vkTexHandle = new VulkanTextureHandle(this, memoryManager, -1, image, textureDescSet);
 
 		if(descSet == 0) {
 			vkTexHandle.tick();
 		}
 
-		if(descSet == 0) consumedTexSlots++;
-		textures.add(vkTexHandle);
+		if(firstTextureDescSet == 0) {
+			firstTextureDescSet = textureDescSet;
+		}
 		return vkTexHandle;
 	}
 
@@ -1144,7 +1142,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	private long getTextureDescSet(TextureHandle texture) {
 		if(texture == null) {
-			return textures.stream().filter(tex -> tex.getTextureId() != -1).findAny().get().descSet;
+			return firstTextureDescSet;
 		} else {
 			return ((VulkanTextureHandle) texture).descSet;
 		}
