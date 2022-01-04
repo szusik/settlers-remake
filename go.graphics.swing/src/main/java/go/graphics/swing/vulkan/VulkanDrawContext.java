@@ -25,7 +25,6 @@ import go.graphics.swing.vulkan.pipeline.EVulkanPipelineType;
 import go.graphics.swing.vulkan.pipeline.VulkanPipelineManager;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkBufferCopy;
 import org.lwjgl.vulkan.VkBufferImageCopy;
@@ -42,12 +41,10 @@ import org.lwjgl.vulkan.VkExtent2D;
 import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 import org.lwjgl.vulkan.VkImageMemoryBarrier;
 import org.lwjgl.vulkan.VkImageSubresourceRange;
-import org.lwjgl.vulkan.VkImageViewCreateInfo;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
-import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkRenderPassBeginInfo;
 import org.lwjgl.vulkan.VkSamplerCreateInfo;
@@ -96,17 +93,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private int surfaceFormat;
 	private VkInstance instance;
 
-	private VkQueue presentQueue;
-	private VkQueue graphicsQueue;
-
-	private int universalQueueIndex;
-	private int graphicsQueueIndex;
-	private int presentQueueIndex;
-
 	private int fbWidth;
 	private int fbHeight;
 
-	private long commandPool = VK_NULL_HANDLE;
 	private VkCommandBuffer graphCommandBuffer = null;
 	private VkCommandBuffer memCommandBuffer = null;
 	private VkCommandBuffer fbCommandBuffer = null;
@@ -123,15 +112,14 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	public VulkanDescriptorSetLayout textureDescLayout = null;
 	public VulkanDescriptorSetLayout multiDescLayout = null;
 
-	private VulkanMemoryManager memoryManager;
-	private VulkanPipelineManager pipelineManager;
+	private final VulkanMemoryManager memoryManager;
+	private final VulkanPipelineManager pipelineManager;
+	private final QueueManager queueManager;
 
 	final long[] samplers = new long[ETextureType.values().length];
 
 	private final Semaphore resourceMutex = new Semaphore(1);
 	private final Semaphore closeMutex = new Semaphore(1);
-
-	private final BiFunction<VkQueueFamilyProperties, Integer, Boolean> graphicsQueueCond = (queue, index) -> (queue.queueFlags()&VK_QUEUE_GRAPHICS_BIT)>0;
 
 	protected final List<VulkanTextureHandle> textures = new ArrayList<>();
 
@@ -156,36 +144,28 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			maxTextureSize = props.limits().maxImageDimension2D();
 			maxUniformBlockSize = Integer.MAX_VALUE;
 
-			VkQueueFamilyProperties.Buffer allQueueFamilies = VulkanUtils.listQueueFamilies(stack, physicalDevice);
-			universalQueueIndex = VulkanUtils.findQueue(allQueueFamilies, (queue, index) -> graphicsQueueCond.apply(queue, index)&&presentQueueCond.apply(queue, index));
-			graphicsQueueIndex = universalQueueIndex!=-1? universalQueueIndex : VulkanUtils.findQueue(allQueueFamilies, graphicsQueueCond);
-			presentQueueIndex = universalQueueIndex!=-1? universalQueueIndex : VulkanUtils.findQueue(allQueueFamilies, presentQueueCond);
+			queueManager = new QueueManager(stack, this, physicalDevice, presentQueueCond);
 
-			if(graphicsQueueIndex == -1) throw new Error("Could not find any graphics queue.");
-			if(presentQueueIndex == -1) throw new Error("Could not find any present queue.");
+			if(!queueManager.hasGraphicsSupport()) throw new Error("Could not find any graphics queue.");
+			if(!queueManager.hasPresentSupport()) throw new Error("Could not find any present queue.");
 
 			// device extensions
 			List<String> deviceExtensions = new ArrayList<>();
-			deviceExtensions.add(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-
-			List<VkQueue> queues = new ArrayList<>();
-			device = VulkanUtils.createDevice(stack, physicalDevice, deviceExtensions, queues, universalQueueIndex!=-1?new int[] {universalQueueIndex} : new int[] {graphicsQueueIndex, presentQueueIndex});
-
-			if(universalQueueIndex != -1) {
-				graphicsQueue = presentQueue = queues.get(0);
-			} else {
-				graphicsQueue = queues.get(0);
-				presentQueue = queues.get(1);
+			if(queueManager.hasPresentSupport()) {
+				deviceExtensions.add(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 			}
+
+			device = VulkanUtils.createDevice(stack, physicalDevice, deviceExtensions, queueManager.getQueueIndices());
+
+			queueManager.registerQueues();
 
 			setSurface(surface);
 
 			memoryManager = new VulkanMemoryManager(stack, this);
 
-			commandPool = VulkanUtils.createCommandPool(stack, device, universalQueueIndex);
-			graphCommandBuffer = VulkanUtils.createCommandBuffer(stack, device, commandPool);
-			memCommandBuffer = VulkanUtils.createCommandBuffer(stack, device, commandPool);
-			fbCommandBuffer = VulkanUtils.createCommandBuffer(stack, device, commandPool);
+			graphCommandBuffer = queueManager.createGraphicsCommandBuffer();
+			memCommandBuffer = queueManager.createGraphicsCommandBuffer();
+			fbCommandBuffer = queueManager.createPresentCommandBuffer();
 
 			swapchainCreateInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
 					.compositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
@@ -194,11 +174,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 					.imageArrayLayers(1)
 					.clipped(false);
 
-			if(universalQueueIndex != -1) {
+			if(queueManager.hasUniversalQueue()) {
 				swapchainCreateInfo.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
 			} else {
 				swapchainCreateInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT)
-						.pQueueFamilyIndices(stack.ints(graphicsQueueIndex, presentQueueIndex));
+						.pQueueFamilyIndices(stack.ints(queueManager.getGraphicsIndex(), queueManager.getPresentIndex()));
 			}
 
 			framebufferCreateInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
@@ -310,19 +290,15 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		memoryManager.destroy();
 
 		if(renderPass != VK_NULL_HANDLE) vkDestroyRenderPass(device, renderPass, null);
-
-		if(fbCommandBuffer != null) vkFreeCommandBuffers(device, commandPool, fbCommandBuffer);
-		if(memCommandBuffer != null) vkFreeCommandBuffers(device, commandPool, memCommandBuffer);
-		if(graphCommandBuffer != null) vkFreeCommandBuffers(device, commandPool, graphCommandBuffer);
-		if(commandPool != VK_NULL_HANDLE) vkDestroyCommandPool(device, commandPool, null);
 		commandBufferRecording = false;
+
+		queueManager.destroy();
 
 		if(device != null) vkDestroyDevice(device, null);
 
 		fbCommandBuffer = null;
 		memCommandBuffer = null;
 		graphCommandBuffer = null;
-		commandPool = VK_NULL_HANDLE;
 
 		presentFramebufferSemaphore = VK_NULL_HANDLE;
 		fetchFramebufferSemaphore = VK_NULL_HANDLE;
@@ -873,7 +849,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			this.surfaceFormat = surfaceFormat.format();
 
 			IntBuffer present = stack.callocInt(1);
-			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, presentQueueIndex, surface, present);
+			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueManager.getPresentIndex(), surface, present);
 			if(present.get(0) == 0) {
 				System.err.println("[VULKAN] can't present anymore");
 				return;
@@ -1161,7 +1137,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 							.waitSemaphoreCount(1);
 				}
 
-				int error = vkQueueSubmit(graphicsQueue, graphSubmitInfo, VK_NULL_HANDLE);
+				int error = vkQueueSubmit(queueManager.getGraphicsQueue(), graphSubmitInfo, VK_NULL_HANDLE);
 				if(error != VK_SUCCESS) {
 					// whatever
 					System.out.println("Could not submit CommandBuffers: " + error);
@@ -1177,10 +1153,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 						.swapchainCount(1)
 						.pSwapchains(stack.longs(swapchain));
 				if(cmdBfrSend) presentInfo.pWaitSemaphores(stack.longs(presentFramebufferSemaphore));
-				if(vkQueuePresentKHR(presentQueue, presentInfo) != VK_SUCCESS) {
+				if(vkQueuePresentKHR(queueManager.getPresentQueue(), presentInfo) != VK_SUCCESS) {
 					// should not happen but we can't do anything about it
 				}
-				vkQueueWaitIdle(presentQueue);
+				vkQueueWaitIdle(queueManager.getPresentQueue());
 				swapchainImageIndex = -1;
 			}
 		} finally {

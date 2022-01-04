@@ -244,7 +244,7 @@ public class VulkanUtils {
 		return devices;
 	}
 
-	public static VkDevice createDevice(MemoryStack stack, VkPhysicalDevice physicalDevice, List<String> extensions, List<VkQueue> queues, int... queueFamilies) {
+	public static VkDevice createDevice(MemoryStack stack, VkPhysicalDevice physicalDevice, List<String> extensions, int[] queueFamilies) {
 		VkDeviceQueueCreateInfo.Buffer queueInfos = VkDeviceQueueCreateInfo.calloc(queueFamilies.length, stack);
 		for(int i = 0; i != queueFamilies.length; i++) {
 			queueInfos.get(i).sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
@@ -271,15 +271,15 @@ public class VulkanUtils {
 		if(vkCreateDevice(physicalDevice, deviceCreateInfo, null, devicePtr) != VK_SUCCESS) {
 			throw new Error("Could not create Device.");
 		}
-		VkDevice device = new VkDevice(devicePtr.get(0), physicalDevice, deviceCreateInfo);
 
-		PointerBuffer queuePtr = stack.mallocPointer(1);
-		for(int i = 0; i != queueFamilies.length; i++) {
-			vkGetDeviceQueue(device, i, 0, queuePtr);
-			queues.add(new VkQueue(queuePtr.get(0), device));
-		}
+		return new VkDevice(devicePtr.get(0), physicalDevice, deviceCreateInfo);
+	}
 
-		return device;
+	public static VkQueue getDeviceQueue(VkDevice device, int familyIndex, int queueIndex) {
+		PointerBuffer queuePtr = BufferUtils.createPointerBuffer(1);
+		vkGetDeviceQueue(device, familyIndex, queueIndex, queuePtr);
+
+		return new VkQueue(queuePtr.get(), device);
 	}
 
 
@@ -313,27 +313,27 @@ public class VulkanUtils {
 		return fenceBfr.get(0);
 	}
 
-	public static long createCommandPool(MemoryStack stack, VkDevice device, int queueIndex) {
-		VkCommandPoolCreateInfo commandPoolCreateInfo = VkCommandPoolCreateInfo.calloc(stack)
+	public static long createCommandPool(VkDevice device, int queueIndex) {
+		VkCommandPoolCreateInfo commandPoolCreateInfo = VkCommandPoolCreateInfo.create()
 				.sType(VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO)
 				.queueFamilyIndex(queueIndex)
 				.flags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-		LongBuffer commandPoolBfr = stack.callocLong(1);
+		LongBuffer commandPoolBfr = BufferUtils.createLongBuffer(1);
 		if(vkCreateCommandPool(device, commandPoolCreateInfo, null, commandPoolBfr) != VK_SUCCESS) {
 			throw new Error("Could not create CommandPool.");
 		}
-		return commandPoolBfr.get(0);
+		return commandPoolBfr.get();
 	}
 
-	public static VkCommandBuffer createCommandBuffer(MemoryStack stack, VkDevice device, long commandPool) {
-		VkCommandBufferAllocateInfo commandBufferAllocateInfo = VkCommandBufferAllocateInfo.calloc(stack)
+	public static VkCommandBuffer createCommandBuffer(VkDevice device, long commandPool) {
+		VkCommandBufferAllocateInfo commandBufferAllocateInfo = VkCommandBufferAllocateInfo.create()
 				.sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO)
 				.commandPool(commandPool)
 				.level(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
 				.commandBufferCount(1);
 
-		PointerBuffer commandBufferBfr = stack.callocPointer(1);
+		PointerBuffer commandBufferBfr = BufferUtils.createPointerBuffer(1);
 		if(vkAllocateCommandBuffers(device, commandBufferAllocateInfo, commandBufferBfr) != VK_SUCCESS) {
 			throw new Error("Could not allocate CommandBuffer.");
 		}
