@@ -40,7 +40,7 @@ public abstract class JAWTContextCreator extends ContextCreator {
 	public JAWTContextCreator(ContextContainer container, boolean debug) {
 		super(container, debug);
 
-		jawt.version(JAWTFunctions.JAWT_VERSION_1_7);
+		jawt.version(JAWTFunctions.JAWT_VERSION_1_4);
 		JAWTFunctions.JAWT_GetAWT(jawt);
 
 	}
