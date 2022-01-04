@@ -485,50 +485,21 @@ public class VulkanUtils {
 		return pipelineLayoutBfr.get(0);
 	}
 
-	public static long createImageView(VkDevice device, long image, int format, boolean color, LongBuffer imageView) {
+	public static long createImageView(VkDevice device, long image, int format, int aspect) {
 		VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.create()
 				.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO)
 				.viewType(VK_IMAGE_VIEW_TYPE_2D)
 				.format(format)
 				.image(image);
 
-		createInfo.subresourceRange().set(color?VK_IMAGE_ASPECT_COLOR_BIT:VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1);
+		createInfo.subresourceRange().set(aspect, 0, 1, 0, 1);
+
+		LongBuffer imageView = BufferUtils.createLongBuffer(1);
 
 		if(vkCreateImageView(device, createInfo, null, imageView) != VK_SUCCESS) {
 			throw new Error("Could not create ImageView");
 		}
 		return imageView.get(0);
-	}
-
-	private static final VmaAllocationCreateInfo IMAGE_ALLOC_INFO = VmaAllocationCreateInfo.create().usage(VMA_MEMORY_USAGE_GPU_ONLY);
-
-	public static void createImage(VulkanDrawContext dc, long allocator, int width, int height, int format, int usage, boolean color, LongBuffer image, LongBuffer imageView, PointerBuffer alloc) {
-		VkImageCreateInfo imageCreateInfo = VkImageCreateInfo.create()
-				.sType(VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO)
-				.initialLayout(VK_IMAGE_LAYOUT_UNDEFINED)
-				.sharingMode(VK_SHARING_MODE_EXCLUSIVE)
-				.tiling(VK_IMAGE_TILING_OPTIMAL)
-				.samples(VK_SAMPLE_COUNT_1_BIT)
-				.imageType(VK_IMAGE_TYPE_2D)
-				.format(format)
-				.arrayLayers(1)
-				.mipLevels(1)
-				.usage(usage);
-
-		imageCreateInfo.extent().set(width, height, 1);
-
-		if(vmaCreateImage(allocator, imageCreateInfo, IMAGE_ALLOC_INFO, image, alloc, null) < 0) {
-			throw new Error("Could not create Image.");
-		}
-
-		long imageViewValue = VK_NULL_HANDLE;
-		try {
-			imageViewValue = createImageView(dc.device, image.get(0), format, color, imageView);
-		} finally {
-			if(imageViewValue == VK_NULL_HANDLE) {
-				vmaDestroyImage(allocator, image.get(0), alloc.get(0));
-			}
-		}
 	}
 
 	public static long createDescriptorPool(VkDevice device, int maxSets, Map<Integer, Integer> descriptorAmounts) {

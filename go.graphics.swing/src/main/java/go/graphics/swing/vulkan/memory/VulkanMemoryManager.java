@@ -1,5 +1,6 @@
 package go.graphics.swing.vulkan.memory;
 
+import go.graphics.swing.vulkan.EVulkanImageType;
 import go.graphics.swing.vulkan.VulkanDrawContext;
 import go.graphics.swing.vulkan.VulkanUtils;
 import java.nio.LongBuffer;
@@ -8,8 +9,10 @@ import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocationCreateInfo;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
+import org.lwjgl.vulkan.VkImageCreateInfo;
 
 import static org.lwjgl.util.vma.Vma.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -21,6 +24,7 @@ public class VulkanMemoryManager {
 
 	protected final List<VulkanMultiBufferHandle> multiBuffers = new ArrayList<>();
 	protected final List<VulkanBufferHandle> buffers = new ArrayList<>();
+	private final List<VulkanImage> images = new ArrayList<>();
 
 	public VulkanMemoryManager(MemoryStack stack, VulkanDrawContext dc) {
 		this.allocator = VulkanUtils.createAllocator(stack, dc.getInstance(), dc.getDevice(), dc.getDevice().getPhysicalDevice());
@@ -32,6 +36,10 @@ public class VulkanMemoryManager {
 		for (VulkanBufferHandle buffer : buffers) {
 			buffer.free();
 		}
+		for(VulkanImage image : images) {
+			image.free();
+		}
+
 		buffers.clear();
 
 		vmaDestroyAllocator(allocator);
@@ -84,15 +92,43 @@ public class VulkanMemoryManager {
 	}
 
 
-	public void createImage(int width,
-								   int height,
-								   int format,
-								   int usage,
-								   boolean color,
-								   LongBuffer image,
-								   LongBuffer imageView,
-								   PointerBuffer alloc) {
-		VulkanUtils.createImage(dc, allocator, width, height, format, usage, color, image, imageView, alloc);
+	public VulkanImage createImage(int width, int height, EVulkanImageType imageType) {
+		LongBuffer imagePtr = BufferUtils.createLongBuffer(1);
+		PointerBuffer allocationPtr = BufferUtils.createPointerBuffer(1);
+
+		VmaAllocationCreateInfo allocInfo = VmaAllocationCreateInfo.create();
+		allocInfo.usage(VMA_MEMORY_USAGE_GPU_ONLY);
+
+		VkImageCreateInfo createInfo = VkImageCreateInfo.create()
+				.sType(VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO)
+				.initialLayout(VK_IMAGE_LAYOUT_UNDEFINED)
+				.sharingMode(VK_SHARING_MODE_EXCLUSIVE)
+				.tiling(VK_IMAGE_TILING_OPTIMAL)
+				.samples(VK_SAMPLE_COUNT_1_BIT)
+				.imageType(VK_IMAGE_TYPE_2D)
+				.format(imageType.getFormat())
+				.arrayLayers(1)
+				.mipLevels(1)
+				.usage(imageType.getUsage());
+
+		createInfo.extent().set(width, height, 1);
+
+		if(vmaCreateImage(allocator, createInfo, allocInfo, imagePtr, allocationPtr, null) < 0) {
+			throw new Error("Could not create Image.");
+		}
+
+		long image = imagePtr.get();
+		long allocation = allocationPtr.get();
+
+		VulkanImage imageHandle = null;
+		try {
+			imageHandle = new VulkanImage(dc, this, image, allocation, imageType);
+		} finally {
+			if(imageHandle == null) {
+				Vma.vmaDestroyImage(allocator, image, allocation);
+			}
+		}
+		return imageHandle;
 	}
 
 
@@ -106,7 +142,11 @@ public class VulkanMemoryManager {
 		return allocator;
 	}
 
-	public void remove(VulkanBufferHandle buffer) {
+	void remove(VulkanBufferHandle buffer) {
 		buffers.remove(buffer);
+	}
+
+	void remove(VulkanImage image) {
+		images.remove(image);
 	}
 }
