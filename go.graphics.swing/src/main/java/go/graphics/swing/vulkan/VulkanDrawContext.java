@@ -646,9 +646,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		vkCmdPipelineBarrier(memOrFB?memCommandBuffer:fbCommandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, null, null, layoutTransition);
 	}
 
-	private final PointerBuffer map_buffer_bfr = BufferUtils.createPointerBuffer(1);
-
-
 	protected int usedStagingMemory = 0;
 	protected int stagingBufferIndex = 0;
 	protected final List<VulkanBufferHandle> stagingBuffers = new ArrayList<>();
@@ -682,13 +679,12 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		VulkanBufferHandle currentStagingBuffer = stagingBuffers.get(stagingBufferIndex);
 
-		vmaMapMemory(allocator, currentStagingBuffer.getAllocation(), map_buffer_bfr);
-		ByteBuffer mapped = MemoryUtil.memByteBuffer(map_buffer_bfr.get(0)+usedStagingMemory, currentStagingBuffer.getSize()-usedStagingMemory);
+		ByteBuffer mapped = currentStagingBuffer.map(usedStagingMemory);
 
 		if(bdata != null) mapped.put(bdata.asReadOnlyBuffer());
 		if(sdata != null) mapped.asShortBuffer().put(sdata.asReadOnlyBuffer());
 
-		vmaUnmapMemory(allocator, currentStagingBuffer.getAllocation());
+		currentStagingBuffer.unmap();
 
 		int offset = usedStagingMemory;
 		usedStagingMemory += size;
@@ -718,12 +714,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			syncQueues(vkBuffer.getEvent(), vkBuffer.getBufferIdVk());
 		} else {
-			vmaMapMemory(allocator, vkBuffer.getAllocation(), map_buffer_bfr);
-			ByteBuffer mapped = MemoryUtil.memByteBuffer(map_buffer_bfr.get(0), vkBuffer.getSize());
+			ByteBuffer mapped = vkBuffer.map();
 			mapped.put(data.asReadOnlyBuffer());
 
-			vmaUnmapMemory(allocator, vkBuffer.getAllocation());
-			vmaFlushAllocation(allocator, vkBuffer.getAllocation(), pos, data.remaining());
+			vkBuffer.unmap();
+			vkBuffer.flushChanges(pos, data.remaining());
 		}
 	}
 

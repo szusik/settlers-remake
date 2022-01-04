@@ -3,26 +3,26 @@ package go.graphics.swing.vulkan;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VulkanMultiBufferHandle extends VulkanBufferHandle {
+public class VulkanMultiBufferHandle extends AbstractVulkanBufferHandle {
 
-    private int size;
-    private int type;
+    private final int size;
+    private final int type;
     private int bufferIndex = -1;
-    private List<VulkanBufferHandle> buffers = new ArrayList<>();
+    private final List<VulkanBufferHandle> buffers = new ArrayList<>();
 
     public VulkanMultiBufferHandle(VulkanDrawContext dc, int type, int size) {
-        super(dc, type, -1, -1, -1, size);
+        super(dc, type);
         this.size = size;
         this.type = type;
     }
 
     public void inc() {
         bufferIndex++;
-        if(bufferIndex == buffers.size()) buffers.add(((VulkanDrawContext)dc).createBuffer(size, type));
+        if(bufferIndex == buffers.size()) buffers.add(getDC().createBuffer(size, type));
     }
 
     public void reset() {
-        if(bufferIndex == -1) buffers.add(((VulkanDrawContext)dc).createBuffer(size, type));
+        if(bufferIndex == -1) buffers.add(getDC().createBuffer(size, type));
         bufferIndex = 0;
     }
 
