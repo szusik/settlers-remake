@@ -96,6 +96,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private int fbWidth;
 	private int fbHeight;
 
+	private long commandPool;
 	private VkCommandBuffer graphCommandBuffer = null;
 	private VkCommandBuffer memCommandBuffer = null;
 	private VkCommandBuffer fbCommandBuffer = null;
@@ -163,9 +164,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			memoryManager = new VulkanMemoryManager(stack, this);
 
-			graphCommandBuffer = queueManager.createGraphicsCommandBuffer();
-			memCommandBuffer = queueManager.createGraphicsCommandBuffer();
-			fbCommandBuffer = queueManager.createPresentCommandBuffer();
+			commandPool = VulkanUtils.createCommandPool(device, queueManager.getGraphicsIndex());
+			graphCommandBuffer = VulkanUtils.createCommandBuffer(device, commandPool);
+			memCommandBuffer = VulkanUtils.createCommandBuffer(device, commandPool);
+			fbCommandBuffer = VulkanUtils.createCommandBuffer(device, commandPool);
 
 			swapchainCreateInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
 					.compositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
@@ -292,7 +294,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(renderPass != VK_NULL_HANDLE) vkDestroyRenderPass(device, renderPass, null);
 		commandBufferRecording = false;
 
-		queueManager.destroy();
+		if(commandPool != 0) {
+			vkDestroyCommandPool(device, commandPool, null);
+		}
 
 		if(device != null) vkDestroyDevice(device, null);
 

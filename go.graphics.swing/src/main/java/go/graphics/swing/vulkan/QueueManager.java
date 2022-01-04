@@ -24,8 +24,6 @@ public class QueueManager {
 
 	private final VulkanDrawContext dc;
 
-	private final Map<Integer, Long> commandPools = new HashMap<>();
-
 	public QueueManager(MemoryStack stack, VulkanDrawContext dc, VkPhysicalDevice physicalDevice, BiFunction<VkQueueFamilyProperties, Integer, Boolean> presentQueueCond) {
 		this.dc = dc;
 		VkQueueFamilyProperties.Buffer allQueueFamilies = VulkanUtils.listQueueFamilies(stack, physicalDevice);
@@ -37,12 +35,6 @@ public class QueueManager {
 		} else {
 			graphicsIndex = VulkanUtils.findQueue(allQueueFamilies, QueueManager::isGraphicsQueue);
 			presentIndex = VulkanUtils.findQueue(allQueueFamilies, presentQueueCond);
-		}
-	}
-
-	public void destroy() {
-		for (long pool : commandPools.values()) {
-			vkDestroyCommandPool(dc.getDevice(), pool, null);
 		}
 	}
 
@@ -109,27 +101,5 @@ public class QueueManager {
 				presentQueue = VulkanUtils.getDeviceQueue(dc.getDevice(), presentIndex, 0);
 			}
 		}
-	}
-
-	public VkCommandBuffer createGraphicsCommandBuffer() {
-		return createCommandBuffer(graphicsIndex);
-	}
-
-	public VkCommandBuffer createPresentCommandBuffer() {
-		return createCommandBuffer(presentIndex);
-	}
-
-	private VkCommandBuffer createCommandBuffer(int presentIndex) {
-		if(presentIndex == -1) {
-			throw new Error("Queue type is not supported!");
-		}
-
-		Long pool = commandPools.get(presentIndex);
-		if(pool == null) {
-			pool = VulkanUtils.createCommandPool(dc.getDevice(), presentIndex);
-			commandPools.put(presentIndex, pool);
-		}
-
-		return VulkanUtils.createCommandBuffer(dc.getDevice(), pool);
 	}
 }
