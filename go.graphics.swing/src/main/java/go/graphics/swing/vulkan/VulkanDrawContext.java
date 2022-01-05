@@ -23,6 +23,7 @@ import go.graphics.swing.vulkan.memory.VulkanMemoryManager;
 import go.graphics.swing.vulkan.memory.VulkanMultiBufferHandle;
 import go.graphics.swing.vulkan.pipeline.EVulkanPipelineType;
 import go.graphics.swing.vulkan.pipeline.VulkanPipelineManager;
+import java.awt.Dimension;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
@@ -37,20 +38,14 @@ import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 import org.lwjgl.vulkan.VkDevice;
-import org.lwjgl.vulkan.VkExtent2D;
-import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 import org.lwjgl.vulkan.VkImageSubresourceRange;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
-import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkRenderPassBeginInfo;
 import org.lwjgl.vulkan.VkSamplerCreateInfo;
 import org.lwjgl.vulkan.VkSubmitInfo;
-import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
-import org.lwjgl.vulkan.VkSurfaceFormatKHR;
-import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.nio.Buffer;
@@ -64,7 +59,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
-import java.util.function.BiFunction;
 
 import go.graphics.AbstractColor;
 import go.graphics.BackgroundDrawHandle;
@@ -89,7 +83,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private VkPhysicalDevice physicalDevice;
 
 	private final VulkanSurfaceManager surfaceManager;
-	private int surfaceFormat;
 	private VkInstance instance;
 
 	private int fbWidth;
@@ -111,7 +104,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	private final VulkanMemoryManager memoryManager;
 	private VulkanPipelineManager pipelineManager;
-	private final QueueManager queueManager;
+	final QueueManager queueManager;
 
 	final long[] samplers = new long[ETextureType.values().length];
 
@@ -159,23 +152,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			graphCommandBuffer = VulkanUtils.createCommandBuffer(device, commandPool);
 			memCommandBuffer = VulkanUtils.createCommandBuffer(device, commandPool);
 			fbCommandBuffer = VulkanUtils.createCommandBuffer(device, commandPool);
-
-			swapchainCreateInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
-					.compositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
-					.imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT|VK_IMAGE_USAGE_TRANSFER_SRC_BIT|VK_IMAGE_USAGE_TRANSFER_DST_BIT)
-					.presentMode(VK_PRESENT_MODE_FIFO_KHR) // must be supported by all drivers
-					.imageArrayLayers(1)
-					.clipped(false);
-
-			if(queueManager.hasUniversalQueue()) {
-				swapchainCreateInfo.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
-			} else {
-				swapchainCreateInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT)
-						.pQueueFamilyIndices(stack.ints(queueManager.getGraphicsIndex(), queueManager.getPresentIndex()));
-			}
-
-			framebufferCreateInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
-					.layers(1);
 
 
 			final Map<Integer, Integer> universalAllocateAmounts = new HashMap<>();
@@ -257,11 +233,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 
 		surfaceManager.destroy();
-		if(surfaceManager.getSwapchain() != VK_NULL_HANDLE) {
-			destroyFramebuffers(-1);
-			destroySwapchainViews(-1);
-			vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
-		}
 
 		if(pipelineManager != null) pipelineManager.destroy();
 		if(multiDescLayout != null) multiDescLayout.destroy();
@@ -285,7 +256,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		memCommandBuffer = null;
 		graphCommandBuffer = null;
 
-		surfaceManager.setSwapchain(VK_NULL_HANDLE);
 		device = null;
 		super.invalidate();
 		resourceMutex.release();
@@ -746,32 +716,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		vkCmdClearAttachments(graphCommandBuffer, clearAttachment, clearRect);
 	}
 
-	private VulkanImage[] swapchainImages;
-	private long[] framebuffers;
-	private final VkSurfaceCapabilitiesKHR surfaceCapabilities = VkSurfaceCapabilitiesKHR.create();
-	private final VkSwapchainCreateInfoKHR swapchainCreateInfo = VkSwapchainCreateInfoKHR.create();
-	private final VkFramebufferCreateInfo framebufferCreateInfo = VkFramebufferCreateInfo.create();
-
-	private void destroySwapchainViews(int count) {
-		if(swapchainImages == null) return;
-		if(count == -1) count = swapchainImages.length;
-
-		for(int i = 0; i != count; i++) {
-			vkDestroyImageView(device, swapchainImages[i].getImageView(), null);
-		}
-		swapchainImages = null;
-	}
-
-	private void destroyFramebuffers(int count) {
-		if(framebuffers == null) return;
-		if(count == -1) count = framebuffers.length;
-
-		for(int i = 0; i != count; i++) {
-			vkDestroyFramebuffer(device, framebuffers[i], null);
-		}
-		framebuffers = null;
-	}
-
 	private VulkanImage depthImage = null;
 	protected final AbstractVulkanBuffer globalUniformStagingBuffer;
 	protected final AbstractVulkanBuffer globalUniformBuffer;
@@ -789,18 +733,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		resizeScheduled = true;
 	}
 
-	public void removeSurface() {
-		destroyFramebuffers(-1);
-		destroySwapchainViews(-1);
-		vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
-		vkDestroySurfaceKHR(instance, surfaceManager.getSurface(), null);
-
-		surfaceManager.setSurface(0);
-		surfaceManager.setSwapchain(VK_NULL_HANDLE);
-	}
-
-	private void regenerateRenderPass(MemoryStack stack, int newSurfaceFormat) {
-		if(renderPass != 0 && surfaceFormat == newSurfaceFormat) return;
+	void regenerateRenderPass(MemoryStack stack, int newSurfaceFormat) {
 
 		if(pipelineManager != null) {
 			pipelineManager.destroy();
@@ -813,126 +746,31 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		renderPass = VulkanUtils.createRenderPass(stack, device, newSurfaceFormat);
 		renderPassBeginInfo.renderPass(renderPass);
-		framebufferCreateInfo.renderPass(renderPass);
 
 		pipelineManager = new VulkanPipelineManager(stack, this, universalDescPool, renderPass, graphCommandBuffer);
 		pipelineManager.installUniformBuffers(globalUniformBuffer, backgroundUniformBfr, unifiedUniformBfr);
 	}
 
-	public void setupNewSurface() {
-		try(MemoryStack stack = MemoryStack.stackPush()) {
-			VkSurfaceFormatKHR.Buffer allSurfaceFormats = VulkanUtils.listSurfaceFormats(stack, physicalDevice, surfaceManager.getSurface());
-			VkSurfaceFormatKHR surfaceFormat = VulkanUtils.findSurfaceFormat(allSurfaceFormats);
-			int newSurfaceFormat = surfaceFormat.format();
-
-			IntBuffer present = stack.callocInt(1);
-			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueManager.getPresentIndex(), surfaceManager.getSurface(), present);
-			if(present.get(0) == 0) {
-				System.err.println("[VULKAN] can't present anymore");
-				return;
-			}
-
-			regenerateRenderPass(stack, newSurfaceFormat);
-			this.surfaceFormat = newSurfaceFormat;
-
-			swapchainCreateInfo.surface(surfaceManager.getSurface())
-					.imageColorSpace(surfaceFormat.colorSpace())
-					.imageFormat(surfaceFormat.format());
-		}
-	}
-
 	private void doResize(int width, int height) {
-		try(MemoryStack stack = MemoryStack.stackPush()) {
-			destroyFramebuffers(-1);
-			destroySwapchainViews(-1);
+		Dimension newSize = surfaceManager.resize(new Dimension(width, height));
+		if(newSize == null) return;
+		fbWidth = newSize.width;
+		fbHeight = newSize.height;
 
-			if (surfaceManager.getSurface() == 0 || vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surfaceManager.getSurface(), surfaceCapabilities) != VK_SUCCESS) {
-				return;
-			}
-
-			fbWidth = width;
-			fbHeight = height;
-			int imageCount = surfaceCapabilities.minImageCount() + 1;
-
-			VkExtent2D minDim = surfaceCapabilities.maxImageExtent();
-			VkExtent2D maxDim = surfaceCapabilities.maxImageExtent();
-
-			fbWidth = Math.max(Math.min(fbWidth, maxDim.width()), minDim.width());
-			fbHeight = Math.max(Math.min(fbHeight, maxDim.height()), minDim.height());
-			if (surfaceCapabilities.maxImageCount() != 0)
-				imageCount = Math.min(imageCount, surfaceCapabilities.maxImageCount());
-
-			swapchainCreateInfo.preTransform(surfaceCapabilities.currentTransform())
-					.minImageCount(imageCount)
-					.oldSwapchain(surfaceManager.getSwapchain())
-					.imageExtent()
-					.width(fbWidth)
-					.height(fbHeight);
-
-			LongBuffer swapchainBfr = stack.callocLong(1);
-			boolean error = vkCreateSwapchainKHR(device, swapchainCreateInfo, null, swapchainBfr) != VK_SUCCESS;
-			vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
-
-			if (error) {
-				surfaceManager.setSwapchain(VK_NULL_HANDLE);
-				return;
-			} else {
-				surfaceManager.setSwapchain(swapchainBfr.get(0));
-			}
-
-			long[] imageHandles = VulkanUtils.getSwapchainImages(device, surfaceManager.getSwapchain());
-			if (imageHandles == null) {
-				vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
-				surfaceManager.setSwapchain(VK_NULL_HANDLE);
-				return;
-			}
-
-			if(depthImage != null) {
-				depthImage.destroy();
-			}
-			depthImage = memoryManager.createImage(fbWidth, fbHeight, EVulkanImageType.DEPTH_IMAGE);
-
-			swapchainImages = new VulkanImage[imageHandles.length];
-			for (int i = 0; i != swapchainImages.length; i++) {
-
-				try {
-					swapchainImages[i] = new VulkanImage(this, null, imageHandles[i], -1L, surfaceFormat, VK_IMAGE_ASPECT_COLOR_BIT);
-				} catch(Throwable thrown) {
-					thrown.printStackTrace();
-					destroySwapchainViews(i);
-					vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
-					surfaceManager.setSwapchain(VK_NULL_HANDLE);
-					return;
-				}
-			}
-
-
-			framebufferCreateInfo.width(fbWidth)
-					.height(fbHeight);
-
-			LongBuffer framebufferBfr = stack.callocLong(1);
-			framebuffers = new long[swapchainImages.length];
-			for (int i = 0; i != swapchainImages.length; i++) {
-				framebufferCreateInfo.pAttachments(stack.longs(swapchainImages[i].getImageView(), depthImage.getImageView()));
-
-				if (vkCreateFramebuffer(device, framebufferCreateInfo, null, framebufferBfr) != VK_SUCCESS) {
-					destroyFramebuffers(i);
-					destroySwapchainViews(-1);
-					vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
-					surfaceManager.setSwapchain(VK_NULL_HANDLE);
-				}
-
-				framebuffers[i] = framebufferBfr.get(0);
-			}
-
-			pipelineManager.resize(fbWidth, fbHeight);
-			renderPassBeginInfo.renderArea().extent().width(fbWidth).height(fbHeight);
-
-			projMatrix.identity();
-			projMatrix.scale(1.0f, -1.0f, 1.0f);
-			projMatrix.ortho(0,  width,0, height, -1, 1, true);
-			projMatrix.get(0, globalUniformBufferData);
+		if(depthImage != null) {
+			depthImage.destroy();
 		}
+		depthImage = memoryManager.createImage(fbWidth, fbHeight, EVulkanImageType.DEPTH_IMAGE);
+
+		surfaceManager.createFramebuffers(depthImage);
+
+		pipelineManager.resize(fbWidth, fbHeight);
+		renderPassBeginInfo.renderArea().extent().width(fbWidth).height(fbHeight);
+
+		projMatrix.identity();
+		projMatrix.scale(1.0f, -1.0f, 1.0f);
+		projMatrix.ortho(0,  width,0, height, -1, 1, true);
+		projMatrix.get(0, globalUniformBufferData);
 	}
 
 	private int swapchainImageIndex = -1;
@@ -963,7 +801,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		try(MemoryStack stack = MemoryStack.stackPush()) {
 			super.startFrame();
 
-			if(surfaceManager.getSwapchain() == VK_NULL_HANDLE || framebuffers == null) {
+			if(surfaceManager.getSwapchain() == VK_NULL_HANDLE) {
 				return;
 			}
 
@@ -979,7 +817,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			}
 
 			swapchainImageIndex = swapchainImageIndexBfr.get(0);
-			renderPassBeginInfo.framebuffer(framebuffers[swapchainImageIndex]);
+			renderPassBeginInfo.framebuffer(surfaceManager.getFramebuffers()[swapchainImageIndex]);
 
 			if(vkBeginCommandBuffer(graphCommandBuffer, commandBufferBeginInfo) != VK_SUCCESS) return;
 			if(vkBeginCommandBuffer(memCommandBuffer, commandBufferBeginInfo) != VK_SUCCESS) {
@@ -1025,7 +863,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			fbCBrecording = true;
 		}
 
-		VulkanImage image = swapchainImages[swapchainImageIndex];
+		VulkanImage image = surfaceManager.getSwapchainImages()[swapchainImageIndex];
 
 		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		vkCmdClearColorImage(fbCommandBuffer, image.getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, CLEAR_VALUES.get(0).color(), CLEAR_SUBRESOURCE);
@@ -1058,7 +896,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 		fbCBrecording = true;
 
-		VulkanImage image = swapchainImages[swapchainImageIndex];
+		VulkanImage image = surfaceManager.getSwapchainImages()[swapchainImageIndex];
 
 		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		vkCmdCopyImageToBuffer(fbCommandBuffer, image.getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferReadBack.getBufferIdVk(), readBackRegion);
@@ -1182,5 +1020,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	public VkInstance getInstance() {
 		return instance;
+	}
+
+	public long getRenderPass() {
+		return renderPass;
 	}
 }

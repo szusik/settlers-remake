@@ -1,16 +1,34 @@
 package go.graphics.swing.vulkan;
 
+import go.graphics.swing.vulkan.memory.VulkanImage;
+import java.awt.Dimension;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.util.function.BiFunction;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VkExtent2D;
+import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
+import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
+import org.lwjgl.vulkan.VkSurfaceFormatKHR;
+import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
 
 import static org.lwjgl.vulkan.KHRSurface.*;
+import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class VulkanSurfaceManager {
 
 	private long surface;
 	private long swapchain = VK_NULL_HANDLE;
+	private int surfaceFormat;
+
+	private VulkanImage[] swapchainImages;
+	private long[] framebuffers;
+	private final VkSwapchainCreateInfoKHR swapchainCreateInfo = VkSwapchainCreateInfoKHR.create();
+	private final VkFramebufferCreateInfo framebufferCreateInfo = VkFramebufferCreateInfo.create();
 
 	private long waitSemaphore;
 	private long signalSemaphore;
@@ -20,7 +38,7 @@ public class VulkanSurfaceManager {
 		this.surface = surface;
 	}
 
-	public BiFunction<VkQueueFamilyProperties, Integer, Boolean> getPresentQueueCond(VkPhysicalDevice physicalDevice) {
+	BiFunction<VkQueueFamilyProperties, Integer, Boolean> getPresentQueueCond(VkPhysicalDevice physicalDevice) {
 		return (queue, index) -> {
 			int[] present = new int[1];
 			if(surface == 0) return true;
@@ -30,45 +48,214 @@ public class VulkanSurfaceManager {
 		};
 	}
 
-	public long getWaitSemaphore() {
+	long getWaitSemaphore() {
 		return waitSemaphore;
 	}
 
-	public long getSignalSemaphore() {
+	long getSignalSemaphore() {
 		return signalSemaphore;
 	}
 
 	public void setSurface(long surface) {
 		this.surface = surface;
+
+		try(MemoryStack stack = MemoryStack.stackPush()) {
+			VkSurfaceFormatKHR.Buffer allSurfaceFormats = VulkanUtils.listSurfaceFormats(stack, dc.getDevice().getPhysicalDevice(), surface);
+			VkSurfaceFormatKHR surfaceFormat = VulkanUtils.findSurfaceFormat(allSurfaceFormats);
+			int newSurfaceFormat = surfaceFormat.format();
+
+			IntBuffer present = stack.callocInt(1);
+			vkGetPhysicalDeviceSurfaceSupportKHR(dc.getDevice().getPhysicalDevice(), dc.queueManager.getPresentIndex(), surface, present);
+			if(present.get(0) == 0) {
+				System.err.println("[VULKAN] can't present anymore");
+				return;
+			}
+
+
+			swapchainCreateInfo.surface(surface)
+					.imageColorSpace(surfaceFormat.colorSpace())
+					.imageFormat(surfaceFormat.format());
+
+			if(dc.getRenderPass() == 0 || this.surfaceFormat != newSurfaceFormat) {
+				dc.regenerateRenderPass(stack, newSurfaceFormat);
+				framebufferCreateInfo.renderPass(dc.getRenderPass());
+			}
+			this.surfaceFormat = newSurfaceFormat;
+		}
 	}
 
-	public void init(VulkanDrawContext dc) {
+	void init(VulkanDrawContext dc) {
 		this.dc = dc;
 
 		waitSemaphore = VulkanUtils.createSemaphore(dc.getDevice());
 		signalSemaphore = VulkanUtils.createSemaphore(dc.getDevice());
 
-		dc.setupNewSurface();
+
+		swapchainCreateInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
+				.compositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
+				.imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT|VK_IMAGE_USAGE_TRANSFER_SRC_BIT|VK_IMAGE_USAGE_TRANSFER_DST_BIT)
+				.presentMode(VK_PRESENT_MODE_FIFO_KHR) // must be supported by all drivers
+				.imageArrayLayers(1)
+				.clipped(false);
+
+		if(dc.queueManager.hasUniversalQueue()) {
+			swapchainCreateInfo.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
+		} else {
+			IntBuffer queueFamilies = BufferUtils.createIntBuffer(2);
+			queueFamilies.put(0, dc.queueManager.getPresentIndex());
+			queueFamilies.put(1, dc.queueManager.getGraphicsIndex());
+
+			swapchainCreateInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT)
+					.pQueueFamilyIndices(queueFamilies);
+		}
+
+		framebufferCreateInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
+				.layers(1);
+
+		setSurface(surface);
 	}
 
-	public long getSurface() {
-		return surface;
+	public void removeSurface() {
+		destroyFramebuffers(-1);
+		destroySwapchainViews(-1);
+		vkDestroySwapchainKHR(dc.getDevice(), swapchain, null);
+		vkDestroySurfaceKHR(dc.getInstance(), surface, null);
+
+		surface = VK_NULL_HANDLE;
+		swapchain = VK_NULL_HANDLE;
 	}
 
-	public void destroy() {
+	void destroy() {
 		if(waitSemaphore != 0) {
 			vkDestroySemaphore(dc.getDevice(), waitSemaphore, null);
 		}
 		if(signalSemaphore != 0) {
 			vkDestroySemaphore(dc.getDevice(), signalSemaphore, null);
 		}
+
+		if(swapchain != VK_NULL_HANDLE) {
+			destroyFramebuffers(-1);
+			destroySwapchainViews(-1);
+			vkDestroySwapchainKHR(dc.getDevice(), swapchain, null);
+		}
+		swapchain = VK_NULL_HANDLE;
 	}
 
-	public long getSwapchain() {
+	Dimension resize(Dimension preferredSize) {
+		destroyFramebuffers(-1);
+		destroySwapchainViews(-1);
+
+		VkSurfaceCapabilitiesKHR surfaceCapabilities = VkSurfaceCapabilitiesKHR.create();
+		if (surface == 0 || vkGetPhysicalDeviceSurfaceCapabilitiesKHR(dc.getDevice().getPhysicalDevice(), surface, surfaceCapabilities) != VK_SUCCESS) {
+			return null;
+		}
+
+		int fbWidth = preferredSize.width;
+		int fbHeight = preferredSize.height;
+		int imageCount = surfaceCapabilities.minImageCount() + 1;
+
+		VkExtent2D minDim = surfaceCapabilities.maxImageExtent();
+		VkExtent2D maxDim = surfaceCapabilities.maxImageExtent();
+
+		fbWidth = Math.max(Math.min(fbWidth, maxDim.width()), minDim.width());
+		fbHeight = Math.max(Math.min(fbHeight, maxDim.height()), minDim.height());
+		if (surfaceCapabilities.maxImageCount() != 0)
+			imageCount = Math.min(imageCount, surfaceCapabilities.maxImageCount());
+
+		swapchainCreateInfo.preTransform(surfaceCapabilities.currentTransform())
+				.minImageCount(imageCount)
+				.oldSwapchain(swapchain)
+				.imageExtent()
+				.width(fbWidth)
+				.height(fbHeight);
+
+		LongBuffer swapchainBfr = BufferUtils.createLongBuffer(1);
+		boolean error = vkCreateSwapchainKHR(dc.getDevice(), swapchainCreateInfo, null, swapchainBfr) != VK_SUCCESS;
+		vkDestroySwapchainKHR(dc.getDevice(), swapchain, null);
+
+		if (error) {
+			swapchain = VK_NULL_HANDLE;
+			return null;
+		}
+		swapchain = swapchainBfr.get(0);
+
+		framebufferCreateInfo.width(fbWidth)
+				.height(fbHeight);
+
+		return new Dimension(fbWidth, fbHeight);
+	}
+
+	long getSwapchain() {
 		return swapchain;
 	}
 
-	public void setSwapchain(long swapchain) {
-		this.swapchain = swapchain;
+	public long[] getFramebuffers() {
+		return framebuffers;
+	}
+
+	public VulkanImage[] getSwapchainImages() {
+		return swapchainImages;
+	}
+
+	private void destroySwapchainViews(int count) {
+		if(swapchainImages == null) return;
+		if(count == -1) count = swapchainImages.length;
+
+		for(int i = 0; i != count; i++) {
+			vkDestroyImageView(dc.getDevice(), swapchainImages[i].getImageView(), null);
+		}
+		swapchainImages = null;
+	}
+
+	private void destroyFramebuffers(int count) {
+		if(framebuffers == null) return;
+		if(count == -1) count = framebuffers.length;
+
+		for(int i = 0; i != count; i++) {
+			vkDestroyFramebuffer(dc.getDevice(), framebuffers[i], null);
+		}
+		framebuffers = null;
+	}
+
+	public void createFramebuffers(VulkanImage depthImage) {
+		long[] imageHandles = VulkanUtils.getSwapchainImages(dc.getDevice(), swapchain);
+		if (imageHandles == null) {
+			vkDestroySwapchainKHR(dc.getDevice(), swapchain, null);
+			swapchain = VK_NULL_HANDLE;
+			return;
+		}
+
+		swapchainImages = new VulkanImage[imageHandles.length];
+		for (int i = 0; i != swapchainImages.length; i++) {
+
+			try {
+				swapchainImages[i] = new VulkanImage(dc, null, imageHandles[i], -1L, surfaceFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+			} catch(Throwable thrown) {
+				thrown.printStackTrace();
+				destroySwapchainViews(i);
+				vkDestroySwapchainKHR(dc.getDevice(), swapchain, null);
+				swapchain = VK_NULL_HANDLE;
+				return;
+			}
+		}
+
+		LongBuffer framebufferBfr = BufferUtils.createLongBuffer(1);
+		LongBuffer attachments = BufferUtils.createLongBuffer(2);
+		attachments.put(1, depthImage.getImageView());
+
+		framebuffers = new long[swapchainImages.length];
+		for (int i = 0; i != swapchainImages.length; i++) {
+			attachments.put(0, swapchainImages[i].getImageView());
+			framebufferCreateInfo.pAttachments(attachments);
+
+			if (vkCreateFramebuffer(dc.getDevice(), framebufferCreateInfo, null, framebufferBfr) != VK_SUCCESS) {
+				destroyFramebuffers(i);
+				destroySwapchainViews(-1);
+				vkDestroySwapchainKHR(dc.getDevice(), swapchain, null);
+				swapchain = VK_NULL_HANDLE;
+			}
+
+			framebuffers[i] = framebufferBfr.get(0);
+		}
 	}
 }

@@ -18,7 +18,6 @@ import go.graphics.event.GOEventHandlerProvider;
 import go.graphics.swing.contextcreator.BackendSelector;
 import go.graphics.swing.contextcreator.ContextCreator;
 import go.graphics.swing.contextcreator.EBackendType;
-import go.graphics.swing.contextcreator.EGLContextCreator;
 import go.graphics.swing.contextcreator.JAWTContextCreator;
 import go.graphics.swing.contextcreator.ContextException;
 import go.graphics.swing.contextcreator.VulkanContextCreator;
@@ -79,7 +78,6 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 
 	public void wrapNewVkSurface(long surface) {
 		vkSurfaceManager.setSurface(surface);
-		((VulkanDrawContext)context).setupNewSurface();
 	}
 
 	public void wrapNewGLContext() {
@@ -163,7 +161,7 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 
 	public void removeSurface() {
 		if(cc instanceof VulkanContextCreator) {
-			((VulkanDrawContext)context).removeSurface();
+			vkSurfaceManager.removeSurface();
 		}
 	}
 }
