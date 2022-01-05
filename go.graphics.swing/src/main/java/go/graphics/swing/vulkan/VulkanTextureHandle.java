@@ -79,7 +79,7 @@ public class VulkanTextureHandle extends TextureHandle {
 		install_texture_image.imageView(image.getImageView())
 				.sampler(((VulkanDrawContext) dc).samplers[getType().ordinal()]);
 
-		VK10.vkUpdateDescriptorSets(((VulkanDrawContext)dc).device, install_texture_write, null);
+		VK10.vkUpdateDescriptorSets(((VulkanDrawContext)dc).getDevice(), install_texture_write, null);
 	}
 
 	public void setDestroy() {

@@ -85,7 +85,7 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
-	protected VkDevice device = null;
+	private VkDevice device = null;
 	private VkPhysicalDevice physicalDevice;
 
 	private long surface = VK_NULL_HANDLE;
@@ -810,10 +810,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		destroySwapchainViews(-1);
 		vkDestroySwapchainKHR(device, swapchain, null);
 		vkDestroySurfaceKHR(instance, this.surface, null);
-		vkDestroyRenderPass(device, renderPass, null);
 
 		swapchain = VK_NULL_HANDLE;
-		renderPass = VK_NULL_HANDLE;
 	}
 
 	private void regenerateRenderPass(MemoryStack stack, int newSurfaceFormat) {
