@@ -113,7 +113,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	public VulkanDescriptorSetLayout multiDescLayout = null;
 
 	private final VulkanMemoryManager memoryManager;
-	private final VulkanPipelineManager pipelineManager;
+	private VulkanPipelineManager pipelineManager;
 	private final QueueManager queueManager;
 
 	final long[] samplers = new long[ETextureType.values().length];
@@ -131,6 +131,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		BiFunction<VkQueueFamilyProperties, Integer, Boolean> presentQueueCond = (queue, index) -> {
 			int[] present = new int[1];
+			if(surface == 0) return true;
+
 			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, index, surface, present);
 			return present[0]==1;
 		};
@@ -158,8 +160,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			device = VulkanUtils.createDevice(stack, physicalDevice, deviceExtensions, queueManager.getQueueIndices());
 
 			queueManager.registerQueues();
-
-			setSurface(surface);
 
 			memoryManager = new VulkanMemoryManager(stack, this);
 
@@ -216,10 +216,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			multiDescLayout = new VulkanDescriptorSetLayout(device, multiBindings);
 
-
-			pipelineManager = new VulkanPipelineManager(stack, this, universalDescPool, renderPass, graphCommandBuffer);
-
-
 			LongBuffer semaphoreBfr = stack.callocLong(1);
 			fetchFramebufferSemaphore = VulkanUtils.createSemaphore(semaphoreBfr, device);
 			presentFramebufferSemaphore = VulkanUtils.createSemaphore(semaphoreBfr, device);
@@ -254,10 +250,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			if(globalUniformBuffer == null || backgroundUniformBfr == null || unifiedUniformBfr == null) throw new Error("Could not create uniform buffers.");
 
-			pipelineManager.installUniformBuffers(globalUniformBuffer, backgroundUniformBfr, unifiedUniformBfr);
-
 			unifiedArrayBfr = memoryManager.createMultiBuffer(2*100*4*4, EVulkanMemoryType.DYNAMIC, EVulkanBufferUsage.VERTEX_BUFFER);
 
+			setSurface(surface);
 		} finally {
 			if(unifiedUniformBfr == null) invalidate();
 		}
@@ -821,13 +816,33 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		renderPass = VK_NULL_HANDLE;
 	}
 
+	private void regenerateRenderPass(MemoryStack stack, int newSurfaceFormat) {
+		if(renderPass != 0 && surfaceFormat == newSurfaceFormat) return;
+
+		if(pipelineManager != null) {
+			pipelineManager.destroy();
+			pipelineManager = null;
+		}
+		if(renderPass != 0) {
+			vkDestroyRenderPass(device, renderPass, null);
+			renderPass = 0;
+		}
+
+		renderPass = VulkanUtils.createRenderPass(stack, device, newSurfaceFormat);
+		renderPassBeginInfo.renderPass(renderPass);
+		framebufferCreateInfo.renderPass(renderPass);
+
+		pipelineManager = new VulkanPipelineManager(stack, this, universalDescPool, renderPass, graphCommandBuffer);
+		pipelineManager.installUniformBuffers(globalUniformBuffer, backgroundUniformBfr, unifiedUniformBfr);
+	}
+
 	public void setSurface(long surface) {
 		this.surface = surface;
 
 		try(MemoryStack stack = MemoryStack.stackPush()) {
 			VkSurfaceFormatKHR.Buffer allSurfaceFormats = VulkanUtils.listSurfaceFormats(stack, physicalDevice, surface);
 			VkSurfaceFormatKHR surfaceFormat = VulkanUtils.findSurfaceFormat(allSurfaceFormats);
-			this.surfaceFormat = surfaceFormat.format();
+			int newSurfaceFormat = surfaceFormat.format();
 
 			IntBuffer present = stack.callocInt(1);
 			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueManager.getPresentIndex(), surface, present);
@@ -836,9 +851,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				return;
 			}
 
-			renderPass = VulkanUtils.createRenderPass(stack, device, surfaceFormat.format());
-			renderPassBeginInfo.renderPass(renderPass);
-			framebufferCreateInfo.renderPass(renderPass);
+			regenerateRenderPass(stack, newSurfaceFormat);
+			this.surfaceFormat = newSurfaceFormat;
 
 			swapchainCreateInfo.surface(surface)
 					.imageColorSpace(surfaceFormat.colorSpace())
@@ -851,7 +865,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			destroyFramebuffers(-1);
 			destroySwapchainViews(-1);
 
-			if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, surfaceCapabilities) != VK_SUCCESS) {
+			if (surface == 0 || vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, surfaceCapabilities) != VK_SUCCESS) {
 				return;
 			}
 
