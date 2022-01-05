@@ -257,10 +257,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 
 		surfaceManager.destroy();
-		if(swapchain != VK_NULL_HANDLE) {
+		if(surfaceManager.getSwapchain() != VK_NULL_HANDLE) {
 			destroyFramebuffers(-1);
 			destroySwapchainViews(-1);
-			vkDestroySwapchainKHR(device, swapchain, null);
+			vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
 		}
 
 		if(pipelineManager != null) pipelineManager.destroy();
@@ -285,7 +285,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		memCommandBuffer = null;
 		graphCommandBuffer = null;
 
-		swapchain = VK_NULL_HANDLE;
+		surfaceManager.setSwapchain(VK_NULL_HANDLE);
 		device = null;
 		super.invalidate();
 		resourceMutex.release();
@@ -746,7 +746,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		vkCmdClearAttachments(graphCommandBuffer, clearAttachment, clearRect);
 	}
 
-	private long swapchain = VK_NULL_HANDLE;
 	private VulkanImage[] swapchainImages;
 	private long[] framebuffers;
 	private final VkSurfaceCapabilitiesKHR surfaceCapabilities = VkSurfaceCapabilitiesKHR.create();
@@ -793,11 +792,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	public void removeSurface() {
 		destroyFramebuffers(-1);
 		destroySwapchainViews(-1);
-		vkDestroySwapchainKHR(device, swapchain, null);
+		vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
 		vkDestroySurfaceKHR(instance, surfaceManager.getSurface(), null);
 
 		surfaceManager.setSurface(0);
-		swapchain = VK_NULL_HANDLE;
+		surfaceManager.setSwapchain(VK_NULL_HANDLE);
 	}
 
 	private void regenerateRenderPass(MemoryStack stack, int newSurfaceFormat) {
@@ -865,26 +864,26 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			swapchainCreateInfo.preTransform(surfaceCapabilities.currentTransform())
 					.minImageCount(imageCount)
-					.oldSwapchain(swapchain)
+					.oldSwapchain(surfaceManager.getSwapchain())
 					.imageExtent()
 					.width(fbWidth)
 					.height(fbHeight);
 
 			LongBuffer swapchainBfr = stack.callocLong(1);
 			boolean error = vkCreateSwapchainKHR(device, swapchainCreateInfo, null, swapchainBfr) != VK_SUCCESS;
-			vkDestroySwapchainKHR(device, swapchain, null);
+			vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
 
 			if (error) {
-				swapchain = VK_NULL_HANDLE;
+				surfaceManager.setSwapchain(VK_NULL_HANDLE);
 				return;
 			} else {
-				swapchain = swapchainBfr.get(0);
+				surfaceManager.setSwapchain(swapchainBfr.get(0));
 			}
 
-			long[] imageHandles = VulkanUtils.getSwapchainImages(device, swapchain);
+			long[] imageHandles = VulkanUtils.getSwapchainImages(device, surfaceManager.getSwapchain());
 			if (imageHandles == null) {
-				vkDestroySwapchainKHR(device, swapchain, null);
-				swapchain = VK_NULL_HANDLE;
+				vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
+				surfaceManager.setSwapchain(VK_NULL_HANDLE);
 				return;
 			}
 
@@ -901,8 +900,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				} catch(Throwable thrown) {
 					thrown.printStackTrace();
 					destroySwapchainViews(i);
-					vkDestroySwapchainKHR(device, swapchain, null);
-					swapchain = VK_NULL_HANDLE;
+					vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
+					surfaceManager.setSwapchain(VK_NULL_HANDLE);
 					return;
 				}
 			}
@@ -919,8 +918,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				if (vkCreateFramebuffer(device, framebufferCreateInfo, null, framebufferBfr) != VK_SUCCESS) {
 					destroyFramebuffers(i);
 					destroySwapchainViews(-1);
-					vkDestroySwapchainKHR(device, swapchain, null);
-					swapchain = VK_NULL_HANDLE;
+					vkDestroySwapchainKHR(device, surfaceManager.getSwapchain(), null);
+					surfaceManager.setSwapchain(VK_NULL_HANDLE);
 				}
 
 				framebuffers[i] = framebufferBfr.get(0);
@@ -964,8 +963,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		try(MemoryStack stack = MemoryStack.stackPush()) {
 			super.startFrame();
 
-			if(swapchain == VK_NULL_HANDLE || framebuffers == null) {
-				swapchainImageIndex = -1;
+			if(surfaceManager.getSwapchain() == VK_NULL_HANDLE || framebuffers == null) {
 				return;
 			}
 
@@ -974,10 +972,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			}
 
 			IntBuffer swapchainImageIndexBfr = stack.callocInt(1);
-			int err = vkAcquireNextImageKHR(device, swapchain, -1L, surfaceManager.getWaitSemaphore(), VK_NULL_HANDLE, swapchainImageIndexBfr);
+			int err = vkAcquireNextImageKHR(device, surfaceManager.getSwapchain(), -1L, surfaceManager.getWaitSemaphore(), VK_NULL_HANDLE, swapchainImageIndexBfr);
 			if(err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) resizeScheduled = true;
 			if(err != VK_SUBOPTIMAL_KHR && err != VK_SUCCESS) {
-				swapchainImageIndex = -1;
 				return;
 			}
 
@@ -1126,7 +1123,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 						.sType(VK_STRUCTURE_TYPE_PRESENT_INFO_KHR)
 						.pImageIndices(stack.ints(swapchainImageIndex))
 						.swapchainCount(1)
-						.pSwapchains(stack.longs(swapchain));
+						.pSwapchains(stack.longs(surfaceManager.getSwapchain()));
 				if(cmdBfrSend) presentInfo.pWaitSemaphores(stack.longs(surfaceManager.getSignalSemaphore()));
 				if(vkQueuePresentKHR(queueManager.getPresentQueue(), presentInfo) != VK_SUCCESS) {
 					// should not happen but we can't do anything about it

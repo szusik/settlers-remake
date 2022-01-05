@@ -10,6 +10,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VulkanSurfaceManager {
 
 	private long surface;
+	private long swapchain = VK_NULL_HANDLE;
 
 	private long waitSemaphore;
 	private long signalSemaphore;
@@ -61,5 +62,13 @@ public class VulkanSurfaceManager {
 		if(signalSemaphore != 0) {
 			vkDestroySemaphore(dc.getDevice(), signalSemaphore, null);
 		}
+	}
+
+	public long getSwapchain() {
+		return swapchain;
+	}
+
+	public void setSwapchain(long swapchain) {
+		this.swapchain = swapchain;
 	}
 }
