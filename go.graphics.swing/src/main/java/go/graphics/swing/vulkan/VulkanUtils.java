@@ -299,11 +299,13 @@ public class VulkanUtils {
 	private static final VkSemaphoreCreateInfo semaphoreCreateInfo = VkSemaphoreCreateInfo.create().sType(VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO);
 	private static final VkFenceCreateInfo fenceCreateInfo = VkFenceCreateInfo.create().sType(VK_STRUCTURE_TYPE_FENCE_CREATE_INFO);
 
-	public static long createSemaphore(LongBuffer bfr, VkDevice device) {
+	public static long createSemaphore(VkDevice device) {
+		LongBuffer bfr = BufferUtils.createLongBuffer(1);
+
 		if(vkCreateSemaphore(device, semaphoreCreateInfo, null, bfr) != VK_SUCCESS) {
 			throw new Error("Could not create Semaphore.");
 		}
-		return bfr.get(0);
+		return bfr.get();
 	}
 
 	public static long createFence(LongBuffer fenceBfr, VkDevice device) {

@@ -1,5 +1,6 @@
 package go.graphics.swing;
 
+import go.graphics.swing.vulkan.VulkanSurfaceManager;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.vulkan.VkInstance;
@@ -30,6 +31,7 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 
 	protected ContextCreator cc;
 	protected GLDrawContext context;
+	private VulkanSurfaceManager vkSurfaceManager;
 	private boolean debug;
 	protected float guiScale = 0;
 
@@ -68,7 +70,7 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 		if(context != null) context.invalidate();
 
 		try {
-			context = new VulkanDrawContext(instance, surface, guiScale);
+			context = new VulkanDrawContext(instance, vkSurfaceManager = new VulkanSurfaceManager(surface), guiScale);
 		} catch(Throwable thrown) {
 			thrown.printStackTrace();
 			fatal(thrown.getLocalizedMessage());
@@ -76,7 +78,8 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 	}
 
 	public void wrapNewVkSurface(long surface) {
-		((VulkanDrawContext)context).setSurface(surface);
+		vkSurfaceManager.setSurface(surface);
+		((VulkanDrawContext)context).setupNewSurface();
 	}
 
 	public void wrapNewGLContext() {

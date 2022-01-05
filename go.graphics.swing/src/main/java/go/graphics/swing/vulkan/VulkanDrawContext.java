@@ -88,7 +88,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private VkDevice device = null;
 	private VkPhysicalDevice physicalDevice;
 
-	private long surface = VK_NULL_HANDLE;
+	private final VulkanSurfaceManager surfaceManager;
 	private int surfaceFormat;
 	private VkInstance instance;
 
@@ -101,9 +101,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private VkCommandBuffer fbCommandBuffer = null;
 
 	private long renderPass;
-
-	private long fetchFramebufferSemaphore = VK_NULL_HANDLE;
-	private long presentFramebufferSemaphore = VK_NULL_HANDLE;
 
 	private VulkanDescriptorPool universalDescPool = null;
 	private VulkanDescriptorPool textureDescPool = null;
@@ -125,17 +122,12 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	private float guiScale;
 
-	public VulkanDrawContext(VkInstance instance, long surface, float guiScale) {
+	public VulkanDrawContext(VkInstance instance, VulkanSurfaceManager surfaceManager, float guiScale) {
 		this.instance = instance;
 		this.guiScale = guiScale;
+		this.surfaceManager = surfaceManager;
 
-		BiFunction<VkQueueFamilyProperties, Integer, Boolean> presentQueueCond = (queue, index) -> {
-			int[] present = new int[1];
-			if(surface == 0) return true;
 
-			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, index, surface, present);
-			return present[0]==1;
-		};
 
 		try(MemoryStack stack = MemoryStack.stackPush()) {
 			VkPhysicalDevice[] allPhysicalDevices = VulkanUtils.listPhysicalDevices(stack, instance);
@@ -146,7 +138,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			maxTextureSize = props.limits().maxImageDimension2D();
 			maxUniformBlockSize = Integer.MAX_VALUE;
 
-			queueManager = new QueueManager(stack, this, physicalDevice, presentQueueCond);
+			queueManager = new QueueManager(stack, this, physicalDevice, surfaceManager.getPresentQueueCond(physicalDevice));
 
 			if(!queueManager.hasGraphicsSupport()) throw new Error("Could not find any graphics queue.");
 			if(!queueManager.hasPresentSupport()) throw new Error("Could not find any present queue.");
@@ -216,10 +208,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			multiDescLayout = new VulkanDescriptorSetLayout(device, multiBindings);
 
-			LongBuffer semaphoreBfr = stack.callocLong(1);
-			fetchFramebufferSemaphore = VulkanUtils.createSemaphore(semaphoreBfr, device);
-			presentFramebufferSemaphore = VulkanUtils.createSemaphore(semaphoreBfr, device);
-
 
 			VkSamplerCreateInfo samplerCreateInfo = VkSamplerCreateInfo.calloc(stack)
 					.sType(VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO)
@@ -252,7 +240,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			unifiedArrayBfr = memoryManager.createMultiBuffer(2*100*4*4, EVulkanMemoryType.DYNAMIC, EVulkanBufferUsage.VERTEX_BUFFER);
 
-			setSurface(surface);
+			surfaceManager.init(this);
 		} finally {
 			if(unifiedUniformBfr == null) invalidate();
 		}
@@ -268,8 +256,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			if(sampler != 0) vkDestroySampler(device, sampler, null);
 		}
 
-		if(presentFramebufferSemaphore != VK_NULL_HANDLE) vkDestroySemaphore(device, presentFramebufferSemaphore, null);
-		if(fetchFramebufferSemaphore != VK_NULL_HANDLE) vkDestroySemaphore(device, fetchFramebufferSemaphore, null);
+		surfaceManager.destroy();
 		if(swapchain != VK_NULL_HANDLE) {
 			destroyFramebuffers(-1);
 			destroySwapchainViews(-1);
@@ -298,8 +285,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		memCommandBuffer = null;
 		graphCommandBuffer = null;
 
-		presentFramebufferSemaphore = VK_NULL_HANDLE;
-		fetchFramebufferSemaphore = VK_NULL_HANDLE;
 		swapchain = VK_NULL_HANDLE;
 		device = null;
 		super.invalidate();
@@ -809,8 +794,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		destroyFramebuffers(-1);
 		destroySwapchainViews(-1);
 		vkDestroySwapchainKHR(device, swapchain, null);
-		vkDestroySurfaceKHR(instance, this.surface, null);
+		vkDestroySurfaceKHR(instance, surfaceManager.getSurface(), null);
 
+		surfaceManager.setSurface(0);
 		swapchain = VK_NULL_HANDLE;
 	}
 
@@ -834,16 +820,14 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		pipelineManager.installUniformBuffers(globalUniformBuffer, backgroundUniformBfr, unifiedUniformBfr);
 	}
 
-	public void setSurface(long surface) {
-		this.surface = surface;
-
+	public void setupNewSurface() {
 		try(MemoryStack stack = MemoryStack.stackPush()) {
-			VkSurfaceFormatKHR.Buffer allSurfaceFormats = VulkanUtils.listSurfaceFormats(stack, physicalDevice, surface);
+			VkSurfaceFormatKHR.Buffer allSurfaceFormats = VulkanUtils.listSurfaceFormats(stack, physicalDevice, surfaceManager.getSurface());
 			VkSurfaceFormatKHR surfaceFormat = VulkanUtils.findSurfaceFormat(allSurfaceFormats);
 			int newSurfaceFormat = surfaceFormat.format();
 
 			IntBuffer present = stack.callocInt(1);
-			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueManager.getPresentIndex(), surface, present);
+			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueManager.getPresentIndex(), surfaceManager.getSurface(), present);
 			if(present.get(0) == 0) {
 				System.err.println("[VULKAN] can't present anymore");
 				return;
@@ -852,7 +836,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			regenerateRenderPass(stack, newSurfaceFormat);
 			this.surfaceFormat = newSurfaceFormat;
 
-			swapchainCreateInfo.surface(surface)
+			swapchainCreateInfo.surface(surfaceManager.getSurface())
 					.imageColorSpace(surfaceFormat.colorSpace())
 					.imageFormat(surfaceFormat.format());
 		}
@@ -863,7 +847,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			destroyFramebuffers(-1);
 			destroySwapchainViews(-1);
 
-			if (surface == 0 || vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, surfaceCapabilities) != VK_SUCCESS) {
+			if (surfaceManager.getSurface() == 0 || vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surfaceManager.getSurface(), surfaceCapabilities) != VK_SUCCESS) {
 				return;
 			}
 
@@ -990,7 +974,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			}
 
 			IntBuffer swapchainImageIndexBfr = stack.callocInt(1);
-			int err = vkAcquireNextImageKHR(device, swapchain, -1L, fetchFramebufferSemaphore, VK_NULL_HANDLE, swapchainImageIndexBfr);
+			int err = vkAcquireNextImageKHR(device, swapchain, -1L, surfaceManager.getWaitSemaphore(), VK_NULL_HANDLE, swapchainImageIndexBfr);
 			if(err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) resizeScheduled = true;
 			if(err != VK_SUBOPTIMAL_KHR && err != VK_SUCCESS) {
 				swapchainImageIndex = -1;
@@ -1114,7 +1098,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 				VkSubmitInfo graphSubmitInfo = VkSubmitInfo.calloc(stack)
 						.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO)
-						.pSignalSemaphores(stack.longs(presentFramebufferSemaphore));
+						.pSignalSemaphores(stack.longs(surfaceManager.getSignalSemaphore()));
 				if(fbCBrecording) {
 					graphSubmitInfo.pCommandBuffers(stack.pointers(memCommandBuffer.address(), graphCommandBuffer.address(), fbCommandBuffer.address()));
 					fbCBrecording = false;
@@ -1123,7 +1107,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				}
 
 				if(swapchainImageIndex != -1) {
-					graphSubmitInfo.pWaitSemaphores(stack.longs(fetchFramebufferSemaphore))
+					graphSubmitInfo.pWaitSemaphores(stack.longs(surfaceManager.getWaitSemaphore()))
 							.pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT))
 							.waitSemaphoreCount(1);
 				}
@@ -1143,7 +1127,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 						.pImageIndices(stack.ints(swapchainImageIndex))
 						.swapchainCount(1)
 						.pSwapchains(stack.longs(swapchain));
-				if(cmdBfrSend) presentInfo.pWaitSemaphores(stack.longs(presentFramebufferSemaphore));
+				if(cmdBfrSend) presentInfo.pWaitSemaphores(stack.longs(surfaceManager.getSignalSemaphore()));
 				if(vkQueuePresentKHR(queueManager.getPresentQueue(), presentInfo) != VK_SUCCESS) {
 					// should not happen but we can't do anything about it
 				}
