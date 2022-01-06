@@ -191,7 +191,7 @@ public class VulkanSurfaceOutput extends AbstractVulkanOutput {
 		if(count == -1) count = swapchainImages.length;
 
 		for(int i = 0; i != count; i++) {
-			vkDestroyImageView(dc.getDevice(), swapchainImages[i].getImageView(), null);
+			swapchainImages[i].destroy();
 		}
 		swapchainImages = null;
 	}

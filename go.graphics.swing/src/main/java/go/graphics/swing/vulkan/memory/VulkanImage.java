@@ -48,8 +48,8 @@ public class VulkanImage {
 	}
 
 	public void free() {
+		vkDestroyImageView(dc.getDevice(), imageView, null);
 		if(memoryManager != null) {
-			vkDestroyImageView(dc.getDevice(), imageView, null);
 			Vma.vmaDestroyImage(memoryManager.getAllocator(), image, allocation);
 		}
 	}
