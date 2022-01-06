@@ -100,7 +100,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	public VulkanDescriptorSetLayout textureDescLayout = null;
 	public VulkanDescriptorSetLayout multiDescLayout = null;
 
-	private final VulkanMemoryManager memoryManager;
+	final VulkanMemoryManager memoryManager;
 	private VulkanPipelineManager pipelineManager;
 	final QueueManager queueManager;
 
@@ -130,7 +130,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			queueManager = new QueueManager(stack, this, physicalDevice, output.getPresentQueueCond(physicalDevice));
 
 			if(!queueManager.hasGraphicsSupport()) throw new Error("Could not find any graphics queue.");
-			if(!queueManager.hasPresentSupport()) throw new Error("Could not find any present queue.");
+			//if(!queueManager.hasPresentSupport()) throw new Error("Could not find any present queue.");
 
 			// device extensions
 			List<String> deviceExtensions = new ArrayList<>();
@@ -224,11 +224,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		resourceMutex.acquireUninterruptibly();
 		closeMutex.release();
 
+		vkDeviceWaitIdle(device);
+
 		for(long sampler : samplers) {
 			if(sampler != 0) vkDestroySampler(device, sampler, null);
 		}
-
-		output.destroy();
 
 		if(pipelineManager != null) pipelineManager.destroy();
 		if(multiDescLayout != null) multiDescLayout.destroy();
@@ -237,14 +237,16 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		if(textureDescPool != null) textureDescPool.destroy();
 		if(universalDescPool != null) universalDescPool.destroy();
 
-		memoryManager.destroy();
+		if(commandPool != 0) {
+			vkDestroyCommandPool(device, commandPool, null);
+		}
 
 		if(renderPass != VK_NULL_HANDLE) vkDestroyRenderPass(device, renderPass, null);
 		commandBufferRecording = false;
 
-		if(commandPool != 0) {
-			vkDestroyCommandPool(device, commandPool, null);
-		}
+		output.destroy();
+
+		memoryManager.destroy();
 
 		if(device != null) vkDestroyDevice(device, null);
 
@@ -924,7 +926,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 				VkSubmitInfo graphSubmitInfo = VkSubmitInfo.calloc(stack)
 						.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO)
-						.pSignalSemaphores(stack.longs(output.getSignalSemaphore()));
+						;//.pSignalSemaphores(stack.longs(output.getSignalSemaphore()));
 				if(fbCBrecording) {
 					graphSubmitInfo.pCommandBuffers(stack.pointers(memCommandBuffer.address(), graphCommandBuffer.address(), fbCommandBuffer.address()));
 					fbCBrecording = false;
@@ -932,9 +934,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 					graphSubmitInfo.pCommandBuffers(stack.pointers(memCommandBuffer.address(), graphCommandBuffer.address()));
 				}
 
-				graphSubmitInfo.pWaitSemaphores(stack.longs(output.getWaitSemaphore()))
+				/*graphSubmitInfo.pWaitSemaphores(stack.longs(output.getWaitSemaphore()))
 						.pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT))
-						.waitSemaphoreCount(1);
+						.waitSemaphoreCount(1);*/
 
 				int error = vkQueueSubmit(queueManager.getGraphicsQueue(), graphSubmitInfo, VK_NULL_HANDLE);
 				if(error != VK_SUCCESS) {
