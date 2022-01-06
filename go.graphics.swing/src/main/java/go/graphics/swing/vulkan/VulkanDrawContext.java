@@ -633,7 +633,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private long firstTextureDescSet = 0;
 
 	private VulkanTextureHandle createTexture(int width, int height, long descSet) {
-		VulkanImage image = memoryManager.createImage(width, height, EVulkanImageType.COLOR_IMAGE);
+		VulkanImage image = memoryManager.createImage(width, height, EVulkanImageType.COLOR_IMAGE_RGBA4);
 
 		long textureDescSet = descSet;
 
