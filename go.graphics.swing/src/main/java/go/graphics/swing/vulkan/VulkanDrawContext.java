@@ -42,7 +42,6 @@ import org.lwjgl.vulkan.VkImageSubresourceRange;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
-import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkRenderPassBeginInfo;
 import org.lwjgl.vulkan.VkSamplerCreateInfo;
 import org.lwjgl.vulkan.VkSubmitInfo;
@@ -73,7 +72,6 @@ import go.graphics.UnifiedDrawHandle;
 import go.graphics.VkDrawContext;
 import go.graphics.swing.text.LWJGLTextDrawer;
 
-import static org.lwjgl.vulkan.KHRSurface.*;
 import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -730,6 +728,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	public void resize(int width, int height) {
 		newWidth = width;
 		newHeight = height;
+		resize();
+	}
+
+
+	public void resize() {
 		resizeScheduled = true;
 	}
 
@@ -773,7 +776,6 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		projMatrix.get(0, globalUniformBufferData);
 	}
 
-	private int swapchainImageIndex = -1;
 	private boolean commandBufferRecording = false;
 
 	private final VkRenderPassBeginInfo renderPassBeginInfo = VkRenderPassBeginInfo.create().sType(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO).pClearValues(CLEAR_VALUES);
@@ -787,7 +789,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	@Override
 	public void startFrame() {
-		if(swapchainImageIndex != -1) endFrame();
+		endFrame();
 
 		if(resizeScheduled) {
 			doResize(newWidth, newHeight);
@@ -798,26 +800,17 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		resourceMutex.acquireUninterruptibly();
 		closeMutex.release();
 
-		try(MemoryStack stack = MemoryStack.stackPush()) {
+		try {
 			super.startFrame();
-
-			if(surfaceManager.getSwapchain() == VK_NULL_HANDLE) {
-				return;
-			}
 
 			for (VulkanTextureHandle texture : textures) {
 				texture.tick();
 			}
 
-			IntBuffer swapchainImageIndexBfr = stack.callocInt(1);
-			int err = vkAcquireNextImageKHR(device, surfaceManager.getSwapchain(), -1L, surfaceManager.getWaitSemaphore(), VK_NULL_HANDLE, swapchainImageIndexBfr);
-			if(err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) resizeScheduled = true;
-			if(err != VK_SUBOPTIMAL_KHR && err != VK_SUCCESS) {
+			if(!surfaceManager.startFrame()) {
 				return;
 			}
-
-			swapchainImageIndex = swapchainImageIndexBfr.get(0);
-			renderPassBeginInfo.framebuffer(surfaceManager.getFramebuffers()[swapchainImageIndex]);
+			renderPassBeginInfo.framebuffer(surfaceManager.getFramebuffer());
 
 			if(vkBeginCommandBuffer(graphCommandBuffer, commandBufferBeginInfo) != VK_SUCCESS) return;
 			if(vkBeginCommandBuffer(memCommandBuffer, commandBufferBeginInfo) != VK_SUCCESS) {
@@ -863,7 +856,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			fbCBrecording = true;
 		}
 
-		VulkanImage image = surfaceManager.getSwapchainImages()[swapchainImageIndex];
+		VulkanImage image = surfaceManager.getFramebufferImage();
 
 		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		vkCmdClearColorImage(fbCommandBuffer, image.getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, CLEAR_VALUES.get(0).color(), CLEAR_SUBRESOURCE);
@@ -896,7 +889,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 		fbCBrecording = true;
 
-		VulkanImage image = surfaceManager.getSwapchainImages()[swapchainImageIndex];
+		VulkanImage image = surfaceManager.getFramebufferImage();
 
 		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		vkCmdCopyImageToBuffer(fbCommandBuffer, image.getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferReadBack.getBufferIdVk(), readBackRegion);
@@ -941,11 +934,9 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 					graphSubmitInfo.pCommandBuffers(stack.pointers(memCommandBuffer.address(), graphCommandBuffer.address()));
 				}
 
-				if(swapchainImageIndex != -1) {
-					graphSubmitInfo.pWaitSemaphores(stack.longs(surfaceManager.getWaitSemaphore()))
-							.pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT))
-							.waitSemaphoreCount(1);
-				}
+				graphSubmitInfo.pWaitSemaphores(stack.longs(surfaceManager.getWaitSemaphore()))
+						.pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT))
+						.waitSemaphoreCount(1);
 
 				int error = vkQueueSubmit(queueManager.getGraphicsQueue(), graphSubmitInfo, VK_NULL_HANDLE);
 				if(error != VK_SUCCESS) {
@@ -956,19 +947,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				}
 			}
 
-			if(swapchainImageIndex != -1) {
-				VkPresentInfoKHR presentInfo = VkPresentInfoKHR.calloc(stack)
-						.sType(VK_STRUCTURE_TYPE_PRESENT_INFO_KHR)
-						.pImageIndices(stack.ints(swapchainImageIndex))
-						.swapchainCount(1)
-						.pSwapchains(stack.longs(surfaceManager.getSwapchain()));
-				if(cmdBfrSend) presentInfo.pWaitSemaphores(stack.longs(surfaceManager.getSignalSemaphore()));
-				if(vkQueuePresentKHR(queueManager.getPresentQueue(), presentInfo) != VK_SUCCESS) {
-					// should not happen but we can't do anything about it
-				}
-				vkQueueWaitIdle(queueManager.getPresentQueue());
-				swapchainImageIndex = -1;
-			}
+			surfaceManager.endFrame(cmdBfrSend);
 		} finally {
 			resourceMutex.release();
 		}

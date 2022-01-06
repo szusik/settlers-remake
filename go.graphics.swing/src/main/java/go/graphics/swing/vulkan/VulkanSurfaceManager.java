@@ -10,6 +10,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkExtent2D;
 import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
+import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
@@ -24,6 +25,7 @@ public class VulkanSurfaceManager {
 	private long surface;
 	private long swapchain = VK_NULL_HANDLE;
 	private int surfaceFormat;
+	private int swapchainImageIndex = -1;
 
 	private VulkanImage[] swapchainImages;
 	private long[] framebuffers;
@@ -189,14 +191,6 @@ public class VulkanSurfaceManager {
 		return swapchain;
 	}
 
-	public long[] getFramebuffers() {
-		return framebuffers;
-	}
-
-	public VulkanImage[] getSwapchainImages() {
-		return swapchainImages;
-	}
-
 	private void destroySwapchainViews(int count) {
 		if(swapchainImages == null) return;
 		if(count == -1) count = swapchainImages.length;
@@ -257,5 +251,50 @@ public class VulkanSurfaceManager {
 
 			framebuffers[i] = framebufferBfr.get(0);
 		}
+	}
+
+	public boolean startFrame() {
+		IntBuffer swapchainImageIndexBfr = BufferUtils.createIntBuffer(1);
+		int err = vkAcquireNextImageKHR(dc.getDevice(), swapchain, -1L, waitSemaphore, VK_NULL_HANDLE, swapchainImageIndexBfr);
+		if(err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
+			dc.resize();
+		}
+		if(err != VK_SUBOPTIMAL_KHR && err != VK_SUCCESS) {
+			return false;
+		}
+
+		swapchainImageIndex = swapchainImageIndexBfr.get(0);
+		return true;
+	}
+
+	public void endFrame(boolean wait) {
+		if (swapchainImageIndex == -1) {
+			return;
+		}
+
+		try(MemoryStack stack = MemoryStack.stackPush()) {
+			VkPresentInfoKHR presentInfo = VkPresentInfoKHR.calloc(stack)
+					.sType(VK_STRUCTURE_TYPE_PRESENT_INFO_KHR)
+					.pImageIndices(stack.ints(swapchainImageIndex))
+					.swapchainCount(1)
+					.pSwapchains(stack.longs(swapchain));
+			if (wait) {
+				presentInfo.pWaitSemaphores(stack.longs(signalSemaphore));
+			}
+
+			if (vkQueuePresentKHR(dc.queueManager.getPresentQueue(), presentInfo) != VK_SUCCESS) {
+				// should not happen but we can't do anything about it
+			}
+		}
+		vkQueueWaitIdle(dc.queueManager.getPresentQueue());
+		swapchainImageIndex = -1;
+	}
+
+	public VulkanImage getFramebufferImage() {
+		return swapchainImages[swapchainImageIndex];
+	}
+
+	public long getFramebuffer() {
+		return framebuffers[swapchainImageIndex];
 	}
 }
