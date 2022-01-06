@@ -80,7 +80,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private VkDevice device = null;
 	private VkPhysicalDevice physicalDevice;
 
-	private final VulkanSurfaceManager surfaceManager;
+	private final AbstractVulkanOutput output;
 	private VkInstance instance;
 
 	private int fbWidth;
@@ -113,12 +113,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	private float guiScale;
 
-	public VulkanDrawContext(VkInstance instance, VulkanSurfaceManager surfaceManager, float guiScale) {
+	public VulkanDrawContext(VkInstance instance, AbstractVulkanOutput output, float guiScale) {
 		this.instance = instance;
 		this.guiScale = guiScale;
-		this.surfaceManager = surfaceManager;
-
-
+		this.output = output;
 
 		try(MemoryStack stack = MemoryStack.stackPush()) {
 			VkPhysicalDevice[] allPhysicalDevices = VulkanUtils.listPhysicalDevices(stack, instance);
@@ -129,7 +127,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			maxTextureSize = props.limits().maxImageDimension2D();
 			maxUniformBlockSize = Integer.MAX_VALUE;
 
-			queueManager = new QueueManager(stack, this, physicalDevice, surfaceManager.getPresentQueueCond(physicalDevice));
+			queueManager = new QueueManager(stack, this, physicalDevice, output.getPresentQueueCond(physicalDevice));
 
 			if(!queueManager.hasGraphicsSupport()) throw new Error("Could not find any graphics queue.");
 			if(!queueManager.hasPresentSupport()) throw new Error("Could not find any present queue.");
@@ -214,7 +212,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 			unifiedArrayBfr = memoryManager.createMultiBuffer(2*100*4*4, EVulkanMemoryType.DYNAMIC, EVulkanBufferUsage.VERTEX_BUFFER);
 
-			surfaceManager.init(this);
+			output.init(this);
 		} finally {
 			if(unifiedUniformBfr == null) invalidate();
 		}
@@ -230,7 +228,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			if(sampler != 0) vkDestroySampler(device, sampler, null);
 		}
 
-		surfaceManager.destroy();
+		output.destroy();
 
 		if(pipelineManager != null) pipelineManager.destroy();
 		if(multiDescLayout != null) multiDescLayout.destroy();
@@ -755,7 +753,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 	private void doResize(int width, int height) {
-		Dimension newSize = surfaceManager.resize(new Dimension(width, height));
+		Dimension newSize = output.resize(new Dimension(width, height));
 		if(newSize == null) return;
 		fbWidth = newSize.width;
 		fbHeight = newSize.height;
@@ -765,7 +763,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 		depthImage = memoryManager.createImage(fbWidth, fbHeight, EVulkanImageType.DEPTH_IMAGE);
 
-		surfaceManager.createFramebuffers(depthImage);
+		output.createFramebuffers(depthImage);
 
 		pipelineManager.resize(fbWidth, fbHeight);
 		renderPassBeginInfo.renderArea().extent().width(fbWidth).height(fbHeight);
@@ -807,10 +805,10 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				texture.tick();
 			}
 
-			if(!surfaceManager.startFrame()) {
+			if(!output.startFrame()) {
 				return;
 			}
-			renderPassBeginInfo.framebuffer(surfaceManager.getFramebuffer());
+			renderPassBeginInfo.framebuffer(output.getFramebuffer());
 
 			if(vkBeginCommandBuffer(graphCommandBuffer, commandBufferBeginInfo) != VK_SUCCESS) return;
 			if(vkBeginCommandBuffer(memCommandBuffer, commandBufferBeginInfo) != VK_SUCCESS) {
@@ -856,7 +854,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			fbCBrecording = true;
 		}
 
-		VulkanImage image = surfaceManager.getFramebufferImage();
+		VulkanImage image = output.getFramebufferImage();
 
 		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		vkCmdClearColorImage(fbCommandBuffer, image.getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, CLEAR_VALUES.get(0).color(), CLEAR_SUBRESOURCE);
@@ -889,7 +887,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		}
 		fbCBrecording = true;
 
-		VulkanImage image = surfaceManager.getFramebufferImage();
+		VulkanImage image = output.getFramebufferImage();
 
 		image.changeLayout(fbCommandBuffer, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		vkCmdCopyImageToBuffer(fbCommandBuffer, image.getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, framebufferReadBack.getBufferIdVk(), readBackRegion);
@@ -926,7 +924,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 				VkSubmitInfo graphSubmitInfo = VkSubmitInfo.calloc(stack)
 						.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO)
-						.pSignalSemaphores(stack.longs(surfaceManager.getSignalSemaphore()));
+						.pSignalSemaphores(stack.longs(output.getSignalSemaphore()));
 				if(fbCBrecording) {
 					graphSubmitInfo.pCommandBuffers(stack.pointers(memCommandBuffer.address(), graphCommandBuffer.address(), fbCommandBuffer.address()));
 					fbCBrecording = false;
@@ -934,7 +932,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 					graphSubmitInfo.pCommandBuffers(stack.pointers(memCommandBuffer.address(), graphCommandBuffer.address()));
 				}
 
-				graphSubmitInfo.pWaitSemaphores(stack.longs(surfaceManager.getWaitSemaphore()))
+				graphSubmitInfo.pWaitSemaphores(stack.longs(output.getWaitSemaphore()))
 						.pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT))
 						.waitSemaphoreCount(1);
 
@@ -947,7 +945,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				}
 			}
 
-			surfaceManager.endFrame(cmdBfrSend);
+			output.endFrame(cmdBfrSend);
 		} finally {
 			resourceMutex.release();
 		}

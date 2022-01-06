@@ -1,5 +1,6 @@
 package go.graphics.swing.contextcreator;
 
+import go.graphics.swing.vulkan.VulkanSurfaceOutput;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -37,7 +38,7 @@ public class GLFWVulkanContextCreator extends GLFWContextCreator {
 			LongBuffer surfaceBfr = stack.callocLong(1);
 			GLFWVulkan.glfwCreateWindowSurface(instance, glfw_wnd, null, surfaceBfr);
 
-			parent.wrapNewVkContext(instance, surfaceBfr.get(0));
+			parent.wrapNewVkContext(instance, new VulkanSurfaceOutput(surfaceBfr.get(0)));
 		}
 	}
 

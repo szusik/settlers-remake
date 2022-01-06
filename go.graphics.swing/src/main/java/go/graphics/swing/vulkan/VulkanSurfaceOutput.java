@@ -20,7 +20,7 @@ import static org.lwjgl.vulkan.KHRSurface.*;
 import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class VulkanSurfaceManager {
+public class VulkanSurfaceOutput extends AbstractVulkanOutput {
 
 	private long surface;
 	private long swapchain = VK_NULL_HANDLE;
@@ -32,14 +32,11 @@ public class VulkanSurfaceManager {
 	private final VkSwapchainCreateInfoKHR swapchainCreateInfo = VkSwapchainCreateInfoKHR.create();
 	private final VkFramebufferCreateInfo framebufferCreateInfo = VkFramebufferCreateInfo.create();
 
-	private long waitSemaphore;
-	private long signalSemaphore;
-	private VulkanDrawContext dc;
-
-	public VulkanSurfaceManager(long surface) {
+	public VulkanSurfaceOutput(long surface) {
 		this.surface = surface;
 	}
 
+	@Override
 	BiFunction<VkQueueFamilyProperties, Integer, Boolean> getPresentQueueCond(VkPhysicalDevice physicalDevice) {
 		return (queue, index) -> {
 			int[] present = new int[1];
@@ -48,14 +45,6 @@ public class VulkanSurfaceManager {
 			vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, index, surface, present);
 			return present[0]==1;
 		};
-	}
-
-	long getWaitSemaphore() {
-		return waitSemaphore;
-	}
-
-	long getSignalSemaphore() {
-		return signalSemaphore;
 	}
 
 	public void setSurface(long surface) {
@@ -86,11 +75,9 @@ public class VulkanSurfaceManager {
 		}
 	}
 
+	@Override
 	void init(VulkanDrawContext dc) {
-		this.dc = dc;
-
-		waitSemaphore = VulkanUtils.createSemaphore(dc.getDevice());
-		signalSemaphore = VulkanUtils.createSemaphore(dc.getDevice());
+		super.init(dc);
 
 
 		swapchainCreateInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
@@ -127,13 +114,9 @@ public class VulkanSurfaceManager {
 		swapchain = VK_NULL_HANDLE;
 	}
 
+	@Override
 	void destroy() {
-		if(waitSemaphore != 0) {
-			vkDestroySemaphore(dc.getDevice(), waitSemaphore, null);
-		}
-		if(signalSemaphore != 0) {
-			vkDestroySemaphore(dc.getDevice(), signalSemaphore, null);
-		}
+		super.destroy();
 
 		if(swapchain != VK_NULL_HANDLE) {
 			destroyFramebuffers(-1);
@@ -143,6 +126,7 @@ public class VulkanSurfaceManager {
 		swapchain = VK_NULL_HANDLE;
 	}
 
+	@Override
 	Dimension resize(Dimension preferredSize) {
 		destroyFramebuffers(-1);
 		destroySwapchainViews(-1);
@@ -187,10 +171,6 @@ public class VulkanSurfaceManager {
 		return new Dimension(fbWidth, fbHeight);
 	}
 
-	long getSwapchain() {
-		return swapchain;
-	}
-
 	private void destroySwapchainViews(int count) {
 		if(swapchainImages == null) return;
 		if(count == -1) count = swapchainImages.length;
@@ -211,7 +191,8 @@ public class VulkanSurfaceManager {
 		framebuffers = null;
 	}
 
-	public void createFramebuffers(VulkanImage depthImage) {
+	@Override
+	void createFramebuffers(VulkanImage depthImage) {
 		long[] imageHandles = VulkanUtils.getSwapchainImages(dc.getDevice(), swapchain);
 		if (imageHandles == null) {
 			vkDestroySwapchainKHR(dc.getDevice(), swapchain, null);
@@ -253,9 +234,10 @@ public class VulkanSurfaceManager {
 		}
 	}
 
-	public boolean startFrame() {
+	@Override
+	boolean startFrame() {
 		IntBuffer swapchainImageIndexBfr = BufferUtils.createIntBuffer(1);
-		int err = vkAcquireNextImageKHR(dc.getDevice(), swapchain, -1L, waitSemaphore, VK_NULL_HANDLE, swapchainImageIndexBfr);
+		int err = vkAcquireNextImageKHR(dc.getDevice(), swapchain, -1L, getWaitSemaphore(), VK_NULL_HANDLE, swapchainImageIndexBfr);
 		if(err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
 			dc.resize();
 		}
@@ -267,7 +249,8 @@ public class VulkanSurfaceManager {
 		return true;
 	}
 
-	public void endFrame(boolean wait) {
+	@Override
+	void endFrame(boolean wait) {
 		if (swapchainImageIndex == -1) {
 			return;
 		}
@@ -279,7 +262,7 @@ public class VulkanSurfaceManager {
 					.swapchainCount(1)
 					.pSwapchains(stack.longs(swapchain));
 			if (wait) {
-				presentInfo.pWaitSemaphores(stack.longs(signalSemaphore));
+				presentInfo.pWaitSemaphores(stack.longs(getSignalSemaphore()));
 			}
 
 			if (vkQueuePresentKHR(dc.queueManager.getPresentQueue(), presentInfo) != VK_SUCCESS) {
@@ -290,11 +273,13 @@ public class VulkanSurfaceManager {
 		swapchainImageIndex = -1;
 	}
 
-	public VulkanImage getFramebufferImage() {
+	@Override
+	VulkanImage getFramebufferImage() {
 		return swapchainImages[swapchainImageIndex];
 	}
 
-	public long getFramebuffer() {
+	@Override
+	long getFramebuffer() {
 		return framebuffers[swapchainImageIndex];
 	}
 }

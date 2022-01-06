@@ -14,6 +14,7 @@
  *******************************************************************************/
 package go.graphics.swing.contextcreator;
 
+import go.graphics.swing.vulkan.VulkanSurfaceOutput;
 import java.nio.ByteBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Platform;
@@ -33,7 +34,6 @@ import go.graphics.swing.vulkan.VulkanUtils;
 
 import static org.lwjgl.vulkan.EXTDebugReport.*;
 import static org.lwjgl.vulkan.EXTMetalSurface.VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT;
-import static org.lwjgl.vulkan.KHRSurface.*;
 import static org.lwjgl.vulkan.KHRWin32Surface.*;
 import static org.lwjgl.vulkan.KHRXlibSurface.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -43,7 +43,7 @@ public class VulkanContextCreator extends JAWTContextCreator {
 		super(container, debug);
 	}
 
-	private long surface = VK_NULL_HANDLE;
+	private VulkanSurfaceOutput output;
 	private VkInstance instance = null;
 	private long debugCallback;
 
@@ -116,13 +116,14 @@ public class VulkanContextCreator extends JAWTContextCreator {
 					error("Could not create a surface via VK_EXT_metal_surface");
 				}
 			}
-			surface = surfacePtr.get(0);
-		}
+			long surface = surfacePtr.get(0);
+			output = new VulkanSurfaceOutput(surface);
 
-		if(wrapCtx) {
-			parent.wrapNewVkContext(instance, surface);
-		} else {
-			parent.wrapNewVkSurface(surface);
+			if(wrapCtx) {
+				parent.wrapNewVkContext(instance, output);
+			} else {
+				output.setSurface(surface);
+			}
 		}
 	}
 
@@ -135,7 +136,6 @@ public class VulkanContextCreator extends JAWTContextCreator {
 	@Override
 	public void stop() {
 		if(debug) vkDestroyDebugReportCallbackEXT(instance, debugCallback, null);
-		vkDestroySurfaceKHR(instance, surface, null);
 		vkDestroyInstance(instance, null);
 	}
 

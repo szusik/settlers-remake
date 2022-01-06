@@ -2,6 +2,7 @@ package go.graphics.swing.contextcreator;
 
 import go.graphics.swing.ContextContainer;
 import go.graphics.swing.event.swingInterpreter.GOSwingEventConverter;
+import go.graphics.swing.vulkan.VulkanSurfaceOutput;
 import go.graphics.swing.vulkan.VulkanUtils;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -58,7 +59,7 @@ public class VkLWJGLXContextCreator extends ContextCreator<AWTVKCanvas> {
 
 			@Override
 			public void initVK() {
-				parent.wrapNewVkContext(instance, canvas.surface);
+				parent.wrapNewVkContext(instance, new VulkanSurfaceOutput(canvas.surface));
 			}
 
 			@Override

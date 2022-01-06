@@ -1,6 +1,7 @@
 package go.graphics.swing;
 
-import go.graphics.swing.vulkan.VulkanSurfaceManager;
+import go.graphics.swing.vulkan.AbstractVulkanOutput;
+import go.graphics.swing.vulkan.VulkanSurfaceOutput;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.vulkan.VkInstance;
@@ -20,17 +21,15 @@ import go.graphics.swing.contextcreator.ContextCreator;
 import go.graphics.swing.contextcreator.EBackendType;
 import go.graphics.swing.contextcreator.JAWTContextCreator;
 import go.graphics.swing.contextcreator.ContextException;
-import go.graphics.swing.contextcreator.VulkanContextCreator;
 import go.graphics.swing.opengl.LWJGLDrawContext;
 import go.graphics.swing.vulkan.VulkanDrawContext;
-import java8.util.function.Supplier;
 
 public abstract class ContextContainer extends JPanel implements GOEventHandlerProvider {
 
 
 	protected ContextCreator cc;
 	protected GLDrawContext context;
-	private VulkanSurfaceManager vkSurfaceManager;
+	private AbstractVulkanOutput vkOutput;
 	private boolean debug;
 	protected float guiScale = 0;
 
@@ -65,24 +64,22 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 	}
 
 
-	public void wrapNewVkContext(VkInstance instance, long surface) {
+	public void wrapNewVkContext(VkInstance instance, AbstractVulkanOutput vkOutput) {
 		if(context != null) context.invalidate();
+		this.vkOutput = vkOutput;
 
 		try {
-			context = new VulkanDrawContext(instance, vkSurfaceManager = new VulkanSurfaceManager(surface), guiScale);
+			context = new VulkanDrawContext(instance, vkOutput, guiScale);
 		} catch(Throwable thrown) {
 			thrown.printStackTrace();
 			fatal(thrown.getLocalizedMessage());
 		}
 	}
 
-	public void wrapNewVkSurface(long surface) {
-		vkSurfaceManager.setSurface(surface);
-	}
-
 	public void wrapNewGLContext() {
 		if(cc instanceof JAWTContextCreator) ((JAWTContextCreator)cc).makeCurrent(true);
 		if(context != null) context.invalidate();
+		vkOutput = null;
 
 		GLCapabilities caps = GL.createCapabilities();
 
@@ -160,8 +157,8 @@ public abstract class ContextContainer extends JPanel implements GOEventHandlerP
 	}
 
 	public void removeSurface() {
-		if(cc instanceof VulkanContextCreator) {
-			vkSurfaceManager.removeSurface();
+		if(vkOutput instanceof VulkanSurfaceOutput) {
+			((VulkanSurfaceOutput)vkOutput).removeSurface();
 		}
 	}
 }

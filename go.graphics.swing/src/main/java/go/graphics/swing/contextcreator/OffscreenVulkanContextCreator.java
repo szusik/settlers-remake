@@ -29,7 +29,7 @@ public class OffscreenVulkanContextCreator extends ContextCreator<Canvas> {
 			instance = VulkanUtils.createInstance(stack, extensions, debug);
 			debugCallback = debug ? VulkanUtils.setupDebugging(instance) : 0;
 
-			parent.wrapNewVkContext(instance, 0L);
+			parent.wrapNewVkContext(instance, null); //TODO
 		}
 	}
 
