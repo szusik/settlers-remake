@@ -10,6 +10,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
+import org.lwjgl.vulkan.VkSubmitInfo;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class CustomVulkanOutput extends AbstractVulkanOutput {
@@ -97,5 +98,14 @@ public class CustomVulkanOutput extends AbstractVulkanOutput {
 
 	public Dimension getFramebufferSize() {
 		return fbDimension;
+	}
+
+	@Override
+	public boolean needsPresentQueue() {
+		return false;
+	}
+
+	@Override
+	void configureDrawCommand(MemoryStack stack, VkSubmitInfo graphSubmitInfo) {
 	}
 }

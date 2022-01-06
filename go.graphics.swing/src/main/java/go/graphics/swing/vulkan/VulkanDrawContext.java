@@ -130,7 +130,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 			queueManager = new QueueManager(stack, this, physicalDevice, output.getPresentQueueCond(physicalDevice));
 
 			if(!queueManager.hasGraphicsSupport()) throw new Error("Could not find any graphics queue.");
-			//if(!queueManager.hasPresentSupport()) throw new Error("Could not find any present queue.");
+			if(!queueManager.hasPresentSupport() && output.needsPresentQueue()) throw new Error("Could not find any present queue.");
 
 			// device extensions
 			List<String> deviceExtensions = new ArrayList<>();
@@ -925,8 +925,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				commandBufferRecording = false;
 
 				VkSubmitInfo graphSubmitInfo = VkSubmitInfo.calloc(stack)
-						.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO)
-						;//.pSignalSemaphores(stack.longs(output.getSignalSemaphore()));
+						.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO);
 				if(fbCBrecording) {
 					graphSubmitInfo.pCommandBuffers(stack.pointers(memCommandBuffer.address(), graphCommandBuffer.address(), fbCommandBuffer.address()));
 					fbCBrecording = false;
@@ -934,9 +933,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 					graphSubmitInfo.pCommandBuffers(stack.pointers(memCommandBuffer.address(), graphCommandBuffer.address()));
 				}
 
-				/*graphSubmitInfo.pWaitSemaphores(stack.longs(output.getWaitSemaphore()))
-						.pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT))
-						.waitSemaphoreCount(1);*/
+				output.configureDrawCommand(stack, graphSubmitInfo);
 
 				int error = vkQueueSubmit(queueManager.getGraphicsQueue(), graphSubmitInfo, VK_NULL_HANDLE);
 				if(error != VK_SUCCESS) {

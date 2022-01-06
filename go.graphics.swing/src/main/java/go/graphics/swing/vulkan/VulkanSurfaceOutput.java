@@ -12,6 +12,7 @@ import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
+import org.lwjgl.vulkan.VkSubmitInfo;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
@@ -26,6 +27,8 @@ public class VulkanSurfaceOutput extends AbstractVulkanOutput {
 	private long swapchain = VK_NULL_HANDLE;
 	private int surfaceFormat;
 	private int swapchainImageIndex = -1;
+	private long waitSemaphore;
+	private long signalSemaphore;
 
 	private VulkanImage[] swapchainImages;
 	private long[] framebuffers;
@@ -73,12 +76,17 @@ public class VulkanSurfaceOutput extends AbstractVulkanOutput {
 			}
 			this.surfaceFormat = newSurfaceFormat;
 		}
+
+		dc.resize();
 	}
 
 	@Override
 	void init(VulkanDrawContext dc) {
 		super.init(dc);
 
+
+		waitSemaphore = VulkanUtils.createSemaphore(dc.getDevice());
+		signalSemaphore = VulkanUtils.createSemaphore(dc.getDevice());
 
 		swapchainCreateInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
 				.compositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
@@ -117,6 +125,13 @@ public class VulkanSurfaceOutput extends AbstractVulkanOutput {
 	@Override
 	void destroy() {
 		super.destroy();
+
+		if(waitSemaphore != 0) {
+			vkDestroySemaphore(dc.getDevice(), waitSemaphore, null);
+		}
+		if(signalSemaphore != 0) {
+			vkDestroySemaphore(dc.getDevice(), signalSemaphore, null);
+		}
 
 		if(swapchain != VK_NULL_HANDLE) {
 			destroyFramebuffers(-1);
@@ -236,8 +251,13 @@ public class VulkanSurfaceOutput extends AbstractVulkanOutput {
 
 	@Override
 	boolean startFrame() {
+		if(swapchain == VK_NULL_HANDLE) {
+			dc.resize();
+			return false;
+		}
+
 		IntBuffer swapchainImageIndexBfr = BufferUtils.createIntBuffer(1);
-		int err = vkAcquireNextImageKHR(dc.getDevice(), swapchain, -1L, getWaitSemaphore(), VK_NULL_HANDLE, swapchainImageIndexBfr);
+		int err = vkAcquireNextImageKHR(dc.getDevice(), swapchain, -1L, waitSemaphore, VK_NULL_HANDLE, swapchainImageIndexBfr);
 		if(err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR) {
 			dc.resize();
 		}
@@ -262,7 +282,7 @@ public class VulkanSurfaceOutput extends AbstractVulkanOutput {
 					.swapchainCount(1)
 					.pSwapchains(stack.longs(swapchain));
 			if (wait) {
-				presentInfo.pWaitSemaphores(stack.longs(getSignalSemaphore()));
+				presentInfo.pWaitSemaphores(stack.longs(signalSemaphore));
 			}
 
 			if (vkQueuePresentKHR(dc.queueManager.getPresentQueue(), presentInfo) != VK_SUCCESS) {
@@ -281,5 +301,18 @@ public class VulkanSurfaceOutput extends AbstractVulkanOutput {
 	@Override
 	long getFramebuffer() {
 		return framebuffers[swapchainImageIndex];
+	}
+
+	@Override
+	public boolean needsPresentQueue() {
+		return true;
+	}
+
+	@Override
+	void configureDrawCommand(MemoryStack stack, VkSubmitInfo graphSubmitInfo) {
+		graphSubmitInfo.pWaitSemaphores(stack.longs(waitSemaphore))
+					.pSignalSemaphores(stack.longs(signalSemaphore))
+						.pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT))
+						.waitSemaphoreCount(1);
 	}
 }
