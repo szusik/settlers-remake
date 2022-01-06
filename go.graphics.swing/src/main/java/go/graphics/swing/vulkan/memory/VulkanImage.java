@@ -14,13 +14,15 @@ public class VulkanImage {
 	private final long allocation;
 	private final VulkanMemoryManager memoryManager;
 	private int imageLayout;
-	private int aspect;
+	private final int aspect;
+	private final VulkanDrawContext dc;
 
 	public VulkanImage(VulkanDrawContext dc, VulkanMemoryManager manager, long image, long allocation, EVulkanImageType imageType) {
 		this(dc, manager, image, allocation, imageType.getFormat(), imageType.getAspect());
 	}
 
 	public VulkanImage(VulkanDrawContext dc, VulkanMemoryManager manager, long image, long allocation, int format, int aspect) {
+		this.dc = dc;
 		this.image = image;
 		this.imageView = VulkanUtils.createImageView(dc.getDevice(), image, format, aspect);
 		this.allocation = allocation;
@@ -47,6 +49,7 @@ public class VulkanImage {
 
 	public void free() {
 		if(memoryManager != null) {
+			vkDestroyImageView(dc.getDevice(), imageView, null);
 			Vma.vmaDestroyImage(memoryManager.getAllocator(), image, allocation);
 		}
 	}
