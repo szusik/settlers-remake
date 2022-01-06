@@ -123,6 +123,7 @@ public class VulkanMemoryManager {
 		VulkanImage imageHandle = null;
 		try {
 			imageHandle = new VulkanImage(dc, this, image, allocation, imageType);
+			images.add(imageHandle);
 		} finally {
 			if(imageHandle == null) {
 				Vma.vmaDestroyImage(allocator, image, allocation);
