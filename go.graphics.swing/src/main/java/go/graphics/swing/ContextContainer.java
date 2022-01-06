@@ -27,10 +27,10 @@ import go.graphics.swing.vulkan.VulkanDrawContext;
 public abstract class ContextContainer extends JPanel implements GOEventHandlerProvider {
 
 
-	protected ContextCreator cc;
+	protected ContextCreator<?> cc;
 	protected GLDrawContext context;
 	private AbstractVulkanOutput vkOutput;
-	private boolean debug;
+	private final boolean debug;
 	protected float guiScale = 0;
 
 	public ContextContainer(EBackendType backend, LayoutManager layout, boolean debug) {
