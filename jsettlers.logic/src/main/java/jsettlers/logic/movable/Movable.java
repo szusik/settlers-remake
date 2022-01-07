@@ -280,26 +280,27 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 
 	private ShortPoint2D markedTarget = null;
 
-	protected static <T extends Movable> Node<T> followPresearchedPathMarkTarget() {
-		return followPresearchedPathMarkTarget(mov -> true);
-	}
-
-	protected static <T extends Movable> Node<T> followPresearchedPathMarkTarget(IBooleanConditionFunction<T> pathStep) {
+	protected static <T extends Movable> Node<T> markDuring(IShortPoint2DSupplier<T> markPosition, Node<T> child) {
 		return resetAfter(mov -> {
 					Movable mmov = mov;
 					mmov.grid.setMarked(mmov.markedTarget, false);
 					mmov.markedTarget = null;
 				},
 				sequence(
-					action(mov -> {
-						Movable mmov = mov;
-						mmov.markedTarget = mmov.path.getTargetPosition();
-						mmov.grid.setMarked(mmov.markedTarget, true);
-					}),
-					followPresearchedPath(pathStep)
+						action(mov -> {
+							Movable mmov = mov;
+							mmov.markedTarget = markPosition.apply(mov);
+							mmov.grid.setMarked(mmov.markedTarget, true);
+						}),
+						child
 				)
 		);
 	}
+
+	protected static <T extends Movable> Node<T> followPresearchedPathMarkTarget(IBooleanConditionFunction<T> pathStep) {
+		return markDuring(mov -> mov.path.getTargetPosition(), followPresearchedPath(pathStep));
+	}
+
 	protected static <T extends Movable> Node<T> followPresearchedPath() {
 		return followPresearchedPath(mov -> true);
 	}

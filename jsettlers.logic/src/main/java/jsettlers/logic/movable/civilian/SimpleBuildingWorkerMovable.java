@@ -86,17 +86,21 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					show(),
 					ignoreFailure(
 						sequence(
-							followPresearchedPathMarkTarget(),
-							selector(
+							markDuring(mov -> mov.path.getTargetPosition(),
 								sequence(
-									goInDirectionWaitFree(EDirection.EAST),
-									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									repeatLoop(6, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)),
-									goInDirectionWaitFree(EDirection.WEST)
-								),
-								sequence(
-									setDirectionNode(mov -> EDirection.NORTH_WEST),
-									repeatLoop(6, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION))
+									followPresearchedPath(),
+									selector(
+										sequence(
+											goInDirectionWaitFree(EDirection.EAST),
+											setDirectionNode(mov -> EDirection.NORTH_WEST),
+											repeatLoop(6, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION)),
+											goInDirectionWaitFree(EDirection.WEST)
+										),
+										sequence(
+											setDirectionNode(mov -> EDirection.NORTH_WEST),
+											repeatLoop(6, playAction(EMovableAction.ACTION1, LUMBERJACK_ACTION1_DURATION))
+										)
+									)
 								)
 							),
 							executeSearch(ESearchType.CUTTABLE_TREE),
@@ -209,9 +213,13 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					show(),
 					ignoreFailure(
 						sequence(
-							followPresearchedPathMarkTarget(),
-							setDirectionNode(mov -> EDirection.SOUTH_WEST),
-							repeatLoop(STONECUTTER_CUT_STONE_ITERATIONS, playAction(EMovableAction.ACTION1, STONECUTTER_ACTION1_DURATION)),
+							markDuring(mov -> mov.path.getTargetPosition(),
+								sequence(
+									followPresearchedPath(),
+									setDirectionNode(mov -> EDirection.SOUTH_WEST),
+									repeatLoop(STONECUTTER_CUT_STONE_ITERATIONS, playAction(EMovableAction.ACTION1, STONECUTTER_ACTION1_DURATION))
+								)
+							),
 							executeSearch(ESearchType.CUTTABLE_STONE),
 							take(mov -> EMaterialType.STONE, false),
 							goToOutputStack(EMaterialType.STONE),
@@ -236,9 +244,13 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										setMaterialNode(EMaterialType.BASKET),
 										show(),
-										followPresearchedPathMarkTarget(),
-										setDirectionNode(mov -> EDirection.NORTH_WEST),
-										take(mov -> EMaterialType.BASKET, false),
+										markDuring(mov -> mov.path.getTargetPosition(),
+											sequence(
+												followPresearchedPath(),
+												setDirectionNode(mov -> EDirection.NORTH_WEST),
+												take(mov -> EMaterialType.BASKET, false)
+											)
+										),
 										executeSearch(ESearchType.HARVESTABLE_WINE),
 										enterHome(),
 										sleep(3000),
@@ -256,9 +268,13 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										setMaterialNode(EMaterialType.PLANT),
 										show(),
-										followPresearchedPathMarkTarget(),
-										setDirectionNode(mov -> EDirection.SOUTH_WEST),
-										playAction(EMovableAction.ACTION1, (short)4000),
+										markDuring(mov -> mov.path.getTargetPosition(),
+											sequence(
+												followPresearchedPath(),
+												setDirectionNode(mov -> EDirection.SOUTH_WEST),
+												playAction(EMovableAction.ACTION1, (short)4000)
+											)
+										),
 										executeSearch(ESearchType.PLANTABLE_WINE),
 										setMaterialNode(EMaterialType.NO_MATERIAL)
 									)
@@ -289,16 +305,20 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										show(),
 										setMaterialNode(EMaterialType.SCYTHE),
-										followPresearchedPathMarkTarget(),
+										markDuring(mov -> mov.path.getTargetPosition(),
+											sequence(
+												followPresearchedPath(),
 
-										setDirectionNode(mov -> EDirection.SOUTH_WEST),
-										playAction(EMovableAction.ACTION1, (short)1000),
-										setDirectionNode(mov -> EDirection.NORTH_WEST),
-										playAction(EMovableAction.ACTION1, (short)1000),
-										setDirectionNode(mov -> EDirection.NORTH_EAST),
-										playAction(EMovableAction.ACTION1, (short)1000),
-										setDirectionNode(mov -> EDirection.SOUTH_EAST),
-										playAction(EMovableAction.ACTION1, (short)1000),
+												setDirectionNode(mov -> EDirection.SOUTH_WEST),
+												playAction(EMovableAction.ACTION1, (short)1000),
+												setDirectionNode(mov -> EDirection.NORTH_WEST),
+												playAction(EMovableAction.ACTION1, (short)1000),
+												setDirectionNode(mov -> EDirection.NORTH_EAST),
+												playAction(EMovableAction.ACTION1, (short)1000),
+												setDirectionNode(mov -> EDirection.SOUTH_EAST),
+												playAction(EMovableAction.ACTION1, (short)1000)
+											)
+										),
 
 										executeSearch(ESearchType.CUTTABLE_CORN),
 										setDirectionNode(mov -> EDirection.NORTH_EAST),
@@ -316,16 +336,20 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										show(),
 										setMaterialNode(EMaterialType.PLANT),
-										followPresearchedPathMarkTarget(),
+										markDuring(mov -> mov.path.getTargetPosition(),
+											sequence(
+												followPresearchedPath(),
 
-										setDirectionNode(mov -> EDirection.NORTH_EAST),
-										playAction(EMovableAction.ACTION2, (short)1400),
-										setDirectionNode(mov -> EDirection.SOUTH_EAST),
-										playAction(EMovableAction.ACTION2, (short)1400),
-										setDirectionNode(mov -> EDirection.SOUTH_WEST),
-										playAction(EMovableAction.ACTION2, (short)1400),
-										setDirectionNode(mov -> EDirection.NORTH_WEST),
-										playAction(EMovableAction.ACTION2, (short)1400),
+												setDirectionNode(mov -> EDirection.NORTH_EAST),
+												playAction(EMovableAction.ACTION2, (short)1400),
+												setDirectionNode(mov -> EDirection.SOUTH_EAST),
+												playAction(EMovableAction.ACTION2, (short)1400),
+												setDirectionNode(mov -> EDirection.SOUTH_WEST),
+												playAction(EMovableAction.ACTION2, (short)1400),
+												setDirectionNode(mov -> EDirection.NORTH_WEST),
+												playAction(EMovableAction.ACTION2, (short)1400)
+											)
+										),
 
 										executeSearch(ESearchType.PLANTABLE_CORN),
 										setMaterialNode(EMaterialType.NO_MATERIAL)
@@ -554,9 +578,13 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 										condition(mov -> true),
 										setMaterialNode(EMaterialType.NO_MATERIAL),
 										show(),
-										followPresearchedPathMarkTarget(),
-										setMaterialNode(EMaterialType.RICE),
-										playAction(EMovableAction.ACTION1, (short)3000),
+										markDuring(mov -> mov.path.getTargetPosition(),
+											sequence(
+												followPresearchedPath(),
+												setMaterialNode(EMaterialType.RICE),
+												playAction(EMovableAction.ACTION1, (short)3000)
+											)
+										),
 										executeSearch(ESearchType.HARVESTABLE_RICE),
 										goToOutputStack(EMaterialType.RICE),
 										dropProduced(mov -> EMaterialType.RICE)
@@ -569,9 +597,13 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										setMaterialNode(EMaterialType.PLANT),
 										show(),
-										followPresearchedPathMarkTarget(),
-										setDirectionNode(mov -> EDirection.NORTH_WEST),
-										playAction(EMovableAction.ACTION1, (short)3000),
+										markDuring(mov -> mov.path.getTargetPosition(),
+											sequence(
+												followPresearchedPath(),
+												setDirectionNode(mov -> EDirection.NORTH_WEST),
+												playAction(EMovableAction.ACTION1, (short)3000)
+											)
+										),
 										executeSearch(ESearchType.PLANTABLE_RICE),
 										setMaterialNode(EMaterialType.NO_MATERIAL)
 									)
@@ -602,10 +634,14 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										show(),
 										setMaterialNode(EMaterialType.EMPTY_BUCKET),
-										followPresearchedPathMarkTarget(),
+										markDuring(mov -> mov.path.getTargetPosition(),
+											sequence(
+												followPresearchedPath(),
 
-										playAction(EMovableAction.ACTION1, (short) 1400),
-										setMaterialNode(EMaterialType.HONEY),
+												playAction(EMovableAction.ACTION1, (short) 1400),
+												setMaterialNode(EMaterialType.HONEY)
+											)
+										),
 
 										executeSearch(ESearchType.HARVESTABLE_HIVE),
 										goToOutputStack(EMaterialType.HONEY),
@@ -619,9 +655,13 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 									sequence(
 										show(),
 										setMaterialNode(EMaterialType.PLANT),
-										followPresearchedPathMarkTarget(),
+										markDuring(mov -> mov.path.getTargetPosition(),
+											sequence(
+												followPresearchedPath(),
 
-										playAction(EMovableAction.ACTION1, (short)1400),
+												playAction(EMovableAction.ACTION1, (short)1400)
+											)
+										),
 
 										executeSearch(ESearchType.PLANTABLE_HIVE),
 										setMaterialNode(EMaterialType.NO_MATERIAL)
