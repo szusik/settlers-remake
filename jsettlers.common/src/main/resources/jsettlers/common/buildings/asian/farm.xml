@@ -124,7 +124,8 @@
 
 	<door dx="-1" dy="1" />
 
-	<constructionStack dx="1" dy="6" material="PLANK" buildrequired="9" />
+	<constructionStack dx="0" dy="6" material="PLANK" buildrequired="1" />
+	<constructionStack dx="1" dy="6" material="PLANK" buildrequired="8" />
 	<constructionStack dx="3" dy="6" material="STONE" buildrequired="3" />
 	<offerStack dx="2" dy="6" material="CROP" />
 

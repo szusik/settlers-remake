@@ -142,10 +142,12 @@
 	<blocked dx="-1" dy="3" block="false" />
 	
 	<door dx="-1" dy="3" />
-	
 
-	<constructionStack dx="1" dy="7" material="STONE" buildrequired="9" />
-	<constructionStack dx="4" dy="8" material="PLANK" buildrequired="9" />
+
+	<constructionStack dx="1" dy="7" material="STONE" buildrequired="8" />
+	<constructionStack dx="-1" dy="5" material="STONE" buildrequired="1" />
+	<constructionStack dx="4" dy="8" material="PLANK" buildrequired="8" />
+	<constructionStack dx="5" dy="7" material="PLANK" buildrequired="1" />
 	
 	<bricklayer dx="-4" dy="2" direction="NORTH_EAST" />
 	<bricklayer dx="-2" dy="3" direction="NORTH_EAST" />
