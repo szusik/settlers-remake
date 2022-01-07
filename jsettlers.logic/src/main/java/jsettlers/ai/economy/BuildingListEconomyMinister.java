@@ -154,11 +154,10 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 		if (player.getCivilisation() == ECivilisation.EGYPTIAN) {
 			for (int i = 0; i < Math.ceil(mapBuildingCounts[STONECUTTER.ordinal] * buildingIndustryFactor); i++) {
 				buildingMaterialBuildings.add(STONECUTTER);
-				if (i % 2 == 1)
-					buildingMaterialBuildings.add(LUMBERJACK);
-				if (i % 6 == 1)
+				buildingMaterialBuildings.add(LUMBERJACK);
+				if (i % 3 == 1)
 					buildingMaterialBuildings.add(FORESTER);
-				if (i % 4 == 1)
+				if (i % 2 == 1)
 					buildingMaterialBuildings.add(SAWMILL);
 			}
 		} else {
