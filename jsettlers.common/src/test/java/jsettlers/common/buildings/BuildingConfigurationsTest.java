@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.movable.EDirection;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,6 +86,14 @@ public class BuildingConfigurationsTest {
 		for (RelativeStack stack : building.getOfferStacks()) {
 			assertFalse(building + "", isBlocked(stack));
 			assertTrue(building + "", isProtected(stack));
+		}
+	}
+
+	@Test
+	public void testConstructionStacksHaveValidSize() {
+		for(ConstructionStack stack : building.getConstructionStacks()) {
+			assertTrue(stack + " has " + stack.requiredForBuild() + " elements but can only have 8", stack.requiredForBuild() <= 8);
+			assertTrue(stack + " must have at least one element", stack.requiredForBuild() > 0);
 		}
 	}
 
