@@ -668,7 +668,7 @@ public class AiStatistics {
 		return aiMapInformation.wasFishNearByAtGameStart[civilisation.ordinal].get(position.x * partitionsGrid.getWidth() + position.y);
 	}
 
-	ILogicMovable getNearestSwordsmanOf(ShortPoint2D targetPosition, byte playerId) {
+	public ILogicMovable getNearestSwordsmanOf(ShortPoint2D targetPosition, byte playerId) {
 		List<ShortPoint2D> soldierPositions = getPositionsOfMovablesWithTypeForPlayer(playerId, SWORDSMAN_L3);
 		if (soldierPositions.size() == 0) {
 			soldierPositions = getPositionsOfMovablesWithTypeForPlayer(playerId, SWORDSMAN_L2);

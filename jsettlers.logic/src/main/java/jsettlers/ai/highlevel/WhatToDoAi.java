@@ -169,7 +169,7 @@ class WhatToDoAi implements IWhatToDoAi {
 
 	@Override
 	public void applyLightRules() {
-		armyGeneral.applyLightRules(null);
+		armyGeneral.applyLightRules(new HashSet<>());
 	}
 
 	@Override
@@ -182,7 +182,6 @@ class WhatToDoAi implements IWhatToDoAi {
 			commandPioneers();
 			buildBuildings();
 			Set<Integer> soldiersWithOrders = new HashSet<>();
-			occupyMilitaryBuildings(soldiersWithOrders);
 			armyGeneral.applyHeavyRules(soldiersWithOrders);
 			sendGeologists();
 		}
@@ -245,21 +244,6 @@ class WhatToDoAi implements IWhatToDoAi {
 
 	private ILogicMovable getBearerAt(ShortPoint2D point) {
 		return mainGrid.getMovableGrid().getMovableAt(point.x, point.y);
-	}
-
-	private void occupyMilitaryBuildings(Set<Integer> soldiersWithOrders) {
-
-		for (ShortPoint2D militaryBuildingPosition : aiStatistics.getBuildingPositionsOfTypesForPlayer(EBuildingType.MILITARY_BUILDINGS, playerId)) {
-			OccupyingBuilding militaryBuilding = (OccupyingBuilding) aiStatistics.getBuildingAt(militaryBuildingPosition);
-			if (!militaryBuilding.isOccupied()) {
-				ShortPoint2D door = militaryBuilding.getDoor();
-				ILogicMovable soldier = aiStatistics.getNearestSwordsmanOf(door, playerId);
-				if (soldier != null && militaryBuilding.getPosition().getOnGridDistTo(soldier.getPosition()) > TOWER_SEARCH_SOLDIERS_RADIUS) {
-					soldiersWithOrders.add(soldier.getID());
-					sendMovableTo(soldier, door, EMoveToType.FORCED);
-				}
-			}
-		}
 	}
 
 	private void sendMovableTo(ILogicMovable movable, ShortPoint2D target, EMoveToType moveToType) {
