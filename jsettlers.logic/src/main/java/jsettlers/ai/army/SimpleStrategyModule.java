@@ -37,7 +37,7 @@ public class SimpleStrategyModule extends ArmyModule {
 			IPlayer weakestEnemy = parent.getWeakestEnemy();
 			SoldierPositions enemySoldierPositions = calculateSituation(weakestEnemy.getPlayerId());
 			boolean infantryWouldDie = wouldInfantryDie(enemySoldierPositions);
-			int woundedSoldiersCount = parent.findModules(HealSoldiersModule.class).findAny().get().getWoundedSoldiersCount();
+			int woundedSoldiersCount = parent.findModules(HealSoldiersModule.class).findAny().map(HealSoldiersModule::getWoundedSoldiersCount).orElse(0);
 			if (woundedSoldiersCount/(float)soldierPositions.getSoldiersCount() <= MAX_WOUNDED_RATIO_FOR_ATTACK &&
 					attackIsPossible(soldierPositions, enemySoldierPositions, infantryWouldDie)) {
 				attack(soldierPositions, infantryWouldDie, soldiersWithOrders);
