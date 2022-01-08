@@ -53,9 +53,9 @@ public class AiMapInformation {
 	private static final int MIN_SMITHS_BEFORE_MANNA_AND_GOLD_REDUCTION = 10;
 	private static final int MIN_MANNA_PRODUCERS_BEFORE_GOLD_REDUCTION = 2;
 	private static final int MIN_LUMBERJACK_COUNT = 3;
-	private static final int MAX_FISHERS = 10;
-	// max 10 fisher to prevent AI from building only fishermen which on the one hand looks very unnatural and on the other hand is unproductive in
-	// the late game caused by over fishing.
+	private static final int FISHER_PENALTY_MIN_AMOUNT = 7;
+	// throttle the number of FISHER after the 7th one
+	// this prevents the AI from overfishing but also takes the high amount of resources on some maps into account
 	public long[][] resourceAndGrassCount;
 	public long[] stoneCount;
 	public final BitSet[] wasFishNearByAtGameStart = new BitSet[ECivilisation.VALUES.length];
@@ -97,7 +97,9 @@ public class AiMapInformation {
 
 		long playersAndNeverlandStone = Math.round(stoneCount[neverland] / numberOfPlayers) + stoneCount[playerId];
 
-		int maxFishermen = Math.max(1, (int) Math.min(MAX_FISHERS, Math.ceil(resourceAmount.get(EResourceType.FISH) / FISH_TO_FISHER_HUTS_RATIO)));
+		int maxFishermen = (int) Math.ceil(resourceAmount.get(EResourceType.FISH) / FISH_TO_FISHER_HUTS_RATIO);
+		if(maxFishermen > FISHER_PENALTY_MIN_AMOUNT) maxFishermen = (int)Math.log(maxFishermen - FISHER_PENALTY_MIN_AMOUNT)*3 + FISHER_PENALTY_MIN_AMOUNT;
+		maxFishermen = Math.max(1, maxFishermen);
 		int maxCoalMines = (int) Math.ceil(resourceAmount.get(EResourceType.COAL) / COAL_TO_COAL_MINES_RATIO);
 		int maxIronMines = (int) Math.ceil(resourceAmount.get(EResourceType.IRONORE) / IRONORE_TO_IRON_MINES_RATIO);
 		int maxGoldMelts = resourceAmount.get(EResourceType.GOLDORE) > 0 ? 2 : 0;
