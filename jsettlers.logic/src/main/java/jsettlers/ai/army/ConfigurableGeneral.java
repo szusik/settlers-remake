@@ -87,13 +87,15 @@ public class ConfigurableGeneral implements ArmyGeneral {
 		this.healPropFactor = healPropFactor;
 
 		// setup woundedSoldiers
-		doHealTroops(false);
+		healTroops(null, false);
 
 		hospitalWorkRadius = EBuildingType.HOSPITAL.getVariant(player.getCivilisation()).getWorkRadius();
 	}
 
 	@Override
-	public void commandTroops(Set<Integer> soldiersWithOrders) {
+	public void applyHeavyRules(Set<Integer> soldiersWithOrders) {
+		levyUnits();
+
 		soldiersWithOrders.addAll(woundedSoldiers);
 		framework.ensureAllTowersFullyMounted();
 
@@ -133,7 +135,6 @@ public class ConfigurableGeneral implements ArmyGeneral {
 		return enemySoldierPositions.bowmenPositions.size() > BOWMEN_COUNT_OF_KILLING_INFANTRY;
 	}
 
-	@Override
 	public void levyUnits() {
 		upgradeSoldiers();
 
@@ -181,11 +182,11 @@ public class ConfigurableGeneral implements ArmyGeneral {
 	}
 
 	@Override
-	public void healTroops() {
-		doHealTroops(true);
+	public void applyLightRules(Set<Integer> soldiersWithOrders) {
+		healTroops(soldiersWithOrders, true);
 	}
 
-	private void doHealTroops(boolean commit) {
+	private void healTroops(Set<Integer> soldiersWithOrders, boolean commit) {
 		woundedSoldiers.clear();
 		if(healPropFactor == 0) return;
 
@@ -252,7 +253,7 @@ public class ConfigurableGeneral implements ArmyGeneral {
 
 		if(commit) {
 			newOrders.entrySet().forEach(newOrder -> {
-				framework.sendTroopsToById(newOrder.getValue(), newOrder.getKey(), null, EMoveToType.FORCED);
+				framework.sendTroopsToById(newOrder.getValue(), newOrder.getKey(), soldiersWithOrders, EMoveToType.FORCED);
 			});
 		}
 	}

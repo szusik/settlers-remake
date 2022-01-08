@@ -38,7 +38,6 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IInGamePlayer;
-import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.input.tasks.ConstructBuildingTask;
 import jsettlers.input.tasks.ConvertGuiTask;
@@ -91,7 +90,6 @@ import static jsettlers.common.buildings.EBuildingType.TEMPLE;
 import static jsettlers.common.buildings.EBuildingType.TOWER;
 import static jsettlers.common.buildings.EBuildingType.WATERWORKS;
 import static jsettlers.common.buildings.EBuildingType.WEAPONSMITH;
-import static jsettlers.common.buildings.EBuildingType.WINEGROWER;
 import static jsettlers.common.material.EMaterialType.GEMS;
 import static jsettlers.common.material.EMaterialType.GOLD;
 import static jsettlers.logic.constants.Constants.TOWER_SEARCH_SOLDIERS_RADIUS;
@@ -171,7 +169,7 @@ class WhatToDoAi implements IWhatToDoAi {
 
 	@Override
 	public void applyLightRules() {
-		armyGeneral.healTroops();
+		armyGeneral.applyLightRules(null);
 	}
 
 	@Override
@@ -183,9 +181,9 @@ class WhatToDoAi implements IWhatToDoAi {
 			destroyBuildings();
 			commandPioneers();
 			buildBuildings();
-			Set<Integer> soldiersWithOrders = occupyMilitaryBuildings();
-			armyGeneral.levyUnits();
-			armyGeneral.commandTroops(soldiersWithOrders);
+			Set<Integer> soldiersWithOrders = new HashSet<>();
+			occupyMilitaryBuildings(soldiersWithOrders);
+			armyGeneral.applyHeavyRules(soldiersWithOrders);
 			sendGeologists();
 		}
 	}
@@ -249,8 +247,7 @@ class WhatToDoAi implements IWhatToDoAi {
 		return mainGrid.getMovableGrid().getMovableAt(point.x, point.y);
 	}
 
-	private Set<Integer> occupyMilitaryBuildings() {
-		Set<Integer> soldiersWithOrders = new HashSet<>();
+	private void occupyMilitaryBuildings(Set<Integer> soldiersWithOrders) {
 
 		for (ShortPoint2D militaryBuildingPosition : aiStatistics.getBuildingPositionsOfTypesForPlayer(EBuildingType.MILITARY_BUILDINGS, playerId)) {
 			OccupyingBuilding militaryBuilding = (OccupyingBuilding) aiStatistics.getBuildingAt(militaryBuildingPosition);
@@ -263,8 +260,6 @@ class WhatToDoAi implements IWhatToDoAi {
 				}
 			}
 		}
-
-		return soldiersWithOrders;
 	}
 
 	private void sendMovableTo(ILogicMovable movable, ShortPoint2D target, EMoveToType moveToType) {

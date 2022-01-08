@@ -26,21 +26,17 @@ import java.util.Set;
 public interface ArmyGeneral {
 
 	/**
-	 * Let move troops to defeat or attack
+	 * ticks every 10 seconds
+	 *
+	 * @param soldiersWithOrders List of soldiers that already received an order. Might be null
 	 */
-	void commandTroops(Set<Integer> soldiersWithOrders);
+	void applyHeavyRules(Set<Integer> soldiersWithOrders);
 
 	/**
-	 * Move troops to hospitals
+	 * ticks every second
+	 *
+	 * @param soldiersWithOrders List of soldiers that already received an order. Might be null
 	 */
-	void healTroops();
-
-	/**
-	 * TODO
-	 * - upgrades soldiers
-	 * - enable and disable recruitment (not implemented yet)
-	 * - choose the weapons to produce (not implemented yet)
-	 */
-	void levyUnits();
+	void applyLightRules(Set<Integer> soldiersWithOrders);
 
 }
