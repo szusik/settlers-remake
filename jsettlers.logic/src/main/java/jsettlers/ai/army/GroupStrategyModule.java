@@ -150,6 +150,7 @@ public class GroupStrategyModule extends ArmyModule {
 		for(Map.Entry<ShortPoint2D, Set<Integer>> poiData : groups.listGroups().entrySet()) {
 			ShortPoint2D poi = poiData.getKey();
 			Set<Integer> soldiers = poiData.getValue();
+			boolean allowForceMove = !poi.equals(focusPoint);
 
 			List<Integer> forceMove = new ArrayList<>();
 			List<Integer> defaultMove = new ArrayList<>();
@@ -160,7 +161,7 @@ public class GroupStrategyModule extends ArmyModule {
 					continue;
 				}
 
-				if(distance >= SOLDIER_FORCE_MOVE_DISTANCE) {
+				if(distance >= SOLDIER_FORCE_MOVE_DISTANCE && allowForceMove) {
 					forceMove.add(mov.getID());
 				} else {
 					defaultMove.add(mov.getID());
