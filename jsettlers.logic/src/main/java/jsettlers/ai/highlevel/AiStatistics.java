@@ -553,6 +553,14 @@ public class AiStatistics {
 		return landscapeGrid.getBlockedPartitionAt(x, y) == playerStatistics[playerId].blockedPartitionId;
 	}
 
+	public List<ShortPoint2D> getPositionsOfMovablesWithTypesForPlayer(byte playerId, Set<EMovableType> movableTypes) {
+		List<ShortPoint2D> movablePositions = new ArrayList<>();
+		for(EMovableType movableType : movableTypes) {
+			movablePositions.addAll(getPositionsOfMovablesWithTypeForPlayer(playerId, movableType));
+		}
+		return movablePositions;
+	}
+
 	public List<ShortPoint2D> getPositionsOfMovablesWithTypeForPlayer(byte playerId, EMovableType movableType) {
 		if (!playerStatistics[playerId].movablePositions.containsKey(movableType)) {
 			return Collections.emptyList();

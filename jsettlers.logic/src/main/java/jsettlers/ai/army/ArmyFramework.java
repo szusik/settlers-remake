@@ -21,6 +21,7 @@ import jsettlers.logic.player.Player;
 import jsettlers.network.client.interfaces.ITaskScheduler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -87,13 +88,14 @@ public class ArmyFramework {
 		sendTroopsToById(attackerIds, target, soldiersWithOrders, moveToType);
 	}
 
-	void sendTroopsToById(List<Integer> attackerIds, ShortPoint2D target, Set<Integer> soldiersWithOrders, EMoveToType moveToType) {
+	void sendTroopsToById(Collection<Integer> attackerIds, ShortPoint2D target, Set<Integer> soldiersWithOrders, EMoveToType moveToType) {
+		List<Integer> ids = new ArrayList<>(attackerIds);
 		if(soldiersWithOrders != null) {
-			attackerIds.removeAll(soldiersWithOrders);
+			ids.removeAll(soldiersWithOrders);
 			soldiersWithOrders.addAll(attackerIds);
 		}
 
-		taskScheduler.scheduleTask(new MoveToGuiTask(player.playerId, target, attackerIds, moveToType));
+		taskScheduler.scheduleTask(new MoveToGuiTask(player.playerId, target, ids, moveToType));
 	}
 
 
