@@ -6,7 +6,6 @@ import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 
@@ -29,13 +28,13 @@ public class GroupStrategyModule extends ArmyModule {
 	private static final float MAX_THREAT_OVER_COMMIT_FACTOR = 3;
 	private static final float SOLDIER_FORCE_MOVE_DISTANCE = CommonConstants.TOWER_RADIUS * 0.5f;
 	private static final float SOLDIER_MIN_MOVE_DISTANCE = 10;
-	private static final float MIN_DEFENSE_QUOTA = 0.1f;
+	private static final float MAX_FOCUS_QUOTA = 0.9f;
 	private static final int MIN_DEFENSE_FORCE = 30;
 	private static final float MIN_THREAT_LEVEL = 1f;
 
 	private final GroupMap<ShortPoint2D, Integer> groups = new GroupMap<>();
 	private final Comparator<Map.Entry<ShortPoint2D, Float>> POI_COMPARATOR;
-	private ShortPoint2D attackTarget;
+	private ShortPoint2D focusPoint;
 
 	public GroupStrategyModule(ArmyFramework parent) {
 		super(parent);
@@ -55,7 +54,7 @@ public class GroupStrategyModule extends ArmyModule {
 
 	@Override
 	public void applyLightRules(Set<Integer> soldiersWithOrders) {
-		updateAttackTarget();
+		updateFocusPoint();
 
 		if (i < 3) {
 			i++;
@@ -66,20 +65,20 @@ public class GroupStrategyModule extends ArmyModule {
 	}
 
 	private void updateGroups(Set<Integer> soldiersWithOrders) {
-		updateAttackTarget();
+		updateFocusPoint();
 
 		Map<ShortPoint2D, Float> pois = calculateThreatLevels(calculatePointsOfInterest());
 
 		Set<ShortPoint2D> validGroups = new HashSet<>(pois.keySet());
-		validGroups.add(attackTarget);
+		validGroups.add(focusPoint);
 		removeUnnecessaryGroups(validGroups);
 
 		// ignore otherwise assigned soldiers
 		soldiersWithOrders.forEach(s -> groups.setMember(s, null));
 
 		List<ShortPoint2D> unassignedSoldiers = getAvailableSoldiers(soldiersWithOrders);
-		updateAttackGroup(unassignedSoldiers);
 		updateDefenseGroups(pois, unassignedSoldiers);
+		updateFocusGroup(unassignedSoldiers);
 
 	}
 
@@ -88,33 +87,52 @@ public class GroupStrategyModule extends ArmyModule {
 
 		for (Map.Entry<ShortPoint2D, Float> poiData : sortedPOIs) {
 			ShortPoint2D poi = poiData.getKey();
-			float targetNumber = poiData.getValue() * MAX_THREAT_OVER_COMMIT_FACTOR;
-			unassignedSoldiers.sort(Comparator.comparing(poi::getOnGridDistTo));
+			float targetSize = poiData.getValue() * MAX_THREAT_OVER_COMMIT_FACTOR;
 
-			Set<Integer> group = groups.getMembers(poi);
-			if(group.size() > targetNumber) {
-				float removeNumber = group.size() - targetNumber;
-				Iterator<Integer> removeIter = group.iterator();
-				for(int i = 0; i < removeNumber && removeIter.hasNext(); i++) {
-					int soldier = removeIter.next();
-					groups.setMember(soldier, null);
-					unassignedSoldiers.add(MovableManager.getMovableByID(soldier).getPosition());
-				}
-			} else {
-				for (int i = group.size(); i < targetNumber && !unassignedSoldiers.isEmpty(); i++) {
-					ShortPoint2D newSoldier = unassignedSoldiers.remove(unassignedSoldiers.size() - 1);
-					groups.setMember(getID(newSoldier), poi);
-				}
-			}
+			updateGroupSize(targetSize, poi, unassignedSoldiers);
 		}
 	}
 
-	private void updateAttackGroup(List<ShortPoint2D> unassignedSoldiers) {
+	private void updateFocusGroup(List<ShortPoint2D> unassignedSoldiers) {
+		int armySize = parent.aiStatistics.getCountOfMovablesOfPlayer(parent.getPlayer(), EMovableType.SOLDIERS);
+		float maxFocusSize = armySize * MAX_FOCUS_QUOTA;
+		if(armySize < MIN_DEFENSE_FORCE) {
+			maxFocusSize = 0;
+		}
 
+		updateGroupSize(maxFocusSize, focusPoint, unassignedSoldiers);
 	}
 
-	private void updateAttackTarget() {
+	private void updateFocusPoint() {
+	}
 
+	private void updateGroupSize(float targetNumber, ShortPoint2D poi, List<ShortPoint2D> unassignedSoldiers) {
+		Set<Integer> group = groups.getMembers(poi);
+
+		float diffSize = group.size() - targetNumber;
+
+		if(diffSize > 0) {
+			Iterator<Integer> removeIter = group.iterator();
+			removeFromGroup(diffSize, removeIter, unassignedSoldiers);
+		} else {
+			unassignedSoldiers.sort(Comparator.comparing(poi::getOnGridDistTo));
+			addToGroup(-diffSize, poi, unassignedSoldiers);
+		}
+	}
+
+	private void addToGroup(float amount, ShortPoint2D group, List<ShortPoint2D> unassignedSoldiers) {
+		for (int i = 0; i < amount && !unassignedSoldiers.isEmpty(); i++) {
+			ShortPoint2D newSoldier = unassignedSoldiers.remove(unassignedSoldiers.size() - 1);
+			groups.setMember(getID(newSoldier), group);
+		}
+	}
+
+	private void removeFromGroup(float limit, Iterator<Integer> groupMembers, List<ShortPoint2D> unassignedSoldiers) {
+		for(int i = 0; i < limit && groupMembers.hasNext(); i++) {
+			int soldier = groupMembers.next();
+			groups.setMember(soldier, null);
+			unassignedSoldiers.add(MovableManager.getMovableByID(soldier).getPosition());
+		}
 	}
 
 	private List<ShortPoint2D> getAvailableSoldiers(Set<Integer> soldiersWithOrders) {
@@ -132,19 +150,23 @@ public class GroupStrategyModule extends ArmyModule {
 		for(Map.Entry<ShortPoint2D, Set<Integer>> poiData : groups.listGroups().entrySet()) {
 			ShortPoint2D poi = poiData.getKey();
 			Set<Integer> soldiers = poiData.getValue();
-			if(poi.equals(attackTarget)) continue;
 
 			List<Integer> forceMove = new ArrayList<>();
 			List<Integer> defaultMove = new ArrayList<>();
-			soldiers.stream().map(MovableManager::getMovableByID).forEach(mov -> {
+			for (Integer soldier : soldiers) {
+				ILogicMovable mov = MovableManager.getMovableByID(soldier);
 				float distance = mov.getPosition().getOnGridDistTo(poi);
-				if(distance <= SOLDIER_MIN_MOVE_DISTANCE) return;
+				if(distance <= SOLDIER_MIN_MOVE_DISTANCE) {
+					continue;
+				}
+
 				if(distance >= SOLDIER_FORCE_MOVE_DISTANCE) {
 					forceMove.add(mov.getID());
 				} else {
 					defaultMove.add(mov.getID());
 				}
-			});
+			}
+
 			parent.sendTroopsToById(forceMove, poi, soldiersWithOrders, EMoveToType.FORCED);
 			parent.sendTroopsToById(defaultMove, poi, soldiersWithOrders, EMoveToType.DEFAULT);
 		}
