@@ -18,13 +18,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuildingMaterial;
 import jsettlers.common.buildings.IBuildingOccupier;
+import jsettlers.common.buildings.stacks.ConstructionStack;
 import jsettlers.common.map.partition.IStockSettings;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
@@ -63,6 +67,7 @@ public class BuildingState {
 		private final EMaterialType type;
 		private final int count;
 		private final boolean offering;
+		private final int required;
 
 		/**
 		 * Create a new stack state
@@ -71,9 +76,21 @@ public class BuildingState {
 		 *            The material stack to create the state for.
 		 */
 		public StackState(IBuildingMaterial mat) {
-			type = mat.getMaterialType();
-			count = mat.getMaterialCount();
-			offering = mat.isOffering();
+			this(mat.getMaterialType(), mat.getMaterialCount(), mat.isOffering(), -1);
+		}
+
+		/**
+		 * Create a new stack state
+		 * @param type the type of this tack
+		 * @param count the amount of material to offer
+		 * @param offering is this an offer or request stack
+		 * @param required the required amount of this resource
+		 */
+		public StackState(EMaterialType type, int count, boolean offering, int required) {
+			this.type = type;
+			this.count = count;
+			this.offering = offering;
+			this.required = required;
 		}
 
 		/**
@@ -108,6 +125,9 @@ public class BuildingState {
 			return offering;
 		}
 
+		public int getRequired() {
+			return required;
+		}
 	}
 
 	/**
@@ -168,9 +188,33 @@ public class BuildingState {
 		for (IBuildingMaterial mat : building.getMaterials()) {
 			stackStates.add(new StackState(mat));
 		}
+		mergeConstructionStacks(building);
 		isSeaTrading = building instanceof IBuilding.ITrading && ((IBuilding.ITrading) building).isSeaTrading();
 		isDockyard = building.getBuildingVariant().isVariantOf(EBuildingType.DOCKYARD);
 		isWorkingDockyard = (building instanceof IBuilding.IShipConstruction && ((IBuilding.IShipConstruction) building).getOrderedShipType() != null);
+	}
+
+	private void mergeConstructionStacks(IBuilding building) {
+		if(building.getStateProgress() >= 0.99f) return;
+
+		Map<EMaterialType, Integer> requiredBuildingMaterials = new HashMap<>();
+		for(ConstructionStack stack : building.getBuildingVariant().getConstructionStacks()) {
+			requiredBuildingMaterials.compute(stack.getMaterialType(), (k, v) -> (v != null ? v : 0) + stack.requiredForBuild());
+		}
+		Map<EMaterialType, Integer> buildingMaterials = new HashMap<>(requiredBuildingMaterials);
+
+		Iterator<StackState> iter = stackStates.iterator();
+		while(iter.hasNext()) {
+			StackState stack = iter.next();
+			if(buildingMaterials.containsKey(stack.getType())) {
+				iter.remove();
+				buildingMaterials.compute(stack.getType(), (k, v) -> v-stack.getCount());
+			}
+		}
+
+		for(Map.Entry<EMaterialType, Integer> buildingMat : buildingMaterials.entrySet()) {
+			stackStates.add(new StackState(buildingMat.getKey(), buildingMat.getValue(), false, requiredBuildingMaterials.get(buildingMat.getKey())));
+		}
 	}
 
 	private int[] computeTradingCounts(IBuilding building) {

@@ -395,7 +395,7 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 		float offerX = 1 - buttonSpace - buttonWidth;
 
 		for (StackState mat : state.getStackStates()) {
-			MaterialDisplay display = new MaterialDisplay(mat.getType(), mat.getCount(), -1);
+			MaterialDisplay display = new MaterialDisplay(mat.getType(), mat.getCount(), mat.getRequired());
 			if (mat.isOffering()) {
 				materialArea.addChild(display, offerX, 0, offerX + buttonWidth, 1);
 				offerX -= buttonSpace + buttonWidth;
