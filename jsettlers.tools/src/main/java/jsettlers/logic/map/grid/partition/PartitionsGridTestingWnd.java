@@ -17,7 +17,7 @@ package jsettlers.logic.map.grid.partition;
 import java.io.IOException;
 import java.util.BitSet;
 
-import java8.util.Objects;
+import java.util.Objects;
 import jsettlers.TestToolUtils;
 import jsettlers.common.Color;
 import jsettlers.common.CommonConstants;

@@ -18,11 +18,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import java8.util.function.Predicate;
-import java8.util.stream.Collectors;
-import java8.util.stream.Stream;
-import java8.util.stream.StreamSupport;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.IPlayer;
@@ -168,6 +167,6 @@ public final class SelectionSet implements ISelectionSet {
 	}
 
 	public Stream<ISelectable> stream() {
-		return StreamSupport.stream(set);
+		return set.stream();
 	}
 }

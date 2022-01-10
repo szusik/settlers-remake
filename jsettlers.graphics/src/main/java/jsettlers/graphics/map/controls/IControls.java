@@ -14,7 +14,7 @@
  *******************************************************************************/
 package jsettlers.graphics.map.controls;
 
-import java8.util.Optional;
+import java.util.Optional;
 
 import go.graphics.GLDrawContext;
 import go.graphics.UIPoint;

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import jsettlers.common.Color;
-import java8.util.Optional;
+import java.util.Optional;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.player.ECivilisation;

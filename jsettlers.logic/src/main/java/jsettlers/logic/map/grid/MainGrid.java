@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 
-import java8.util.Optional;
+import java.util.Optional;
 import jsettlers.algorithms.borders.BordersThread;
 import jsettlers.algorithms.borders.IBordersThreadGrid;
 import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;

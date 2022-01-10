@@ -16,7 +16,7 @@ package jsettlers.logic.map.loading;
 
 import java.io.Serializable;
 
-import java8.util.Objects;
+import java.util.Objects;
 import java8.util.stream.Stream;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.player.EWinState;

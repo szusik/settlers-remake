@@ -18,9 +18,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import java8.util.Objects;
-import java8.util.Optional;
-import java8.util.function.Consumer;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java8.util.stream.Collectors;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.action.EMoveToType;
@@ -444,7 +444,7 @@ class GuiTaskExecutor implements ITaskExecutor {
 	}
 
 	private void forFerries(MovableGuiTask task, Consumer<IFerryMovable> movableConsumer) {
-		stream(task.getSelection())
+		task.getSelection().stream()
 			.map(MovableManager::getMovableByID)
 			.filter(ILogicMovable::isAlive)
 			.filter(movable -> movable.getMovableType() == EMovableType.FERRY)

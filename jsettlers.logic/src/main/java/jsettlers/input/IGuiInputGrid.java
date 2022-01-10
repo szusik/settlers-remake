@@ -27,7 +27,7 @@ import jsettlers.logic.FerryEntrance;
 import jsettlers.logic.map.grid.partition.manager.settings.MaterialProductionSettings;
 import jsettlers.logic.player.Player;
 
-import java8.util.Optional;
+import java.util.Optional;
 
 /**
  * This interface defines the methods needed by the GUI to interact with the grid.

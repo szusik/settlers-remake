@@ -15,7 +15,7 @@
 package jsettlers.graphics.ui;
 
 import go.graphics.EPrimitiveType;
-import java8.util.Optional;
+import java.util.Optional;
 import go.graphics.GLDrawContext;
 import go.graphics.UnifiedDrawHandle;
 import go.graphics.event.GOEvent;

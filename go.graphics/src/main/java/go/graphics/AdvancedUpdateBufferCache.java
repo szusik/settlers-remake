@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-import java8.util.function.Supplier;
+import java.util.function.Supplier;
 
 public class AdvancedUpdateBufferCache {
 	private ByteBuffer buffer;

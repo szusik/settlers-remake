@@ -14,7 +14,7 @@
  *******************************************************************************/
 package jsettlers.graphics.map.draw;
 
-import java8.util.function.Supplier;
+import java.util.function.Supplier;
 import jsettlers.common.images.DirectImageLink;
 import jsettlers.common.images.EImageLinkType;
 import jsettlers.common.images.ImageLink;

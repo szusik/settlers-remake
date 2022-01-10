@@ -18,7 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import java8.util.Optional;
+import java.util.Optional;
 import java8.util.stream.Stream;
 import java8.util.stream.StreamSupport;
 import jsettlers.common.position.ShortPoint2D;

@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java8.util.Comparators;
 import java8.util.J8Arrays;
 import java8.util.Maps;
-import java8.util.Objects;
+import java.util.Objects;
 import java8.util.stream.Collectors;
 import jsettlers.ai.highlevel.AiPositions.AiPositionFilter;
 import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;

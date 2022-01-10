@@ -2,7 +2,7 @@ package jsettlers.algorithms.simplebehaviortree;
 
 import java.io.Serializable;
 
-import java8.util.function.Function;
+import java.util.function.Function;
 import jsettlers.common.movable.EDirection;
 
 @FunctionalInterface

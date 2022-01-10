@@ -2,7 +2,7 @@ package go.graphics;
 
 import java.nio.ByteBuffer;
 
-import java8.util.function.Supplier;
+import java.util.function.Supplier;
 
 public class UpdateBufferCache {
 	private int position = 0;

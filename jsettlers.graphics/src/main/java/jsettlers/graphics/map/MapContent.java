@@ -17,7 +17,7 @@ package jsettlers.graphics.map;
 import java.util.BitSet;
 
 import go.graphics.EPrimitiveType;
-import java8.util.Optional;
+import java.util.Optional;
 
 import java.util.Set;
 import go.graphics.GLDrawContext;

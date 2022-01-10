@@ -19,7 +19,7 @@ import go.graphics.UIPoint;
 import go.graphics.event.GOEvent;
 import go.graphics.event.GOModalEventHandler;
 import go.graphics.event.mouse.GODrawEvent;
-import java8.util.Optional;
+import java.util.Optional;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.map.shapes.MapRectangle;
 import jsettlers.common.action.IAction;

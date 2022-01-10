@@ -35,7 +35,7 @@ import jsettlers.graphics.ui.Label;
 import jsettlers.graphics.ui.UIPanel;
 
 import java.util.Arrays;
-import java8.util.Optional;
+import java.util.Optional;
 
 public class MaterialsProductionPanel extends AbstractContentProvider {
 	private static final float contentHeight_px = 216;

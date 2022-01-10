@@ -14,7 +14,7 @@
  *******************************************************************************/
 package jsettlers.logic.map.grid.partition.manager.datastructures;
 
-import java8.util.function.Predicate;
+import java.util.function.Predicate;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.MathUtils;

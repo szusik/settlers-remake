@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
-import java8.util.function.Consumer;
+import java.util.function.Consumer;
 
 import jsettlers.ai.highlevel.AiExecutor;
 import jsettlers.common.CommonConstants;

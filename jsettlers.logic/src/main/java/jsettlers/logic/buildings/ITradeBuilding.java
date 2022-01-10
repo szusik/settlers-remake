@@ -17,7 +17,7 @@ package jsettlers.logic.buildings;
 import java.io.Serializable;
 import java.util.Iterator;
 
-import java8.util.Optional;
+import java.util.Optional;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;

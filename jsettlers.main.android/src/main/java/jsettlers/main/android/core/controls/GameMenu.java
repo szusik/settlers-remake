@@ -24,7 +24,7 @@ import android.content.Context;
 import android.widget.Toast;
 
 import go.graphics.android.sound.AndroidSoundPlayer;
-import java8.util.function.Consumer;
+import java.util.function.Consumer;
 import jsettlers.common.action.Action;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.action.SetSpeedAction;

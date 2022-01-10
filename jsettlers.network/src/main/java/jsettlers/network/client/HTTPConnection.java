@@ -33,7 +33,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
-import java8.util.function.Consumer;
+import java.util.function.Consumer;
 import jsettlers.network.infrastructure.log.Logger;
 
 public class HTTPConnection implements IClientConnection, Runnable {

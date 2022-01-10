@@ -14,7 +14,7 @@
  *******************************************************************************/
 package jsettlers.common;
 
-import java8.util.function.Supplier;
+import java.util.function.Supplier;
 
 public abstract class CommonConstants {
 	/**

@@ -43,7 +43,7 @@ import jsettlers.graphics.ui.Label.EHorizontalAlignment;
 import jsettlers.graphics.ui.UIPanel;
 
 import java8.util.J8Arrays;
-import java8.util.Optional;
+import java.util.Optional;
 import java8.util.stream.Collectors;
 
 public class DistributionPanel extends AbstractContentProvider implements IUiContentReceiver<IMaterialDistributionSettings> {

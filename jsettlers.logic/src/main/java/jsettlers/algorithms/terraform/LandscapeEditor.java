@@ -3,7 +3,7 @@ package jsettlers.algorithms.terraform;
 import java.util.List;
 
 import java8.util.function.BiConsumer;
-import java8.util.function.Function;
+import java.util.function.Function;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.position.ShortPoint2D;
 

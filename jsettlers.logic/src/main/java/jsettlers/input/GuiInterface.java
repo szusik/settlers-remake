@@ -14,6 +14,7 @@
  */
 package jsettlers.input;
 
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,10 +22,11 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import java8.util.Optional;
-import java8.util.function.BiFunction;
-import java8.util.function.Predicate;
-import java8.util.stream.Collectors;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import jsettlers.algorithms.construction.ConstructionMarksThread;
 import jsettlers.common.action.BuildAction;
 import jsettlers.common.action.CastSpellAction;
@@ -495,9 +497,9 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 	}
 
 	private void castSpell(ShortPoint2D at, ESpellType spell) {
-		final ISelectable selected = currentSelection.stream().filter(iSelectable -> iSelectable instanceof IGraphicsMovable)
-				.sorted((iSelectable1, iSelectable2) -> ((IGraphicsMovable)iSelectable1).getPosition().getOnGridDistTo(at)-
-						((IGraphicsMovable)iSelectable2).getPosition().getOnGridDistTo(at)).findFirst().get();
+		final ISelectable selected = currentSelection.stream()
+				.filter(iSelectable -> iSelectable instanceof IGraphicsMovable)
+				.min(Comparator.comparingInt(iSelectable -> ((IGraphicsMovable) iSelectable).getPosition().getOnGridDistTo(at))).get();
 		scheduleTask(new CastSpellGuiTask(playerId, at, ((IGraphicsMovable)selected).getID(), spell));
 	}
 

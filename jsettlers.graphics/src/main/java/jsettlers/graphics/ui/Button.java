@@ -16,7 +16,7 @@ package jsettlers.graphics.ui;
 
 import jsettlers.common.images.ImageLink;
 
-import java8.util.Optional;
+import java.util.Optional;
 import jsettlers.common.action.Action;
 
 /**

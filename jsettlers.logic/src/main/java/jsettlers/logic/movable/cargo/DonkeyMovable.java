@@ -1,6 +1,6 @@
 package jsettlers.logic.movable.cargo;
 
-import java8.util.Optional;
+import java.util.Optional;
 import java8.util.stream.Stream;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.menu.messages.SimpleMessage;

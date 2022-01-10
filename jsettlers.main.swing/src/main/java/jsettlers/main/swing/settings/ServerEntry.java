@@ -20,7 +20,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.util.UUID;
 
-import java8.util.function.Consumer;
+import java.util.function.Consumer;
 
 import javax.swing.JLabel;
 import javax.swing.JList;

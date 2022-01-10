@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java8.util.Optional;
+import java.util.Optional;
 
 import go.graphics.GLDrawContext;
 import jsettlers.common.images.ImageLink;

@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import java8.util.function.Supplier;
+import java.util.function.Supplier;
 import java8.util.stream.Collectors;
 import java8.util.stream.IntStreams;
 import jsettlers.graphics.image.SingleImage;

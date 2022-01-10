@@ -17,8 +17,8 @@ package jsettlers.main.swing.settings;
 import go.graphics.swing.contextcreator.EBackendType;
 import go.graphics.swing.sound.ISoundSettingsProvider;
 import java8.util.Maps;
-import java8.util.Optional;
-import java8.util.function.Supplier;
+import java.util.Optional;
+import java.util.function.Supplier;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.resources.ResourceManager;
 

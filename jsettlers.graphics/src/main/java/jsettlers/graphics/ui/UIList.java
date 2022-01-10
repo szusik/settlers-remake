@@ -17,7 +17,7 @@ package jsettlers.graphics.ui;
 import go.graphics.GLDrawContext;
 
 import java.util.List;
-import java8.util.Optional;
+import java.util.Optional;
 
 import jsettlers.common.images.EImageLinkType;
 import jsettlers.common.images.OriginalImageLink;

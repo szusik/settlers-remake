@@ -2,7 +2,7 @@ package jsettlers.algorithms.simplebehaviortree;
 
 import java.io.Serializable;
 
-import java8.util.function.Consumer;
+import java.util.function.Consumer;
 
 @FunctionalInterface
 public interface INodeStatusActionConsumer<T> extends Consumer<T>, Serializable {}

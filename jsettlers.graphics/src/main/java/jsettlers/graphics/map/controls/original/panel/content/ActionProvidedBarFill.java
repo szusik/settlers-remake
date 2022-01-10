@@ -14,7 +14,7 @@
  */
 package jsettlers.graphics.map.controls.original.panel.content;
 
-import java8.util.Optional;
+import java.util.Optional;
 import jsettlers.common.action.Action;
 
 /**

@@ -17,7 +17,7 @@ package jsettlers.network.infrastructure.log;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java8.util.function.Consumer;
+import java.util.function.Consumer;
 
 public class ConsoleConsumerLogger extends StreamLogger {
 	public ConsoleConsumerLogger(String loggerId, Consumer<StringBuffer> output) {

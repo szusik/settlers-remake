@@ -14,14 +14,11 @@
  *******************************************************************************/
 package jsettlers.common.selectable;
 
-import java.util.EnumMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import jsettlers.common.movable.EMovableType;
 
-import java8.util.stream.Stream;
-import jsettlers.common.player.ECivilisation;
-import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.player.IPlayer;
 
 /**

@@ -1,6 +1,6 @@
 package jsettlers.graphics.ui;
 
-import java8.util.function.Supplier;
+import java.util.function.Supplier;
 
 import jsettlers.common.action.Action;
 import jsettlers.common.images.EImageLinkType;

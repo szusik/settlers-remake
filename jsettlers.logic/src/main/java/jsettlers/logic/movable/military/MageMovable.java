@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Queue;
 
 import java8.util.Lists;
-import java8.util.function.Function;
+import java.util.function.Function;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.algorithms.terraform.LandscapeEditor;

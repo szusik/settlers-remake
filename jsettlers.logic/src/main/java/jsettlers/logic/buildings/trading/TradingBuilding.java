@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import java8.util.Optional;
+import java.util.Optional;
 import java8.util.stream.Collectors;
 import jsettlers.common.action.SetTradingWaypointAction.EWaypointType;
 import jsettlers.common.buildings.EBuildingType;

@@ -18,7 +18,7 @@ package jsettlers.main.android.core.controls;
 import go.graphics.GLDrawContext;
 import go.graphics.UIPoint;
 import go.graphics.event.mouse.GODrawEvent;
-import java8.util.Optional;
+import java.util.Optional;
 import jsettlers.common.action.Action;
 import jsettlers.common.action.AskCastSpellAction;
 import jsettlers.common.action.BuildAction;

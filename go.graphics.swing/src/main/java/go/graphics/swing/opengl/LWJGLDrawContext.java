@@ -18,7 +18,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java8.util.function.Supplier;
+import java.util.function.Supplier;
 
 import go.graphics.AbstractColor;
 import go.graphics.BackgroundDrawHandle;
