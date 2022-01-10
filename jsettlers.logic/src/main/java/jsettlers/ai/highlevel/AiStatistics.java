@@ -32,7 +32,6 @@ import java8.util.Comparators;
 import java8.util.J8Arrays;
 import java8.util.Maps;
 import java8.util.Objects;
-import java8.util.Sets2;
 import java8.util.stream.Collectors;
 import jsettlers.ai.highlevel.AiPositions.AiPositionFilter;
 import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
@@ -135,7 +134,7 @@ public class AiStatistics {
 		players = J8Arrays.stream(partitionsGrid.getPlayers()).filter(Objects::nonNull).collect(Collectors.toList());
 
 		statisticsUpdaterPool = threadPool;
-		parallelStatisticsUpdater = Sets2.of(this::mainMapStatUpdater, this::freeLandMapStatUpdater, this::playerLandMapStatUpdater, this::movableMapStatUpdater, this::grassMapStatUpdater, this::pioneerMapStatUpdater);
+		parallelStatisticsUpdater = Set.of(this::mainMapStatUpdater, this::freeLandMapStatUpdater, this::playerLandMapStatUpdater, this::movableMapStatUpdater, this::grassMapStatUpdater, this::pioneerMapStatUpdater);
 	}
 
 	public byte getFlatternEffortAtPositionForBuilding(final ShortPoint2D position, final BuildingVariant buildingType) {

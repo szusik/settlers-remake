@@ -3,7 +3,6 @@ package go.graphics.swing.vulkan.pipeline;
 import go.graphics.swing.vulkan.VulkanDescriptorPool;
 import go.graphics.swing.vulkan.VulkanDrawContext;
 import java.util.Set;
-import java8.util.Sets2;
 import org.lwjgl.system.MemoryStack;
 
 public enum EVulkanPipelineType {
@@ -15,7 +14,7 @@ public enum EVulkanPipelineType {
 
 	private final PipelineCreator creator;
 
-	public static final Set<EVulkanPipelineType> UNIFIED_TYPES = Sets2.of(UNIFIED_QUAD, UNIFIED_LINE, UNIFIED_ARRAY, UNIFIED_MULTI);
+	public static final Set<EVulkanPipelineType> UNIFIED_TYPES = Set.of(UNIFIED_QUAD, UNIFIED_LINE, UNIFIED_ARRAY, UNIFIED_MULTI);
 
 	EVulkanPipelineType(PipelineCreator creator) {
 		this.creator = creator;

@@ -22,7 +22,6 @@ import android.support.v4.app.Fragment;
 import java.util.Set;
 
 import go.graphics.event.command.EModifier;
-import java8.util.Sets2;
 import jsettlers.common.selectable.ISelectionSet;
 import jsettlers.input.SelectionSet;
 import jsettlers.main.android.core.controls.ControlsResolver;
@@ -51,7 +50,7 @@ public abstract class SelectionFragment extends Fragment {
 	}
 
 	public Set<EModifier> getModifiers() {
-		return Sets2.of();
+		return Set.of();
 	}
 
 	@Override

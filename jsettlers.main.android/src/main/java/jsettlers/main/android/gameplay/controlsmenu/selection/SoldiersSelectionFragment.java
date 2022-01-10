@@ -35,9 +35,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import go.graphics.event.command.EModifier;
-import java8.util.Sets2;
 import jsettlers.common.action.EActionType;
-import jsettlers.common.action.EMoveToType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.graphics.map.draw.ECommonLinkType;
