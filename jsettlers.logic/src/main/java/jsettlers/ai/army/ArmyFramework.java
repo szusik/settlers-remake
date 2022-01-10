@@ -22,14 +22,10 @@ import jsettlers.network.client.interfaces.ITaskScheduler;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Stream;
-
-import static java8.util.stream.StreamSupport.stream;
-import static jsettlers.logic.constants.Constants.TOWER_SEARCH_SOLDIERS_RADIUS;
 
 public class ArmyFramework {
 	final AiStatistics aiStatistics;

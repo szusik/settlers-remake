@@ -18,7 +18,6 @@ import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -35,7 +34,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import java8.util.stream.StreamSupport;
 import jsettlers.common.utils.collections.ChangingList;
 import jsettlers.graphics.localization.Labels;
 import jsettlers.logic.map.loading.MapLoader;
@@ -222,7 +220,7 @@ public class OpenPanel extends JPanel {
 
 		listModelFiltered.clear();
 
-		StreamSupport.stream(availableMaps)
+		availableMaps.stream()
 				.filter(currentFilter::filter)
 				.filter(mapLoader -> matchesSearch(mapLoader, search))
 				.forEach(listModelFiltered::addElement);

@@ -2,9 +2,9 @@ package jsettlers.logic.movable.cargo;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import java8.util.stream.Collectors;
-import java8.util.stream.Stream;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.material.ESearchType;

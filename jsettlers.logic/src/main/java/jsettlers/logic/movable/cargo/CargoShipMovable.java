@@ -1,6 +1,5 @@
 package jsettlers.logic.movable.cargo;
 
-import java8.util.stream.Stream;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IGraphicsCargoShip;
@@ -12,6 +11,8 @@ import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
+
+import java.util.stream.Stream;
 
 public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip {
 	private static final short WAYPOINT_SEARCH_RADIUS = 50;

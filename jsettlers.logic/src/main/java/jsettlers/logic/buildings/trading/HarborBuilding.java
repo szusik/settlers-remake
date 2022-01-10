@@ -20,8 +20,8 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
-import java8.util.stream.Stream;
 import jsettlers.common.action.SetTradingWaypointAction;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.material.EPriority;
@@ -31,8 +31,6 @@ import jsettlers.logic.buildings.IBuildingsGrid;
 import jsettlers.logic.buildings.IDockBuilding;
 import jsettlers.logic.player.Player;
 
-import static java8.util.stream.StreamSupport.stream;
-
 /**
  * @author Rudolf Polzer
  */
@@ -40,7 +38,7 @@ public class HarborBuilding extends TradingBuilding implements IDockBuilding {
 	private static final List<HarborBuilding> ALL_HARBORS = new ArrayList<>();
 
 	public static Stream<HarborBuilding> getAllHarbors(final Player player) {
-		return stream(ALL_HARBORS).filter(building -> building.getPlayer() == player);
+		return ALL_HARBORS.stream().filter(building -> building.getPlayer() == player);
 	}
 
 	public static void clearState() {

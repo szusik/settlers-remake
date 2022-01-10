@@ -14,8 +14,6 @@
  *******************************************************************************/
 package jsettlers.logic.map.grid.partition.data;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.map.partition.IBuildingCounts;
 import jsettlers.logic.buildings.Building;
@@ -28,7 +26,9 @@ public class BuildingCounts implements IBuildingCounts {
 	private final int[] buildings = new int[EBuildingType.NUMBER_OF_BUILDINGS];
 
 	public BuildingCounts(byte playerId, short partitionId) {
-		stream(Building.getAllBuildings()).filter(building -> building.getPlayer().getPlayerId() == playerId).forEach(building -> {
+		Building.getAllBuildings().stream()
+				.filter(building -> building.getPlayer().getPlayerId() == playerId)
+				.forEach(building -> {
 			int buildingTypeIdx = building.getBuildingVariant().ordinal;
 			boolean finishedConstruction = building.isConstructionFinished();
 

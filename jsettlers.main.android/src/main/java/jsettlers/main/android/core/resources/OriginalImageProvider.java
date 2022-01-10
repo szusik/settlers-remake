@@ -15,8 +15,6 @@
 
 package jsettlers.main.android.core.resources;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +26,6 @@ import android.widget.ImageView;
 
 import jsettlers.common.Color;
 import jsettlers.common.buildings.BuildingVariant;
-import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.graphics.image.Image;
@@ -113,7 +110,7 @@ public class OriginalImageProvider {
 			bm = Bitmap.createBitmap(colors, 0, loaded.getWidth(), loaded.getWidth(), loaded.getHeight(), Bitmap.Config.ARGB_8888);
 
 			handler.post(() -> {
-				stream(viewsToUpdate).forEach(this::realSetAsImage);
+				viewsToUpdate.forEach(this::realSetAsImage);
 				viewsToUpdate = null;
 			});
 		}

@@ -14,8 +14,8 @@
  *******************************************************************************/
 package jsettlers.buildingcreator.editor;
 
-import java8.util.Comparators;
 import java.util.Arrays;
+
 import jsettlers.buildingcreator.editor.map.BuildingtestMap;
 import jsettlers.buildingcreator.editor.map.PseudoTile;
 import jsettlers.common.Color;
@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -137,7 +138,7 @@ public class BuildingCreatorApp implements IMapInterfaceListener, Runnable {
 
 	private EBuildingType askType() {
 		EBuildingType[] buildingTypes = EBuildingType.values();
-		Arrays.sort(buildingTypes, Comparators.comparing(EBuildingType::name));
+		Arrays.sort(buildingTypes, Comparator.comparing(EBuildingType::name));
 		return (EBuildingType) JOptionPane.showInputDialog(null, "Select building type", "Building Type", JOptionPane.QUESTION_MESSAGE, null, buildingTypes, null);
 	}
 
@@ -230,7 +231,7 @@ public class BuildingCreatorApp implements IMapInterfaceListener, Runnable {
 
 	private EMaterialType requestMaterialType(ToolType tool) {
 		EMaterialType[] materialTypes = EMaterialType.values();
-		Arrays.sort(materialTypes, Comparators.comparing(EMaterialType::name));
+		Arrays.sort(materialTypes, Comparator.comparing(EMaterialType::name));
 
 		return (EMaterialType) JOptionPane.showInputDialog(null, "Select Material Type", "Material Type",
 				JOptionPane.QUESTION_MESSAGE, null, materialTypes, tool);

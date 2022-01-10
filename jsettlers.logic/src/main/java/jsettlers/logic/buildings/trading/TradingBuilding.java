@@ -19,9 +19,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 import java.util.Optional;
-import java8.util.stream.Collectors;
+import java.util.stream.Collectors;
+
 import jsettlers.common.action.SetTradingWaypointAction.EWaypointType;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
@@ -38,8 +38,6 @@ import jsettlers.logic.buildings.stack.multi.MultiRequestStack;
 import jsettlers.logic.buildings.stack.multi.MultiRequestStackSharedData;
 import jsettlers.logic.buildings.ITradeBuilding;
 import jsettlers.logic.player.Player;
-
-import static java8.util.stream.StreamSupport.stream;
 
 public abstract class TradingBuilding extends Building implements IBuilding.ITrading, ITradeBuilding {
 	private static final short WAYPOINT_SEARCH_RADIUS = (short) 20;
@@ -192,7 +190,7 @@ public abstract class TradingBuilding extends Building implements IBuilding.ITra
 			return Optional.empty();
 		}
 
-		List<? extends IRequestStack> potentialStacks = stream(getStacks()).filter(IRequestStack::hasMaterial).collect(Collectors.toList());
+		List<? extends IRequestStack> potentialStacks = getStacks().stream().filter(IRequestStack::hasMaterial).collect(Collectors.toList());
 
 		if (potentialStacks.isEmpty()) {
 			return Optional.empty();

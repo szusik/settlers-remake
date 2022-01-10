@@ -16,7 +16,7 @@ package jsettlers.logic.buildings.military.occupying;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,8 +52,6 @@ import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.interfaces.ISoldierMovable;
 import jsettlers.logic.objects.StandardMapObject;
 import jsettlers.logic.player.Player;
-
-import java8.util.Comparators;
 
 /**
  * This is a tower building that can request soldiers and let them defend the building.
@@ -286,7 +284,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 	private void addOccupier(TowerOccupier towerOccupier) {
 		if(sortedOccupiers.isEmpty()) setOccupied(true);
 		sortedOccupiers.add(towerOccupier);
-		Collections.sort(sortedOccupiers, Comparators.comparingInt(occupier -> occupier.place.getSoldierClass().ordinal));
+		sortedOccupiers.sort(Comparator.comparingInt(occupier -> occupier.place.getSoldierClass().ordinal));
 	}
 
 	@Override

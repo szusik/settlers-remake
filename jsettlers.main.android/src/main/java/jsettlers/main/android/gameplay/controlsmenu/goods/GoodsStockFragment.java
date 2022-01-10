@@ -18,6 +18,7 @@ package jsettlers.main.android.gameplay.controlsmenu.goods;
 import static java.util.Arrays.stream;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
@@ -29,7 +30,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-import java8.util.stream.Collectors;
 import jsettlers.common.action.SetAcceptedStockMaterialAction;
 import jsettlers.common.map.partition.IStockSettings;
 import jsettlers.common.material.EMaterialType;

@@ -20,14 +20,12 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
-import java8.util.stream.Stream;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.IBuildingsGrid;
 import jsettlers.logic.player.Player;
-
-import static java8.util.stream.StreamSupport.stream;
 
 /**
  *
@@ -38,7 +36,7 @@ public class MarketBuilding extends TradingBuilding {
 	private static final List<MarketBuilding> ALL_MARKETS = new ArrayList<>();
 
 	public static Stream<MarketBuilding> getAllMarkets(final Player player) {
-		return stream(ALL_MARKETS).filter(building -> building.getPlayer() == player);
+		return ALL_MARKETS.stream().filter(building -> building.getPlayer() == player);
 	}
 
 	public static void clearState() {

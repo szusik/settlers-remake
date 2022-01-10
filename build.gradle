@@ -2,7 +2,6 @@
 apply plugin: 'java'
 
 ext {
-    streamSupportVersion = '1.5.4'
 
     androidAnnotationsVersion = '4.8.0'
     androidSupportLibraryVersion = '27.1.0'
@@ -87,11 +86,8 @@ subprojects {
         duplicatesStrategy DuplicatesStrategy.EXCLUDE
     }
 
-    // Add streamsupport dependency
     def addGlobalDependencies = {
         dependencies {
-            implementation 'net.sourceforge.streamsupport:streamsupport:' + rootProject.ext.streamSupportVersion
-
             testImplementation 'junit:junit:4.12'
         }
     }

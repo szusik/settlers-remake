@@ -1,7 +1,5 @@
 package jsettlers.logic.movable.cargo;
 
-import java.util.Optional;
-import java8.util.stream.Stream;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EMovableType;
@@ -11,6 +9,9 @@ import jsettlers.logic.buildings.trading.MarketBuilding;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class DonkeyMovable extends CargoMovable {
 

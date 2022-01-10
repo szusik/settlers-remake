@@ -15,15 +15,14 @@
 package jsettlers.main.swing.menu.multiplayer;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import java8.util.stream.Collectors;
 import jsettlers.common.menu.EProgressState;
 import jsettlers.common.menu.IJoinPhaseMultiplayerGameConnector;
 import jsettlers.common.menu.IJoiningGame;
@@ -36,8 +35,6 @@ import jsettlers.main.swing.JSettlersFrame;
 import jsettlers.main.swing.menu.mainmenu.NetworkGameMapLoader;
 import jsettlers.main.swing.menu.openpanel.OpenPanel;
 import jsettlers.network.client.IClientConnection;
-
-import static java8.util.stream.StreamSupport.stream;
 
 public abstract class ServerConnectionPanel extends JPanel {
 
@@ -88,7 +85,7 @@ public abstract class ServerConnectionPanel extends JPanel {
 
 			((IMultiplayerConnector)connection).getJoinableMultiplayerGames()
 					.setListener(networkGames -> {
-						List<MapLoader> mapLoaders = stream(networkGames.getItems())
+						List<MapLoader> mapLoaders = networkGames.getItems().stream()
 								.map(NetworkGameMapLoader::new)
 								.collect(Collectors.toList());
 						SwingUtilities.invokeLater(() -> joinMatch.setMapLoaders(mapLoaders));

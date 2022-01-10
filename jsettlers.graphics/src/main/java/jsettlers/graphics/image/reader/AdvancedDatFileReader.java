@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import java.util.function.Supplier;
-import java8.util.stream.Collectors;
-import java8.util.stream.IntStreams;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import jsettlers.graphics.image.SingleImage;
 import jsettlers.graphics.image.Image;
 import jsettlers.graphics.image.NullImage;
@@ -259,7 +260,7 @@ public class AdvancedDatFileReader implements DatFileReader {
 	public Hashes getSettlersHashes() {
 		SequenceList<Image> settlers = getSettlers();
 
-		return new Hashes(IntStreams.range(0, settlers.size())
+		return new Hashes(IntStream.range(0, settlers.size())
 				.mapToObj(settlers::get)
 				.map(sequence -> sequence.getImage(0, null))
 				.filter(image -> image instanceof SingleImage)
@@ -271,7 +272,7 @@ public class AdvancedDatFileReader implements DatFileReader {
 	public Hashes getGuiHashes() {
 		Sequence<SingleImage> sequence = getGuis();
 
-		return new Hashes(IntStreams.range(0, sequence.length())
+		return new Hashes(IntStream.range(0, sequence.length())
 				.mapToObj(index -> sequence.getImage(index, null))
 				.map(SingleImage::hash)
 				.collect(Collectors.toList()));

@@ -15,8 +15,6 @@
 
 package jsettlers.logic.player;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ISettlerInformation;
 import jsettlers.logic.movable.MovableManager;
@@ -26,7 +24,7 @@ class SettlerInformation implements ISettlerInformation {
 	private final int[] movables = new int[EMovableType.NUMBER_OF_MOVABLETYPES];
 
 	SettlerInformation(byte playerId) {
-		stream(MovableManager.getAllMovables())
+		MovableManager.getAllMovables().stream()
 				.filter(movable -> movable.getPlayer().getPlayerId() == playerId)
 				.forEach(movable -> {
 					int movableTypeIndex = movable.getMovableType().ordinal();

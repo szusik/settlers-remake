@@ -1,7 +1,5 @@
 package jsettlers.main.android.mainmenu.gamesetup;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +62,7 @@ public abstract class MapSetupViewModel extends ViewModel implements PositionCha
 		title.setValue(mapLoader.getMapName());
 
 		playerSlots.addSource(playerCount, playerCount -> {
-			playerSlots.setValue(stream(playerSlotPresenters)
+			playerSlots.setValue(playerSlotPresenters.stream()
 					.limit(playerCount.getNumberOfPlayers())
 					.toArray(PlayerSlotPresenter[]::new));
 		});

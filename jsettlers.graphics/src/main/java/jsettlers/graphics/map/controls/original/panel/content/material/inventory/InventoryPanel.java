@@ -14,8 +14,6 @@
  */
 package jsettlers.graphics.map.controls.original.panel.content.material.inventory;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import go.graphics.text.EFontSize;
 
 import jsettlers.common.map.IGraphicsGrid;
@@ -104,7 +102,7 @@ public class InventoryPanel extends AbstractContentProvider {
 		panel = new MaterialInventoryLayout()._root;
 
 		// noinspection unchecked
-		stream(panel.getChildren())
+		panel.getChildren().stream()
 				.filter(c -> c instanceof UiContentUpdater.IUiContentReceiver)
 				.map(c -> (IUiContentReceiver<IPartitionData>) c)
 				.forEach(uiContentUpdater::addListener);

@@ -17,6 +17,7 @@ package jsettlers.ai.highlevel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +32,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import java8.util.Comparators;
 import jsettlers.ai.highlevel.AiPositions.AiPositionFilter;
 import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.CommonConstants;
@@ -710,7 +710,7 @@ public class AiStatistics {
 			return points;
 		}
 
-		Collections.sort(points, Comparators.comparingInt(o -> o.getOnGridDistTo(referencePoint)));
+		points.sort(Comparator.comparingInt(o -> o.getOnGridDistTo(referencePoint)));
 
 		return points.subList(0, amountOfPointsToDetect);
 	}

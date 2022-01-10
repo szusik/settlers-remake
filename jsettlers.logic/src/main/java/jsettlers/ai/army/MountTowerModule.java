@@ -10,7 +10,6 @@ import jsettlers.logic.movable.interfaces.ILogicMovable;
 import java.util.List;
 import java.util.Set;
 
-import static java8.util.stream.StreamSupport.stream;
 import static jsettlers.logic.constants.Constants.TOWER_SEARCH_SOLDIERS_RADIUS;
 
 public class MountTowerModule extends ArmyModule {
@@ -20,7 +19,7 @@ public class MountTowerModule extends ArmyModule {
 	}
 
 	private void ensureAllTowersFullyMounted() {
-		stream(parent.aiStatistics.getBuildingPositionsOfTypesForPlayer(EBuildingType.MILITARY_BUILDINGS, parent.getPlayerId()))
+		parent.aiStatistics.getBuildingPositionsOfTypesForPlayer(EBuildingType.MILITARY_BUILDINGS, parent.getPlayerId()).stream()
 				.map(parent.aiStatistics::getBuildingAt)
 				.filter(building -> building instanceof OccupyingBuilding)
 				.map(building -> (OccupyingBuilding) building)

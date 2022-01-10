@@ -14,8 +14,6 @@
  *******************************************************************************/
 package jsettlers.main;
 
-import static java8.util.stream.StreamSupport.stream;
-
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -301,10 +299,7 @@ public class MultiplayerGame {
 			}
 
 			private boolean areAllPlayersReady() {
-				return !stream(playersList.getItems())
-						.filter(player -> !player.isReady())
-						.findAny()
-						.isPresent();
+				return playersList.getItems().stream().allMatch(IMultiplayerPlayer::isReady);
 			}
 		};
 	}
