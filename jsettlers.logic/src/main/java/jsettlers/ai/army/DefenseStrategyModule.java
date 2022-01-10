@@ -21,22 +21,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class GroupStrategyModule extends ArmyModule {
+public class DefenseStrategyModule extends ArmyModule {
 
 	private static final float SOLDIER_THREAT_DISTANCE = CommonConstants.TOWER_RADIUS * 4;
 	private static final float SOLDIER_OWN_GROUND_THREAT_MOD = 3;
 	private static final float MAX_THREAT_OVER_COMMIT_FACTOR = 3;
 	private static final float SOLDIER_FORCE_MOVE_DISTANCE = CommonConstants.TOWER_RADIUS * 0.5f;
 	private static final float SOLDIER_MIN_MOVE_DISTANCE = 10;
-	private static final float MAX_FOCUS_QUOTA = 0.9f;
-	private static final int MIN_DEFENSE_FORCE = 30;
 	private static final float MIN_THREAT_LEVEL = 1f;
 
 	private final GroupMap<ShortPoint2D, Integer> groups = new GroupMap<>();
 	private final Comparator<Map.Entry<ShortPoint2D, Float>> POI_COMPARATOR;
-	private ShortPoint2D focusPoint;
 
-	public GroupStrategyModule(ArmyFramework parent) {
+	public DefenseStrategyModule(ArmyFramework parent) {
 		super(parent);
 
 		POI_COMPARATOR = Map.Entry.<ShortPoint2D, Float>comparingByValue().reversed();
@@ -54,8 +51,6 @@ public class GroupStrategyModule extends ArmyModule {
 
 	@Override
 	public void applyLightRules(Set<Integer> soldiersWithOrders) {
-		updateFocusPoint();
-
 		if (i < 3) {
 			i++;
 			return;
@@ -65,20 +60,15 @@ public class GroupStrategyModule extends ArmyModule {
 	}
 
 	private void updateGroups(Set<Integer> soldiersWithOrders) {
-		updateFocusPoint();
-
 		Map<ShortPoint2D, Float> pois = calculateThreatLevels(calculatePointsOfInterest());
 
-		Set<ShortPoint2D> validGroups = new HashSet<>(pois.keySet());
-		validGroups.add(focusPoint);
-		removeUnnecessaryGroups(validGroups);
+		removeUnnecessaryGroups(pois.keySet());
 
 		// ignore otherwise assigned soldiers
 		soldiersWithOrders.forEach(s -> groups.setMember(s, null));
 
 		List<ShortPoint2D> unassignedSoldiers = getAvailableSoldiers(soldiersWithOrders);
 		updateDefenseGroups(pois, unassignedSoldiers);
-		updateFocusGroup(unassignedSoldiers);
 
 	}
 
@@ -91,19 +81,6 @@ public class GroupStrategyModule extends ArmyModule {
 
 			updateGroupSize(targetSize, poi, unassignedSoldiers);
 		}
-	}
-
-	private void updateFocusGroup(List<ShortPoint2D> unassignedSoldiers) {
-		int armySize = parent.aiStatistics.getCountOfMovablesOfPlayer(parent.getPlayer(), EMovableType.SOLDIERS);
-		float maxFocusSize = armySize * MAX_FOCUS_QUOTA;
-		if(armySize < MIN_DEFENSE_FORCE) {
-			maxFocusSize = 0;
-		}
-
-		updateGroupSize(maxFocusSize, focusPoint, unassignedSoldiers);
-	}
-
-	private void updateFocusPoint() {
 	}
 
 	private void updateGroupSize(float targetNumber, ShortPoint2D poi, List<ShortPoint2D> unassignedSoldiers) {
@@ -150,7 +127,6 @@ public class GroupStrategyModule extends ArmyModule {
 		for(Map.Entry<ShortPoint2D, Set<Integer>> poiData : groups.listGroups().entrySet()) {
 			ShortPoint2D poi = poiData.getKey();
 			Set<Integer> soldiers = poiData.getValue();
-			boolean allowForceMove = !poi.equals(focusPoint);
 
 			List<Integer> forceMove = new ArrayList<>();
 			List<Integer> defaultMove = new ArrayList<>();
@@ -161,7 +137,7 @@ public class GroupStrategyModule extends ArmyModule {
 					continue;
 				}
 
-				if(distance >= SOLDIER_FORCE_MOVE_DISTANCE && allowForceMove) {
+				if(distance >= SOLDIER_FORCE_MOVE_DISTANCE) {
 					forceMove.add(mov.getID());
 				} else {
 					defaultMove.add(mov.getID());
