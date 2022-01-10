@@ -11,7 +11,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
 import java.util.stream.Stream;
-import java8.util.J8Arrays;
+import java.util.Arrays;
 import jsettlers.common.ai.EPlayerType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.logic.map.loading.EMapStartResources;
@@ -246,7 +246,7 @@ public abstract class MapSetupViewModel extends ViewModel implements PositionCha
 	}
 
 	private StartResources[] startResourcesOptions() {
-		return J8Arrays.stream(EMapStartResources.values())
+		return Arrays.stream(EMapStartResources.values())
 				.map(StartResources::new)
 				.toArray(StartResources[]::new);
 	}

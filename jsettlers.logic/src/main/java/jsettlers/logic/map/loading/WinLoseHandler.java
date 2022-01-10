@@ -17,7 +17,8 @@ package jsettlers.logic.map.loading;
 import java.io.Serializable;
 
 import java.util.Objects;
-import java8.util.stream.Stream;
+import java.util.stream.Stream;
+
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.player.EWinState;
 import jsettlers.logic.map.grid.MainGrid;
@@ -26,7 +27,7 @@ import jsettlers.logic.player.Player;
 import jsettlers.logic.timer.IScheduledTimerable;
 import jsettlers.logic.timer.RescheduleTimer;
 
-import static java8.util.J8Arrays.stream;
+import static java.util.Arrays.stream;
 
 public abstract class WinLoseHandler implements IScheduledTimerable, Serializable {
 	private static final long serialVersionUID = 1;

@@ -42,7 +42,7 @@ import jsettlers.network.client.OfflineNetworkConnector;
 import jsettlers.network.client.interfaces.IGameClock;
 import jsettlers.network.client.interfaces.INetworkConnector;
 
-import static java8.util.J8Arrays.stream;
+import static java.util.Arrays.stream;
 
 /**
  *

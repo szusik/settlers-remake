@@ -15,7 +15,7 @@
 
 package jsettlers.main.android.gameplay.controlsmenu.goods;
 
-import static java8.util.J8Arrays.stream;
+import static java.util.Arrays.stream;
 
 import android.app.Activity;
 import android.arch.lifecycle.ViewModel;

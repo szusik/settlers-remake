@@ -24,7 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import static java8.util.J8Arrays.stream;
+import static java.util.Arrays.stream;
 
 /**
  * Created by Andreas Eberle on 06.01.2017.

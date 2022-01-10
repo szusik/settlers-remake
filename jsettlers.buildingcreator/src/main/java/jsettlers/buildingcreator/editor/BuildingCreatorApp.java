@@ -15,7 +15,7 @@
 package jsettlers.buildingcreator.editor;
 
 import java8.util.Comparators;
-import java8.util.J8Arrays;
+import java.util.Arrays;
 import jsettlers.buildingcreator.editor.map.BuildingtestMap;
 import jsettlers.buildingcreator.editor.map.PseudoTile;
 import jsettlers.common.Color;
@@ -143,7 +143,7 @@ public class BuildingCreatorApp implements IMapInterfaceListener, Runnable {
 
 	private BuildingVariant askVariant(EBuildingType type) {
 		BuildingVariant[] variants = type.getVariants();
-		ECivilisation[] civs = J8Arrays.stream(variants).map(BuildingVariant::getCivilisation).toArray(ECivilisation[]::new);
+		ECivilisation[] civs = Arrays.stream(variants).map(BuildingVariant::getCivilisation).toArray(ECivilisation[]::new);
 		return type.getVariant((ECivilisation)JOptionPane.showInputDialog(null, "Select building variant", "Building Variant", JOptionPane.QUESTION_MESSAGE, null, civs, null));
 	}
 

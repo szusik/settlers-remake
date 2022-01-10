@@ -21,7 +21,7 @@ import jsettlers.common.buildings.MaterialsOfBuildings;
 import jsettlers.common.map.partition.IMaterialDistributionSettings;
 import jsettlers.common.material.EMaterialType;
 
-import java8.util.J8Arrays;
+import java.util.Arrays;
 import jsettlers.common.player.ECivilisation;
 
 /**
@@ -49,7 +49,7 @@ public final class MaterialDistributionSettings implements IMaterialDistribution
 		EBuildingType[] requestingBuildings = getBuildingTypes();
 		requestValueSum = requestingBuildings.length;
 		float initialValue = 1.0f;
-		J8Arrays.stream(requestingBuildings).forEach(buildingType -> distributionSettings.setUserValue(buildingType, initialValue));
+		Arrays.stream(requestingBuildings).forEach(buildingType -> distributionSettings.setUserValue(buildingType, initialValue));
 	}
 
 	public final EBuildingType[] getBuildingTypes() {

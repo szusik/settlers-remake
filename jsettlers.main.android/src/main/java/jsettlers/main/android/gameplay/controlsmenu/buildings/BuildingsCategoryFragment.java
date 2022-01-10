@@ -39,7 +39,7 @@ import jsettlers.graphics.map.controls.original.panel.content.buildings.EBuildin
 import jsettlers.main.android.R;
 import jsettlers.main.android.core.resources.OriginalImageProvider;
 
-import static java8.util.J8Arrays.*;
+import static java.util.Arrays.*;
 
 /**
  * Created by Tom Pratt on 24/11/2016.

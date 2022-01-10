@@ -14,6 +14,7 @@
  */
 package jsettlers.graphics.map.controls.original.panel.content.material.distribution;
 
+import java.util.Arrays;
 import java.util.List;
 
 import go.graphics.text.EFontSize;
@@ -42,9 +43,8 @@ import jsettlers.graphics.ui.Label;
 import jsettlers.graphics.ui.Label.EHorizontalAlignment;
 import jsettlers.graphics.ui.UIPanel;
 
-import java8.util.J8Arrays;
 import java.util.Optional;
-import java8.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 public class DistributionPanel extends AbstractContentProvider implements IUiContentReceiver<IMaterialDistributionSettings> {
 	private static final float contentHeight_px = 216;
@@ -118,7 +118,7 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 		MaterialDistributionPanel(EMaterialType materialType, IPositionSupplier positionSupplier, IInGamePlayer player) {
 			EBuildingType[] buildingsForMaterial = MaterialsOfBuildings.getBuildingTypesRequestingMaterial(materialType, player!=null?player.getCivilisation():ECivilisation.ROMAN);
 
-			buildingDistributionSettings = J8Arrays.stream(buildingsForMaterial)
+			buildingDistributionSettings = Arrays.stream(buildingsForMaterial)
 					.map(buildingType -> new BuildingDistributionSettingPanel(materialType, buildingType, positionSupplier))
 					.collect(Collectors.toList());
 
@@ -193,7 +193,7 @@ public class DistributionPanel extends AbstractContentProvider implements IUiCon
 	}
 
 	private List<MaterialDistributionTab> createTabs(IPositionSupplier positionSupplier) {
-		return J8Arrays.stream(EMaterialType.values())
+		return Arrays.stream(EMaterialType.values())
 				.filter(EMaterialType::isDistributionConfigurable)
 				.map(materialType -> new MaterialDistributionTab(materialType, positionSupplier, player))
 				.collect(Collectors.toList());

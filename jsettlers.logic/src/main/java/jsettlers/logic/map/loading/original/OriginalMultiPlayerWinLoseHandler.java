@@ -19,7 +19,7 @@ import jsettlers.logic.map.grid.MainGrid;
 import jsettlers.logic.map.loading.WinLoseHandler;
 import jsettlers.logic.player.Player;
 
-import static java8.util.J8Arrays.stream;
+import static java.util.Arrays.stream;
 
 public class OriginalMultiPlayerWinLoseHandler extends WinLoseHandler {
 	private static final long serialVersionUID = 1;

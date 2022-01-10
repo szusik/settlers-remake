@@ -33,7 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 
-import java8.util.J8Arrays;
+import java.util.Arrays;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.main.android.R;
@@ -148,7 +148,7 @@ public class GoodsDistributionFragment extends Fragment implements BackPressedLi
 
 		public MaterialsAdapter(Activity activity) {
 			inflater = LayoutInflater.from(activity);
-			this.materialTypes = J8Arrays.stream(EMaterialType.VALUES)
+			this.materialTypes = Arrays.stream(EMaterialType.VALUES)
 					.filter(EMaterialType::isDistributionConfigurable)
 					.toArray(EMaterialType[]::new);
 		}

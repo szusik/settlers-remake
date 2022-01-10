@@ -28,10 +28,10 @@ import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
-import java8.util.Comparators;
-import java8.util.J8Arrays;
 import java.util.Objects;
-import java8.util.stream.Collectors;
+import java.util.stream.Collectors;
+
+import java8.util.Comparators;
 import jsettlers.ai.highlevel.AiPositions.AiPositionFilter;
 import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.CommonConstants;
@@ -64,7 +64,6 @@ import jsettlers.logic.map.grid.partition.PartitionsGrid;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.player.Player;
 
-import static java8.util.stream.StreamSupport.stream;
 import static jsettlers.common.buildings.EBuildingType.BIG_TOWER;
 import static jsettlers.common.buildings.EBuildingType.CASTLE;
 import static jsettlers.common.buildings.EBuildingType.LUMBERJACK;
@@ -130,7 +129,7 @@ public class AiStatistics {
 			sortedResourceTypes[i] = new AiPositions();
 		}
 		resourceCountInDefaultPartition = new long[EResourceType.VALUES.length];
-		players = J8Arrays.stream(partitionsGrid.getPlayers()).filter(Objects::nonNull).collect(Collectors.toList());
+		players = Arrays.stream(partitionsGrid.getPlayers()).filter(Objects::nonNull).collect(Collectors.toList());
 
 		statisticsUpdaterPool = threadPool;
 		parallelStatisticsUpdater = Set.of(this::mainMapStatUpdater, this::freeLandMapStatUpdater, this::playerLandMapStatUpdater, this::movableMapStatUpdater, this::grassMapStatUpdater, this::pioneerMapStatUpdater);
@@ -572,7 +571,7 @@ public class AiStatistics {
 
 	public int getCountOfMovablesOfPlayer(IPlayer player, Set<EMovableType> types) {
 		byte playerId = player.getPlayerId();
-		return stream(types).mapToInt(type -> getPositionsOfMovablesWithTypeForPlayer(playerId, type).size()).sum();
+		return types.stream().mapToInt(type -> getPositionsOfMovablesWithTypeForPlayer(playerId, type).size()).sum();
 	}
 
 	public int getTotalNumberOfBuildingTypeForPlayer(EBuildingType type, byte playerId) {
@@ -742,11 +741,11 @@ public class AiStatistics {
 
 	private List<IPlayer> getEnemiesOf(IPlayer player) {
 		byte teamId = player.getTeamId();
-		return stream(players).filter(currPlayer -> currPlayer.getTeamId() != teamId).collect(Collectors.toList());
+		return players.stream().filter(currPlayer -> currPlayer.getTeamId() != teamId).collect(Collectors.toList());
 	}
 
 	public List<IPlayer> getAliveEnemiesOf(IPlayer player) {
-		return stream(getEnemiesOf(player)).filter(this::isAlive).collect(Collectors.toList());
+		return getEnemiesOf(player).stream().filter(this::isAlive).collect(Collectors.toList());
 	}
 
 	public static ShortPoint2D calculateAveragePointFromList(List<ShortPoint2D> points) {
@@ -803,7 +802,7 @@ public class AiStatistics {
 		if (playerStatistics[playerId].threatenedBorder == null) {
 			AiPositions borderOfOtherPlayers = new AiPositions();
 
-			stream(players)
+			players.stream()
 					.filter(currPlayer -> currPlayer.playerId != playerId)
 					.filter(this::isAlive)
 					.forEach(currPlayer -> borderOfOtherPlayers.addAllNoCollision(getBorderIngestibleByPioneersOf(currPlayer.playerId)));

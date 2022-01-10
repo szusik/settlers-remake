@@ -68,7 +68,7 @@ import jsettlers.main.swing.menu.joinpanel.slots.factories.HostOfMultiplayerPlay
 import jsettlers.main.swing.menu.joinpanel.slots.factories.IPlayerSlotFactory;
 import jsettlers.main.swing.menu.joinpanel.slots.factories.SinglePlayerSlotFactory;
 
-import java8.util.J8Arrays;
+import java8.util.Arrays;
 
 /**
  * Layout:
@@ -349,8 +349,8 @@ public class JoinGamePanel extends BackgroundPanel {
 				chatInputField.setText("");
 			}
 		};
-		J8Arrays.stream(sendChatMessageButton.getActionListeners()).forEach(sendChatMessageButton::removeActionListener);
-		J8Arrays.stream(chatInputField.getActionListeners()).forEach(chatInputField::removeActionListener);
+		Arrays.stream(sendChatMessageButton.getActionListeners()).forEach(sendChatMessageButton::removeActionListener);
+		Arrays.stream(chatInputField.getActionListeners()).forEach(chatInputField::removeActionListener);
 		sendChatMessageButton.addActionListener(sendChatMessage);
 		chatInputField.addActionListener(sendChatMessage);
 
@@ -409,7 +409,7 @@ public class JoinGamePanel extends BackgroundPanel {
 		peaceTimeComboBox.removeAllItems();
 		peaceTimeComboBox.addItem(EPeaceTime.WITHOUT);
 		startResourcesComboBox.removeAllItems();
-		J8Arrays.stream(EMapStartResources.values())
+		Arrays.stream(EMapStartResources.values())
 				.map(MapStartResourcesUIWrapper::new)
 				.forEach(startResourcesComboBox::addItem);
 		startResourcesComboBox.setSelectedIndex(EMapStartResources.HIGH_GOODS.value - 1);
@@ -454,13 +454,13 @@ public class JoinGamePanel extends BackgroundPanel {
 
 	private void setStartButtonActionListener(ActionListener actionListener) {
 		ActionListener[] actionListeners = startGameButton.getActionListeners();
-		J8Arrays.stream(actionListeners).forEach(startGameButton::removeActionListener);
+		Arrays.stream(actionListeners).forEach(startGameButton::removeActionListener);
 		startGameButton.addActionListener(actionListener);
 	}
 
 	private void setCancelButtonActionListener(ActionListener actionListener) {
 		ActionListener[] actionListeners = cancelButton.getActionListeners();
-		J8Arrays.stream(actionListeners).forEach(cancelButton::removeActionListener);
+		Arrays.stream(actionListeners).forEach(cancelButton::removeActionListener);
 		cancelButton.addActionListener(actionListener);
 	}
 
