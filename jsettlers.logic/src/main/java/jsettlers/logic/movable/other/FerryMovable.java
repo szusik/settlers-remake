@@ -3,7 +3,6 @@ package jsettlers.logic.movable.other;
 import java.util.ArrayList;
 import java.util.List;
 
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
@@ -19,7 +18,6 @@ import jsettlers.logic.movable.interfaces.IFerryMovable;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.player.Player;
 
-import static java8.util.stream.StreamSupport.stream;
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class FerryMovable extends AttackableMovable implements IFerryMovable {
@@ -97,7 +95,7 @@ public class FerryMovable extends AttackableMovable implements IFerryMovable {
 	protected void killMovable() {
 		super.killMovable();
 
-		stream(passengers).forEach(ILogicMovable::kill);
+		passengers.forEach(ILogicMovable::kill);
 	}
 
 	@Override

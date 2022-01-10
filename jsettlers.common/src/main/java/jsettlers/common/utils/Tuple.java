@@ -14,10 +14,10 @@
  *******************************************************************************/
 package jsettlers.common.utils;
 
+import java8.util.Comparators;
+
 import java.io.Serializable;
 import java.util.Comparator;
-
-import java8.util.Comparators;
 
 /**
  * This class defines a tupel of two values.

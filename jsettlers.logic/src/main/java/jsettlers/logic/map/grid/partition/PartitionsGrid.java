@@ -53,8 +53,6 @@ import jsettlers.logic.player.Team;
 import jsettlers.logic.timer.IScheduledTimerable;
 import jsettlers.logic.timer.RescheduleTimer;
 
-import static java8.util.stream.StreamSupport.stream;
-
 /**
  * This class handles the partitions of the map.
  * 
@@ -316,8 +314,7 @@ public final class PartitionsGrid implements Serializable, IScheduledTimerable {
 		area.stream().forEach((x, y) -> towers[x + y * width] = 0);
 
 		List<Tuple<Integer, PartitionOccupyingTower>> towersInRange = occupyingTowers.getTowersInRange(tower.position, tower.radius, currTower -> currTower.playerId == tower.playerId);
-		stream(towersInRange)
-				.forEach(currTower -> area.stream()
+		towersInRange.forEach(currTower -> area.stream()
 						.filter(currTower.e2.area::contains)
 						.forEach((x, y) -> towers[x + y * width]++));
 	}

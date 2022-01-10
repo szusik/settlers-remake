@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java8.util.stream.Collectors;
+import java.util.stream.Collectors;
+
 import jsettlers.common.CommonConstants;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.buildings.IBuilding;
@@ -69,8 +70,6 @@ import jsettlers.logic.movable.interfaces.IMageMovable;
 import jsettlers.logic.movable.interfaces.IPioneerMovable;
 import jsettlers.network.client.task.packets.TaskPacket;
 import jsettlers.network.synchronic.timer.ITaskExecutor;
-
-import static java8.util.stream.StreamSupport.stream;
 
 /**
  * @author Andreas Eberle
@@ -357,7 +356,7 @@ class GuiTaskExecutor implements ITaskExecutor {
 	 *            How to move there.
 	 */
 	private void moveSelectedTo(ShortPoint2D targetPosition, List<Integer> movableIds, EMoveToType moveToType) {
-		List<ILogicMovable> movables = stream(movableIds).map(MovableManager::getMovableByID).filter(Objects::nonNull).collect(Collectors.toList());
+		List<ILogicMovable> movables = movableIds.stream().map(MovableManager::getMovableByID).filter(Objects::nonNull).collect(Collectors.toList());
 
 		if (movables.isEmpty()) {
 			return;
@@ -371,7 +370,7 @@ class GuiTaskExecutor implements ITaskExecutor {
 		}
 
 		if (ferryEntrance != null) { // enter a ferry
-			stream(movables).filter(movable -> movable instanceof IAttackableHumanMovable)
+			movables.stream().filter(movable -> movable instanceof IAttackableHumanMovable)
 					.forEach(movable -> ((IAttackableHumanMovable)movable).moveToFerry(ferryEntrance.ferry, ferryEntrance.entrance));
 		} else {
 			sendManyMovables(targetPosition, movables, moveToType);

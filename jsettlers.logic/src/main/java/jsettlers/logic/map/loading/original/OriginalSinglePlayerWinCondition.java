@@ -32,8 +32,6 @@ import jsettlers.logic.map.loading.original.data.OriginalProduceGoodsWinConditio
 import jsettlers.logic.map.loading.original.data.OriginalSurviveDurationWinCondition;
 import jsettlers.logic.player.Player;
 
-import static java8.util.stream.StreamSupport.stream;
-
 public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements Serializable {
 	private static final long serialVersionUID = 1;
 
@@ -151,10 +149,9 @@ public class OriginalSinglePlayerWinCondition extends WinLoseHandler implements 
 			byte playerId = destroyBuildings.getPlayerId();
 
 			// test failed if buildings of type by player exist
-			if(stream(Building.getAllBuildings())
+			if(Building.getAllBuildings().stream()
 					.filter(building -> building.getPlayer().playerId == playerId)
-					.filter(building -> building.getBuildingVariant().isVariantOf(buildingType))
-					.findAny().isPresent()) return false;
+					.anyMatch(building -> building.getBuildingVariant().isVariantOf(buildingType))) return false;
 		}
 
 		return true;

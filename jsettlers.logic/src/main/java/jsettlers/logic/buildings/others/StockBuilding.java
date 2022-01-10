@@ -31,8 +31,6 @@ import jsettlers.logic.player.Player;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java8.util.stream.StreamSupport.stream;
-
 /**
  * Created by Andreas Eberle.
  */
@@ -54,7 +52,7 @@ public class StockBuilding extends Building implements IBuilding.IStock {
 				.map(position -> new MultiRequestAndOfferStack(grid.getRequestStackGrid(), position, type, super.getPriority(), sharedData))
 				.collect(Collectors.toList());
 
-		stream(newStacks).forEach(stockSettings::registerStockSettingsListener);
+		newStacks.forEach(stockSettings::registerStockSettingsListener);
 
 		return newStacks;
 	}
