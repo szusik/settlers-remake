@@ -25,7 +25,7 @@ Many thanks in advance for helping to improve this game!
 
 In order to play the game, you need to have the "GFX" and "SND" folders of the original version of "The Settlers 3" as obtained by installing the original "The Settlers 3" game (DEMO version also works).
 
-Furthermore, you need an up to date installation of [Java 1.8 or newer](http://java.com/). The Java Runtime Environment (JRE) is needed to run the desktop version of JSettlers, as it is written in the programming language Java.
+Furthermore, you need an up-to-date installation of [Java 11 or newer](http://java.com/). The Java Runtime Environment (JRE) is needed to run the desktop version of JSettlers, as it is written in the programming language Java.
 
 Java is preinstalled on Android.
 

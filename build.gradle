@@ -8,7 +8,7 @@ ext {
     androidSupportLibraryVersion = '27.1.0'
 
     androidBuildToolsVersion = '30.0.3'
-    androidCompileSdkVersion = 27
+    androidCompileSdkVersion = 30
     androidMinSdkVersion = 19
     androidTargetSdkVersion = 26
 
@@ -42,21 +42,15 @@ allprojects {
 subprojects {
 
     plugins.withType(JavaPlugin).whenPluginAdded {
-        // we don't support older versions, so equals to java 8 means before java 9.
-        boolean isJava8 = JavaVersion.current() == JavaVersion.VERSION_1_8;
         compileJava {
-            sourceCompatibility = JavaVersion.VERSION_1_8
-            targetCompatibility = JavaVersion.VERSION_1_8
-            if(!isJava8) {
-                options.release = 8
-            }
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
+            options.release = 11
         }
         compileTestJava {
-            sourceCompatibility = JavaVersion.VERSION_1_8
-            targetCompatibility = JavaVersion.VERSION_1_8
-            if(!isJava8) {
-                options.release = 8
-            }
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
+            options.release = 11
         }
 
         task copyMainResources(type: Copy) {
