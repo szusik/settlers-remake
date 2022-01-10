@@ -9,7 +9,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import go.graphics.sound.SoundHandle;
-import java8.util.Lists2;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.player.ECivilisation;
 import go.graphics.sound.SoundPlayer;
@@ -92,7 +91,7 @@ public final class MusicManager implements Runnable {
 
 	private List<File> assembleMusicSet(final ECivilisation civilisation, final boolean playAll) {
 		// there are no music files available
-		if(lookupPath == null || !lookupPath.exists()) return Lists2.of();
+		if(lookupPath == null || !lookupPath.exists()) return List.of();
 
 
 		List<File> list = new ArrayList<>();

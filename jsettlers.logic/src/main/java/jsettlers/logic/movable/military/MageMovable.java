@@ -2,10 +2,10 @@ package jsettlers.logic.movable.military;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
 
-import java8.util.Lists;
 import java.util.function.Function;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
@@ -141,7 +141,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 	private CoordinateStream sort(CoordinateStream stream) {
 
 		List<ShortPoint2D> points = stream.toList();
-		Lists.sort(points, (pt1, pt2) -> pt1.getOnGridDistTo(position)-pt2.getOnGridDistTo(position));
+		points.sort(Comparator.comparingInt(pt -> pt.getOnGridDistTo(position)));
 		return CoordinateStream.fromList(points);
 	}
 

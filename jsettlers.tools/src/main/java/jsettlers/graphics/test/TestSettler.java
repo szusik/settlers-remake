@@ -16,7 +16,6 @@ package jsettlers.graphics.test;
 
 import java.util.List;
 
-import java8.util.Lists2;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
@@ -127,7 +126,7 @@ public class TestSettler implements IGraphicsMovable, IGraphicsFerry, IGraphicsC
 
 	@Override
 	public List<IGraphicsMovable> getPassengers() {
-		return (type == EMovableType.FERRY)? Lists2.of() : null;
+		return (type == EMovableType.FERRY)? List.of() : null;
 	}
 
 	@Override

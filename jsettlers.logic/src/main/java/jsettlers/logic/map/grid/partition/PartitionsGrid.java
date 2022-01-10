@@ -23,8 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import java8.util.Lists;
-import java8.util.Maps;
 import jsettlers.algorithms.interfaces.IContainingProvider;
 import jsettlers.algorithms.partitions.IBlockingProvider;
 import jsettlers.algorithms.partitions.PartitionCalculatorAlgorithm;
@@ -100,7 +98,7 @@ public final class PartitionsGrid implements Serializable, IScheduledTimerable {
 		for (byte playerId = 0; playerId < playerSettings.length; playerId++) {
 			PlayerSetting playerSetting = playerSettings[(int) playerId];
 			if (playerSetting.isAvailable()) {
-				Maps.computeIfAbsent(teams, playerSetting.getTeamId(), Team::new);
+				teams.computeIfAbsent(playerSetting.getTeamId(), Team::new);
 				Team team = teams.get(playerSetting.getTeamId());
 				this.players[playerId] = new Player(playerId, team, (byte) playerSettings.length, playerSetting.getPlayerType(), playerSetting.getCivilisation());
 				team.registerPlayer(this.players[playerId]);
@@ -341,7 +339,7 @@ public final class PartitionsGrid implements Serializable, IScheduledTimerable {
 					tower.radius, currTower -> currTower.playerId != tower.playerId);
 
 			// sort the towers by their distance to the removed tower
-			Lists.sort(towersInRange, Tuple.getE1Comparator());
+			towersInRange.sort(Tuple.getE1Comparator());
 
 			for (Tuple<Integer, PartitionOccupyingTower> curr : towersInRange) {
 				final PartitionOccupyingTower currTower = curr.e2;

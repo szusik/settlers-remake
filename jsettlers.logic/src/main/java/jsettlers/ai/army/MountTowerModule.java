@@ -1,6 +1,5 @@
 package jsettlers.ai.army;
 
-import java8.util.Lists2;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
@@ -36,7 +35,7 @@ public class MountTowerModule extends ArmyModule {
 				ShortPoint2D door = militaryBuilding.getDoor();
 				ILogicMovable soldier = parent.aiStatistics.getNearestSwordsmanOf(door, parent.getPlayerId());
 				if (soldier != null && militaryBuilding.getPosition().getOnGridDistTo(soldier.getPosition()) > TOWER_SEARCH_SOLDIERS_RADIUS) {
-					parent.sendTroopsToById(Lists2.of(soldier.getID()), door, soldiersWithOrders, EMoveToType.FORCED);
+					parent.sendTroopsToById(List.of(soldier.getID()), door, soldiersWithOrders, EMoveToType.FORCED);
 				}
 			}
 		}

@@ -16,7 +16,6 @@ package jsettlers.main.swing.settings;
 
 import go.graphics.swing.contextcreator.EBackendType;
 import go.graphics.swing.sound.ISoundSettingsProvider;
-import java8.util.Maps;
 import java.util.Optional;
 import java.util.function.Supplier;
 import jsettlers.common.CommonConstants;
@@ -133,7 +132,7 @@ public class SettingsManager implements ISoundSettingsProvider {
 	}
 
 	private String get(String key) {
-		return Maps.computeIfAbsent(runtimeProperties, key, storedSettings::getProperty);
+		return runtimeProperties.computeIfAbsent(key, storedSettings::getProperty);
 	}
 
 	private boolean getOptional(String key) {

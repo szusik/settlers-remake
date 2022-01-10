@@ -30,7 +30,6 @@ import java.util.concurrent.ExecutorService;
 
 import java8.util.Comparators;
 import java8.util.J8Arrays;
-import java8.util.Maps;
 import java.util.Objects;
 import java8.util.stream.Collectors;
 import jsettlers.ai.highlevel.AiPositions.AiPositionFilter;
@@ -290,7 +289,7 @@ public class AiStatistics {
 			byte movablePlayerId = movablePlayer.playerId;
 			PlayerStatistic movablePlayerStatistic = playerStatistics[movablePlayerId];
 			EMovableType movableType = movable.getMovableType();
-			Maps.computeIfAbsent(movablePlayerStatistic.movablePositions, movableType, key -> new ArrayList<>()).add(movablePosition);
+			movablePlayerStatistic.movablePositions.computeIfAbsent(movableType, key -> new ArrayList<>()).add(movablePosition);
 
 			if (movableType == BEARER && movable.getAction() == EMovableAction.NO_ACTION) {
 				playerStatistics[movablePlayerId].joblessBearerPositions.add(movable.getPosition());
