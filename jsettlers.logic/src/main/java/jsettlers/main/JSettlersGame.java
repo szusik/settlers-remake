@@ -195,7 +195,7 @@ public class JSettlersGame {
 
 				updateProgressListener(EProgressState.LOADING_MAP, 0.3f);
 
-				MainGridWithUiSettings gridWithUiState = mapCreator.loadMainGrid(initialGameState.getPlayerSettings());
+				MainGridWithUiSettings gridWithUiState = mapCreator.loadMainGrid(initialGameState.getPlayerSettings(), initialGameState.getStartResources());
 				mainGrid = gridWithUiState.getMainGrid();
 				PlayerState playerState = gridWithUiState.getPlayerState(initialGameState.getPlayerId());
 

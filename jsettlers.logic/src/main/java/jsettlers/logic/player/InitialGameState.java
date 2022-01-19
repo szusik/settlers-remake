@@ -1,6 +1,7 @@
 package jsettlers.logic.player;
 
 import jsettlers.common.ai.EPlayerType;
+import jsettlers.logic.map.loading.EMapStartResources;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -12,16 +13,23 @@ public class InitialGameState implements Cloneable, Serializable {
 	private final byte playerId;
 	private final PlayerSetting[] playerSettings;
 	private final long randomSeed;
+	private final EMapStartResources startResources;
 
-	public InitialGameState(byte playerId, PlayerSetting[] playerSettings, long randomSeed) {
+	public InitialGameState(byte playerId, PlayerSetting[] playerSettings, long randomSeed, EMapStartResources startResources) {
 		this.playerId = playerId;
 		this.playerSettings = playerSettings;
 		this.randomSeed = randomSeed;
+		this.startResources = startResources;
+	}
+
+	public InitialGameState(byte playerId, PlayerSetting[] playerSettings, long randomSeed) {
+		this(playerId, playerSettings, randomSeed, EMapStartResources.HIGH_GOODS);
 	}
 
 	public InitialGameState(DataInputStream dis) throws IOException {
 		playerId = dis.readByte();
 		randomSeed = dis.readLong();
+		startResources = EMapStartResources.values()[dis.readByte()];
 
 		playerSettings = new PlayerSetting[dis.readInt()];
 		for (int i = 0; i < playerSettings.length; i++) {
@@ -42,6 +50,10 @@ public class InitialGameState implements Cloneable, Serializable {
 		return randomSeed;
 	}
 
+	public EMapStartResources getStartResources() {
+		return startResources;
+	}
+
 	public PlayerSetting[] getReplayablePlayerSettings() {
 		PlayerSetting[] playerSettings = new PlayerSetting[this.playerSettings.length];
 		for (int i = 0; i < playerSettings.length; i++) {
@@ -54,6 +66,7 @@ public class InitialGameState implements Cloneable, Serializable {
 	public void serialize(DataOutputStream dos) throws IOException {
 		dos.writeLong(randomSeed);
 		dos.writeByte(playerId);
+		dos.writeByte(startResources.ordinal());
 
 		dos.writeInt(playerSettings.length);
 		for (PlayerSetting playerSetting : playerSettings) {
@@ -63,6 +76,6 @@ public class InitialGameState implements Cloneable, Serializable {
 
 	@Override
 	public InitialGameState clone() {
-		return new InitialGameState(playerId, getReplayablePlayerSettings(), randomSeed);
+		return new InitialGameState(playerId, getReplayablePlayerSettings(), randomSeed, startResources);
 	}
 }
