@@ -83,7 +83,7 @@ public class MainApplication extends MultiDexApplication implements GameStarter,
 		closeMultiPlayerConnector();
 		if(serverHandle == null) {
 			try {
-				serverHandle = new GameServerThread(false);
+				serverHandle = new GameServerThread(true);
 				serverHandle.start();
 			} catch (IOException e) {
 				e.printStackTrace();
