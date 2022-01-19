@@ -12,6 +12,7 @@ import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.map.grid.MainGrid;
 import jsettlers.logic.map.loading.MapLoadException;
 import jsettlers.logic.map.loading.MapLoader;
+import jsettlers.logic.player.InitialGameState;
 import jsettlers.logic.player.PlayerSetting;
 import jsettlers.main.JSettlersGame;
 import jsettlers.main.replay.ReplayUtils;
@@ -82,7 +83,7 @@ public class AiTestUtils {
 			}
 		}
 
-		JSettlersGame game = new JSettlersGame(map, 1L, new OfflineNetworkConnector(), playerId, playerSettings);
+		JSettlersGame game = new JSettlersGame(map, new OfflineNetworkConnector(), new InitialGameState(playerId, playerSettings, 1L));
 		return (JSettlersGame.GameRunner) game.start();
 	}
 

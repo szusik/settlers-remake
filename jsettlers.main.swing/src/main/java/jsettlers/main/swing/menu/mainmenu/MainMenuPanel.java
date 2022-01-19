@@ -37,6 +37,7 @@ import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.logic.map.loading.list.MapList;
 import jsettlers.logic.map.loading.newmap.MapFileHeader;
 import jsettlers.logic.map.loading.savegame.SavegameLoader;
+import jsettlers.logic.player.InitialGameState;
 import jsettlers.logic.player.PlayerSetting;
 import jsettlers.main.JSettlersGame;
 import jsettlers.main.swing.JSettlersFrame;
@@ -184,7 +185,7 @@ public class MainMenuPanel extends SplitedBackgroundPanel {
 			MapFileHeader mapFileHeader = savegameLoader.getFileHeader();
 			PlayerSetting[] playerSettings = mapFileHeader.getPlayerSettings();
 			byte playerId = mapFileHeader.getPlayerId();
-			JSettlersGame game = new JSettlersGame(savegameLoader, -1, playerId, playerSettings);
+			JSettlersGame game = new JSettlersGame(savegameLoader, new InitialGameState(playerId, playerSettings, -1));
 			IStartingGame startingGame = game.start();
 			settlersFrame.showStartingGamePanel(startingGame);
 		}

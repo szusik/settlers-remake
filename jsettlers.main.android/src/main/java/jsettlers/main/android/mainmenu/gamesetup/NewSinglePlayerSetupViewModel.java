@@ -10,6 +10,7 @@ import android.arch.lifecycle.ViewModelProvider;
 
 import jsettlers.common.ai.EPlayerType;
 import jsettlers.logic.map.loading.MapLoader;
+import jsettlers.logic.player.InitialGameState;
 import jsettlers.logic.player.PlayerSetting;
 import jsettlers.main.JSettlersGame;
 import jsettlers.main.android.core.AndroidPreferences;
@@ -58,7 +59,7 @@ public class NewSinglePlayerSetupViewModel extends MapSetupViewModel {
 			}
 		}
 
-		JSettlersGame game = new JSettlersGame(mapLoader, 4711L, humanPlayerId, playerSettings);
+		JSettlersGame game = new JSettlersGame(mapLoader, new InitialGameState(humanPlayerId, playerSettings, 4711L));
 
 		gameStarter.setStartingGame(game.start());
 		showMapEvent.call();
