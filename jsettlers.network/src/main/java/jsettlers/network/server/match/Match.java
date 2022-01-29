@@ -331,14 +331,14 @@ public class Match {
 		byte oldPosition;
 		byte newPosition;
 		synchronized (slots) {
-			newPosition = (byte) (position % currPlayers);
+			newPosition = (byte) (position % maxPlayers);
 			Slot slot = getSlot(slotId);
 			oldPosition = slot.getPosition();
 			slot.setPosition(newPosition);
 
 			if(oldPosition != newPosition) {
-				for(int i = 0; i < currPlayers; i++) {
-					Slot other = getSlot(i);
+				for(int i = 0; i < maxPlayers; i++) {
+					Slot other = slots[i];
 
 					if(slot != other && other.getPosition() == newPosition) {
 						other.setPosition(oldPosition);
@@ -369,7 +369,7 @@ public class Match {
 
 	public void setPlayerCount(int playerCount) {
 		synchronized (players) {
-			if(playerCount <= players.size()) {
+			if(playerCount < players.size()) {
 				throw new IllegalStateException("You can't remove players from a match!");
 			}
 		}

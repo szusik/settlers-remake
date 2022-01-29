@@ -18,6 +18,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import jsettlers.common.ai.EPlayerType;
 import jsettlers.common.menu.ENetworkMessage;
@@ -66,6 +69,7 @@ public class MultiplayerGame {
 	private IMultiplayerListener multiplayerListener;
 	private IChatMessageListener chatMessageListener;
 	private boolean iAmTheHost = false;
+	private int maxPlayers;
 
 	public MultiplayerGame(AsyncNetworkClientConnector networkClientFactory) {
 		this.networkClientFactory = networkClientFactory;
@@ -142,24 +146,26 @@ public class MultiplayerGame {
 	}
 
 	private PlayerSetting[] determinePlayerSettings() {
-		return slotList.getItems().stream().sorted(Comparator.comparingInt(IMultiplayerSlot::getPosition))
+		Map<Byte, PlayerSetting> playerSettings = slotList.getItems().stream().sorted(Comparator.comparingInt(IMultiplayerSlot::getPosition))
 				.map(slot -> {
+					PlayerSetting playerSetting;
 					if(iAmTheHost) {
-						return new PlayerSetting(slot.getType(), slot.getCivilisation(), slot.getTeam());
+						playerSetting = new PlayerSetting(slot.getType(), slot.getCivilisation(), slot.getTeam());
 					} else {
-						return new PlayerSetting(EPlayerType.HUMAN, slot.getCivilisation(), slot.getTeam());
+						playerSetting = new PlayerSetting(EPlayerType.HUMAN, slot.getCivilisation(), slot.getTeam());
 					}
-				}).toArray(PlayerSetting[]::new);
+
+					return Map.entry(slot.getPosition(), playerSetting);
+				}).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		return IntStream.range(0, maxPlayers).mapToObj(i -> playerSettings.computeIfAbsent((byte) i, v -> new PlayerSetting())).toArray(PlayerSetting[]::new);
 	}
 
 	private byte calculateOwnPlayerId() {
 		String myId = networkClient.getPlayerInfo().getId();
-		byte i = 0;
 		for (IMultiplayerSlot currSlot : slotList.getItems()) {
 			if(currSlot.getPlayer() != null && currSlot.getPlayer().getId().equals(myId)) {
-				return i;
+				return currSlot.getPosition();
 			}
-			i++;
 		}
 		throw new RuntimeException("Wasn't able to find my id!");
 	}
@@ -179,6 +185,7 @@ public class MultiplayerGame {
 	}
 
 	void updateLists(MatchInfoPacket matchInfo) {
+		maxPlayers = matchInfo.getMaxPlayers();
 		List<IMultiplayerPlayer> players = new LinkedList<>();
 		for (PlayerInfoPacket playerInfoPacket : matchInfo.getPlayers()) {
 			players.add(new MultiplayerPlayer(playerInfoPacket));
