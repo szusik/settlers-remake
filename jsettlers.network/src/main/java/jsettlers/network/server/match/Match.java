@@ -58,9 +58,11 @@ public class Match {
 	private EMatchState state = EMatchState.OPENED;
 	private TaskCollectingListener taskCollectingListener;
 	private TaskSendingTimerTask taskSendingTimerTask;
+	private int currPlayers;
 
 	public Match(String name, int maxPlayers, MapInfoPacket map, Player host, long randomSeed) {
 		this.maxPlayers = maxPlayers;
+		currPlayers = maxPlayers;
 		this.slots = new Slot[maxPlayers];
 		this.map = map;
 		this.name = name;
@@ -82,7 +84,7 @@ public class Match {
 	}
 
 	public boolean canJoin() {
-		return state == EMatchState.OPENED && players.size() < maxPlayers;
+		return state == EMatchState.OPENED && players.size() < currPlayers;
 	}
 
 	public String getId() {
@@ -112,9 +114,9 @@ public class Match {
 
 	public SlotInfoPacket[] getSlotInfos() {
 		synchronized (slots) {
-			SlotInfoPacket[] result = new SlotInfoPacket[maxPlayers];
-			for(int i = 0; i < maxPlayers; i++) {
-				result[i] = new SlotInfoPacket(slots[i]);
+			SlotInfoPacket[] result = new SlotInfoPacket[currPlayers];
+			for(int i = 0; i < currPlayers; i++) {
+				result[i] = new SlotInfoPacket(getSlot(i));
 			}
 
 			 return result;
@@ -301,43 +303,42 @@ public class Match {
 
 	public void setSlotCivilisation(byte slotId, byte civilisation) {
 		byte oldCivilisation;
-		byte newCivilisation = civilisation;
 		synchronized (slots) {
-			Slot slot = slots[slotId % maxPlayers];
+			Slot slot = getSlot(slotId);
 			oldCivilisation = slot.getCivilisation();
-			slot.setCivilisation(newCivilisation);
+			slot.setCivilisation(civilisation);
 		}
 
-		if(oldCivilisation != newCivilisation) {
+		if(oldCivilisation != civilisation) {
 			sendMatchInfoUpdate(ENetworkMessage.CIVILISATION_CHANGED, null);
 		}
 	}
 
 	public void setSlotPlayerType(byte slotId, byte playerType) {
 		byte oldPlayerType;
-		byte newPlayerType = playerType;
 		synchronized (slots) {
-			Slot slot = slots[slotId % maxPlayers];
+			Slot slot = getSlot(slotId);
 			oldPlayerType = slot.getType();
-			slot.setType(newPlayerType);
+			slot.setType(playerType);
 		}
 
-		if(oldPlayerType != newPlayerType) {
+		if(oldPlayerType != playerType) {
 			sendMatchInfoUpdate(ENetworkMessage.TYPE_CHANGED, null);
 		}
 	}
 
 	public void setSlotPosition(byte slotId, byte position) {
 		byte oldPosition;
-		byte newPosition = (byte) (position % maxPlayers);
+		byte newPosition;
 		synchronized (slots) {
-			Slot slot = slots[slotId % maxPlayers];
+			newPosition = (byte) (position % currPlayers);
+			Slot slot = getSlot(slotId);
 			oldPosition = slot.getPosition();
 			slot.setPosition(newPosition);
 
 			if(oldPosition != newPosition) {
-				for(int i = 0; i < maxPlayers; i++) {
-					Slot other = slots[i];
+				for(int i = 0; i < currPlayers; i++) {
+					Slot other = getSlot(i);
 
 					if(slot != other && other.getPosition() == newPosition) {
 						other.setPosition(oldPosition);
@@ -353,9 +354,10 @@ public class Match {
 
 	public void setSlotTeam(byte slotId, byte team) {
 		byte oldTeam;
-		byte newTeam = (byte) (team % maxPlayers);
+		byte newTeam;
 		synchronized (slots) {
-			Slot slot = slots[slotId % maxPlayers];
+			newTeam = (byte) (team % currPlayers);
+			Slot slot = getSlot(slotId);
 			oldTeam = slot.getTeam();
 			slot.setTeam(newTeam);
 		}
@@ -366,6 +368,30 @@ public class Match {
 	}
 
 	public void setPlayerCount(int playerCount) {
-		// TODO
+		synchronized (players) {
+			if(playerCount <= players.size()) {
+				throw new IllegalStateException("You can't remove players from a match!");
+			}
+		}
+
+		if(playerCount > maxPlayers) {
+			throw new IllegalStateException("You can't have more slots than are allowed on this map!");
+		}
+
+		synchronized (slots) {
+			if(playerCount == currPlayers) return;
+
+			currPlayers = playerCount;
+		}
+
+		sendMatchInfoUpdate(ENetworkMessage.PLAYER_COUNT_CHANGED, null);
+	}
+
+	private Slot getSlot(int slotId) {
+		if(slotId >= currPlayers) {
+			throw new IllegalStateException("slotId >= currPlayers");
+		}
+
+		return slots[slotId];
 	}
 }
