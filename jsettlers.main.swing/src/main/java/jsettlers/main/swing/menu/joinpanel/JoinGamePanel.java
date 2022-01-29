@@ -39,7 +39,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import jsettlers.common.ai.EPlayerType;
 import jsettlers.common.menu.ENetworkMessage;
 import jsettlers.common.menu.EProgressState;
 import jsettlers.common.menu.IChatMessageListener;
@@ -96,7 +95,7 @@ public class JoinGamePanel extends BackgroundPanel {
 	private final JLabel mapNameLabel = new JLabel();
 	private final JLabel mapImage = new JLabel();
 	private final JLabel numberOfPlayersLabel = new JLabel();
-	private final JComboBox<Integer> numberOfPlayersComboBox = new JComboBox<>();
+	private final NumberOfPlayersComboBox numberOfPlayersComboBox = new NumberOfPlayersComboBox(this);
 	private final JLabel peaceTimeLabel = new JLabel();
 	private final JComboBox<EPeaceTime> peaceTimeComboBox = new JComboBox<>();
 	private final JLabel startResourcesLabel = new JLabel();
@@ -121,7 +120,6 @@ public class JoinGamePanel extends BackgroundPanel {
 		createStructure();
 		setStyle();
 		localize();
-		addListener();
 	}
 
 	private void createStructure() {
@@ -196,7 +194,6 @@ public class JoinGamePanel extends BackgroundPanel {
 		chatInputField.putClientProperty(ELFStyle.KEY, ELFStyle.TEXT_DEFAULT);
 		chatArea.putClientProperty(ELFStyle.KEY, ELFStyle.PANEL_DARK);
 		startResourcesComboBox.putClientProperty(ELFStyle.KEY, ELFStyle.COMBOBOX);
-		numberOfPlayersComboBox.putClientProperty(ELFStyle.KEY, ELFStyle.COMBOBOX);
 		peaceTimeComboBox.putClientProperty(ELFStyle.KEY, ELFStyle.COMBOBOX);
 		chatArea.putClientProperty(ELFStyle.KEY, ELFStyle.TEXT_DEFAULT);
 		chatArea.setEditable(false);
@@ -217,14 +214,9 @@ public class JoinGamePanel extends BackgroundPanel {
 		sendChatMessageButton.setText(Labels.getString("join-game-panel-send-chat-message"));
 	}
 
-	private void addListener() {
-		numberOfPlayersComboBox.addActionListener(e -> updateNumberOfPlayerSlots());
-	}
-
 	public void setSinglePlayerMap(MapLoader mapLoader) {
 		this.playerSlotFactory = new SinglePlayerSlotFactory();
 		titleLabel.setText(Labels.getString("join-game-panel-new-single-player-game-title"));
-		numberOfPlayersComboBox.setEnabled(true);
 		peaceTimeComboBox.setEnabled(true);
 		startResourcesComboBox.setEnabled(true);
 		startGameButton.setVisible(true);
@@ -252,12 +244,12 @@ public class JoinGamePanel extends BackgroundPanel {
 		setCancelButtonActionListener(e -> settlersFrame.showMainMenu());
 
 		prepareUiFor(mapLoader);
+		numberOfPlayersComboBox.informGame(null);
 	}
 
 	public void setNewMultiPlayerMap(MapLoader mapLoader, IMultiplayerConnector connector) {
 		this.playerSlotFactory = new HostOfMultiplayerPlayerSlotFactory(connector);
 		titleLabel.setText(Labels.getString("join-game-panel-new-multi-player-game-title"));
-		numberOfPlayersComboBox.setEnabled(false);
 		peaceTimeComboBox.setEnabled(false);
 		startResourcesComboBox.setEnabled(false);
 		startGameButton.setVisible(true);
@@ -291,6 +283,7 @@ public class JoinGamePanel extends BackgroundPanel {
 					});
 
 					onSlotsChanged(connector.getSlots(), connector, myId, true); // init the UI with the players
+					numberOfPlayersComboBox.informGame(connector);
 				});
 			}
 		});
@@ -306,7 +299,6 @@ public class JoinGamePanel extends BackgroundPanel {
 	public void setJoinMultiPlayerMap(IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap, MapLoader mapLoader, String playerUUID) {
 		playerSlotFactory = new ClientOfMultiplayerPlayerSlotFactory();
 		titleLabel.setText(Labels.getString("join-game-panel-join-multi-player-game-title"));
-		numberOfPlayersComboBox.setEnabled(false);
 		peaceTimeComboBox.setEnabled(false);
 		startResourcesComboBox.setEnabled(false);
 		setChatVisible(true);
@@ -330,6 +322,7 @@ public class JoinGamePanel extends BackgroundPanel {
 		initializeChatFor(joinMultiPlayerMap);
 
 		onSlotsChanged(joinMultiPlayerMap.getSlots(), joinMultiPlayerMap, playerUUID, false); // init the UI with the players
+		numberOfPlayersComboBox.informGame(null);
 	}
 
 	private void initializeChatFor(IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap) {
@@ -369,7 +362,7 @@ public class JoinGamePanel extends BackgroundPanel {
 	private void onSlotsChanged(ChangingList<? extends IMultiplayerSlot> changingSlots, IJoinPhaseMultiplayerGameConnector joinMultiPlayerMap, String myId, boolean iAmTheHost) {
 		SwingUtilities.invokeLater(() -> {
 			Iterator<? extends IMultiplayerSlot> slots = changingSlots.getItems().iterator();
-
+			numberOfPlayersComboBox.setPlayerCount(changingSlots.getItems().size());
 
 			for (int i = 0; slots.hasNext() && i < playerSlots.size(); i++) {
 				PlayerSlot playerSlot = playerSlots.get(i);
@@ -401,6 +394,7 @@ public class JoinGamePanel extends BackgroundPanel {
 				joinMultiPlayerMap.abort();
 				settlersFrame.showMainMenu();
 			});
+			numberOfPlayersComboBox.setEnabled(iAmTheHost);
 		});
 	}
 
@@ -415,9 +409,9 @@ public class JoinGamePanel extends BackgroundPanel {
 				.map(MapStartResourcesUIWrapper::new)
 				.forEach(startResourcesComboBox::addItem);
 		startResourcesComboBox.setSelectedIndex(EMapStartResources.HIGH_GOODS.value - 1);
-		resetNumberOfPlayersComboBox();
+		numberOfPlayersComboBox.reset(mapLoader.getMaxPlayers());
 		buildPlayerSlots();
-		updateNumberOfPlayerSlots();
+		updateNumberOfPlayerSlots(mapLoader.getMaxPlayers());
 	}
 
 	private void buildPlayerSlots() {
@@ -466,22 +460,14 @@ public class JoinGamePanel extends BackgroundPanel {
 		cancelButton.addActionListener(actionListener);
 	}
 
-	private void resetNumberOfPlayersComboBox() {
-		numberOfPlayersComboBox.removeAllItems();
-		for (int i = 1; i < mapLoader.getMaxPlayers() + 1; i++) {
-			numberOfPlayersComboBox.addItem(i);
-		}
-		numberOfPlayersComboBox.setSelectedIndex(mapLoader.getMaxPlayers() - 1);
-	}
-
-	private void updateNumberOfPlayerSlots() {
-		if (playerSlotFactory == null || numberOfPlayersComboBox.getSelectedItem() == null) {
+	void updateNumberOfPlayerSlots(int amount) {
+		if (playerSlotFactory == null) {
 			return;
 		}
 		playerSlotsPanel.removeAll();
 		addPlayerSlotHeadline();
 		for (int i = 0; i < playerSlots.size(); i++) {
-			if (i < (int) numberOfPlayersComboBox.getSelectedItem()) {
+			if (i < (int) amount) {
 				playerSlots.get(i).addTo(playerSlotsPanel, i + 1);
 			} else {
 				playerSlots.get(i).setAvailable(false);
