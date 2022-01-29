@@ -100,6 +100,8 @@ public interface INetworkClient {
 
 	void setPosition(byte slot, byte position) throws IllegalStateException;
 
+	void setPlayerCount(int playerCount);
+
 	void sendChatMessage(String message) throws IllegalStateException;
 
 	void leaveMatch();
@@ -117,4 +119,5 @@ public interface INetworkClient {
 	int getRoundTripTimeInMs();
 
 	INetworkConnector getNetworkConnector();
+
 }

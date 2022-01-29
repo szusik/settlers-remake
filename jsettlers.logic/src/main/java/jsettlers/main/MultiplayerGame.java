@@ -132,6 +132,7 @@ public class MultiplayerGame {
 			long randomSeed = packet.getRandomSeed();
 			PlayerSetting[] playerSettings = determinePlayerSettings();
 			byte ownPlayerId = calculateOwnPlayerId();
+			// TODO start resources
 			InitialGameState initialGameState = new InitialGameState(ownPlayerId, playerSettings, randomSeed);
 
 			JSettlersGame game = new JSettlersGame(mapLoader, networkClient.getNetworkConnector(), initialGameState);
@@ -268,6 +269,11 @@ public class MultiplayerGame {
 			@Override
 			public void setPosition(byte slot, byte position) {
 				networkClient.setPosition(slot, position);
+			}
+
+			@Override
+			public void setPlayerCount(int playerCount) {
+				networkClient.setPlayerCount(playerCount);
 			}
 
 			@Override

@@ -25,6 +25,7 @@ import jsettlers.network.infrastructure.channel.reject.RejectPacket;
 import jsettlers.network.server.db.IDBFacade;
 import jsettlers.network.server.exceptions.NotAllPlayersReadyException;
 import jsettlers.network.server.listeners.ChangeCivilisationPacketListener;
+import jsettlers.network.server.listeners.ChangePlayerCountPacketListener;
 import jsettlers.network.server.listeners.ChangePlayerTypePacketListener;
 import jsettlers.network.server.listeners.ChangePositionPacketListener;
 import jsettlers.network.server.listeners.ChangeTeamPacketListener;
@@ -95,6 +96,7 @@ public class ServerManager implements IServerManager {
 			channel.registerListener(new ChangePlayerTypePacketListener(this, player));
 			channel.registerListener(new ChangePositionPacketListener(this, player));
 			channel.registerListener(new ChangeTeamPacketListener(this, player));
+			channel.registerListener(new ChangePlayerCountPacketListener(this, player));
 
 			return true;
 		} else {
@@ -247,6 +249,18 @@ public class ServerManager implements IServerManager {
 		} catch (IllegalStateException e) {
 			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
 					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_TEAM));
+		}
+	}
+
+	@Override
+	public void setPlayerCount(Player player, int playerCount) {
+		try {
+			Match match = verifyAndGetMatch(player);
+
+			match.setPlayerCount(playerCount);
+		} catch (IllegalStateException e) {
+			player.sendPacket(NetworkConstants.ENetworkKey.REJECT_PACKET,
+					new RejectPacket(NetworkConstants.ENetworkMessage.INVALID_STATE_ERROR, NetworkConstants.ENetworkKey.CHANGE_PLAYER_COUNT));
 		}
 	}
 

@@ -364,4 +364,8 @@ public class Match {
 			sendMatchInfoUpdate(ENetworkMessage.TEAM_CHANGED, null);
 		}
 	}
+
+	public void setPlayerCount(int playerCount) {
+		// TODO
+	}
 }

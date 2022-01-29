@@ -63,6 +63,8 @@ public interface IJoinPhaseMultiplayerGameConnector {
 
 	void setTeam(byte slot, byte team);
 
+	void setPlayerCount(int playerCount);
+
 	/**
 	 * Starts the game if all players are currently ready. Calls the game listener as soon as it is starting.
 	 * 
@@ -74,4 +76,5 @@ public interface IJoinPhaseMultiplayerGameConnector {
 	 * Called when the user exits the screen, to abort the multiplayer game. This method does not need to call the abort() method of the {@link IMultiplayerListener}.
 	 */
 	void abort();
+
 }

@@ -59,7 +59,10 @@ public class NewSinglePlayerSetupViewModel extends MapSetupViewModel {
 			}
 		}
 
-		JSettlersGame game = new JSettlersGame(mapLoader, new InitialGameState(humanPlayerId, playerSettings, 4711L));
+		//TODO start resources
+		InitialGameState initialGameState = new InitialGameState(humanPlayerId, playerSettings, 4711L);
+
+		JSettlersGame game = new JSettlersGame(mapLoader, initialGameState);
 
 		gameStarter.setStartingGame(game.start());
 		showMapEvent.call();

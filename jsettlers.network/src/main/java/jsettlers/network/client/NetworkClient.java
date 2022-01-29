@@ -34,6 +34,7 @@ import jsettlers.network.common.packets.BooleanMessagePacket;
 import jsettlers.network.common.packets.ByteTuplePacket;
 import jsettlers.network.common.packets.ChatMessagePacket;
 import jsettlers.network.common.packets.IdPacket;
+import jsettlers.network.common.packets.IntegerMessagePacket;
 import jsettlers.network.common.packets.MapInfoPacket;
 import jsettlers.network.common.packets.MatchInfoPacket;
 import jsettlers.network.common.packets.MatchInfoUpdatePacket;
@@ -178,6 +179,12 @@ public class NetworkClient implements ITaskScheduler, INetworkConnector, INetwor
 	public void setPosition(byte slot, byte position) throws IllegalStateException {
 		EPlayerState.assertState(state, EPlayerState.IN_MATCH);
 		channel.sendPacketAsync(ENetworkKey.CHANGE_POSITION, new ByteTuplePacket(slot, position));
+	}
+
+	@Override
+	public void setPlayerCount(int playerCount) {
+		EPlayerState.assertState(state, EPlayerState.IN_MATCH);
+		channel.sendPacketAsync(ENetworkKey.CHANGE_PLAYER_COUNT, new IntegerMessagePacket(playerCount));
 	}
 
 	@Override

@@ -67,6 +67,8 @@ public interface IServerManager {
 
 	void setTeamForSlot(Player player, byte slot, byte team);
 
+	void setPlayerCount(Player player, int playerCount);
+
 	void sendMatchesToPlayer(Player player);
 
 	void setStartFinished(Player player, boolean startFinished);

@@ -169,6 +169,7 @@ public final class NetworkConstants {
 		CHANGE_TEAM,
 		CHANGE_PLAYER_TYPE,
 		CHANGE_POSITION,
+		CHANGE_PLAYER_COUNT,
 		;
 
 		private static final ENetworkKey[] values = ENetworkKey.values();
