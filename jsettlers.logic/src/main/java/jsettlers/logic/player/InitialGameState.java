@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class InitialGameState implements Cloneable, Serializable {
 
@@ -77,5 +78,15 @@ public class InitialGameState implements Cloneable, Serializable {
 	@Override
 	public InitialGameState clone() {
 		return new InitialGameState(playerId, getReplayablePlayerSettings(), randomSeed, startResources);
+	}
+
+	@Override
+	public String toString() {
+		return "InitialGameState{" +
+				"playerId=" + playerId +
+				", playerSettings=" + Arrays.toString(playerSettings) +
+				", randomSeed=" + randomSeed +
+				", startResources=" + startResources +
+				'}';
 	}
 }
