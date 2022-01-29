@@ -22,7 +22,6 @@ public class NumberOfPlayersComboBox extends JComboBox<Integer> {
 
 			int newPlayerCount = getSelectedIndex()+1;
 			if(newPlayerCount != selectedPlayerCount) {
-				selectedPlayerCount = newPlayerCount;
 				if(joiningGame != null) {
 					joiningGame.setPlayerCount(newPlayerCount);
 				}
