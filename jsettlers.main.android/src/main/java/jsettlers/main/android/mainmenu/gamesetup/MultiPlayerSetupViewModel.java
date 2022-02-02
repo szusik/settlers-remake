@@ -1,6 +1,7 @@
 package jsettlers.main.android.mainmenu.gamesetup;
 
 import java.util.Iterator;
+import java.util.List;
 
 import jsettlers.common.ai.EPlayerType;
 import jsettlers.common.menu.IJoinPhaseMultiplayerGameConnector;
@@ -117,7 +118,9 @@ public abstract class MultiPlayerSetupViewModel extends MapSetupViewModel implem
 	}
 
 	private void updateSlots() {
-		Iterator<IMultiplayerSlot> slotIter = connector.getSlots().getItems().iterator();
+		List<IMultiplayerSlot> slots = connector.getSlots().getItems();
+		Iterator<IMultiplayerSlot> slotIter = slots.iterator();
+		playerCount.postValue(new PlayerCount(slots.size()));
 
 		for (int i = 0; i < playerSlotPresenters.size() && slotIter.hasNext(); i++) {
 			IMultiplayerSlot remoteSlot = slotIter.next();

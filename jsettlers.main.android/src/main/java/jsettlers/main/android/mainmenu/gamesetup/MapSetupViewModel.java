@@ -36,7 +36,7 @@ public abstract class MapSetupViewModel extends ViewModel implements PositionCha
 	protected final List<PlayerSlotPresenter> playerSlotPresenters;
 
 	private final MutableLiveData<PlayerCount[]> playerCountOptions = new MutableLiveData<>();
-	private final MutableLiveData<PlayerCount> playerCount = new MutableLiveData<>();
+	protected final MutableLiveData<PlayerCount> playerCount = new MutableLiveData<>();
 	private final MutableLiveData<StartResources[]> startResourcesOptions = new MutableLiveData<>();
 	private final MutableLiveData<StartResources> startResources = new MutableLiveData<>();
 	private final MutableLiveData<Peacetime[]> peaceTimeOptions = new MutableLiveData<>();
