@@ -32,6 +32,7 @@ public abstract class MultiPlayerSetupViewModel extends MapSetupViewModel implem
 	private final AndroidPreferences androidPreferences;
 	protected final IJoinPhaseMultiplayerGameConnector connector;
 	private final MapLoader mapLoader;
+	protected int realPlayerCount;
 
 	public MultiPlayerSetupViewModel(GameStarter gameStarter, AndroidPreferences androidPreferences, IJoinPhaseMultiplayerGameConnector connector, MapLoader mapLoader) {
 		super(gameStarter, mapLoader);
@@ -120,6 +121,7 @@ public abstract class MultiPlayerSetupViewModel extends MapSetupViewModel implem
 	private void updateSlots() {
 		List<IMultiplayerSlot> slots = connector.getSlots().getItems();
 		Iterator<IMultiplayerSlot> slotIter = slots.iterator();
+		realPlayerCount = slots.size();
 		playerCount.postValue(new PlayerCount(slots.size()));
 
 		for (int i = 0; i < playerSlotPresenters.size() && slotIter.hasNext(); i++) {

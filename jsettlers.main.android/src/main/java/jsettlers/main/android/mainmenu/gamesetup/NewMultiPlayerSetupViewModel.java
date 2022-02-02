@@ -3,6 +3,7 @@ package jsettlers.main.android.mainmenu.gamesetup;
 import android.app.Activity;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
+import jsettlers.common.ai.EPlayerType;
 import jsettlers.common.menu.IJoinPhaseMultiplayerGameConnector;
 import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.main.android.core.AndroidPreferences;
@@ -14,6 +15,20 @@ public class NewMultiPlayerSetupViewModel extends MultiPlayerSetupViewModel {
 		super(gameStarter, androidPreferences, connector, mapLoader);
 
 		setAllPlayerSlotsEnabled(true);
+	}
+
+	@Override
+	public void playerCountSelected(PlayerCount item) {
+		if(realPlayerCount != item.getNumberOfPlayers()) {
+			long minPlayerCount = playerSlotPresenters.stream().filter(p -> p.getPlayerSettings().getPlayerType().equals(EPlayerType.HUMAN)).count();
+
+			if(item.getNumberOfPlayers() < minPlayerCount) {
+				item = new PlayerCount(realPlayerCount);
+			} else {
+				connector.setPlayerCount(item.getNumberOfPlayers());
+			}
+		}
+		super.playerCountSelected(item);
 	}
 
 	@Override
