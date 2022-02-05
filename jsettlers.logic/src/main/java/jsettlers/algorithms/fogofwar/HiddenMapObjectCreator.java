@@ -21,14 +21,19 @@ public class HiddenMapObjectCreator {
 			case EYE:
 			case SPELL_EFFECT:
 				return null;
+			case MANNA_BOWL:
+				return new HiddenMapObject.HiddenMannaBowlObject(object);
 			case BUILDING:
 				return new HiddenMapObject.HiddenBuilding(object);
 			case STACK_OBJECT:
 				return new HiddenMapObject.HiddenStackMapObject(object);
 			case ARROW:
 				return new HiddenMapObject.HiddenArrowMapObject(object);
+			case FERRY:
+			case CARGO_SHIP:
+				return new HiddenMapObject.HiddenShipInConstructionObject(object);
+			default:
+				return new HiddenMapObject(object);
 		}
-
-		return new HiddenMapObject(object);
 	}
 }

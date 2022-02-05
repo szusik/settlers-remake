@@ -10,11 +10,13 @@ import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.IBuildingMaterial;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.mapobject.IArrowMapObject;
+import jsettlers.common.mapobject.IMannaBowlObject;
 import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.mapobject.IStackMapObject;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
 import jsettlers.common.movable.EDirection;
+import jsettlers.common.movable.IShipInConstruction;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
@@ -243,6 +245,47 @@ public class HiddenMapObject implements IMapObject, Serializable {
 		@Override
 		public boolean isSoundPlayed() {
 			return false;
+		}
+	}
+
+	public static class HiddenMannaBowlObject extends HiddenMapObject implements IMannaBowlObject {
+
+		private final ECivilisation civilisation;
+
+		public HiddenMannaBowlObject(AbstractHexMapObject original) {
+			super(original);
+
+			this.civilisation = ((IMannaBowlObject) original).getCivilisation();
+		}
+
+		@Override
+		public ECivilisation getCivilisation() {
+			return civilisation;
+		}
+	}
+
+	public static class HiddenShipInConstructionObject extends HiddenMapObject implements IShipInConstruction {
+
+		private final EDirection direction;
+		private final IPlayer player;
+
+		public HiddenShipInConstructionObject(AbstractHexMapObject original) {
+			super(original);
+
+			IShipInConstruction shipInConstruction = (IShipInConstruction) original;
+
+			this.direction = shipInConstruction.getDirection();
+			this.player = shipInConstruction.getPlayer();
+		}
+
+		@Override
+		public EDirection getDirection() {
+			return direction;
+		}
+
+		@Override
+		public IPlayer getPlayer() {
+			return player;
 		}
 	}
 }
