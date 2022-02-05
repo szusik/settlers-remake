@@ -32,6 +32,9 @@ public class HiddenMapObjectCreator {
 			case FERRY:
 			case CARGO_SHIP:
 				return new HiddenMapObject.HiddenShipInConstructionObject(object);
+			case FLAG_DOOR:
+			case FLAG_ROOF:
+				return new HiddenMapObject.HiddenPlayerableMapObject(object);
 			default:
 				return new HiddenMapObject(object);
 		}

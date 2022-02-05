@@ -19,6 +19,7 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.IShipInConstruction;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
+import jsettlers.common.player.IPlayerable;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.selectable.ESelectionType;
 import jsettlers.logic.map.grid.objects.AbstractHexMapObject;
@@ -142,14 +143,29 @@ public class HiddenMapObject implements IMapObject, Serializable {
 		}
 	}
 
-	public static class HiddenBuilding extends HiddenMapObject implements IBuilding, IBuilding.IMill, IBuilding.ISoundRequestable {
+	public static class HiddenPlayerableMapObject extends HiddenMapObject implements IPlayerable {
+
+		private final IPlayer player;
+
+		public HiddenPlayerableMapObject(AbstractHexMapObject original) {
+			super(original);
+
+			player = ((IPlayerable) original).getPlayer();
+		}
+
+		@Override
+		public IPlayer getPlayer() {
+			return player;
+		}
+	}
+
+	public static class HiddenBuilding extends HiddenPlayerableMapObject implements IBuilding, IBuilding.IMill, IBuilding.ISoundRequestable {
 
 		private static final long serialVersionUID = 1L;
 
 		private final EBuildingType type;
 		private final ECivilisation civilisation;
 		private final boolean occupied;
-		private final IPlayer player;
 		private final ShortPoint2D position;
 
 		public HiddenBuilding(AbstractHexMapObject original) {
@@ -159,7 +175,6 @@ public class HiddenMapObject implements IMapObject, Serializable {
 			type = originalBuilding.getBuildingVariant().getType();
 			civilisation = originalBuilding.getBuildingVariant().getCivilisation();
 			occupied = originalBuilding.isOccupied();
-			player = originalBuilding.getPlayer();
 			position = originalBuilding.getPosition();
 		}
 
@@ -201,11 +216,6 @@ public class HiddenMapObject implements IMapObject, Serializable {
 		@Override
 		public void requestSound() {
 
-		}
-
-		@Override
-		public IPlayer getPlayer() {
-			return player;
 		}
 
 		@Override
@@ -264,10 +274,9 @@ public class HiddenMapObject implements IMapObject, Serializable {
 		}
 	}
 
-	public static class HiddenShipInConstructionObject extends HiddenMapObject implements IShipInConstruction {
+	public static class HiddenShipInConstructionObject extends HiddenPlayerableMapObject implements IShipInConstruction {
 
 		private final EDirection direction;
-		private final IPlayer player;
 
 		public HiddenShipInConstructionObject(AbstractHexMapObject original) {
 			super(original);
@@ -275,17 +284,11 @@ public class HiddenMapObject implements IMapObject, Serializable {
 			IShipInConstruction shipInConstruction = (IShipInConstruction) original;
 
 			this.direction = shipInConstruction.getDirection();
-			this.player = shipInConstruction.getPlayer();
 		}
 
 		@Override
 		public EDirection getDirection() {
 			return direction;
-		}
-
-		@Override
-		public IPlayer getPlayer() {
-			return player;
 		}
 	}
 }

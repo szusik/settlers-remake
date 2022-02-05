@@ -71,12 +71,12 @@ public enum EMapObjectType {
 	BUILDINGSITE_POST,
 
 	/**
-	 * in front of a door
+	 * in front of a door. Should implement {@link jsettlers.common.player.IPlayerable}
 	 */
 	FLAG_DOOR,
 
 	/**
-	 * on top of the roof
+	 * on top of the roof. Should implement {@link jsettlers.common.player.IPlayerable}
 	 */
 	FLAG_ROOF,
 
