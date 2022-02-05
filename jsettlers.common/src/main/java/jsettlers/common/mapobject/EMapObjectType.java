@@ -30,6 +30,10 @@ public enum EMapObjectType {
 	WINE_GROWING,
 	WINE_HARVESTABLE,
 	WINE_DEAD,
+
+	/**
+	 * Map objects with type manna bowl must implement {@link IMannaBowlObject}
+	 */
 	MANNA_BOWL,
 
 	WAVES,
@@ -100,12 +104,13 @@ public enum EMapObjectType {
 	/**
 	 * Type to represent a Building
 	 * <p />
-	 * {@link IMapObject}s of this type must implement {@link IBuildingMapObject}.
+	 * {@link IMapObject}s of this type must implement {@link jsettlers.common.buildings.IBuilding}.
 	 */
 	BUILDING,
 
 	/**
-	 * Type to represent the Building shown when placing for construction.
+	 * Type to represent the Building shown when placing for construction.<br>
+	 * {@link IMapObject}s of this type must implement {@link jsettlers.common.buildings.IBuilding}
 	 */
 	PLACEMENT_BUILDING,
 
@@ -150,9 +155,19 @@ public enum EMapObjectType {
 	INFORMABLE_MAP_OBJECT,
 
 	EYE,
+
+	/**
+	 * {@link IMapObject}s of this type must implement {@link ISpecializedMapObject}
+	 */
 	SPELL_EFFECT,
 
+	/**
+	 * {@link IMapObject}s of this type must implement {@link jsettlers.common.movable.IShipInConstruction}
+	 */
 	FERRY,
+	/**
+	 * {@link IMapObject}s of this type must implement {@link jsettlers.common.movable.IShipInConstruction}
+	 */
 	CARGO_SHIP,
 
 	RICE_GROWING,
