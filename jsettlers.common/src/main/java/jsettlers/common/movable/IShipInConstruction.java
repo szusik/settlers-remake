@@ -16,18 +16,15 @@
 package jsettlers.common.movable;
 
 import jsettlers.common.mapobject.EMapObjectType;
+import jsettlers.common.mapobject.IMapObject;
 import jsettlers.common.player.IPlayer;
 
 /**
  * Created by Andreas Eberle on 07.09.2017.
  */
 
-public interface IShipInConstruction {
-	float getStateProgress();
-
+public interface IShipInConstruction extends IMapObject {
 	EDirection getDirection();
-
-	EMapObjectType getObjectType();
 
 	IPlayer getPlayer();
 }
