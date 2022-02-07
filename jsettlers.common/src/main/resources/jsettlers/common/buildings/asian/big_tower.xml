@@ -91,13 +91,13 @@
     <image file="33" type="SETTLER" for="FINAL" image="2" sequence="12" />
 
     <!-- lower left: (8,-6) (24,11) (41,23) -->
-    <occupyer offsetX="-1" type="INFANTRY" offsetY="0" soldierX="0" soldierY="0" looksRight="true" />
-    <occupyer offsetX="18" type="INFANTRY" offsetY="13" soldierX="1" soldierY="0" looksRight="true" />
-    <occupyer offsetX="34" type="INFANTRY" offsetY="24" soldierX="1" soldierY="1" looksRight="true" />
+    <occupyer offsetX="21" type="INFANTRY" offsetY="12" soldierX="0" soldierY="0" looksRight="true" />
+    <occupyer offsetX="18" type="INFANTRY" offsetY="83" soldierX="1" soldierY="0" looksRight="true" />
+    <occupyer offsetX="-8" type="INFANTRY" offsetY="83" soldierX="1" soldierY="1" looksRight="false" />
 
-    <occupyer type="BOWMAN" 	offsetX="-24" 	offsetY="27" 	soldierX="-3" 	soldierY="-3" 	/>
-    <occupyer type="BOWMAN"		offsetX="24" 	offsetY="27" 	soldierX="0" 	soldierY="-3" 	/>
-    <occupyer type="BOWMAN"		offsetX="2"		offsetY="74" 	soldierX="-4" 	soldierY="-8" 	/>
+    <occupyer type="BOWMAN" 	offsetX="36" 	offsetY="32" 	soldierX="-3" 	soldierY="-3" 	/>
+    <occupyer type="BOWMAN"		offsetX="-1" 	offsetY="32" 	soldierX="0" 	soldierY="-3" 	/>
+    <occupyer type="BOWMAN"		offsetX="17"	offsetY="111" 	soldierX="-4" 	soldierY="-8" 	/>
 
 
 </building>
