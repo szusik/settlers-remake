@@ -2157,7 +2157,14 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public void constructBuildingAt(ShortPoint2D position, EBuildingType type, byte playerId) {
-			if (constructionMarksGrid.canConstructAt(position.x, position.y, type, playerId)) {
+			Player player = partitionsGrid.getPlayerAt(position.x, position.y);
+
+			if(player == null || (player.getPlayerId() != playerId && !CommonConstants.CONTROL_ALL)) {
+				System.err.println("Player " + playerId + " cant build on the territory of Player " + player);
+				return;
+			}
+
+			if (constructionMarksGrid.canConstructAt(position.x, position.y, type, player.getPlayerId())) {
 				MainGrid.this.constructBuildingAt(position, type, partitionsGrid.getPlayerAt(position.x, position.y), false);
 			} else {
 				System.out.println("WARNING: TRIED TO CONSTRUCT BUILDING WHERE IT WASN'T POSSIBLE! Type: " + type + "  pos: " + position
@@ -2195,6 +2202,11 @@ public final class MainGrid implements Serializable {
 		@Override
 		public boolean isBlocked(int x, int y) {
 			return flagsGrid.isBlocked(x, y);
+		}
+
+		@Override
+		public Player getPlayerAt(int x, int y) {
+			return partitionsGrid.getPlayerAt(x, y);
 		}
 
 		@Override

@@ -127,6 +127,8 @@ public interface IGuiInputGrid {
 
 	boolean isBlocked(int x, int y);
 
+	Player getPlayerAt(int x, int y);
+
 	Player getPlayer(byte playerId);
 
 	byte getNumberOfPlayers();

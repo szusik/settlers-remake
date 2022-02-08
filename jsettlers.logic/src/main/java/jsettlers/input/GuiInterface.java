@@ -28,6 +28,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import jsettlers.algorithms.construction.ConstructionMarksThread;
+import jsettlers.common.CommonConstants;
 import jsettlers.common.action.BuildAction;
 import jsettlers.common.action.CastSpellAction;
 import jsettlers.common.action.ChangeTradingRequestAction;
@@ -425,9 +426,16 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 		this.setSelection(new SelectionSet());
 		EBuildingType buildingType = buildAction.getBuildingType();
 
-		Optional<ShortPoint2D> position = grid.getConstructablePosition(buildAction.getPosition(), buildingType, playerId);
-		position.ifPresent(pos -> scheduleTask(new ConstructBuildingTask(EGuiAction.BUILD, playerId, pos, buildingType)));
-		System.out.println("build " + buildingType + " at " + position);
+		ShortPoint2D buildPos = buildAction.getPosition();
+
+		Player buildPlayer = CommonConstants.CONTROL_ALL ? grid.getPlayerAt(buildPos.x, buildPos.y) : player;
+		Optional<ShortPoint2D> position = grid.getConstructablePosition(buildPos, buildingType, buildPlayer.getPlayerId());
+		if(position.isPresent()) {
+			buildPos = position.get();
+		}
+
+		scheduleTask(new ConstructBuildingTask(EGuiAction.BUILD, playerId, buildPos, buildingType));
+		System.out.println("build " + buildingType + " at " + buildPos);
 	}
 
 	private void requestSoldiers(EChangeTowerSoldierTaskType taskType, ESoldierType soldierType) {
