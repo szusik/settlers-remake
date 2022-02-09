@@ -1489,6 +1489,11 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
+		public boolean hasSameContinent(ShortPoint2D pos1, ShortPoint2D pos2) {
+			return landscapeGrid.getBlockedPartitionAt(pos1.x, pos1.y) == landscapeGrid.getBlockedPartitionAt(pos2.x, pos2.y);
+		}
+
+		@Override
 		public Path searchInArea(IPathCalculatable pathCalculateable, short centerX, short centerY, short radius, ESearchType searchType) {
 			ShortPoint2D target = inAreaFinder.find(pathCalculateable, centerX, centerY, radius, searchType);
 			if (target != null) {

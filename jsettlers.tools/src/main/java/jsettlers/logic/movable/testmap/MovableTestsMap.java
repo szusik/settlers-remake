@@ -169,6 +169,11 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
+		public boolean hasSameContinent(ShortPoint2D pos1, ShortPoint2D pos2) {
+			return true;
+		}
+
+		@Override
 		public void addJobless(IManageableBearer bearer) {
 			if (!materials.isEmpty()) {
 				ShortPoint2D source = materials.pop();

@@ -63,6 +63,9 @@ public abstract class AbstractMovableGrid extends AbstractStrategyGrid {
 	public abstract Path calculatePathTo(IPathCalculatable pathCalculatable, ShortPoint2D targetPos);
 	public abstract Path calculatePathTo(IPathCalculatable pathCalculatable, ShortPoint2D targetPos, ShortPoint2D startPos);
 
+
+	public abstract boolean hasSameContinent(ShortPoint2D pos1, ShortPoint2D pos2);
+
 	public abstract Path searchDijkstra(IPathCalculatable pathCalculateable, short centerX, short centerY, short radius, ESearchType searchType);
 
 	public abstract Path searchInArea(IPathCalculatable pathCalculateable, short centerX, short centerY, short radius, ESearchType searchType);
