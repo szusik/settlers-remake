@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 
 import java.util.Optional;
+
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.position.ILocatable;
 import jsettlers.common.position.ShortPoint2D;
@@ -28,6 +29,12 @@ import jsettlers.common.position.ShortPoint2D;
  */
 public interface ITradeBuilding extends ILocatable, Serializable {
 	boolean needsTrader();
+
+	boolean needsMoreTraders();
+
+	void addApproachingTrader();
+
+	void removeApproachingTrader();
 
 	ShortPoint2D getPickUpPosition();
 

@@ -101,6 +101,7 @@ public final class PartitionsGrid implements Serializable, IScheduledTimerable {
 				this.players[playerId] = new Player(playerId, team, (byte) playerSettings.length, playerSetting.getPlayerType(), playerSetting.getCivilisation());
 				team.registerPlayer(this.players[playerId]);
 				this.blockedPartitionsForPlayers[playerId] = createNewPartition(playerId); // create a blocked partition for every player
+				players[playerId].scheduleTasks();
 			}
 		}
 

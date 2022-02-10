@@ -5,13 +5,12 @@ import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.ITradeBuilding;
-import jsettlers.logic.buildings.trading.MarketBuilding;
+import jsettlers.logic.trading.TradeManager;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class DonkeyMovable extends CargoMovable {
 
@@ -35,12 +34,12 @@ public class DonkeyMovable extends CargoMovable {
 	}
 
 
-	protected boolean loadUp() {
+	protected boolean loadUp(ITradeBuilding tradeBuilding) {
 		boolean loaded = false;
 		for(int i = 0; i < DonkeyMovable.CARGO_COUNT; i++) {
 			Optional<ITradeBuilding.MaterialTypeWithCount> cargo = tradeBuilding.tryToTakeMaterial(1);
 
-			if (!cargo.isPresent()) break;
+			if (cargo.isEmpty()) break;
 
 			setCargo(i, cargo.get().getMaterialType());
 			loaded = true;
@@ -73,6 +72,11 @@ public class DonkeyMovable extends CargoMovable {
 	}
 
 	@Override
+	public boolean canReachPosition(ShortPoint2D target) {
+		return grid.hasSameContinent(position, target);
+	}
+
+	@Override
 	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
 		lostCargo = true;
 
@@ -80,8 +84,8 @@ public class DonkeyMovable extends CargoMovable {
 	}
 
 	@Override
-	protected Stream<? extends ITradeBuilding> getAllTradeBuildings() {
-		return MarketBuilding.getAllMarkets(player);
+	protected TradeManager getTradeManager() {
+		return player.getLandTradeManager();
 	}
 
 	@Override

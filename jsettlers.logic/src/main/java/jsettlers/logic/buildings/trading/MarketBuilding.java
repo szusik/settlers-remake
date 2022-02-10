@@ -14,18 +14,14 @@
  *******************************************************************************/
 package jsettlers.logic.buildings.trading;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Stream;
-
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.IBuildingsGrid;
+import jsettlers.logic.buildings.stack.IRequestStack;
+import jsettlers.logic.buildings.stack.IStackSizeSupplier;
+import jsettlers.logic.movable.cargo.DonkeyMovable;
 import jsettlers.logic.player.Player;
+import jsettlers.logic.trading.TradeManager;
 
 /**
  *
@@ -33,28 +29,9 @@ import jsettlers.logic.player.Player;
  *
  */
 public class MarketBuilding extends TradingBuilding {
-	private static final List<MarketBuilding> ALL_MARKETS = new ArrayList<>();
-
-	public static Stream<MarketBuilding> getAllMarkets(final Player player) {
-		return ALL_MARKETS.stream().filter(building -> building.getPlayer() == player);
-	}
-
-	public static void clearState() {
-		ALL_MARKETS.clear();
-	}
-
-	@SuppressWarnings("unchecked")
-	public static void readStaticState(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-		ALL_MARKETS.addAll((Collection<? extends MarketBuilding>) ois.readObject());
-	}
-
-	public static void writeStaticState(ObjectOutputStream oos) throws IOException {
-		oos.writeObject(ALL_MARKETS);
-	}
 
 	public MarketBuilding(EBuildingType type, Player player, ShortPoint2D position, IBuildingsGrid buildingsGrid) {
 		super(type, player, position, buildingsGrid);
-		ALL_MARKETS.add(this);
 	}
 
 	@Override
@@ -71,11 +48,20 @@ public class MarketBuilding extends TradingBuilding {
 	@Override
 	protected void killedEvent() {
 		super.killedEvent();
-		ALL_MARKETS.remove(this);
 	}
 
 	@Override
 	public ShortPoint2D getPickUpPosition() {
 		return getDoor();
+	}
+
+	@Override
+	protected TradeManager getTradeManager() {
+		return getPlayer().getLandTradeManager();
+	}
+
+	@Override
+	protected int getTradersForMaterial() {
+		return (int)Math.ceil(getStacks().stream().mapToDouble(IStackSizeSupplier::getStackSize).sum() / DonkeyMovable.CARGO_COUNT);
 	}
 }

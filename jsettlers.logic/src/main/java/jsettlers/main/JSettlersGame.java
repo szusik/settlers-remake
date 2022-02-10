@@ -406,8 +406,6 @@ public class JSettlersGame {
 		RescheduleTimer.stopAndClear();
 		MovableManager.resetState();
 		Building.clearState();
-		MarketBuilding.clearState();
-		HarborBuilding.clearState();
 		MatchConstants.clearState();
 	}
 }

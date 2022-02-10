@@ -6,13 +6,15 @@ import jsettlers.common.movable.IGraphicsCargoShip;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.mutables.MutableBoolean;
 import jsettlers.logic.buildings.ITradeBuilding;
-import jsettlers.logic.buildings.trading.HarborBuilding;
+import jsettlers.logic.trading.TradeManager;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip {
 	private static final short WAYPOINT_SEARCH_RADIUS = 50;
@@ -60,9 +62,13 @@ public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip
 		this.cargoType[stack] = cargo;
 	}
 
+	@Override
+	public boolean canReachPosition(ShortPoint2D target) {
+		return grid.calculatePathTo(this, target) != null;
+	}
 
 	@Override
-	protected boolean loadUp() {
+	protected boolean loadUp(ITradeBuilding tradeBuilding) {
 		MutableBoolean loaded = new MutableBoolean(false);
 
 		for (int stackIndex = 0; stackIndex < CargoShipMovable.CARGO_STACKS; stackIndex++) {
@@ -96,8 +102,8 @@ public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip
 	}
 
 	@Override
-	protected Stream<? extends ITradeBuilding> getAllTradeBuildings() {
-		return HarborBuilding.getAllHarbors(player);
+	protected TradeManager getTradeManager() {
+		return player.getSeaTradeManager();
 	}
 
 	@Override

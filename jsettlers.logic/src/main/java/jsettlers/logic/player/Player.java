@@ -24,10 +24,10 @@ import jsettlers.common.menu.messages.IMessage;
 import jsettlers.common.menu.messages.IMessenger;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.EWinState;
-import jsettlers.common.player.IBedInformation;
 import jsettlers.common.player.ICombatStrengthInformation;
 import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.player.ISettlerInformation;
+import jsettlers.logic.trading.TradeManager;
 import jsettlers.logic.map.grid.partition.data.MaterialCounts;
 import jsettlers.logic.map.grid.partition.manager.materials.offers.IOffersCountListener;
 
@@ -37,7 +37,7 @@ import jsettlers.logic.map.grid.partition.manager.materials.offers.IOffersCountL
  * @author Andreas Eberle
  */
 public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersCountListener {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	public final byte playerId;
 
@@ -46,6 +46,8 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 	private final MannaInformation mannaInformation;
 
 	private final MaterialCounts	materialCounts = new MaterialCounts();
+	private final TradeManager seaTradeManager = new TradeManager();
+	private final TradeManager landTradeManager = new TradeManager();
 	private final EndgameStatistic	endgameStatistic = new EndgameStatistic(this);
 	private final BedInformation bedInformation = new BedInformation();
 
@@ -108,6 +110,14 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 	@Override
 	public EndgameStatistic getEndgameStatistic() {
 		return endgameStatistic;
+	}
+
+	public TradeManager getLandTradeManager() {
+		return landTradeManager;
+	}
+
+	public TradeManager getSeaTradeManager() {
+		return seaTradeManager;
 	}
 
 	@Override
@@ -176,5 +186,10 @@ public class Player implements Serializable, IMessenger, IInGamePlayer, IOffersC
 
 	public boolean hasSameTeam(Player player) {
 		return player != null && this.team == player.team;
+	}
+
+	public void scheduleTasks() {
+		landTradeManager.scheduleTasks();
+		seaTradeManager.scheduleTasks();
 	}
 }

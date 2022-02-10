@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ import jsettlers.common.action.SetTradingWaypointAction.EWaypointType;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.buildings.stacks.RelativeStack;
+import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
@@ -38,6 +40,7 @@ import jsettlers.logic.buildings.stack.multi.MultiRequestStack;
 import jsettlers.logic.buildings.stack.multi.MultiRequestStackSharedData;
 import jsettlers.logic.buildings.ITradeBuilding;
 import jsettlers.logic.player.Player;
+import jsettlers.logic.trading.TradeManager;
 
 public abstract class TradingBuilding extends Building implements IBuilding.ITrading, ITradeBuilding {
 	private static final short WAYPOINT_SEARCH_RADIUS = (short) 20;
@@ -53,9 +56,13 @@ public abstract class TradingBuilding extends Building implements IBuilding.ITra
 	private final MultiMaterialRequestSettings requestedMaterials = new MultiMaterialRequestSettings();
 	private final ShortPoint2D[]               waypoints          = new ShortPoint2D[EWaypointType.VALUES.length];
 
+	private int approachingTraderCount = 0;
+
 	TradingBuilding(EBuildingType type, Player player, ShortPoint2D position, IBuildingsGrid buildingsGrid) {
 		super(type, player, position, buildingsGrid);
 		setOccupied(false);
+
+		getTradeManager().registerTradeBuilding(this);
 	}
 
 	@Override
@@ -151,6 +158,13 @@ public abstract class TradingBuilding extends Building implements IBuilding.ITra
 		super.kill();
 	}
 
+	@Override
+	protected void killedEvent() {
+		super.killedEvent();
+
+		getTradeManager().removeTradeBuilding(this);
+	}
+
 	protected void drawWaypointLine(boolean draw) {
 		ShortPoint2D waypointStart = getWaypointsStartPosition();
 		if (waypointStart != null) {
@@ -182,6 +196,23 @@ public abstract class TradingBuilding extends Building implements IBuilding.ITra
 	@Override
 	public boolean needsTrader() {
 		return isTargetSet() && getPriority() != EPriority.STOPPED && super.getStackWithMaterial() != null;
+	}
+
+	@Override
+	public boolean needsMoreTraders() {
+		return isTargetSet() && getPriority() != EPriority.STOPPED && getTradersForMaterial() >= approachingTraderCount;
+	}
+
+	protected abstract int getTradersForMaterial();
+
+	@Override
+	public void addApproachingTrader() {
+		approachingTraderCount++;
+	}
+
+	@Override
+	public void removeApproachingTrader() {
+		approachingTraderCount--;
 	}
 
 	@Override
@@ -220,6 +251,8 @@ public abstract class TradingBuilding extends Building implements IBuilding.ITra
 	public Iterator<ShortPoint2D> getWaypointsIterator() {
 		return new WaypointsIterator(waypoints);
 	}
+
+	protected abstract TradeManager getTradeManager();
 
 	private static class WaypointsIterator implements Iterator<ShortPoint2D>, Serializable {
 		private static final long serialVersionUID = 5229610228646171358L;

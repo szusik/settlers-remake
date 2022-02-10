@@ -14,51 +14,32 @@
  *******************************************************************************/
 package jsettlers.logic.buildings.trading;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Stream;
-
 import jsettlers.common.action.SetTradingWaypointAction;
 import jsettlers.common.buildings.EBuildingType;
-import jsettlers.common.material.EPriority;
+import jsettlers.common.material.EMaterialType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.DockPosition;
 import jsettlers.logic.buildings.IBuildingsGrid;
 import jsettlers.logic.buildings.IDockBuilding;
+import jsettlers.logic.buildings.stack.IRequestStack;
+import jsettlers.logic.constants.Constants;
+import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.player.Player;
+import jsettlers.logic.trading.TradeManager;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author Rudolf Polzer
  */
 public class HarborBuilding extends TradingBuilding implements IDockBuilding {
-	private static final List<HarborBuilding> ALL_HARBORS = new ArrayList<>();
-
-	public static Stream<HarborBuilding> getAllHarbors(final Player player) {
-		return ALL_HARBORS.stream().filter(building -> building.getPlayer() == player);
-	}
-
-	public static void clearState() {
-		ALL_HARBORS.clear();
-	}
-
-	@SuppressWarnings("unchecked")
-	public static void readStaticState(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-		ALL_HARBORS.addAll((Collection<? extends HarborBuilding>) ois.readObject());
-	}
-
-	public static void writeStaticState(ObjectOutputStream oos) throws IOException {
-		oos.writeObject(ALL_HARBORS);
-	}
 
 	private DockPosition dockPosition = null;
 
 	public HarborBuilding(EBuildingType type, Player player, ShortPoint2D position, IBuildingsGrid buildingsGrid) {
 		super(type, player, position, buildingsGrid);
-		ALL_HARBORS.add(this);
 	}
 
 
@@ -76,13 +57,7 @@ public class HarborBuilding extends TradingBuilding implements IDockBuilding {
 	@Override
 	protected void killedEvent() {
 		super.killedEvent();
-		ALL_HARBORS.remove(this);
 		removeDock();
-	}
-
-	@Override
-	public boolean needsTrader() {
-		return isTargetSet() && getPriority() != EPriority.STOPPED && super.getStackWithMaterial() != null;
 	}
 
 	@Override
@@ -134,5 +109,21 @@ public class HarborBuilding extends TradingBuilding implements IDockBuilding {
 		}
 		this.grid.removeDock(this.dockPosition);
 		this.dockPosition = null;
+	}
+
+	@Override
+	protected int getTradersForMaterial() {
+		Map<EMaterialType, Integer> amountPerMaterial = new HashMap<>();
+		for(IRequestStack stack : getStacks()) {
+			amountPerMaterial.put(stack.getMaterialType(), stack.getStackSize());
+		}
+		double uniqueTransportStacks = amountPerMaterial.values().stream().mapToDouble(i -> i).map(i -> Math.ceil(i / Constants.STACK_SIZE)).sum();
+
+		return (int) Math.ceil(uniqueTransportStacks / CargoShipMovable.CARGO_STACKS);
+	}
+
+	@Override
+	protected TradeManager getTradeManager() {
+		return getPlayer().getSeaTradeManager();
 	}
 }

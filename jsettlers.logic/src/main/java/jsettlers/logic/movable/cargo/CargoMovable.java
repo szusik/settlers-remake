@@ -1,17 +1,14 @@
 package jsettlers.logic.movable.cargo;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.ITradeBuilding;
-import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.trading.ITrader;
+import jsettlers.logic.trading.TransportationRequest;
+import jsettlers.logic.trading.TradeManager;
 import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.other.AttackableMovable;
 import jsettlers.logic.movable.Movable;
@@ -20,13 +17,15 @@ import jsettlers.logic.player.Player;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
-public abstract class CargoMovable extends AttackableMovable {
+public abstract class CargoMovable extends AttackableMovable implements ITrader {
 
-	protected ITradeBuilding tradeBuilding = null;
-	protected Iterator<ShortPoint2D> waypoints;
+	protected TransportationRequest request;
+	protected ShortPoint2D gotoPosition;
 
 	public CargoMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, movableType, position, player, movable);
+
+		getTradeManager().registerTrader(this);
 	}
 
 	static {
@@ -36,19 +35,20 @@ public abstract class CargoMovable extends AttackableMovable {
 	}
 
 	private static Node<CargoMovable> createCargoBehaviour() {
-		return sequence(
-				repeat(CargoMovable::hasTrader,
+		return guardSelector(
+			guard(mov -> mov.request != null && mov.request.isActive(),
+				resetAfter(mov -> {
+						mov.request.finishTask();
+						mov.request = null;
+					},
 					sequence(
-						goToPos(mov -> mov.tradeBuilding.getPickUpPosition()),
-						condition(CargoMovable::loadUp),
-						action(mov -> {
-							mov.waypoints = mov.tradeBuilding.getWaypointsIterator();
-							mov.lostCargo = false;
-						}),
-						ignoreFailure(repeat(mov -> mov.waypoints.hasNext(),
+						goToPos(mov -> mov.request.getStart()),
+						condition(mov -> mov.loadUp(mov.request.getBuilding())),
+						action(mov -> mov.request.receivedGoods()),
+						ignoreFailure(repeat(mov -> mov.request.hasNextWaypoint(),
 							sequence(
 								condition(mov -> {
-									ShortPoint2D nextPosition = mov.waypoints.next();
+									ShortPoint2D nextPosition = mov.request.nextWaypoint();
 									return mov.preSearchPath(true, nextPosition.x, nextPosition.y, mov.getWaypointSearchRadius(), ESearchType.VALID_FREE_POSITION);
 								}),
 								followPresearchedPath(mov -> !mov.lostCargo)
@@ -56,34 +56,33 @@ public abstract class CargoMovable extends AttackableMovable {
 						)),
 						action(CargoMovable::dropMaterialIfPossible)
 					)
-				),
-				// choose a new trader if the old one is no longer requesting
-				selector(
-					condition(CargoMovable::findNewTrader),
-					doingNothingAction()
 				)
+			),
+			guard(mov -> mov.gotoPosition != null,
+				resetAfter(mov -> mov.gotoPosition = null,
+					goToPos(mov -> mov.gotoPosition)
+				)
+			),
+			doingNothingGuard()
 		);
 	}
 
-	private boolean hasTrader() {
-		return tradeBuilding != null && tradeBuilding.needsTrader();
+	@Override
+	public void moveGoods(TransportationRequest transportRequest) {
+		this.gotoPosition = null;
+		this.request = transportRequest;
 	}
 
-	private boolean findNewTrader() {
-		List<? extends ITradeBuilding> newTradeBuilding = getAllTradeBuildings().filter(ITradeBuilding::needsTrader).collect(Collectors.toList());
-
-		if (!newTradeBuilding.isEmpty()) { // randomly distribute the donkeys onto the markets needing them
-			tradeBuilding = newTradeBuilding.get(MatchConstants.random().nextInt(newTradeBuilding.size()));
-			return true;
-		} else {
-			tradeBuilding = null;
-			return false;
-		}
+	@Override
+	public void goToTradeBuilding(ShortPoint2D position) {
+		this.gotoPosition = position;
 	}
 
 	@Override
 	protected void decoupleMovable() {
 		super.decoupleMovable();
+
+		getTradeManager().removeTrader(this, request);
 
 		dropMaterialIfPossible();
 	}
@@ -95,11 +94,11 @@ public abstract class CargoMovable extends AttackableMovable {
 	 * @return
 	 * true if the tradeBuilding had material, the unit is loaded and should proceed to the target destination
 	 */
-	protected abstract boolean loadUp();
+	protected abstract boolean loadUp(ITradeBuilding tradeBuilding);
 
 	protected abstract void dropMaterialIfPossible();
 
-	protected abstract Stream<? extends ITradeBuilding> getAllTradeBuildings();
+	protected abstract TradeManager getTradeManager();
 
 	protected abstract short getWaypointSearchRadius();
 }
