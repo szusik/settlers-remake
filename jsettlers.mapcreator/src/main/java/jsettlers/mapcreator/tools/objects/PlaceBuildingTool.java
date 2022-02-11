@@ -22,6 +22,7 @@ import jsettlers.mapcreator.control.IPlayerSetter;
 import jsettlers.mapcreator.localization.EditorLabels;
 
 import java.util.Locale;
+import java.util.stream.Stream;
 
 /**
  * Place buildings on the Map
@@ -53,6 +54,10 @@ public class PlaceBuildingTool extends PlaceMapObjectTool {
 		this.type = type;
 		this.player = player;
 		this.translatedName = String.format(Locale.ENGLISH, EditorLabels.getLabel("tool.building"), Labels.getName(type));
+	}
+
+	public static PlaceBuildingTool[] createArray(IPlayerSetter player, EBuildingType... types) {
+		return Stream.of(types).map(type -> new PlaceBuildingTool(type, player)).toArray(PlaceBuildingTool[]::new);
 	}
 
 	/**
