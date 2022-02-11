@@ -200,7 +200,7 @@ public abstract class TradingBuilding extends Building implements IBuilding.ITra
 
 	@Override
 	public boolean needsMoreTraders() {
-		return isTargetSet() && getPriority() != EPriority.STOPPED && getTradersForMaterial() >= approachingTraderCount;
+		return isTargetSet() && getPriority() != EPriority.STOPPED && getTradersForMaterial() > approachingTraderCount;
 	}
 
 	protected abstract int getTradersForMaterial();
