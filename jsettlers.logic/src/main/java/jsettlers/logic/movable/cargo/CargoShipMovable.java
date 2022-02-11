@@ -1,5 +1,6 @@
 package jsettlers.logic.movable.cargo;
 
+import jsettlers.algorithms.datastructures.CachedBooleanMap;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IGraphicsCargoShip;
@@ -12,17 +13,17 @@ import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
 public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip {
 	private static final short WAYPOINT_SEARCH_RADIUS = 50;
+	private static final int NON_REACHABLE_RECHECK_TIME = 60*10*1000; // 10min
 
 	public static final int CARGO_STACKS = 3;
 
 	private final EMaterialType[]	cargoType	= new EMaterialType[CARGO_STACKS];
 	private final int[]				cargoCount	= new int[CARGO_STACKS];
+
+	// TODO implement something similar to blocked partitions for oceans
+	private final CachedBooleanMap<ShortPoint2D> reachablePositions = new CachedBooleanMap<>(this::canReachPositionInternal, NON_REACHABLE_RECHECK_TIME);
 
 	public CargoShipMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, EMovableType.CARGO_SHIP, position, player, movable);
@@ -62,9 +63,20 @@ public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip
 		this.cargoType[stack] = cargo;
 	}
 
+
+
+	@Override
+	public boolean mightReachPosition(ShortPoint2D target) {
+		return reachablePositions.getValueCached(target);
+	}
+
+	private boolean canReachPositionInternal(ShortPoint2D target) {
+		return grid.calculatePathTo(this, target) != null;
+	}
+
 	@Override
 	public boolean canReachPosition(ShortPoint2D target) {
-		return grid.calculatePathTo(this, target) != null;
+		return reachablePositions.getValue(target);
 	}
 
 	@Override

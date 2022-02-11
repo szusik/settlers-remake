@@ -52,7 +52,7 @@ public class TradeManager implements IScheduledTimerable, Serializable {
 	public int timerEvent() {
 		for(ITradeBuilding tradeBuilding : tradeBuildings) {
 			while(tradeBuilding.needsMoreTraders() && !freeTraders.isEmpty()) {
-				ITrader newTrader = freeTraders.removeObjectNextTo(tradeBuilding.getPickUpPosition(), trader -> trader.canReachPosition(tradeBuilding.getPickUpPosition()));
+				ITrader newTrader = freeTraders.removeObjectNextTo(tradeBuilding.getPickUpPosition(), trader -> trader.mightReachPosition(tradeBuilding.getPickUpPosition()));
 				if(newTrader == null || !newTrader.canReachPosition(tradeBuilding.getPickUpPosition())) break;
 
 				issueTransportTask(newTrader, tradeBuilding);
