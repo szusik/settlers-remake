@@ -246,6 +246,8 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 									EBuildingType.GOLDMELT,
 									EBuildingType.GOLDMINE,
 									EBuildingType.COALMINE,
+									EBuildingType.GEMSMINE,
+									EBuildingType.SULFURMINE,
 									EBuildingType.CHARCOAL_BURNER,
 									EBuildingType.TOOLSMITH
 							)
@@ -260,7 +262,10 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 									EBuildingType.SLAUGHTERHOUSE,
 									EBuildingType.FISHER,
 									EBuildingType.DONKEY_FARM,
-									EBuildingType.WINEGROWER
+									EBuildingType.WINEGROWER,
+									EBuildingType.RICE_FARM,
+									EBuildingType.BEEKEEPING,
+									EBuildingType.BREWERY
 							)
 					),
 					new ToolBox(EditorLabels.getLabel("tools.category.military"),
