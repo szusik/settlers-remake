@@ -99,7 +99,7 @@ public class BuildingContainer implements ObjectContainer, IBuilding, LandscapeC
 
 	@Override
 	public BuildingVariant getBuildingVariant() {
-		return buildingObject.getType().getVariant(ECivilisation.REPLACE_ME);
+		return buildingObject.getType().getVariant();
 	}
 
 	@Override

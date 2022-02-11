@@ -135,8 +135,9 @@ public enum EBuildingType {
 	 * 
 	 * @return The tiles as array.
 	 */
+	@Deprecated
 	public final RelativePoint[] getProtectedTiles() {
-		return buildingVariants.get(REPLACE_ME).getProtectedTiles();
+		return getVariant().getProtectedTiles();
 	}
 
 	/**
@@ -144,8 +145,9 @@ public enum EBuildingType {
 	 * 
 	 * @return The ground types.
 	 */
+	@Deprecated
 	public final Set<ELandscapeType> getGroundTypes() {
-		return buildingVariants.get(REPLACE_ME).getGroundTypes();
+		return getVariant().getGroundTypes();
 	}
 
 	/**
@@ -153,12 +155,14 @@ public enum EBuildingType {
 	 * 
 	 * @return <code>true</code> iff this building is a mine.
 	 */
+	@Deprecated
 	public boolean isMine() {
-		return buildingVariants.get(REPLACE_ME).isMine();
+		return getVariants()[0].isMine();
 	}
 
+	@Deprecated
 	public boolean needsFlattenedGround() {
-		return buildingVariants.get(REPLACE_ME).needsFlattenedGround();
+		return getVariant().needsFlattenedGround();
 	}
 
 	/**
@@ -168,5 +172,10 @@ public enum EBuildingType {
 	 */
 	public boolean isMilitaryBuilding() {
 		return MILITARY_BUILDINGS.contains(this);
+	}
+
+	@Deprecated
+	public BuildingVariant getVariant() {
+		return getVariants()[0];
 	}
 }
