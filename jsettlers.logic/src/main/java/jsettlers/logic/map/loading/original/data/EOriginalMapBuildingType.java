@@ -45,7 +45,7 @@ public enum EOriginalMapBuildingType {
 	BARRACK(EBuildingType.BARRACK),
 	BAKER(EBuildingType.BAKER),
 	Metzger(EBuildingType.SLAUGHTERHOUSE),
-	Destille(null),
+	Destille(EBuildingType.DISTILLERY),
 	PIG_FARM(EBuildingType.PIG_FARM),
 	FARM(EBuildingType.FARM),
 	FISHER(EBuildingType.FISHER),

@@ -86,6 +86,7 @@ public enum EBuildingType {
 	RICE_FARM,
 
 	BEEKEEPING,
+	DISTILLERY,
 	;
 
 	/**
