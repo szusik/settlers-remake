@@ -15,12 +15,14 @@
 package jsettlers.mapcreator.tools.objects;
 
 import jsettlers.common.buildings.EBuildingType;
+import jsettlers.graphics.map.controls.original.panel.content.buildings.EBuildingsCategory;
 import jsettlers.logic.map.loading.data.objects.BuildingMapDataObject;
 import jsettlers.logic.map.loading.data.objects.MapDataObject;
 import jsettlers.graphics.localization.Labels;
 import jsettlers.mapcreator.control.IPlayerSetter;
 import jsettlers.mapcreator.localization.EditorLabels;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -56,8 +58,8 @@ public class PlaceBuildingTool extends PlaceMapObjectTool {
 		this.translatedName = String.format(Locale.ENGLISH, EditorLabels.getLabel("tool.building"), Labels.getName(type));
 	}
 
-	public static PlaceBuildingTool[] createArray(IPlayerSetter player, EBuildingType... types) {
-		return Stream.of(types).map(type -> new PlaceBuildingTool(type, player)).toArray(PlaceBuildingTool[]::new);
+	public static PlaceBuildingTool[] createArray(IPlayerSetter player, EBuildingsCategory category) {
+		return category.buildingTypes.stream().map(type -> new PlaceBuildingTool(type, player)).toArray(PlaceBuildingTool[]::new);
 	}
 
 	/**

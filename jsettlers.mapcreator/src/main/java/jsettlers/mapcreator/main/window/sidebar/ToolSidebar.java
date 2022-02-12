@@ -15,15 +15,16 @@
 package jsettlers.mapcreator.main.window.sidebar;
 
 import java.awt.BorderLayout;
+import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
-import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
+import jsettlers.graphics.map.controls.original.panel.content.buildings.EBuildingsCategory;
 import jsettlers.logic.map.loading.data.objects.DecorationMapDataObject;
 import jsettlers.logic.map.loading.data.objects.StoneMapDataObject;
 import jsettlers.logic.map.loading.data.objects.MapTreeObject;
@@ -112,15 +113,9 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 					new FlatLandscapeTool(),
 					new FixHeightsTool()
 			}),
-			new ToolBox(EditorLabels.getLabel("tools.category.land-resources"), new ToolNode[]{
-					new PlaceResource(EResourceType.FISH),
-					new PlaceResource(EResourceType.IRONORE),
-					new PlaceResource(EResourceType.GOLDORE),
-					new PlaceResource(EResourceType.COAL),
-					new PlaceResource(EResourceType.BRIMSTONE),
-					new PlaceResource(EResourceType.GEMSTONE),
-					new PlaceResource(null)
-			}),
+			new ToolBox(EditorLabels.getLabel("tools.category.land-resources"),
+					PlaceResource.createArray(EResourceType.VALUES)
+			),
 			new ToolBox(EditorLabels.getLabel("tools.category.objects"), new ToolNode[]{
 					new PlaceMapObjectTool(MapTreeObject.getInstance()),
 					new PlaceMapObjectTool(StoneMapDataObject.getInstance(0)),
@@ -141,50 +136,42 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 					new PlaceMapObjectTool(new DecorationMapDataObject(EMapObjectType.SWAMP_DECORATION))
 			}),
 			new ToolBox(EditorLabels.getLabel("tools.category.settlers"), new ToolNode[]{
-					new ToolBox(EditorLabels.getLabel("tools.category.worker"), new ToolNode[]{
-							new PlaceMovableTool(EMovableType.BEARER, this),
-							new PlaceMovableTool(EMovableType.BRICKLAYER, this),
-							new PlaceMovableTool(EMovableType.DIGGER, this),
-							new PlaceMovableTool(EMovableType.BAKER, this),
-							new PlaceMovableTool(EMovableType.CHARCOAL_BURNER, this),
-							new PlaceMovableTool(EMovableType.FARMER, this),
-							new PlaceMovableTool(EMovableType.FISHERMAN, this),
-							new PlaceMovableTool(EMovableType.FORESTER, this),
-							new PlaceMovableTool(EMovableType.LUMBERJACK, this),
-							new PlaceMovableTool(EMovableType.MELTER, this),
-							new PlaceMovableTool(EMovableType.MILLER, this),
-							new PlaceMovableTool(EMovableType.MINER, this),
-							new PlaceMovableTool(EMovableType.PIG_FARMER, this),
-							new PlaceMovableTool(EMovableType.SAWMILLER, this),
-							new PlaceMovableTool(EMovableType.SLAUGHTERER, this),
-							new PlaceMovableTool(EMovableType.SMITH, this),
-							new PlaceMovableTool(EMovableType.STONECUTTER, this),
-							new PlaceMovableTool(EMovableType.WATERWORKER, this),
-							new PlaceMovableTool(EMovableType.DOCKWORKER, this),
-							new PlaceMovableTool(EMovableType.BREWER, this),
-							new PlaceMovableTool(EMovableType.RICE_FARMER, this)
-					}),
-					new ToolBox(EditorLabels.getLabel("tools.category.specialist"), new ToolNode[]{
-							new PlaceMovableTool(EMovableType.GEOLOGIST, this),
-							new PlaceMovableTool(EMovableType.PIONEER, this),
-							new PlaceMovableTool(EMovableType.THIEF, this),
-							new PlaceMovableTool(EMovableType.DONKEY, this)
-					}),
-					new ToolBox(EditorLabels.getLabel("tools.category.ships"), new ToolNode[]{
-							new PlaceMovableTool(EMovableType.FERRY, this),
-							new PlaceMovableTool(EMovableType.CARGO_SHIP, this),
-					}),
-					new ToolBox(EditorLabels.getLabel("tools.category.soldier"), new ToolNode[]{
-							new PlaceMovableTool(EMovableType.SWORDSMAN_L1, this),
-							new PlaceMovableTool(EMovableType.SWORDSMAN_L2, this),
-							new PlaceMovableTool(EMovableType.SWORDSMAN_L3, this),
-							new PlaceMovableTool(EMovableType.BOWMAN_L1, this),
-							new PlaceMovableTool(EMovableType.BOWMAN_L2, this),
-							new PlaceMovableTool(EMovableType.BOWMAN_L3, this),
-							new PlaceMovableTool(EMovableType.PIKEMAN_L1, this),
-							new PlaceMovableTool(EMovableType.PIKEMAN_L2, this),
-							new PlaceMovableTool(EMovableType.PIKEMAN_L3, this)
-					}),
+					new ToolBox(EditorLabels.getLabel("tools.category.worker"),
+							PlaceMovableTool.createArray(this,
+									EMovableType.BEARER,
+									EMovableType.BRICKLAYER,
+									EMovableType.DIGGER,
+									EMovableType.BAKER,
+									EMovableType.CHARCOAL_BURNER,
+									EMovableType.FARMER,
+									EMovableType.FISHERMAN,
+									EMovableType.FORESTER,
+									EMovableType.LUMBERJACK,
+									EMovableType.MELTER,
+									EMovableType.MILLER,
+									EMovableType.MINER,
+									EMovableType.PIG_FARMER,
+									EMovableType.SAWMILLER,
+									EMovableType.SLAUGHTERER,
+									EMovableType.SMITH,
+									EMovableType.STONECUTTER,
+									EMovableType.WATERWORKER,
+									EMovableType.DOCKWORKER,
+									EMovableType.BREWER,
+									EMovableType.RICE_FARMER)
+					),
+					new ToolBox(EditorLabels.getLabel("tools.category.specialist"),
+							PlaceMovableTool.createArray(this,
+									EMovableType.GEOLOGIST,
+									EMovableType.PIONEER,
+									EMovableType.THIEF,
+									EMovableType.DONKEY)
+					),
+					new ToolBox(EditorLabels.getLabel("tools.category.ships"),
+							PlaceMovableTool.createArray(this, EMovableType.SHIPS)),
+					new ToolBox(EditorLabels.getLabel("tools.category.soldier"),
+							PlaceMovableTool.createArray(this, EMovableType.SOLDIERS)
+					)
 			}),
 			new ToolBox(EditorLabels.getLabel("tools.category.materials"), new ToolNode[]{
 					new ToolBox(EditorLabels.getLabel("tools.category.mat-build"), new ToolNode[]{
@@ -236,62 +223,19 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 			}),
 			new ToolBox(EditorLabels.getLabel("tools.category.buildings"), new ToolNode[]{
 					new ToolBox(EditorLabels.getLabel("tools.category.resources"),
-							PlaceBuildingTool.createArray(this,
-									EBuildingType.LUMBERJACK,
-									EBuildingType.SAWMILL,
-									EBuildingType.STONECUTTER,
-									EBuildingType.FORESTER,
-									EBuildingType.IRONMELT,
-									EBuildingType.IRONMINE,
-									EBuildingType.GOLDMELT,
-									EBuildingType.GOLDMINE,
-									EBuildingType.COALMINE,
-									EBuildingType.GEMSMINE,
-									EBuildingType.SULFURMINE,
-									EBuildingType.CHARCOAL_BURNER,
-									EBuildingType.TOOLSMITH
-							)
+							PlaceBuildingTool.createArray(this, EBuildingsCategory.BUILDINGS_CATEGORY_NORMAL)
 					),
 					new ToolBox(EditorLabels.getLabel("tools.category.food"),
-							PlaceBuildingTool.createArray(this,
-									EBuildingType.FARM,
-									EBuildingType.MILL,
-									EBuildingType.BAKER,
-									EBuildingType.WATERWORKS,
-									EBuildingType.PIG_FARM,
-									EBuildingType.SLAUGHTERHOUSE,
-									EBuildingType.FISHER,
-									EBuildingType.DONKEY_FARM,
-									EBuildingType.WINEGROWER,
-									EBuildingType.RICE_FARM,
-									EBuildingType.BEEKEEPING,
-									EBuildingType.BREWERY
-							)
+							PlaceBuildingTool.createArray(this, EBuildingsCategory.BUILDINGS_CATEGORY_FOOD)
 					),
 					new ToolBox(EditorLabels.getLabel("tools.category.military"),
-							PlaceBuildingTool.createArray(this,
-									EBuildingType.TOWER,
-									EBuildingType.BIG_TOWER,
-									EBuildingType.CASTLE,
-									EBuildingType.WEAPONSMITH,
-									EBuildingType.DOCKYARD,
-									EBuildingType.HOSPITAL
-							)
+							PlaceBuildingTool.createArray(this, EBuildingsCategory.BUILDINGS_CATEGORY_MILITARY)
 					),
 					new ToolBox(EditorLabels.getLabel("tools.category.social"),
-							PlaceBuildingTool.createArray(this,
-									EBuildingType.SMALL_LIVINGHOUSE,
-									EBuildingType.MEDIUM_LIVINGHOUSE,
-									EBuildingType.BIG_LIVINGHOUSE,
-									EBuildingType.TEMPLE,
-									EBuildingType.BIG_TEMPLE,
-									EBuildingType.STOCK,
-									EBuildingType.MARKET_PLACE,
-									EBuildingType.HARBOR
-							)
+							PlaceBuildingTool.createArray(this, EBuildingsCategory.BUILDINGS_CATEGORY_SOCIAL)
 					)
 			}),
-					PRESETS,
+			PRESETS,
 
 			new SetStartpointTool(this),
 			new DeleteObjectTool(),
