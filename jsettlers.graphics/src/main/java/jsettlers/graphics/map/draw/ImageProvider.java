@@ -65,7 +65,7 @@ public final class ImageProvider {
 
 	private static final String FILE_PREFIX = "siedler3_";
 	private static final int LAST_SEQUENCE_NUMBER = 2;
-	private static final List<Integer> HIGHRES_IMAGE_FILE_NUMBERS = Arrays.asList(3, 14);
+	private static final List<Integer> HIGHRES_IMAGE_FILE_NUMBERS = Arrays.asList(3, 14, 24, 34, 44);
 
 	/**
 	 * The lookup path for the dat files.
