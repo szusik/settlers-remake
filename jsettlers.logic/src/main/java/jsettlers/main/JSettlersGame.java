@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 import jsettlers.ai.highlevel.AiExecutor;
+import jsettlers.common.CommitInfo;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.menu.EGameError;
@@ -92,7 +93,8 @@ public class JSettlersGame {
 		System.out.println("OS version: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + " "
 				+ System.getProperty("os.version"));
 		System.out.println("Java version: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
-		System.out.println("JsettlersGame(): initialGameState: " + initialGameState + " multiplayer: " + multiplayer + " mapCreator: " + mapCreator);
+		System.out.println("JSettlers version: " + CommitInfo.COMMIT_HASH_SHORT + " " + CommitInfo.BUILD_TIME);
+		System.out.println("JSettlersGame(): initialGameState: " + initialGameState + " multiplayer: " + multiplayer + " mapCreator: " + mapCreator);
 
 		if (mapCreator == null) {
 			throw new IllegalArgumentException("No mapCreator provided (mapCreator==null).");

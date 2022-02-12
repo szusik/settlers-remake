@@ -16,6 +16,8 @@ public class InitialGameState implements Cloneable, Serializable {
 	private final long randomSeed;
 	private final EMapStartResources startResources;
 
+	private static final byte VERSION = 1;
+
 	public InitialGameState(byte playerId, PlayerSetting[] playerSettings, long randomSeed, EMapStartResources startResources) {
 		this.playerId = playerId;
 		this.playerSettings = playerSettings;
@@ -28,8 +30,11 @@ public class InitialGameState implements Cloneable, Serializable {
 	}
 
 	public InitialGameState(DataInputStream dis) throws IOException {
-		playerId = dis.readByte();
+		byte readVersion = dis.readByte();
+		if(readVersion > VERSION) throw new IllegalStateException("replay version is more recent than this build (" + readVersion + ">" + VERSION + ")");
+
 		randomSeed = dis.readLong();
+		playerId = dis.readByte();
 		startResources = EMapStartResources.values()[dis.readByte()];
 
 		playerSettings = new PlayerSetting[dis.readInt()];
@@ -65,6 +70,7 @@ public class InitialGameState implements Cloneable, Serializable {
 	}
 
 	public void serialize(DataOutputStream dos) throws IOException {
+		dos.writeByte(VERSION);
 		dos.writeLong(randomSeed);
 		dos.writeByte(playerId);
 		dos.writeByte(startResources.ordinal());
