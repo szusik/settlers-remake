@@ -49,7 +49,7 @@ public enum EOriginalMapSettlersType {
 	GEOLOGIST(EMovableType.GEOLOGIST),
 	THIEF(EMovableType.THIEF),
 	CHARCOAL_BURNER(EMovableType.CHARCOAL_BURNER),
-	Schnapsbrenner(null),
+	DISTILLER(EMovableType.DISTILLER),
 	BREWER(EMovableType.BREWER),
 	Pulvermacher(null),
 	PIG_FARMER(EMovableType.PIG_FARMER),

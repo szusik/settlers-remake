@@ -80,6 +80,7 @@ public enum EMovableType {
 	RICE_FARMER(EMaterialType.NO_MATERIAL, ESelectionType.PEOPLE, true, false),
 
 	BEEKEEPER(EMaterialType.NO_MATERIAL, ESelectionType.PEOPLE, true, false),
+	DISTILLER(EMaterialType.NO_MATERIAL, ESelectionType.PEOPLE, true, false),
 	;
 
 	/**

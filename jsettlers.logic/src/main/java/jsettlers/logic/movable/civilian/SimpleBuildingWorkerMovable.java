@@ -1,6 +1,5 @@
 package jsettlers.logic.movable.civilian;
 
-import jsettlers.algorithms.path.Path;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.landscape.EResourceType;
@@ -42,6 +41,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		MovableManager.registerBehaviour(EMovableType.BREWER, new Root<>(createBrewerBehaviour()));
 		MovableManager.registerBehaviour(EMovableType.RICE_FARMER, new Root<>(createRiceFarmerBehaviour()));
 		MovableManager.registerBehaviour(EMovableType.BEEKEEPER, new Root<>(createBeekeeperBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.DISTILLER, new Root<>(createDistillerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -677,6 +677,12 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 						sleep(8000)
 					)
 				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createDistillerBehaviour() {
+		return defaultWorkCycle(
+				sleep(1000)
 		);
 	}
 }
