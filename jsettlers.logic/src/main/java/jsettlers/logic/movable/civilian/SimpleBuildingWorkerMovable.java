@@ -682,7 +682,33 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 
 	private static Node<SimpleBuildingWorkerMovable> createDistillerBehaviour() {
 		return defaultWorkCycle(
-				sleep(1000)
+				sequence(
+					sleep(3000),
+					waitFor(
+						sequence(
+							isAllowedToWork(),
+							inputStackNotEmpty(EMaterialType.COAL),
+							inputStackNotEmpty(EMaterialType.RICE),
+							outputStackNotFull(EMaterialType.LIQUOR)
+						)
+					),
+					show(),
+					ignoreFailure(
+						sequence(
+							setMaterialNode(EMaterialType.NO_MATERIAL),
+							dropIntoOven(EMaterialType.COAL, EDirection.NORTH_WEST),
+							dropIntoOven(EMaterialType.RICE, EDirection.NORTH_WEST),
+							enterHome(),
+							sleep(5000),
+							show(),
+							setMaterialNode(EMaterialType.LIQUOR),
+							goToOutputStack(EMaterialType.LIQUOR),
+							setDirectionNode(EDirection.NORTH_EAST),
+							dropProduced(mov -> EMaterialType.LIQUOR)
+						)
+					),
+					enterHome()
+				)
 		);
 	}
 }
