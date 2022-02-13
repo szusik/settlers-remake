@@ -1,17 +1,18 @@
 package jsettlers.algorithms.datastructures;
 
+import jsettlers.common.utils.collections.map.ArrayListMap;
 import jsettlers.logic.constants.MatchConstants;
 
-import java.util.HashMap;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public class CachedBooleanMap<T> {
+public class CachedBooleanMap<T> implements Serializable {
 
 	private final Predicate<T> valueProvider;
 	private final int recheckInterval;
 
-	private final Map<T, Integer> knownValues = new HashMap<>();
+	private final Map<T, Integer> knownValues = new ArrayListMap<>();
 
 	public CachedBooleanMap(Predicate<T> valueProvider, int recheckInterval) {
 		this.valueProvider = valueProvider;

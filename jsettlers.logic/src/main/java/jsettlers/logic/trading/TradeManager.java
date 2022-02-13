@@ -1,21 +1,20 @@
 package jsettlers.logic.trading;
 
+import jsettlers.common.utils.collections.set.ArrayListSet;
 import jsettlers.logic.buildings.ITradeBuilding;
 import jsettlers.logic.map.grid.partition.manager.datastructures.PredicatedPositionableList;
 import jsettlers.logic.timer.IScheduledTimerable;
 import jsettlers.logic.timer.RescheduleTimer;
 
-import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
-public class TradeManager implements IScheduledTimerable, Serializable {
+public class TradeManager implements IScheduledTimerable {
 
 	private static final int RESCHEDULE_DELAY = 100;
 
 	private final PredicatedPositionableList<ITrader> freeTraders = new PredicatedPositionableList<>();
 
-	private final Set<ITradeBuilding> tradeBuildings = new HashSet<>();
+	private final Set<ITradeBuilding> tradeBuildings = new ArrayListSet<>();
 
 	public void registerTrader(ITrader newTrader) {
 		freeTraders.insert(newTrader);

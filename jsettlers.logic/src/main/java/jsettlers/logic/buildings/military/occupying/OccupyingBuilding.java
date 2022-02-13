@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
@@ -40,7 +41,6 @@ import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.collections.map.ArrayListMap;
-import jsettlers.common.utils.collections.map.ArrayListMap.Entry;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.logic.buildings.Building;
 import jsettlers.logic.buildings.IBuildingsGrid;
@@ -65,7 +65,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 
 	private final LinkedList<OccupierPlace> emptyPlaces = new LinkedList<>();
 	private final SoldierRequests searchedSoldiers = new SoldierRequests();
-	private final ArrayListMap<ISoldierMovable, SoldierRequest> comingSoldiers = new ArrayListMap<>();
+	private final Map<ISoldierMovable, SoldierRequest> comingSoldiers = new ArrayListMap<>();
 	private final LinkedList<TowerOccupier> sortedOccupiers = new LinkedList<>();
 	private final LinkedList<TowerOccupier> toBeReleasedOccupiers = new LinkedList<>();
 	private final ECivilisation civilisation;
@@ -411,7 +411,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 	@Override
 	public int getComingSoldiers(ESoldierClass soldierClass) {
 		int numberOfComingSoldiers = 0;
-		for (Entry<ISoldierMovable, SoldierRequest> comingSoldier : comingSoldiers.entrySet()) {
+		for (Map.Entry<ISoldierMovable, SoldierRequest> comingSoldier : comingSoldiers.entrySet()) {
 			if (comingSoldier.getValue().isOfTypeOrClass(soldierClass)) {
 				numberOfComingSoldiers++;
 			}
@@ -467,7 +467,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 		emptyPlaces.addAll(searchedSoldiers.getPlaces());
 		searchedSoldiers.clear();
 
-		for (Entry<ISoldierMovable, SoldierRequest> commingSoldierEntry : comingSoldiers.entrySet()) {
+		for (Map.Entry<ISoldierMovable, SoldierRequest> commingSoldierEntry : comingSoldiers.entrySet()) {
 			commingSoldierEntry.getKey().leaveTower(super.getDoor());
 			emptyPlaces.add(commingSoldierEntry.getValue().place);
 		}
@@ -481,7 +481,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 			return;
 		}
 
-		for (Entry<ISoldierMovable, SoldierRequest> commingSoldierEntry : comingSoldiers.entrySet()) {
+		for (Map.Entry<ISoldierMovable, SoldierRequest> commingSoldierEntry : comingSoldiers.entrySet()) {
 			if (commingSoldierEntry.getValue().isOfTypeOrClass(soldierType)) {
 				commingSoldierEntry.getKey().leaveTower(super.getDoor());
 				emptyPlaces.add(commingSoldierEntry.getValue().place);
