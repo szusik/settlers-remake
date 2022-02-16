@@ -25,7 +25,6 @@ import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 
 import static jsettlers.common.buildings.EBuildingType.FARM;
-import static jsettlers.common.buildings.EBuildingType.GEMSMINE;
 import static jsettlers.common.buildings.EBuildingType.GOLDMELT;
 import static jsettlers.common.buildings.EBuildingType.GOLDMINE;
 import static jsettlers.common.buildings.EBuildingType.IRONMELT;

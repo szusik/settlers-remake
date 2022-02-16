@@ -20,7 +20,6 @@ import jsettlers.ai.highlevel.AiStatistics;
 import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
-import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 
 public abstract class WorkareaConstructionPositionFinder extends ConstructionPositionFinder {
