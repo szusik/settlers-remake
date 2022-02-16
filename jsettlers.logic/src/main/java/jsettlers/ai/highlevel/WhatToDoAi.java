@@ -51,46 +51,10 @@ import jsettlers.logic.map.grid.movable.MovableGrid;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.network.client.interfaces.ITaskScheduler;
 
-import static jsettlers.ai.highlevel.AiBuildingConstants.COAL_MINE_TO_IRON_MINE_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.COAL_MINE_TO_SMITH_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.FARM_TO_BAKER_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.FARM_TO_MILL_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.FARM_TO_PIG_FARM_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.FARM_TO_SLAUGHTER_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.FARM_TO_WATERWORKS_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.IRONMELT_TO_WEAPON_SMITH_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.IRON_MINE_TO_IRONMELT_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.LUMBERJACK_TO_FORESTER_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.LUMBERJACK_TO_SAWMILL_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.WEAPON_SMITH_TO_BARRACKS_RATIO;
-import static jsettlers.ai.highlevel.AiBuildingConstants.MANNA_BUILDING_TO_TEMPLE_RATIO;
-import static jsettlers.common.buildings.EBuildingType.BAKER;
-import static jsettlers.common.buildings.EBuildingType.BARRACK;
-import static jsettlers.common.buildings.EBuildingType.BIG_LIVINGHOUSE;
-import static jsettlers.common.buildings.EBuildingType.BIG_TEMPLE;
-import static jsettlers.common.buildings.EBuildingType.COALMINE;
-import static jsettlers.common.buildings.EBuildingType.FARM;
-import static jsettlers.common.buildings.EBuildingType.FORESTER;
-import static jsettlers.common.buildings.EBuildingType.GEMSMINE;
-import static jsettlers.common.buildings.EBuildingType.GOLDMELT;
-import static jsettlers.common.buildings.EBuildingType.IRONMELT;
-import static jsettlers.common.buildings.EBuildingType.IRONMINE;
-import static jsettlers.common.buildings.EBuildingType.LUMBERJACK;
-import static jsettlers.common.buildings.EBuildingType.MEDIUM_LIVINGHOUSE;
-import static jsettlers.common.buildings.EBuildingType.MILL;
-import static jsettlers.common.buildings.EBuildingType.PIG_FARM;
-import static jsettlers.common.buildings.EBuildingType.SAWMILL;
-import static jsettlers.common.buildings.EBuildingType.SLAUGHTERHOUSE;
-import static jsettlers.common.buildings.EBuildingType.SMALL_LIVINGHOUSE;
-import static jsettlers.common.buildings.EBuildingType.STOCK;
-import static jsettlers.common.buildings.EBuildingType.STONECUTTER;
-import static jsettlers.common.buildings.EBuildingType.TEMPLE;
-import static jsettlers.common.buildings.EBuildingType.TOWER;
-import static jsettlers.common.buildings.EBuildingType.WATERWORKS;
-import static jsettlers.common.buildings.EBuildingType.WEAPONSMITH;
+import static jsettlers.ai.highlevel.AiBuildingConstants.*;
+import static jsettlers.common.buildings.EBuildingType.*;
 import static jsettlers.common.material.EMaterialType.GEMS;
 import static jsettlers.common.material.EMaterialType.GOLD;
-import static jsettlers.logic.constants.Constants.TOWER_SEARCH_SOLDIERS_RADIUS;
 import jsettlers.common.action.EMoveToType;
 
 /**
@@ -269,6 +233,8 @@ class WhatToDoAi implements IWhatToDoAi {
 			}
 		}
 
+		// TODO set work area of rice farm
+
 		// destroy livinghouses
 		if (economyMinister.automaticLivingHousesEnabled()) {
 			int numberOfFreeBeds = player.getBedInformation().getTotalBedAmount()
@@ -429,6 +395,8 @@ class WhatToDoAi implements IWhatToDoAi {
 			return ratioFits(LUMBERJACK, LUMBERJACK_TO_SAWMILL_RATIO, SAWMILL);
 		case FORESTER:
 			return ratioFits(LUMBERJACK, LUMBERJACK_TO_FORESTER_RATIO, FORESTER);
+		case DISTILLERY:
+			return ratioFits(RICE_FARM, RICE_FARM_TO_DISTILLERY_RATIO, DISTILLERY);
 		default:
 			return true;
 		}

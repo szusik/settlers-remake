@@ -45,6 +45,7 @@ public class AiMapInformation {
 	private static final double COAL_TO_COAL_MINES_RATIO = 100F / 1F;
 	private static final double GEMSTONE_TO_GEM_MINES_RATIO = 100F / 1F;
 	private static final double IRONORE_TO_IRON_MINES_RATIO = 100F / 1F;
+	private static final float SWAMP_TO_RICE_FARM_RATIO = 60F;
 	private static final float GRASS_TO_LUMBERJACK_RATIO = 1360F;
 	private static final float GRASS_TO_FARM_RATIO = 6200F;
 	private static final float STONE_TO_STONECUTTER_RATIO = 10F;
@@ -82,6 +83,7 @@ public class AiMapInformation {
 		long playersAndNeverlandGrass = Math.round(defaultPartitionResources.grassCount / (float)numberOfPlayers) + playerStatistic.partitionResources.grassCount;
 
 		long playersAndNeverlandStone = Math.round(defaultPartitionResources.stoneCount / (float)numberOfPlayers) + playerStatistic.partitionResources.stoneCount;
+		long playersAndNeverlandSwamp = Math.round(defaultPartitionResources.usableSwampCount / (float)numberOfPlayers) + playerStatistic.partitionResources.usableSwampCount;
 
 		int maxFishermen = (int) Math.ceil(resourceAmount.get(EResourceType.FISH) / FISH_TO_FISHER_HUTS_RATIO);
 		if(maxFishermen > FISHER_PENALTY_MIN_AMOUNT) maxFishermen = (int)Math.log(maxFishermen - FISHER_PENALTY_MIN_AMOUNT)*3 + FISHER_PENALTY_MIN_AMOUNT;
@@ -99,10 +101,11 @@ public class AiMapInformation {
 		if (maxCoalMines > maxIronMines * COAL_MINE_TO_IRON_MINE_RATIO + 1)
 			maxCoalMines = (int) Math.ceil(maxIronMines * COAL_MINE_TO_IRON_MINE_RATIO + 1);
 		int maxSmiths = (int) Math.floor((float) maxCoalMines / COAL_MINE_TO_SMITH_RATIO);
-		return calculateBuildingCounts(maxSmiths, maxFishermen, maxGoldMelts, maxGemsMines, 3, 1, playersAndNeverlandGrass, playersAndNeverlandStone, player.getCivilisation());
+		int maxRiceFarms = (int) Math.floor((float) playersAndNeverlandSwamp / SWAMP_TO_RICE_FARM_RATIO);
+		return calculateBuildingCounts(maxSmiths, maxFishermen, maxGoldMelts, maxGemsMines, 3, 1, maxRiceFarms, playersAndNeverlandGrass, playersAndNeverlandStone, player.getCivilisation());
 	}
 
-	private int[] calculateBuildingCounts(int numberOfWeaponSmiths, int maxFishermen, int maxGoldMelts, int maxGemsMines, int maxMannaProducers, int maxBigTemples, long grassTiles, long stoneCount, ECivilisation civilisation) {
+	private int[] calculateBuildingCounts(int numberOfWeaponSmiths, int maxFishermen, int maxGoldMelts, int maxGemsMines, int maxMannaProducers, int maxBigTemples, int maxRiceFarms, long grassTiles, long stoneCount, ECivilisation civilisation) {
 		int[] buildingCounts = new int[EBuildingType.NUMBER_OF_BUILDINGS];
 		for (int i = 0; i < buildingCounts.length; i++) {
 			buildingCounts[i] = 0;
@@ -155,6 +158,8 @@ public class AiMapInformation {
 			buildingCounts[EBuildingType.BIG_TEMPLE.ordinal] = maxBigTemples;
 		}
 
+		buildingCounts[EBuildingType.RICE_FARM.ordinal] = maxRiceFarms;
+
 		if (maxMannaProducers > 0) {
 			buildingCounts[civilisation.getMannaBuilding().ordinal] = maxMannaProducers;
 			buildingCounts[EBuildingType.TEMPLE.ordinal] = maxMannaProducers;
@@ -163,21 +168,23 @@ public class AiMapInformation {
 		if (isEnoughSpace(buildingCounts, grassTiles, civilisation)) {
 			return buildingCounts;
 		} else if (numberOfWeaponSmiths > MIN_SMITHS_BEFORE_MANNA_AND_GOLD_REDUCTION) {
-			return calculateBuildingCounts(numberOfWeaponSmiths - 1, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers, maxBigTemples, grassTiles, stoneCount, civilisation);
+			return calculateBuildingCounts(numberOfWeaponSmiths - 1, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers, maxBigTemples, maxRiceFarms, grassTiles, stoneCount, civilisation);
 		} else if (maxMannaProducers > MIN_MANNA_PRODUCERS_BEFORE_GOLD_REDUCTION) {
-			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts, maxMannaProducers - 1, maxGemsMines, maxBigTemples, grassTiles, stoneCount, civilisation);
+			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts, maxMannaProducers - 1, maxGemsMines, maxBigTemples, maxRiceFarms, grassTiles, stoneCount, civilisation);
 		} else if (maxGoldMelts > 1) {
-			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts - 1, maxGemsMines, maxMannaProducers, maxBigTemples, grassTiles, stoneCount, civilisation);
+			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts - 1, maxGemsMines, maxMannaProducers, maxBigTemples, maxRiceFarms, grassTiles, stoneCount, civilisation);
 		} else if (maxMannaProducers > 1) {
-			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers - 1, maxBigTemples, grassTiles, stoneCount, civilisation);
+			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers - 1, maxBigTemples, maxRiceFarms, grassTiles, stoneCount, civilisation);
 		} else if (maxBigTemples > 1) {
-			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers, 0, grassTiles, stoneCount, civilisation);
+			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers, 0, maxRiceFarms, grassTiles, stoneCount, civilisation);
+		} else if(maxRiceFarms > 0) {
+			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers, 0, maxRiceFarms - 1, grassTiles, stoneCount, civilisation);
 		} else if (maxMannaProducers > 0) {
-			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers - 1, 0, grassTiles, stoneCount, civilisation);
+			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers - 1, 0, maxRiceFarms, grassTiles, stoneCount, civilisation);
 		} else if (maxFishermen > 0) {
-			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen - 1, maxGoldMelts, maxGemsMines, maxMannaProducers, 0, grassTiles, stoneCount, civilisation);
+			return calculateBuildingCounts(numberOfWeaponSmiths, maxFishermen - 1, maxGoldMelts, maxGemsMines, maxMannaProducers, 0, maxRiceFarms, grassTiles, stoneCount, civilisation);
 		} else if (numberOfWeaponSmiths > 0) {
-			return calculateBuildingCounts(numberOfWeaponSmiths - 1, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers, 0, grassTiles, stoneCount, civilisation);
+			return calculateBuildingCounts(numberOfWeaponSmiths - 1, maxFishermen, maxGoldMelts, maxGemsMines, maxMannaProducers, 0, maxRiceFarms, grassTiles, stoneCount, civilisation);
 		} else {
 			return new int[EBuildingType.NUMBER_OF_BUILDINGS];
 		}

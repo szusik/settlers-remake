@@ -24,15 +24,7 @@ import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
 
-import static jsettlers.common.buildings.EBuildingType.FARM;
-import static jsettlers.common.buildings.EBuildingType.GOLDMELT;
-import static jsettlers.common.buildings.EBuildingType.GOLDMINE;
-import static jsettlers.common.buildings.EBuildingType.IRONMELT;
-import static jsettlers.common.buildings.EBuildingType.IRONMINE;
-import static jsettlers.common.buildings.EBuildingType.LUMBERJACK;
-import static jsettlers.common.buildings.EBuildingType.MILL;
-import static jsettlers.common.buildings.EBuildingType.PIG_FARM;
-import static jsettlers.common.buildings.EBuildingType.WEAPONSMITH;
+import static jsettlers.common.buildings.EBuildingType.*;
 import static jsettlers.common.landscape.EResourceType.COAL;
 import static jsettlers.common.landscape.EResourceType.GEMSTONE;
 import static jsettlers.common.landscape.EResourceType.GOLDORE;
@@ -138,6 +130,10 @@ public abstract class ConstructionPositionFinder {
 				return new FisherConstructionPositionFinder(this);
 			case STOCK:
 				return new NearRequiredBuildingConstructionPositionFinder(this, type, GOLDMELT);
+			case DISTILLERY:
+				return new NearRequiredBuildingConstructionPositionFinder(this, type, RICE_FARM);
+			case RICE_FARM:
+				return new RiceFarmConstructionPositionFinder(this);
 			default:
 				return new NearDiggersConstructionPositionFinder(this, type);
 			}

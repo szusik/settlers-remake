@@ -135,7 +135,7 @@ public class AiStatistics {
 		players = Arrays.stream(partitionsGrid.getPlayers()).filter(Objects::nonNull).collect(Collectors.toList());
 
 		statisticsUpdaterPool = threadPool;
-		parallelStatisticsUpdater = Set.of(this::mainMapStatUpdater, this::freeLandMapStatUpdater, this::playerLandMapStatUpdater, this::movableMapStatUpdater, this::grassMapStatUpdater, this::pioneerMapStatUpdater);
+		parallelStatisticsUpdater = Set.of(this::mainMapStatUpdater, this::freeLandMapStatUpdater, this::playerLandMapStatUpdater, this::movableMapStatUpdater, this::surfaceMapStatUpdater, this::pioneerMapStatUpdater);
 	}
 
 	public byte getFlatternEffortAtPositionForBuilding(final ShortPoint2D position, final BuildingVariant buildingType) {
@@ -242,14 +242,18 @@ public class AiStatistics {
 		return null;
 	}
 
-	private Void grassMapStatUpdater() {
+	private Void surfaceMapStatUpdater() {
 		short width = mainGrid.getWidth();
 		short height = mainGrid.getHeight();
 
 		for(short x = 0; x < width; x++) {
 			for(short y = 0; y < height; y++) {
-				if(landscapeGrid.getLandscapeTypeAt(x, y).isGrass()) {
+				ELandscapeType type = landscapeGrid.getLandscapeTypeAt(x, y);
+
+				if(type.isGrass()) {
 					getPartitionFor(x, y).grassCount++;
+				} else if(!type.isBlocking && type.isMoor()) {
+					getPartitionFor(x, y).usableSwampCount++;
 				}
 			}
 		}

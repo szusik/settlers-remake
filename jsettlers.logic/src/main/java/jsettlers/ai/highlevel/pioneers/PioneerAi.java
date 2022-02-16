@@ -58,6 +58,7 @@ public class PioneerAi {
 				new MineTargetFinder(aiStatistics, player, searchDistance, EResourceType.GOLDORE, EBuildingType.GOLDMINE),
 				new MineTargetFinder(aiStatistics, player, searchDistance, EResourceType.GEMSTONE, EBuildingType.GEMSMINE),
 				new FishTargetFinder(aiStatistics, playerId, searchDistance)
+				// TODO conquer swamps for asians
 		};
 	}
 

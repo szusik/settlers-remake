@@ -35,4 +35,5 @@ class AiBuildingConstants {
 	static final float COAL_MINE_TO_SMITH_RATIO = 1F / 1.8F;
 	static final float IRON_MINE_TO_IRONMELT_RATIO = COAL_MINE_TO_SMITH_RATIO / COAL_MINE_TO_IRON_MINE_RATIO;
 	static final float MANNA_BUILDING_TO_TEMPLE_RATIO = 1F / 1F;
+	static final float RICE_FARM_TO_DISTILLERY_RATIO = 2F / 1F;
 }

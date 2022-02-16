@@ -32,6 +32,7 @@ public class TempleConstructionPositionFinder extends NearRequiredBuildingConstr
 	public ShortPoint2D findBestConstructionPosition() {
 		switch (civilisation) {
 			case EGYPTIAN:
+			case ASIAN:
 				return super.findBestConstructionPosition();
 			default:
 				int availableWine = aiStatistics.getTotalWineCountForPlayer(playerId);
