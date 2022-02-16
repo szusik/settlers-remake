@@ -2,7 +2,6 @@ package jsettlers.ai.highlevel;
 
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IMaterialProductionSettings;
-import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.map.partition.IPartitionData;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
@@ -38,12 +37,13 @@ class PlayerStatistic {
 	final AiPositions rivers = new AiPositions();
 	final AiPositions enemyTroopsInTown = new AiPositions();
 	List<ShortPoint2D> threatenedBorder;
-	final long[] resourceCount = new long[EResourceType.VALUES.length];
 	int numberOfNotFinishedBuildings;
 	int numberOfTotalBuildings;
 	int numberOfNotOccupiedMilitaryBuildings;
 	int wineCount;
 	IMaterialProductionSettings materialProduction;
+
+	final AiPartitionResources partitionResources = new AiPartitionResources();
 
 	PlayerStatistic() {
 		clearIntegers();
@@ -66,13 +66,13 @@ class PlayerStatistic {
 		wineGrowerWorkAreas.clear();
 		activeHospitals.clear();
 		threatenedBorder = null;
+		partitionResources.clear();
 		clearIntegers();
 	}
 
 	private void clearIntegers() {
 		Arrays.fill(totalBuildingsNumbers, 0);
 		Arrays.fill(buildingsNumbers, 0);
-		Arrays.fill(resourceCount, 0);
 		numberOfNotFinishedBuildings = 0;
 		numberOfTotalBuildings = 0;
 		numberOfNotOccupiedMilitaryBuildings = 0;

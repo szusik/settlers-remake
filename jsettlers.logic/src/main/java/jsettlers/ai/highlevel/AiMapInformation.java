@@ -17,7 +17,6 @@ package jsettlers.ai.highlevel;
 import static jsettlers.ai.highlevel.AiBuildingConstants.*;
 import static jsettlers.common.buildings.EBuildingType.FISHER;
 
-import java.util.Arrays;
 import java.util.BitSet;
 
 import java.util.EnumMap;
@@ -42,7 +41,6 @@ import jsettlers.logic.map.grid.partition.PartitionsGrid;
  */
 public class AiMapInformation {
 
-	public static final int GRASS_INDEX = EResourceType.VALUES.length;
 	private static final double FISH_TO_FISHER_HUTS_RATIO = 80F / 1F;
 	private static final double COAL_TO_COAL_MINES_RATIO = 100F / 1F;
 	private static final double GEMSTONE_TO_GEM_MINES_RATIO = 100F / 1F;
@@ -56,16 +54,17 @@ public class AiMapInformation {
 	private static final int FISHER_PENALTY_MIN_AMOUNT = 7;
 	// throttle the number of FISHER after the 7th one
 	// this prevents the AI from overfishing but also takes the high amount of resources on some maps into account
-	public long[][] resourceAndGrassCount;
-	public long[] stoneCount;
 	public final BitSet[] wasFishNearByAtGameStart = new BitSet[ECivilisation.VALUES.length];
+	private final AiPartitionResources defaultPartitionResources;
+	private final byte numberOfPlayers;
 
-	public AiMapInformation(PartitionsGrid partitionsGrid, LandscapeGrid landscapeGrid) {
-		resourceAndGrassCount = new long[partitionsGrid.getNumberOfPlayers() + 1][EResourceType.VALUES.length + 1];
-		stoneCount = new long[partitionsGrid.getNumberOfPlayers() + 1];
+	public AiMapInformation(PartitionsGrid partitionsGrid, LandscapeGrid landscapeGrid, AiPartitionResources defaultPartitionResources) {
+		this.defaultPartitionResources = defaultPartitionResources;
 		for(ECivilisation civ : ECivilisation.VALUES) {
 			wasFishNearByAtGameStart[civ.ordinal] = calculateIsFishNearBy(partitionsGrid, landscapeGrid, civ);
 		}
+
+		numberOfPlayers = partitionsGrid.getNumberOfPlayers();
 	}
 
 	private BitSet calculateIsFishNearBy(PartitionsGrid partitionsGrid, LandscapeGrid landscapeGrid, ECivilisation civilisation) {
@@ -74,28 +73,15 @@ public class AiMapInformation {
 				FISHER.getVariant(civilisation).getWorkRadius());
 	}
 
-	public void clear() {
-		for (long[] playerResourceAndGrassCount : resourceAndGrassCount) {
-			Arrays.fill(playerResourceAndGrassCount, 0);
-		}
-
-		Arrays.fill(stoneCount, 0);
-	}
-
-	public int[] getBuildingCounts(IPlayer player) {
-		byte playerId = player.getPlayerId();
-
-		float numberOfPlayers = resourceAndGrassCount.length - 1;
-		int neverland = resourceAndGrassCount.length - 1;
-
+	public int[] getBuildingCounts(PlayerStatistic playerStatistic, IPlayer player) {
 		Map<EResourceType, Long> resourceAmount = new EnumMap<>(EResourceType.class);
 		for(EResourceType resource : EResourceType.VALUES) {
-			resourceAmount.put(resource, Math.round(resourceAndGrassCount[neverland][resource.ordinal] / numberOfPlayers) + resourceAndGrassCount[playerId][resource.ordinal]);
+			resourceAmount.put(resource, Math.round(defaultPartitionResources.resourceCount[resource.ordinal] / (float)numberOfPlayers) + playerStatistic.partitionResources.resourceCount[resource.ordinal]);
 		}
 
-		long playersAndNeverlandGrass = Math.round(resourceAndGrassCount[neverland][GRASS_INDEX] / numberOfPlayers) + resourceAndGrassCount[playerId][GRASS_INDEX];
+		long playersAndNeverlandGrass = Math.round(defaultPartitionResources.grassCount / (float)numberOfPlayers) + playerStatistic.partitionResources.grassCount;
 
-		long playersAndNeverlandStone = Math.round(stoneCount[neverland] / numberOfPlayers) + stoneCount[playerId];
+		long playersAndNeverlandStone = Math.round(defaultPartitionResources.stoneCount / (float)numberOfPlayers) + playerStatistic.partitionResources.stoneCount;
 
 		int maxFishermen = (int) Math.ceil(resourceAmount.get(EResourceType.FISH) / FISH_TO_FISHER_HUTS_RATIO);
 		if(maxFishermen > FISHER_PENALTY_MIN_AMOUNT) maxFishermen = (int)Math.log(maxFishermen - FISHER_PENALTY_MIN_AMOUNT)*3 + FISHER_PENALTY_MIN_AMOUNT;
@@ -211,24 +197,5 @@ public class AiMapInformation {
 		}
 
 		return true;
-	}
-
-	public long getRemainingGrassTiles(AiStatistics aiStatistics, IPlayer player) {
-		byte playerId = player.getPlayerId();
-		ECivilisation civilisation = player.getCivilisation();
-
-		long remainingGrass = resourceAndGrassCount[playerId][GRASS_INDEX];
-		for (EBuildingType buildingType : EBuildingType.VALUES) {
-			BuildingVariant building = buildingType.getVariant(civilisation);
-
-			if(building != null && !building.isMine()) {
-				remainingGrass -= building.getProtectedTiles().length * aiStatistics.getTotalNumberOfBuildingTypeForPlayer(buildingType, playerId);
-			}
-		}
-		return remainingGrass;
-	}
-
-	public long getGrassTilesOf(byte playerId) {
-		return resourceAndGrassCount[playerId][GRASS_INDEX];
 	}
 }

@@ -83,6 +83,12 @@ import static jsettlers.common.movable.EMovableType.SWORDSMAN_L3;
 public class AiStatistics {
 
 	private static final EBuildingType[] REFERENCE_POINT_FINDER_BUILDING_ORDER = { LUMBERJACK, TOWER, BIG_TOWER, CASTLE };
+	private static final RelativePoint[] FISH_PARTITION_OFFSET = new RelativePoint[] {
+			new RelativePoint(3, 0),
+			new RelativePoint(-3, 0),
+			new RelativePoint(0, 3),
+			new RelativePoint(0, -3)
+	};
 
 	private static final int NEAR_STONE_DISTANCE = 5;
 
@@ -99,7 +105,7 @@ public class AiStatistics {
 	private final FlagsGrid flagsGrid;
 	private final AbstractConstructionMarkableMap constructionMarksGrid;
 	private final AiMapInformation aiMapInformation;
-	private final long[] resourceCountInDefaultPartition;
+	private final AiPartitionResources defaultPartitionResources;
 	private final List<Player> players;
 
 	private final ExecutorService statisticsUpdaterPool;
@@ -115,7 +121,8 @@ public class AiStatistics {
 		flagsGrid = mainGrid.getFlagsGrid();
 		constructionMarksGrid = mainGrid.getConstructionMarksGrid();
 		playerStatistics = new PlayerStatistic[mainGrid.getGuiInputGrid().getNumberOfPlayers()];
-		aiMapInformation = new AiMapInformation(partitionsGrid, landscapeGrid);
+		defaultPartitionResources = new AiPartitionResources();
+		aiMapInformation = new AiMapInformation(partitionsGrid, landscapeGrid, defaultPartitionResources);
 		for (byte i = 0; i < mainGrid.getGuiInputGrid().getNumberOfPlayers(); i++) {
 			this.playerStatistics[i] = new PlayerStatistic();
 		}
@@ -125,7 +132,6 @@ public class AiStatistics {
 		for (int i = 0; i < sortedResourceTypes.length; i++) {
 			sortedResourceTypes[i] = new AiPositions();
 		}
-		resourceCountInDefaultPartition = new long[EResourceType.VALUES.length];
 		players = Arrays.stream(partitionsGrid.getPlayers()).filter(Objects::nonNull).collect(Collectors.toList());
 
 		statisticsUpdaterPool = threadPool;
@@ -144,6 +150,8 @@ public class AiStatistics {
 		for (PlayerStatistic playerStatistic : playerStatistics) {
 			playerStatistic.clearAll();
 		}
+
+		defaultPartitionResources.clear();
 		sortedRiversInDefaultPartition.clear();
 		sortedCuttableObjectsInDefaultPartition.clear();
 		for (AiPositions xCoordinatesMap : sortedResourceTypes) {
@@ -208,44 +216,25 @@ public class AiStatistics {
 
 		for (short x = 0; x < width; x++) {
 			for (short y = 0; y < height; y++) {
-				Player player = partitionsGrid.getPlayerAt(x, y);
 
-				int mapInformationPlayerId;
-				if (player != null) {
-					mapInformationPlayerId = player.playerId;
-				} else {
-					mapInformationPlayerId = aiMapInformation.resourceAndGrassCount.length - 1;
-				}
+
 				if (landscapeGrid.getResourceAmountAt(x, y) > 0) {
+					AiPartitionResources partition = getPartitionFor(x, y);
+
 					EResourceType resourceType = landscapeGrid.getResourceTypeAt(x, y);
 					sortedResourceTypes[resourceType.ordinal].addNoCollission(x, y);
 					if (resourceType != EResourceType.FISH) {
-						aiMapInformation.resourceAndGrassCount[mapInformationPlayerId][resourceType.ordinal]++;
-						if (player != null) {
-							playerStatistics[player.playerId].resourceCount[resourceType.ordinal]++;
-						} else {
-							resourceCountInDefaultPartition[resourceType.ordinal]++;
-						}
+						partition.resourceCount[resourceType.ordinal]++;
 					} else if (landscapeGrid.getLandscapeTypeAt(x, y) == ELandscapeType.WATER1) {
-						int fishMapInformationPlayerId = mapInformationPlayerId;
-						if (mapInformationPlayerId == aiMapInformation.resourceAndGrassCount.length - 1) {
-							fishMapInformationPlayerId = mapInformationPlayerIdOfPosition((short) (x + 3), y);
-							if (fishMapInformationPlayerId == aiMapInformation.resourceAndGrassCount.length - 1) {
-								fishMapInformationPlayerId = mapInformationPlayerIdOfPosition((short) (x - 3), y);
-								if (fishMapInformationPlayerId == aiMapInformation.resourceAndGrassCount.length - 1) {
-									fishMapInformationPlayerId = mapInformationPlayerIdOfPosition(x, (short) (y + 3));
-									if (fishMapInformationPlayerId == aiMapInformation.resourceAndGrassCount.length - 1) {
-										fishMapInformationPlayerId = mapInformationPlayerIdOfPosition(x, (short) (y - 3));
-									}
-								}
-							}
+						AiPartitionResources fishPartition = partition;
+
+						for(RelativePoint pt : FISH_PARTITION_OFFSET) {
+							if(!defaultPartitionResources.equals(fishPartition)) break;
+
+							fishPartition = getPartitionFor(pt.calculateX(x), pt.calculateY(y));
 						}
-						aiMapInformation.resourceAndGrassCount[fishMapInformationPlayerId][resourceType.ordinal]++;
-						if (fishMapInformationPlayerId == aiMapInformation.resourceAndGrassCount.length - 1) {
-							resourceCountInDefaultPartition[resourceType.ordinal]++;
-						} else {
-							playerStatistics[fishMapInformationPlayerId].resourceCount[resourceType.ordinal]++;
-						}
+
+						fishPartition.resourceCount[resourceType.ordinal]++;
 					}
 				}
 			}
@@ -259,16 +248,8 @@ public class AiStatistics {
 
 		for(short x = 0; x < width; x++) {
 			for(short y = 0; y < height; y++) {
-				Player player = partitionsGrid.getPlayerAt(x, y);
-
-				int mapInformationPlayerId;
-				if(player != null) {
-					mapInformationPlayerId = player.playerId;
-				} else {
-					mapInformationPlayerId = aiMapInformation.resourceAndGrassCount.length - 1;
-				}
 				if(landscapeGrid.getLandscapeTypeAt(x, y).isGrass()) {
-					aiMapInformation.resourceAndGrassCount[mapInformationPlayerId][AiMapInformation.GRASS_INDEX]++;
+					getPartitionFor(x, y).grassCount++;
 				}
 			}
 		}
@@ -352,9 +333,7 @@ public class AiStatistics {
 	}
 
 	private void updateMapStatistics() {
-		aiMapInformation.clear();
 		updatePartitionIdsToBuildOn();
-		Arrays.fill(resourceCountInDefaultPartition, 0);
 
 		try {
 			statisticsUpdaterPool.invokeAll(parallelStatisticsUpdater);
@@ -363,17 +342,17 @@ public class AiStatistics {
 		}
 	}
 
-	private int mapInformationPlayerIdOfPosition(short x, short y) {
+	private AiPartitionResources getPartitionFor(int x, int y) {
 		if (!mainGrid.isInBounds(x, y)) {
-			return aiMapInformation.resourceAndGrassCount.length - 1;
+			return defaultPartitionResources;
 		}
 
 		byte playerId = mainGrid.getPartitionsGrid().getPlayerIdAt(x, y);
 		if (playerId == -1) {
-			return aiMapInformation.resourceAndGrassCount.length - 1;
+			return defaultPartitionResources;
 		}
 
-		return playerId;
+		return playerStatistics[playerId].partitionResources;
 	}
 
 	private boolean hasNeighborIngestibleByPioneersOf(int x, int y, Player player) {
@@ -411,7 +390,7 @@ public class AiStatistics {
 				}
 
 				if(o.hasMapObjectTypes(STONE, CUT_OFF_STONE)) {
-					aiMapInformation.stoneCount[playerId]++;
+					playerStatistic.partitionResources.stoneCount++;
 				}
 			}
 		} else {
@@ -459,7 +438,7 @@ public class AiStatistics {
 			updateNearStones(x, y);
 		}
 		if (objectsGrid.hasMapObjectType(x, y, STONE, CUT_OFF_STONE)) {
-			aiMapInformation.stoneCount[aiMapInformation.stoneCount.length - 1]++;
+			defaultPartitionResources.stoneCount++;
 		}
 		ELandscapeType landscape = landscapeGrid.getLandscapeTypeAt(x, y);
 		if (landscape.isRiver()) {
@@ -783,16 +762,12 @@ public class AiStatistics {
 		return partitionsGrid.getPlayer(playerId).getWinState() != EWinState.LOST;
 	}
 
-	public AiMapInformation getAiMapInformation() {
-		return aiMapInformation;
-	}
-
 	public long resourceCountInDefaultPartition(EResourceType resourceType) {
-		return resourceCountInDefaultPartition[resourceType.ordinal];
+		return defaultPartitionResources.resourceCount[resourceType.ordinal];
 	}
 
 	public long resourceCountOfPlayer(EResourceType resourceType, byte playerId) {
-		return playerStatistics[playerId].resourceCount[resourceType.ordinal];
+		return playerStatistics[playerId].partitionResources.resourceCount[resourceType.ordinal];
 	}
 
 	List<ShortPoint2D> threatenedBorderOf(byte playerId) {
@@ -822,4 +797,26 @@ public class AiStatistics {
 		return playerStatistics[playerId].stonesNearBy;
 	}
 
+	public long getGrassTilesOf(byte playerId) {
+		return playerStatistics[playerId].partitionResources.grassCount;
+	}
+
+	public long getRemainingGrassTiles(AiStatistics aiStatistics, IPlayer player) {
+		byte playerId = player.getPlayerId();
+		ECivilisation civilisation = player.getCivilisation();
+
+		long remainingGrass = playerStatistics[playerId].partitionResources.grassCount;
+		for (EBuildingType buildingType : EBuildingType.VALUES) {
+			BuildingVariant building = buildingType.getVariant(civilisation);
+
+			if(building != null && !building.isMine()) {
+				remainingGrass -= building.getProtectedTiles().length * (long)aiStatistics.getTotalNumberOfBuildingTypeForPlayer(buildingType, playerId);
+			}
+		}
+		return remainingGrass;
+	}
+
+	public int[] getBuildingCounts(IPlayer player) {
+		return aiMapInformation.getBuildingCounts(playerStatistics[player.getPlayerId()], player);
+	}
 }
