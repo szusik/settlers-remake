@@ -20,8 +20,7 @@ class PlayerStatistic {
 	final int[] totalBuildingsNumbers = new int[EBuildingType.NUMBER_OF_BUILDINGS];
 	final int[] buildingsNumbers = new int[EBuildingType.NUMBER_OF_BUILDINGS];
 	final Map<EBuildingType, List<ShortPoint2D>> buildingPositions = new HashMap<>();
-	final List<ShortPoint2D> farmWorkAreas = new Vector<>();
-	final List<ShortPoint2D> wineGrowerWorkAreas = new Vector<>();
+	final Map<EBuildingType, List<ShortPoint2D>> buildingWorkAreas = new HashMap<>();
 	final Set<ShortPoint2D> activeHospitals = new HashSet<>();
 	short partitionIdToBuildOn;
 	short blockedPartitionId;
@@ -52,6 +51,7 @@ class PlayerStatistic {
 	public void clearAll() {
 		materials = null;
 		buildingPositions.clear();
+		buildingWorkAreas.clear();
 		enemyTroopsInTown.clear();
 		stones.clear();
 		stonesNearBy.clear();
@@ -62,8 +62,6 @@ class PlayerStatistic {
 		otherPartitionBorder.clear();
 		movablePositions.clear();
 		joblessBearerPositions.clear();
-		farmWorkAreas.clear();
-		wineGrowerWorkAreas.clear();
 		activeHospitals.clear();
 		threatenedBorder = null;
 		partitionResources.clear();

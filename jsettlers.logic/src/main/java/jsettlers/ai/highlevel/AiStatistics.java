@@ -63,8 +63,11 @@ import jsettlers.logic.player.Player;
 
 import static jsettlers.common.buildings.EBuildingType.BIG_TOWER;
 import static jsettlers.common.buildings.EBuildingType.CASTLE;
+import static jsettlers.common.buildings.EBuildingType.FARM;
 import static jsettlers.common.buildings.EBuildingType.LUMBERJACK;
+import static jsettlers.common.buildings.EBuildingType.RICE_FARM;
 import static jsettlers.common.buildings.EBuildingType.TOWER;
+import static jsettlers.common.buildings.EBuildingType.WINEGROWER;
 import static jsettlers.common.mapobject.EMapObjectType.CUT_OFF_STONE;
 import static jsettlers.common.mapobject.EMapObjectType.STONE;
 import static jsettlers.common.mapobject.EMapObjectType.TREE_ADULT;
@@ -173,19 +176,19 @@ public class AiStatistics {
 	}
 
 	private void updateBuildingPositions(PlayerStatistic playerStatistic, EBuildingType type, Building building) {
-		if (!playerStatistic.buildingPositions.containsKey(type)) {
-			playerStatistic.buildingPositions.put(type, new ArrayList<>());
-		}
-		playerStatistic.buildingPositions.get(type).add(building.getPosition());
+		playerStatistic.buildingPositions.computeIfAbsent(type, t -> new ArrayList<>()).add(building.getPosition());
 
-		if (type == EBuildingType.WINEGROWER) {
-			playerStatistic.wineGrowerWorkAreas.add(((WorkAreaBuilding) building).getWorkAreaCenter());
-		} else if (type == EBuildingType.FARM) {
-			playerStatistic.farmWorkAreas.add(((WorkAreaBuilding) building).getWorkAreaCenter());
-		} else if(type == EBuildingType.HOSPITAL) {
-			if(building.getStateProgress() == 1f) {
-				playerStatistic.activeHospitals.add(building.getPosition());
-			}
+		switch (type) {
+			case WINEGROWER:
+			case FARM:
+			case RICE_FARM:
+				playerStatistic.buildingWorkAreas.computeIfAbsent(type, t -> new ArrayList<>()).add(((WorkAreaBuilding)building).getWorkAreaCenter());
+				break;
+			case HOSPITAL:
+				if (building.getStateProgress() == 1f) {
+					playerStatistic.activeHospitals.add(building.getPosition());
+				}
+				break;
 		}
 	}
 
@@ -608,27 +611,26 @@ public class AiStatistics {
 	public boolean blocksWorkingAreaOfOtherBuilding(int x, int y, byte playerId, BuildingVariant building) {
 		ECivilisation playerCivilisation = partitionsGrid.getPlayer(playerId).getCivilisation();
 
-		BuildingVariant winegrowerVariant = EBuildingType.WINEGROWER.getVariant(playerCivilisation);
-		if(winegrowerVariant != null) {
-			int winegrowerWorkRadius = winegrowerVariant.getWorkRadius();
-			for (ShortPoint2D workAreaCenter : playerStatistics[playerId].wineGrowerWorkAreas) {
-				for (RelativePoint blockedPoint : building.getBlockedTiles()) {
-					if (workAreaCenter.getOnGridDistTo(blockedPoint.calculatePoint(x, y)) <= winegrowerWorkRadius) {
-						return true;
-					}
-				}
+		for(EBuildingType type : new EBuildingType[]{FARM, WINEGROWER, RICE_FARM}) {
+			BuildingVariant variant = type.getVariant(playerCivilisation);
+			if(variant == null) continue;
+
+			if(blocksPositions(x, y, playerId, building, variant.getWorkRadius(), playerStatistics[playerId].buildingWorkAreas.get(type))) {
+				return true;
 			}
 		}
 
-		int farmWorkRadius = EBuildingType.FARM.getVariant(playerCivilisation).getWorkRadius();
-		for (ShortPoint2D workAreaCenter : playerStatistics[playerId].farmWorkAreas) {
-			for (RelativePoint blockedPoint : building.getBlockedTiles()) {
-				if (workAreaCenter.getOnGridDistTo(blockedPoint.calculatePoint(x, y)) <= farmWorkRadius) {
+		return false;
+	}
+
+	private boolean blocksPositions(int x, int y, byte playerId, BuildingVariant newBuilding, int radius, List<ShortPoint2D> positions) {
+		for (ShortPoint2D workAreaCenter : positions) {
+			for (RelativePoint blockedPoint : newBuilding.getBlockedTiles()) {
+				if (workAreaCenter.getOnGridDistTo(blockedPoint.calculatePoint(x, y)) <= radius) {
 					return true;
 				}
 			}
 		}
-
 		return false;
 	}
 
