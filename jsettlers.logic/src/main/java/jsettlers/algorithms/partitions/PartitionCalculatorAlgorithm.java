@@ -143,23 +143,26 @@ public final class PartitionCalculatorAlgorithm {
 				int westPartition = -1;
 				int northEastPartition = -1;
 
-				if (containing.get(westX + westY * width)) {
-					short currPartition = partitions[partitionsGrid[westX + westY * width]];
+				int westIndex = westX + westY * width;
+				if (westIndex >= 0 && containing.get(westIndex)) {
+					short currPartition = partitions[partitionsGrid[westIndex]];
 					if (currPartition != BLOCKED_PARTITION) {
 						westPartition = currPartition;
 						partition = currPartition;
 					}
 				}
 
-				if (containing.get(northWestX + northWestY * width)) {
-					short currPartition =  partitions[partitionsGrid[northWestX + northWestY * width]];
+				int northIndex = northWestX + northWestY * width;
+				if (northIndex >= 0 && containing.get(northIndex)) {
+					short currPartition =  partitions[partitionsGrid[northIndex]];
 					if (currPartition != BLOCKED_PARTITION) {
 						partition = currPartition;
 					}
 				}
 
-				if (containing.get(northEastX + northEastY * width)) {
-					short currPartition =  partitions[partitionsGrid[northEastX + northEastY * width]];
+				int northEastIndex = northEastX + northEastY * width;
+				if (northEastIndex >= 0 && containing.get(northEastIndex)) {
+					short currPartition =  partitions[partitionsGrid[northEastIndex]];
 					if (currPartition != BLOCKED_PARTITION) {
 						northEastPartition = currPartition;
 						partition = currPartition;

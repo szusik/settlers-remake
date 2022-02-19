@@ -265,4 +265,10 @@ public enum ELandscapeType {
 	public boolean isFlat() {
 		return FLAT_TYPES.contains(this);
 	}
+
+	public int blockedSignum() {
+		if(!isBlocking) return 1;
+		if(isWater) return -1;
+		return 0;
+	}
 }

@@ -256,12 +256,14 @@ public final class MainGrid implements Serializable {
 		for (short y = 0; y < height; y++) {
 			for (short x = 0; x < width; x++) {
 				ELandscapeType landscape = mapGrid.getLandscape(x, y);
-				setLandscapeTypeAt(x, y, landscape, false);
+				flagsGrid.setBlockedAndProtected(x, y, landscape.isBlocking);
+				landscapeGrid.setLandscapeTypeAt(x, y, landscape, false);
 				landscapeGrid.setHeightAt(x, y, mapGrid.getLandscapeHeight(x, y));
 				landscapeGrid.setResourceAt(x, y, mapGrid.getResourceType(x, y), mapGrid.getResourceAmount(x, y));
-				landscapeGrid.setBlockedPartition(x, y, mapGrid.getBlockedPartition(x, y));
 			}
 		}
+
+		landscapeGrid.generateBlockedPartitions();
 
 		// two phases, we might need the base grid tiles to add blocking, status
 		for (short y = 0; y < height; y++) {
@@ -488,7 +490,7 @@ public final class MainGrid implements Serializable {
 		return building;
 	}
 
-	final void setLandscapeTypeAt(int x, int y, ELandscapeType newType, boolean checked) {
+	final void setLandscapeTypeAt(int x, int y, ELandscapeType newType) {
 		if (newType.isBlocking) {
 			flagsGrid.setBlockedAndProtected(x, y, true);
 		} else {
@@ -496,7 +498,7 @@ public final class MainGrid implements Serializable {
 				flagsGrid.setBlockedAndProtected(x, y, false);
 			}
 		}
-		landscapeGrid.setLandscapeTypeAt(x, y, newType, checked);
+		landscapeGrid.setLandscapeTypeAt(x, y, newType, true);
 	}
 
 	final void checkPositionThatChangedPlayer(int x, int y) {
@@ -967,7 +969,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public final void setLandscape(int x, int y, ELandscapeType landscapeType) {
-			setLandscapeTypeAt(x, y, landscapeType, true);
+			setLandscapeTypeAt(x, y, landscapeType);
 		}
 
 		@Override
@@ -1064,12 +1066,12 @@ public final class MainGrid implements Serializable {
 	final class EnclosedBlockedAreaFinderGrid implements IEnclosedBlockedAreaFinderGrid {
 		@Override
 		public final boolean isPioneerBlockedAndWithoutTowerProtection(int x, int y) {
-			return MainGrid.this.isInBounds(x, y) && flagsGrid.isPioneerBlocked(x, y) && !landscapeGrid.isBlockedPartition(x, y) && !partitionsGrid.isEnforcedByTower(x, y);
+			return MainGrid.this.isInBounds(x, y) && flagsGrid.isPioneerBlocked(x, y) && !landscapeGrid.isBlocked(x, y) && !partitionsGrid.isEnforcedByTower(x, y);
 		}
 
 		@Override
 		public boolean isOfPlayerOrBlocked(int x, int y, byte playerId) {
-			return partitionsGrid.getPlayerIdAt(x, y) == playerId || landscapeGrid.isBlockedPartition(x, y);
+			return partitionsGrid.getPlayerIdAt(x, y) == playerId || landscapeGrid.isBlocked(x, y);
 		}
 
 		@Override
@@ -1439,7 +1441,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public void setLandscape(int x, int y, ELandscapeType type) {
-			setLandscapeTypeAt(x, y, type, true);
+			setLandscapeTypeAt(x, y, type);
 		}
 
 		@Override
@@ -1756,7 +1758,7 @@ public final class MainGrid implements Serializable {
 				mapObjectsManager.addSimpleMapObject(point, EMapObjectType.DOCK, false, player);
 				flagsGrid.setBlockedAndProtected(point.x, point.y, false);
 				partitionsGrid.changePlayerAt(point, player.getPlayerId());
-				landscapeGrid.setBlockedPartition(point.x, point.y, partition);
+				landscapeGrid.setToLand(point.x, point.y);
 			}
 		}
 
@@ -1766,6 +1768,7 @@ public final class MainGrid implements Serializable {
 				ShortPoint2D point = dockPosition.getDirection().getNextHexPoint(dockPosition.getPosition(), i);
 				mapObjectsManager.removeMapObjectType(point.x, point.y, EMapObjectType.DOCK);
 				flagsGrid.setBlockedAndProtected(point.x, point.y, true);
+				landscapeGrid.setToBlocked(point.x, point.y);
 			}
 		}
 

@@ -17,8 +17,10 @@ package jsettlers.logic.map.grid.landscape;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.BitSet;
 
 import jsettlers.algorithms.partitions.IBlockingProvider;
+import jsettlers.algorithms.partitions.PartitionCalculatorAlgorithm;
 import jsettlers.algorithms.previewimage.IPreviewImageDataSupplier;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
@@ -42,7 +44,9 @@ import jsettlers.logic.map.grid.flags.IProtectedProvider.IProtectedChangedListen
 public final class LandscapeGrid implements Serializable, IWalkableGround, IFlattenedResettable, IDebugColorSetable, IProtectedChangedListener, IBlockingProvider {
 	private static final long serialVersionUID = -751261669662036484L;
 
-	public static final short SEA_BLOCKED_PARTITION = 0;
+	private static final int SEA_SIGN = -1;
+	private static final int LAND_SIGN = 1;
+	private static final int BLOCKED = 0;
 
 	private final byte[][] heightGrid;
 	private final byte[] landscapeGrid;
@@ -50,6 +54,7 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 	private final byte[] temporaryFlatened;
 	private final byte[] resourceType;
 	private final short[] blockedPartitions;
+	private boolean updateBlocked;
 
 	private final short width;
 	private final short height;
@@ -190,7 +195,58 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		}
 
 		this.landscapeGrid[x + y * width] = landscapeType.ordinal;
+
+		updateBlockedPartition(x, y, landscapeType.blockedSignum());
+
 		backgroundListener.backgroundLineChangedAt(x, y, 1);
+	}
+
+	private boolean needsMerge(int x, int y, int partSign) {
+		int neighborPartition = 0;
+		for(EDirection dir : EDirection.VALUES) {
+			int dirPartition = getBlockedPartitionAt(dir.getNextTileX(x), dir.getNextTileY(y));
+
+			if(dirPartition*partSign <= 0) continue;
+
+			if(neighborPartition == 0) {
+				neighborPartition = dirPartition;
+			} else if(dirPartition != neighborPartition) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private void checkMerge(int x, int y, int partSign) {
+		if(!needsMerge(x, y, partSign)) return;
+
+		// merge
+	}
+
+	private void updateBlockedPartition(int x, int y, int to) {
+		if(!updateBlocked) return;
+
+		int from = Integer.signum(blockedPartitions[x + y * width]);
+		if(from == to) return;
+
+		calculateBlockedPartition(to, x + width*y);
+
+		/*if(to == LAND_SIGN) {
+			// we might have to merge land partitions
+			checkMerge(x, y, LAND_SIGN);
+		} else if(to == SEA_SIGN) {
+			// we might have to merge sea partitions
+			checkMerge(x, y, SEA_SIGN);
+		}
+
+		if(from == LAND_SIGN) {
+			// we might have just divided a land partition
+			checkDivide(x, y, LAND_SIGN);
+		} else if(from == SEA_SIGN) {
+			// we might have just divided a sea partition
+			checkDivide(x, y, SEA_SIGN);
+		}*/
 	}
 
 	public final void setHeightAt(short x, short y, byte height) {
@@ -330,21 +386,14 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		}
 	}
 
-	public void setBlockedPartition(short x, short y, short blockedPartition) {
-		this.blockedPartitions[x + y * width] = blockedPartition;
-	}
-
 	public short getBlockedPartitionAt(int x, int y) {
 		return this.blockedPartitions[x + y * width];
 	}
 
-	public boolean isBlockedPartition(int x, int y) {
-		return isBlocked(x, y);
-	}
-
 	@Override
 	public boolean isBlocked(int x, int y) {
-		return getBlockedPartitionAt(x, y) == 0;
+		// TODO distinguish between land and sea units
+		return Integer.signum(getBlockedPartitionAt(x, y)) != LAND_SIGN;
 	}
 
 	public IPreviewImageDataSupplier getPreviewImageDataSupplier() {
@@ -397,5 +446,52 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		if (!newProtectedState) {
 			activateUnflattening(x, y);
 		}
+	}
+
+	public void setToLand(short x, short y) {
+		updateBlockedPartition(x, y, LAND_SIGN);
+	}
+
+	public void setToBlocked(short x, short y) {
+		updateBlockedPartition(x, y, BLOCKED);
+	}
+
+	public void generateBlockedPartitions() {
+		assert !updateBlocked;
+		int landPartitions = calculateBlockedPartition(LAND_SIGN, -1);
+		int seaPartitions = calculateBlockedPartition(SEA_SIGN, -1);
+		updateBlocked = true;
+	}
+
+	private int calculateBlockedPartition(int sign, int addIndex) {
+		BitSet contained = new BitSet(width * height);
+
+		for(int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				int index = x + y * width;
+
+				int landscapeSign = getLandscapeTypeAt(x, y).blockedSignum();
+
+				if(landscapeSign == sign) {
+					contained.set(index);
+				}
+			}
+		}
+
+		if(addIndex != -1) contained.set(addIndex);
+
+		PartitionCalculatorAlgorithm calculator = new PartitionCalculatorAlgorithm(0, 0, width, height, contained, IBlockingProvider.DEFAULT_IMPLEMENTATION);
+
+		calculator.calculatePartitions();
+		for(int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				short part = calculator.getPartitionAt(x, y);
+				if(part != 0) {
+					blockedPartitions[x + y * width] = (short) (part * sign);
+				}
+			}
+		}
+
+		return calculator.getNumberOfPartitions();
 	}
 }
