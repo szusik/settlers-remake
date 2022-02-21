@@ -480,7 +480,6 @@ public class AiStatistics {
 				PlayerStatistic playerStatistic = playerStatistics[playerId];
 				playerStatistic.referencePosition = referencePosition;
 				playerStatistic.partitionIdToBuildOn = partitionsGrid.getPartitionIdAt(referencePosition.x, referencePosition.y);
-				playerStatistic.blockedPartitionId = landscapeGrid.getBlockedPartitionAt(referencePosition.x, referencePosition.y);
 				playerStatistic.materialProduction = partitionsGrid.getMaterialProductionAt(referencePosition.x, referencePosition.y);
 				playerStatistic.materials = partitionsGrid.getPartitionDataForManagerAt(referencePosition.x, referencePosition.y);
 			}
@@ -530,7 +529,8 @@ public class AiStatistics {
 	}
 
 	public boolean hasPlayersBlockedPartition(byte playerId, int x, int y) {
-		return landscapeGrid.getBlockedPartitionAt(x, y) == playerStatistics[playerId].blockedPartitionId;
+		ShortPoint2D reference = playerStatistics[playerId].referencePosition;
+		return landscapeGrid.isReachable(x, y, reference.x, reference.y, false);
 	}
 
 	public List<ShortPoint2D> getPositionsOfMovablesWithTypesForPlayer(byte playerId, Set<EMovableType> movableTypes) {

@@ -18,7 +18,6 @@ import jsettlers.algorithms.path.IPathCalculatable;
 import jsettlers.algorithms.path.Path;
 import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.ESearchType;
-import jsettlers.common.movable.EMovableType;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.player.Player;
 
@@ -64,7 +63,7 @@ public abstract class AbstractMovableGrid extends AbstractStrategyGrid {
 	public abstract Path calculatePathTo(IPathCalculatable pathCalculatable, ShortPoint2D targetPos, ShortPoint2D startPos);
 
 
-	public abstract boolean hasSameContinent(ShortPoint2D pos1, ShortPoint2D pos2);
+	public abstract boolean isReachable(ShortPoint2D pos1, ShortPoint2D pos2, boolean ship);
 
 	public abstract Path searchDijkstra(IPathCalculatable pathCalculateable, short centerX, short centerY, short radius, ESearchType searchType);
 

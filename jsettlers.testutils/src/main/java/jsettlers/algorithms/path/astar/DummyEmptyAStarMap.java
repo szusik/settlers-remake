@@ -58,7 +58,7 @@ public class DummyEmptyAStarMap implements IAStarPathMap {
 	}
 
 	@Override
-	public short getBlockedPartition(int x, int y) {
-		return 1;
+	public boolean isReachable(int x1, int y1, int x2, int y2, boolean ship) {
+		return !ship;
 	}
 }

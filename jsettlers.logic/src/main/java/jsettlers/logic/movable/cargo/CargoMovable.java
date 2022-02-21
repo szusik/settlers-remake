@@ -79,6 +79,11 @@ public abstract class CargoMovable extends AttackableMovable implements ITrader 
 	}
 
 	@Override
+	public boolean canReachPosition(ShortPoint2D target) {
+		return grid.isReachable(position, target, isShip());
+	}
+
+	@Override
 	protected void decoupleMovable() {
 		super.decoupleMovable();
 

@@ -511,18 +511,10 @@ public final class MainGrid implements Serializable {
 
 	final boolean isValidPosition(IPathCalculatable pathCalculatable, int x, int y) {
 		if (pathCalculatable.isShip()) {
-			return isNavigable(x, y);
+			return !landscapeGrid.isBlockedFor(x, y, true);
 		}
 		return isInBounds(x, y) && !flagsGrid.isBlocked(x, y)
 			&& (!pathCalculatable.needsPlayersGround() || pathCalculatable.getPlayer().getPlayerId() == partitionsGrid.getPlayerIdAt(x, y));
-	}
-
-	final boolean isNavigable(int x, int y) {
-		Optional<ShortPoint2D> blockingOptional = HexGridArea.stream(x, y, 0, 2)
-															 .filterBounds(width, height)
-															 .filter((x1, y1) -> !landscapeGrid.getLandscapeTypeAt(x1, y1).isWater || objectsGrid.getMapObjectAt(x1, y1, EMapObjectType.DOCK) != null)
-															 .getFirst();
-		return !blockingOptional.isPresent();
 	}
 
 	public FlagsGrid getFlagsGrid() {
@@ -818,10 +810,9 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public short getBlockedPartition(int x, int y) {
-			return landscapeGrid.getBlockedPartitionAt(x, y);
+		public boolean isReachable(int x1, int y1, int x2, int y2, boolean ship) {
+			return landscapeGrid.isReachable(x1, y1, x2, y2, ship);
 		}
-
 	}
 
 	final class GraphicsGrid implements IGraphicsGrid, IDirectGridProvider {
@@ -1491,8 +1482,8 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public boolean hasSameContinent(ShortPoint2D pos1, ShortPoint2D pos2) {
-			return landscapeGrid.getBlockedPartitionAt(pos1.x, pos1.y) == landscapeGrid.getBlockedPartitionAt(pos2.x, pos2.y);
+		public boolean isReachable(ShortPoint2D pos1, ShortPoint2D pos2, boolean ship) {
+			return landscapeGrid.isReachable(pos1.x, pos1.y, pos2.x, pos2.y, ship);
 		}
 
 		@Override
@@ -1696,8 +1687,8 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public final short getBlockedPartition(int x, int y) {
-			return landscapeGrid.getBlockedPartitionAt(x, y);
+		public boolean isBlocked(int x, int y) {
+			return landscapeGrid.isBlocked(x, y);
 		}
 	}
 
@@ -1751,8 +1742,7 @@ public final class MainGrid implements Serializable {
 
 		@Override
 		public void setDock(DockPosition dockPosition, Player player) {
-			ShortPoint2D point = dockPosition.getDirection().rotateRight(3).getNextHexPoint(dockPosition.getPosition());
-			short partition = landscapeGrid.getBlockedPartitionAt(point.x, point.y);
+			ShortPoint2D point;
 			for (int i = 0; i < 3; i++) {
 				point = dockPosition.getDirection().getNextHexPoint(dockPosition.getPosition(), i);
 				mapObjectsManager.addSimpleMapObject(point, EMapObjectType.DOCK, false, player);
@@ -2126,11 +2116,6 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public boolean isNavigable(int x, int y) {
-			return MainGrid.this.isNavigable(x, y);
-		}
-
-		@Override
 		public boolean hasLost(byte playerId) {
 			return partitionsGrid.getPlayer(playerId).getWinState() == EWinState.LOST;
 		}
@@ -2203,8 +2188,8 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public short getBlockedPartition(int x, int y) {
-			return landscapeGrid.getBlockedPartitionAt(x, y);
+		public boolean isReachable(int x1, int y1, int x2, int y2, boolean ship) {
+			return landscapeGrid.isReachable(x1, y1, x2, y2, ship);
 		}
 
 		@Override

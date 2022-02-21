@@ -23,7 +23,6 @@ class PlayerStatistic {
 	final Map<EBuildingType, List<ShortPoint2D>> buildingWorkAreas = new HashMap<>();
 	final Set<ShortPoint2D> activeHospitals = new HashSet<>();
 	short partitionIdToBuildOn;
-	short blockedPartitionId;
 	IPartitionData materials;
 	final AiPositions landToBuildOn = new AiPositions();
 	final AiPositions borderIngestibleByPioneers = new AiPositions();
@@ -76,6 +75,5 @@ class PlayerStatistic {
 		numberOfNotOccupiedMilitaryBuildings = 0;
 		wineCount = 0;
 		partitionIdToBuildOn = Short.MIN_VALUE;
-		blockedPartitionId = Short.MIN_VALUE;
 	}
 }

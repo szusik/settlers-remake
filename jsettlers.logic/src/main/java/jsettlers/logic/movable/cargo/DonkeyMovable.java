@@ -72,16 +72,6 @@ public class DonkeyMovable extends CargoMovable {
 	}
 
 	@Override
-	public boolean mightReachPosition(ShortPoint2D target) {
-		return canReachPosition(target);
-	}
-
-	@Override
-	public boolean canReachPosition(ShortPoint2D target) {
-		return grid.hasSameContinent(position, target);
-	}
-
-	@Override
 	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
 		lostCargo = true;
 

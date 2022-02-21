@@ -51,8 +51,8 @@ public class TradeManager implements IScheduledTimerable {
 	public int timerEvent() {
 		for(ITradeBuilding tradeBuilding : tradeBuildings) {
 			while(tradeBuilding.needsMoreTraders() && !freeTraders.isEmpty()) {
-				ITrader newTrader = freeTraders.removeObjectNextTo(tradeBuilding.getPickUpPosition(), trader -> trader.mightReachPosition(tradeBuilding.getPickUpPosition()));
-				if(newTrader == null || !newTrader.canReachPosition(tradeBuilding.getPickUpPosition())) break;
+				ITrader newTrader = freeTraders.removeObjectNextTo(tradeBuilding.getPickUpPosition(), trader -> trader.canReachPosition(tradeBuilding.getPickUpPosition()));
+				if(newTrader == null) break;
 
 				issueTransportTask(newTrader, tradeBuilding);
 			}

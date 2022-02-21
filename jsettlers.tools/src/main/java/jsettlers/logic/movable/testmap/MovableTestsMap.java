@@ -169,8 +169,8 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 		}
 
 		@Override
-		public boolean hasSameContinent(ShortPoint2D pos1, ShortPoint2D pos2) {
-			return true;
+		public boolean isReachable(ShortPoint2D pos1, ShortPoint2D pos2, boolean ship) {
+			return !ship;
 		}
 
 		@Override
@@ -521,8 +521,8 @@ public class MovableTestsMap implements IGraphicsGrid, IAStarPathMap {
 	}
 
 	@Override
-	public short getBlockedPartition(int x, int y) {
-		return 1;
+	public boolean isReachable(int x1, int y1, int x2, int y2, boolean ship) {
+		return true;
 	}
 
 	@Override

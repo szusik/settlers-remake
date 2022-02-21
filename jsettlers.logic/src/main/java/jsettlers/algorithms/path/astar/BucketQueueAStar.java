@@ -74,18 +74,14 @@ public final class BucketQueueAStar extends AbstractAStar {
 
 	@Override
 	public final Path findPath(IPathCalculatable requester, final short sx, final short sy, final short tx, final short ty) {
-		final short blockedAtStartPartition;
 		if (!isInBounds(sx, sy)) {
 			throw new InvalidStartPositionException("Start position is out of bounds!", sx, sy);
-		} else if (!isInBounds(tx, ty) || isBlocked(requester, tx, ty) || (!requester.isShip() && map.getBlockedPartition(sx, sy) != map.getBlockedPartition(tx, ty))) {
+		} else if (!isInBounds(tx, ty) || isBlocked(requester, tx, ty) || !map.isReachable(sx, sy, tx, ty, requester.isShip())) {
 			return null; // target can not be reached
 		} else if (sx == tx && sy == ty) {
 			return null;
-		} else if (isBlocked(requester, sx, sy)) {
-			blockedAtStartPartition = map.getBlockedPartition(sx, sy);
-		} else {
-			blockedAtStartPartition = -1;
 		}
+		final boolean startBlocked = isBlocked(requester, sx, sy);
 
 		final int targetFlatIdx = getFlatIdx(tx, ty);
 
@@ -115,7 +111,7 @@ public final class BucketQueueAStar extends AbstractAStar {
 				final int neighborX = x + xDeltaArray[i];
 				final int neighborY = y + yDeltaArray[i];
 
-				if (isValidPosition(requester, x, y, neighborX, neighborY, blockedAtStartPartition)) {
+				if (isValidPosition(requester, x, y, neighborX, neighborY, startBlocked)) {
 					final int flatNeighborIdx = getFlatIdx(neighborX, neighborY);
 
 					if (!closedBitSet.get(flatNeighborIdx)) {
@@ -189,13 +185,13 @@ public final class BucketQueueAStar extends AbstractAStar {
 		openBitSet.set(flatIdx);
 	}
 
-	private boolean isValidPosition(IPathCalculatable requester, int fromX, int fromY, int toX, int toY, short blockedAtStartPartition) {
+	private boolean isValidPosition(IPathCalculatable requester, int fromX, int fromY, int toX, int toY, boolean startBlocked) {
 		return isInBounds(toX, toY)
 			&& (
 			!isBlocked(requester, toX, toY)
 				|| (
-				blockedAtStartPartition >= 0 // if the start position was blocked, we can use blocked positions on the same island until
-					&& map.getBlockedPartition(toX, toY) == blockedAtStartPartition // we leave the blocked area
+					startBlocked // if the start position was blocked, we can use blocked positions on the same island until
+					&& isBlocked(requester, toX, toY) // we leave the blocked area
 					&& isBlocked(requester, fromX, fromY) // prevent reentering blocked positions when we left them already
 			)
 		);

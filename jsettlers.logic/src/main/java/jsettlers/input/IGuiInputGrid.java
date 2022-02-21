@@ -123,7 +123,7 @@ public interface IGuiInputGrid {
 	 */
 	void setMaterialPrioritiesSettings(ShortPoint2D managerPosition, EMaterialType[] materialTypeForPriority);
 
-	short getBlockedPartition(int x, int y);
+	boolean isReachable(int x1, int y1, int x2, int y2, boolean ship);
 
 	boolean isBlocked(int x, int y);
 
@@ -138,8 +138,6 @@ public interface IGuiInputGrid {
 	void setAcceptedStockMaterial(ShortPoint2D position, EMaterialType materialType, boolean accepted);
 
 	FerryEntrance ferryAtPosition(ShortPoint2D position, byte playerId);
-
-	boolean isNavigable(int x, int y);
 
 	boolean hasLost(byte playerId);
 	

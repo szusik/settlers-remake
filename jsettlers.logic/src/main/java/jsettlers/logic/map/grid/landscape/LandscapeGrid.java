@@ -396,6 +396,10 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		return Integer.signum(getBlockedPartitionAt(x, y)) != LAND_SIGN;
 	}
 
+	public  boolean isBlockedFor(int x, int y, boolean ship) {
+		return Integer.signum(getBlockedPartitionAt(x, y)) != (ship ? SEA_SIGN : LAND_SIGN);
+	}
+
 	public IPreviewImageDataSupplier getPreviewImageDataSupplier() {
 		return new IPreviewImageDataSupplier() {
 			@Override
@@ -493,5 +497,17 @@ public final class LandscapeGrid implements Serializable, IWalkableGround, IFlat
 		}
 
 		return calculator.getNumberOfPartitions();
+	}
+
+	public boolean isReachable(int x1, int y1, int x2, int y2, boolean ship) {
+		int part1 = getBlockedPartitionAt(x1, y1);
+		int part2 = getBlockedPartitionAt(x2, y2);
+
+		int partSign = Integer.signum(part1);
+
+		if(ship && partSign != SEA_SIGN) return false;
+		if(!ship && partSign != LAND_SIGN) return false;
+
+		return part1 == part2;
 	}
 }
