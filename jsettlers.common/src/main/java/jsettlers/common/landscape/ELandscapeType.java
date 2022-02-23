@@ -266,9 +266,9 @@ public enum ELandscapeType {
 		return FLAT_TYPES.contains(this);
 	}
 
-	public int blockedSignum() {
-		if(!isBlocking) return 1;
-		if(isWater) return -1;
-		return 0;
+	public EPartitionType blockedType() {
+		if(!isBlocking) return EPartitionType.LAND_PARTITION;
+		if(isWater) return EPartitionType.SEA_PARTITION;
+		return EPartitionType.BLOCKED;
 	}
 }

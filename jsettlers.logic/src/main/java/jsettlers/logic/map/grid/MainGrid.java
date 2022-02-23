@@ -47,6 +47,7 @@ import jsettlers.common.buildings.BuildingVariant;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.buildings.IBuilding;
 import jsettlers.common.landscape.ELandscapeType;
+import jsettlers.common.landscape.EPartitionType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.map.EDebugColorModes;
 import jsettlers.common.map.IGraphicsBackgroundListener;
@@ -1748,7 +1749,7 @@ public final class MainGrid implements Serializable {
 				mapObjectsManager.addSimpleMapObject(point, EMapObjectType.DOCK, false, player);
 				flagsGrid.setBlockedAndProtected(point.x, point.y, false);
 				partitionsGrid.changePlayerAt(point, player.getPlayerId());
-				landscapeGrid.setToLand(point.x, point.y);
+				landscapeGrid.setPartitionType(point.x, point.y, EPartitionType.LAND_PARTITION);
 			}
 		}
 
@@ -1758,7 +1759,7 @@ public final class MainGrid implements Serializable {
 				ShortPoint2D point = dockPosition.getDirection().getNextHexPoint(dockPosition.getPosition(), i);
 				mapObjectsManager.removeMapObjectType(point.x, point.y, EMapObjectType.DOCK);
 				flagsGrid.setBlockedAndProtected(point.x, point.y, true);
-				landscapeGrid.setToBlocked(point.x, point.y);
+				landscapeGrid.setPartitionType(point.x, point.y, EPartitionType.BLOCKED);
 			}
 		}
 
