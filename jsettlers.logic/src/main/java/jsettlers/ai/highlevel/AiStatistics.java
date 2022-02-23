@@ -615,7 +615,7 @@ public class AiStatistics {
 			BuildingVariant variant = type.getVariant(playerCivilisation);
 			if(variant == null) continue;
 
-			if(blocksPositions(x, y, playerId, building, variant.getWorkRadius(), playerStatistics[playerId].buildingWorkAreas.get(type))) {
+			if(blocksPositions(x, y, building, variant.getWorkRadius(), playerStatistics[playerId].buildingWorkAreas.get(type))) {
 				return true;
 			}
 		}
@@ -623,7 +623,9 @@ public class AiStatistics {
 		return false;
 	}
 
-	private boolean blocksPositions(int x, int y, byte playerId, BuildingVariant newBuilding, int radius, List<ShortPoint2D> positions) {
+	private boolean blocksPositions(int x, int y, BuildingVariant newBuilding, int radius, List<ShortPoint2D> positions) {
+		if(positions == null) return false;
+
 		for (ShortPoint2D workAreaCenter : positions) {
 			for (RelativePoint blockedPoint : newBuilding.getBlockedTiles()) {
 				if (workAreaCenter.getOnGridDistTo(blockedPoint.calculatePoint(x, y)) <= radius) {
