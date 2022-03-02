@@ -15,9 +15,8 @@
 package jsettlers.graphics.map.draw.settlerimages;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,9 +49,9 @@ public final class SettlerImageMap {
 
 	private final SettlerImageMapItem[][][][][] map;
 
-	private final Pattern linePattern = Pattern.compile("\\s*([\\w\\*]+)\\s*,"
-			+ "\\s*([\\w\\*]+)\\s*," + "\\s*([\\w\\*]+)\\s*,"
-			+ "\\s*([\\w\\*]+)\\s*" + "=\\s*(c?\\d+)\\s*," + "\\s*(\\d+)\\s*,"
+	private final Pattern linePattern = Pattern.compile("\\s*([\\w*]+)\\s*,"
+			+ "\\s*([\\w*]+)\\s*," + "\\s*([\\w*]+)\\s*,"
+			+ "\\s*([\\w*]+)\\s*" + "=\\s*(c?\\d+)\\s*," + "\\s*(\\d+)\\s*,"
 			+ "\\s*(\\d+)\\s*," + "\\s*(-?\\d+)\\s*");
 
 	private final int civilisations;
@@ -81,9 +80,9 @@ public final class SettlerImageMap {
 		MovableParser parser;
 
 		if(directory != null) {
-			parser = new MovableParser(str -> new FileReader(new File(directory, str)));
+			parser = new MovableParser(str -> new FileInputStream(new File(directory, str)));
 		} else {
-			parser = new MovableParser(str -> new InputStreamReader(getClass().getResourceAsStream(str)));
+			parser = new MovableParser(str -> getClass().getResourceAsStream(str));
 		}
 
 		int[][][][][] priorities = new int[this.civilisations][this.types][this.actions][this.materials][this.directions];
