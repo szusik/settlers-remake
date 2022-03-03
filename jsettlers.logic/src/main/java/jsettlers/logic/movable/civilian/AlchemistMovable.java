@@ -53,7 +53,7 @@ public class AlchemistMovable extends BuildingWorkerMovable {
 										playAction(EMovableAction.ACTION1, (short)1000),
 
 										setMaterialNode(EMaterialType.NO_MATERIAL),
-										crouchDown(setMaterialNode(EMaterialType.METALS)),
+										crouchDown(setMaterial(mov -> MatchConstants.random().nextBoolean()?EMaterialType.IRON : EMaterialType.GOLD)),
 										goToOutputStack(Movable::getMaterial),
 										dropProduced(Movable::getMaterial)
 								)
