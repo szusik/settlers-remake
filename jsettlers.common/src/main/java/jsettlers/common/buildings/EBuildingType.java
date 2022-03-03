@@ -87,6 +87,7 @@ public enum EBuildingType {
 
 	BEEKEEPING,
 	DISTILLERY,
+	LABORATORY,
 	;
 
 	/**

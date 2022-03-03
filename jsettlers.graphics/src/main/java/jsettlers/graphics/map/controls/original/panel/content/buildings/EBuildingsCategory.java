@@ -69,7 +69,8 @@ public enum EBuildingsCategory {
 			EBuildingType.MARKET_PLACE,
 			EBuildingType.HARBOR,
 			EBuildingType.TEMPLE,
-			EBuildingType.BIG_TEMPLE);
+			EBuildingType.BIG_TEMPLE,
+			EBuildingType.LABORATORY);
 
 	public static final EBuildingsCategory[] VALUES = values();
 	public static final int NUMBER_OF_VALUES = VALUES.length;

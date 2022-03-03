@@ -76,7 +76,7 @@ public enum EOriginalMapBuildingType {
 	grosser_Gong(null),
 	BEEKEEPING(EBuildingType.BEEKEEPING),
 	Metwinzerei(null),
-	Labortorium(null),
+	Labortorium(EBuildingType.LABORATORY),
 	kleiner_Tempel(EBuildingType.TEMPLE),
 	grosser_Tempel(EBuildingType.BIG_TEMPLE),
 	SULFURMINE_AMAZON(EBuildingType.SULFURMINE);
