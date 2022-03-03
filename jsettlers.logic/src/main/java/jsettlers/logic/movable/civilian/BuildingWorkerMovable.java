@@ -245,12 +245,6 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 		}
 	}
 
-	/*protected void dropAction(EMaterialType materialType) {
-		if (materialType == EMaterialType.GOLD) {
-			player.getEndgameStatistic().incrementAmountOfProducedGold();
-		}
-	}*/
-
 	/*
 	 * @param dijkstra
 	 * 		if true, dijkstra algorithm is used<br>

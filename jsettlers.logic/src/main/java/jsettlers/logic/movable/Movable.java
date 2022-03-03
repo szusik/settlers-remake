@@ -42,6 +42,7 @@ import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.cargo.CargoShipMovable;
 import jsettlers.logic.movable.cargo.DonkeyMovable;
+import jsettlers.logic.movable.civilian.AlchemistMovable;
 import jsettlers.logic.movable.civilian.BakerMovable;
 import jsettlers.logic.movable.civilian.BearerMovable;
 import jsettlers.logic.movable.civilian.BricklayerMovable;
@@ -1089,8 +1090,11 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case RICE_FARMER:
 			case BEEKEEPER:
 			case DISTILLER:
-			case ALCHEMIST:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
+
+
+			case ALCHEMIST:
+				return new AlchemistMovable(grid, position, player, movable);
 
 			case SMITH:
 				return new SmithMovable(grid, position, player, movable);
