@@ -71,7 +71,7 @@ public enum EOriginalMapSettlersType {
 	FERRY(EMovableType.FERRY),
 	BEEKEEPER(EMovableType.BEEKEEPER),
 	Metwinzer(null),
-	Alchemist(null),
+	Alchemist(EMovableType.ALCHEMIST),
 
 	NOT_A_SETTLER(null);
 

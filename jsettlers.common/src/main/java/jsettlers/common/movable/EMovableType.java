@@ -81,6 +81,7 @@ public enum EMovableType {
 
 	BEEKEEPER(EMaterialType.NO_MATERIAL, ESelectionType.PEOPLE, true, false),
 	DISTILLER(EMaterialType.NO_MATERIAL, ESelectionType.PEOPLE, true, false),
+	ALCHEMIST(EMaterialType.NO_MATERIAL, ESelectionType.PEOPLE, true, false),
 	;
 
 	/**

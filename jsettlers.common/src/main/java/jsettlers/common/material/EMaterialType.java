@@ -75,7 +75,10 @@ public enum EMaterialType {
 	BASKET((short) 0, 0, 0, false, -1, false),
 	TREE((short) 0, 0, 0, false, -1, false),
 	PLANT((short) 0, 0, 0, false, -1, false),
-	EMPTY_BUCKET((short) 0, 0, 0, false, -1, false);
+	EMPTY_BUCKET((short) 0, 0, 0, false, -1, false),
+	CHEMICALS((short) 0, 0, 0, false, -1, false),
+	METALS((short) 0, 0, 0, false, -1, false),
+	;
 
 	public static final EMaterialType[] VALUES = EMaterialType.values();
 	public static final int NUMBER_OF_MATERIALS = VALUES.length;
