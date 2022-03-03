@@ -54,29 +54,39 @@ class OriginalMapFileContentReader {
 		final EOriginalMapFilePartType partType;
 		public final int offset;
 		public final int size;
-		final int cryptKey;
-		private boolean hasBeenDecrypted = false;
+		int lastCryptKey;
+		final byte initialCryptKey;
+		private int decryptLimit;
 
 		MapResourceInfo(EOriginalMapFilePartType partType, int offset, int size, int cryptKey) {
 			this.partType = partType;
 			this.offset = offset;
 			this.size = size;
-			this.cryptKey = cryptKey;
+			initialCryptKey = (byte) cryptKey;
+			lastCryptKey = cryptKey;
 		}
 
 		// - Decrypt a file resource
-		private boolean doDecrypt() throws MapLoadException {
+		private void doDecrypt() throws MapLoadException {
+			doDecrypt(size);
+		}
+
+		private void doDecrypt(int targetDecryptLimit) throws MapLoadException {
 			if (mapContent == null) {
 				throw new MapLoadException("OriginalMapFile-Warning: Unable to decrypt map file: no data loaded!");
 			}
 
+			if(targetDecryptLimit > size) {
+				throw new MapLoadException("Map segment is shorter than targeted limit!");
+			}
+
 			// - already decrypted
-			if (hasBeenDecrypted || size <= 0) {
-				return true;
+			if (targetDecryptLimit <= decryptLimit) {
+				return;
 			}
 
 			// - start of data
-			int pos = offset;
+			int pos = offset+decryptLimit;
 
 			// - check if the file has enough data
 			if ((pos + size) >= mapContent.length) {
@@ -84,9 +94,9 @@ class OriginalMapFileContentReader {
 			}
 
 			// - init the key
-			int key = (cryptKey & 0xFF);
+			int key = lastCryptKey;
 
-			for (int i = size; i > 0; i--) {
+			for (int i = targetDecryptLimit-decryptLimit; i > 0; i--) {
 
 				// - read one byte and uncrypt it
 				int byt = (mapContent[pos] ^ key);
@@ -99,12 +109,14 @@ class OriginalMapFileContentReader {
 				pos++;
 			}
 
-			hasBeenDecrypted = true;
-			return true;
+			lastCryptKey = key;
+
+			decryptLimit = targetDecryptLimit;
 		}
 
 		void resetDecryptedFlag() {
-			hasBeenDecrypted = false;
+			decryptLimit = 0;
+			lastCryptKey = initialCryptKey;
 		}
 	}
 
@@ -383,10 +395,8 @@ class OriginalMapFileContentReader {
 			return;
 		}
 
-		// TODO: original map: the whole AREA-Block is decrypted but we only need the first 4 byte. Problem... maybe later we need the rest but only
-		// if this map is selected for playing AND there was no freeBuffer() and reOpen() call in between.
 		// - Decrypt this resource if necessary
-		filePart.doDecrypt();
+		filePart.doDecrypt(4);
 
 		// - file position of this part
 		int pos = filePart.offset;
