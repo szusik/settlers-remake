@@ -2,6 +2,7 @@ package jsettlers.logic.movable.civilian;
 
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
+import jsettlers.common.buildings.stacks.RelativeStack;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
@@ -13,9 +14,19 @@ import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class AlchemistMovable extends BuildingWorkerMovable {
+
+	private static final int MAX_MATERIALS = 5;
+	private static final float NO_MATERIAL_CHANCE = 3/5.f;
+
+	private final List<EMaterialType> materials = new LinkedList<>();
 
 	public AlchemistMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
 		super(grid, EMovableType.ALCHEMIST, position, player, replace);
@@ -33,9 +44,7 @@ public class AlchemistMovable extends BuildingWorkerMovable {
 								sequence(
 										isAllowedToWork(),
 										inputStackNotEmpty(EMaterialType.GEMS),
-										inputStackNotEmpty(EMaterialType.SULFUR),
-										outputStackNotFull(EMaterialType.IRON),
-										outputStackNotFull(EMaterialType.GOLD)
+										inputStackNotEmpty(EMaterialType.SULFUR)
 								)
 						),
 						show(),
@@ -45,17 +54,35 @@ public class AlchemistMovable extends BuildingWorkerMovable {
 										dropIntoOven(EMaterialType.SULFUR, EDirection.SOUTH_WEST),
 										dropIntoOven(EMaterialType.GEMS, EDirection.SOUTH_WEST),
 										enterHome(),
-										sleep(1000),
+										sleep(3000),
 										show(),
 										setMaterialNode(EMaterialType.CHEMICALS),
 										goToPos(AlchemistMovable::getOvenPosition),
 										setDirectionNode(AlchemistMovable::getOvenDirection),
 										playAction(EMovableAction.ACTION1, (short)1000),
 
+										action(AlchemistMovable::generateRandomMaterials),
 										setMaterialNode(EMaterialType.NO_MATERIAL),
-										crouchDown(setMaterial(mov -> MatchConstants.random().nextBoolean()?EMaterialType.IRON : EMaterialType.GOLD)),
-										goToOutputStack(Movable::getMaterial),
-										dropProduced(Movable::getMaterial)
+										crouchDown(setMaterial(AlchemistMovable::getAverageMaterial)),
+										repeat(mov -> !mov.materials.isEmpty(),
+											sequence(
+												selector(
+													outputStackNotFull(AlchemistMovable::getOutputMaterial),
+													sequence(
+														enterHome(),
+														waitFor(outputStackNotFull(AlchemistMovable::getOutputMaterial)),
+														show()
+													)
+												),
+												goToOutputStack(AlchemistMovable::getOutputMaterial),
+												crouchDown(
+													sequence(
+														action(AlchemistMovable::dropOutputMaterial),
+														setMaterial(AlchemistMovable::getAverageMaterial)
+													)
+												)
+											)
+										)
 								)
 						),
 						enterHome()
@@ -63,6 +90,47 @@ public class AlchemistMovable extends BuildingWorkerMovable {
 		);
 	}
 
+	private EMaterialType[] getPossibleMaterials() {
+		return Arrays.stream(building.getBuildingVariant().getOfferStacks())
+				.map(RelativeStack::getMaterialType)
+				.toArray(EMaterialType[]::new);
+	}
+
+	private EMaterialType getOutputMaterial() {
+		if(materials.isEmpty()) return EMaterialType.NO_MATERIAL;
+
+		return materials.get(materials.size() - 1);
+	}
+
+	private void dropOutputMaterial() {
+		EMaterialType mat = getOutputMaterial();
+
+		while(getOutputMaterial() == mat) {
+			if(!grid.dropMaterial(position, mat, true, false)) return;
+			produce(mat);
+			materials.remove(materials.size() - 1);
+		}
+	}
+
+	private void generateRandomMaterials() {
+		EMaterialType[] possibleMaterials = getPossibleMaterials();
+
+		for(int i = 0; i < MAX_MATERIALS; i++) {
+			if(MatchConstants.random().nextFloat() > NO_MATERIAL_CHANCE) {
+				materials.add(possibleMaterials[MatchConstants.random().nextInt(possibleMaterials.length)]);
+			}
+		}
+
+		materials.sort(Comparator.comparing(EMaterialType::ordinal));
+	}
+
+	private EMaterialType getAverageMaterial() {
+		if(materials.contains(EMaterialType.IRON) && materials.contains(EMaterialType.GOLD)) {
+			return EMaterialType.METALS;
+		}
+
+		return getOutputMaterial();
+	}
 
 
 	private ShortPoint2D getOvenPosition() {

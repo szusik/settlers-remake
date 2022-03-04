@@ -57,22 +57,24 @@ public class BuildingWorkerMovable extends CivilianMovable implements IBuildingW
 
 	private static PrintStream OUT;
 
+	protected void produce(EMaterialType material) {
+		if(material == EMaterialType.GOLD) {
+			getPlayer().getEndgameStatistic().incrementAmountOfProducedGold();
+		}
+
+		if(MatchConstants.ENABLE_PRODUCTION_LOG) {
+			OUT.println(MatchConstants.clock().getTime() + "," + material);
+			OUT.flush();
+		}
+	}
+
 	protected static <T extends BuildingWorkerMovable> Node<T> dropProduced(IEMaterialTypeSupplier<T> material) {
 		return sequence(
-				action(mov -> {
-					EMaterialType mat = material.apply(mov);
-					if(mat == EMaterialType.GOLD) {
-						mov.getPlayer().getEndgameStatistic().incrementAmountOfProducedGold();
-					}
-
-					if(MatchConstants.ENABLE_PRODUCTION_LOG) {
-						OUT.println(MatchConstants.clock().getTime() + "," + mat);
-						OUT.flush();
-					}
-				}),
+				action(mov -> mov.produce(material.apply(mov))),
 				drop(material, true)
 		);
 	}
+
 	protected static <T extends BuildingWorkerMovable> Node<T> lookAtSearched(ESearchType searchType) {
 		return setDirectionNode(mov -> mov.grid.getDirectionOfSearched(mov.getPosition(), searchType));
 	}
