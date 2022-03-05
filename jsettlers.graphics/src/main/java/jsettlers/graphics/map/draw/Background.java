@@ -841,18 +841,18 @@ public class Background implements IGraphicsBackgroundListener {
 
 	private static final Object preloadMutex = new Object();
 
-	private int bufferWidth; // in map points.
-	private int bufferHeight; // in map points.
+	private final int bufferWidth; // in map points.
+	private final int bufferHeight; // in map points.
 
 	private static TextureHandle texture = null;
 
 	private BackgroundDrawHandle backgroundHandle = null;
 
-	private boolean hasdgp;
-	private IDirectGridProvider dgp;
+	private final boolean hasdgp;
+	private final IDirectGridProvider dgp;
 	private boolean fowEnabled;
 
-	private int mapWidth, mapHeight;
+	private final int mapWidth, mapHeight;
 
 	private static short[] preloadedTexture = null;
 
@@ -1093,16 +1093,27 @@ public class Background implements IGraphicsBackgroundListener {
 
 		updateGeometry(context, screenArea);
 
-		backgroundHandle.offset = (screenArea.getMinY() * bufferWidth + screenArea.getMinX())*2;
-		backgroundHandle.lines = screenArea.getHeight();
-		backgroundHandle.width = screenArea.getWidth()*2;
+		backgroundHandle.regionCount = screenArea.getLines();
+		backgroundHandle.regions = new int[backgroundHandle.regionCount*2];
+		for(int i = 0; i < backgroundHandle.regionCount; i++) {
+			int startX = screenArea.getLineStartX(i);
+			if(startX < 0) startX = 0;
+
+			int endX = screenArea.getLineEndX(i);
+			if(endX >= bufferWidth) endX = bufferWidth;
+
+			int y = screenArea.getLineY(i);
+			if(y < 0 || y > bufferHeight) continue;
+
+			backgroundHandle.regions[i*2] = (bufferWidth * y + startX) * 2 * 3;
+			backgroundHandle.regions[i*2+1] = (endX-startX)* 2 * 3;
+		}
 		gl.drawBackground(backgroundHandle);
 	}
 
 	private void generateGeometry(MapDrawContext context) throws IllegalBufferException {
 		int vertices = bufferWidth*bufferHeight*3*2;
 		backgroundHandle = context.getGl().createBackgroundDrawCall(vertices, getTexture(context.getGl()));
-		backgroundHandle.stride = (2*bufferWidth)+1;
 
 		shape_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE*bufferWidth).order(ByteOrder.nativeOrder());
 		color_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_COLOR*bufferWidth).order(ByteOrder.nativeOrder());

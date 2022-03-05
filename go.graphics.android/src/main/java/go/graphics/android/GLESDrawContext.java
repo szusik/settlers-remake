@@ -455,18 +455,8 @@ public class GLESDrawContext extends GLDrawContext {
 			fillBackgroundFormat(handle);
 		}
 
-		int starti = handle.offset < 0 ? (int)Math.ceil(-handle.offset/(float)handle.stride) : 0;
-		int draw_lines = handle.lines-starti;
-
-		int[] firsts = new int[draw_lines];
-		int[] counts = new int[draw_lines];
-		for (int i = 0; i != draw_lines; i++) {
-			firsts[i] = (handle.offset + handle.stride * (i+starti)) * 3;
-		}
-		Arrays.fill(counts, handle.width*3);
-
-		for(int i = 0; i != draw_lines; i++) {
-			glDrawArrays(GL_TRIANGLES, firsts[i], counts[i]);
+		for(int i = 0; i !=  handle.regionCount; i++) {
+			glDrawArrays(GL_TRIANGLES, handle.regions[i*2], handle.regions[i*2+1]);
 		}
 	}
 

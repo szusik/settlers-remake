@@ -6,6 +6,7 @@ import org.lwjgl.opengl.ARBInstancedArrays;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.KHRDebug;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Platform;
 
 import java.io.BufferedReader;
@@ -454,15 +455,14 @@ public class LWJGLDrawContext extends GLDrawContext {
 			fillBackgroundFormat(handle);
 		}
 
-		int starti = handle.offset < 0 ? (int)Math.ceil(-handle.offset/(float)handle.stride) : 0;
-		int draw_lines = handle.lines-starti;
+		int draw_lines = handle.regionCount;
 
 		int[] firsts = new int[draw_lines];
 		int[] counts = new int[draw_lines];
 		for (int i = 0; i != draw_lines; i++) {
-			firsts[i] = (handle.offset + handle.stride * (i+starti)) * 3;
+			firsts[i] = handle.regions[i*2];
+			counts[i] = handle.regions[i*2+1];
 		}
-		Arrays.fill(counts, handle.width*3);
 
 		glMultiDrawArrays(GL_TRIANGLES, firsts, counts);
 	}

@@ -13,7 +13,8 @@ public class BackgroundDrawHandle extends GLResourceIndex {
 		this.colors = colors;
 	}
 
-	public int offset, lines, width, stride;
+	public int[] regions;
+	public int regionCount;
 
 	public int getVertexArrayId() {
 		return id;

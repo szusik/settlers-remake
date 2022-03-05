@@ -421,7 +421,14 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	@Override
 	public void drawBackground(BackgroundDrawHandle call) {
-		if(!commandBufferRecording || call == null || call.texture == null || call.vertices == null || call.colors == null) return;
+		if(!commandBufferRecording ||
+				call == null ||
+				call.texture == null ||
+				call.vertices == null ||
+				call.colors == null ||
+				call.regions == null) {
+			return;
+		}
 
 		AbstractVulkanBuffer vkShape = (AbstractVulkanBuffer) call.vertices;
 		AbstractVulkanBuffer vkColor = (AbstractVulkanBuffer) call.colors;
@@ -437,18 +444,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		pipelineManager.bindVertexBuffers(vkShape.getBufferIdVk(), vkColor.getBufferIdVk());
 
-		int starti = call.offset < 0 ? (int)Math.ceil(-call.offset/(float)call.stride) : 0;
-		int draw_lines = call.lines-starti;
+		for(int i = 0; i < call.regionCount; i++) {
+			int from = call.regions[i*2];
+			int len = call.regions[i*2+1];
 
-		int triangleCount = ((AbstractVulkanBuffer) call.vertices).getSize()/20;
-
-		for (int i = 0; i != draw_lines; i++) {
-			int lineStart = (call.offset+call.stride*(i+starti))*3;
-			int lineLen = call.width*3;
-			if(lineStart >= triangleCount) break;
-			else if(lineStart+lineLen >= triangleCount) lineLen = triangleCount-lineStart;
-
-			vkCmdDraw(graphCommandBuffer, lineLen, 1, lineStart, 0);
+			vkCmdDraw(graphCommandBuffer, len, 1, from, 0);
 		}
 	}
 
