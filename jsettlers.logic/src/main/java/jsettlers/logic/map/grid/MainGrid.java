@@ -68,6 +68,7 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.IGraphicsMovable;
+import jsettlers.common.movable.IGraphicsThief;
 import jsettlers.common.player.EWinState;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.MutablePoint2D;
@@ -1582,6 +1583,10 @@ public final class MainGrid implements Serializable {
 				}
 
 				if(attackable == null || !MovableGrid.isEnemy(searchingPlayer, attackable)) {
+					continue;
+				}
+
+				if(isBowman && attackable instanceof IGraphicsThief && !((IGraphicsThief)attackable).isUncoveredBy(searchingPlayer.getTeamId())) {
 					continue;
 				}
 

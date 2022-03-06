@@ -14,7 +14,6 @@ import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.IAttackable;
-import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -226,7 +225,6 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	private static Node<SoldierMovable> findEnemy() {
 		return condition(mov -> {
 			mov.enemy = mov.grid.getEnemyInSearchArea(mov.getAttackPosition(), mov, mov.getMinSearchDistance(), mov.getMaxSearchDistance(), !mov.defending);
-			if(mov.enemy instanceof IThiefMovable) ((IThiefMovable)mov.enemy).uncoveredBy(mov.player.getTeamId());
 			return mov.enemy != null;
 		});
 	}

@@ -9,17 +9,20 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.IGraphicsThief;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.other.AttackableHumanMovable;
-import jsettlers.logic.movable.interfaces.IThiefMovable;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
 import jsettlers.logic.player.Player;
 
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
-public class ThiefMovable extends AttackableHumanMovable implements IThiefMovable {
+public class ThiefMovable extends AttackableHumanMovable implements IGraphicsThief {
+
+	private static final long serialVersionUID = 1;
 
 	private final BitSet uncoveredBy = new BitSet();
 
@@ -121,8 +124,16 @@ public class ThiefMovable extends AttackableHumanMovable implements IThiefMovabl
 	}
 
 	@Override
-	public void uncoveredBy(byte teamId) {
-		uncoveredBy.set(teamId);
+	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, IPlayer attackingPlayer) {
+		super.receiveHit(hitStrength, attackerPos, attackingPlayer);
+
+		uncoveredBy.set(attackingPlayer.getTeamId());
+	}
+
+	@Override
+	public void heal() {
+		super.heal();
+		uncoveredBy.clear();
 	}
 
 	@Override
