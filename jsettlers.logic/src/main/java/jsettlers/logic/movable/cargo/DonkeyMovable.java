@@ -3,6 +3,7 @@ package jsettlers.logic.movable.cargo;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.ITradeBuilding;
 import jsettlers.logic.trading.TradeManager;
@@ -72,10 +73,10 @@ public class DonkeyMovable extends CargoMovable {
 	}
 
 	@Override
-	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
+	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, IPlayer attackingPlayer) {
 		lostCargo = true;
 
-		player.showMessage(SimpleMessage.donkeyAttacked(attackingPlayer, attackerPos));
+		player.showMessage(SimpleMessage.donkeyAttacked(attackingPlayer.getPlayerId(), attackerPos));
 	}
 
 	@Override

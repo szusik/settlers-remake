@@ -39,6 +39,7 @@ import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.movable.ESoldierType;
 import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.ECivilisation;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.collections.map.ArrayListMap;
 import jsettlers.common.menu.messages.SimpleMessage;
@@ -525,7 +526,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 		}
 
 		@Override
-		public void receiveHit(float strength, ShortPoint2D attackerPos, byte attackingPlayer) {
+		public void receiveHit(float strength, ShortPoint2D attackerPos, IPlayer attackingPlayer) {
 			if (occupyingBuilding.isDestroyed()) {
 				return; // building is destroyed => do nothing
 			}
@@ -559,7 +560,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 				}
 			}
 
-			occupyingBuilding.getPlayer().showMessage(SimpleMessage.attacked(attackingPlayer, attackerPos));
+			occupyingBuilding.getPlayer().showMessage(SimpleMessage.attacked(attackingPlayer.getPlayerId(), attackerPos));
 		}
 
 		private void pullNewDefender(ShortPoint2D attackerPos) {

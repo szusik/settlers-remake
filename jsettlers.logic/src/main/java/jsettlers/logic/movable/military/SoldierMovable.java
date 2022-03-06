@@ -8,6 +8,7 @@ import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.buildings.military.occupying.IOccupyableBuilding;
 import jsettlers.logic.constants.MatchConstants;
@@ -313,7 +314,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 	}
 
 	@Override
-	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
+	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, IPlayer attackingPlayer) {
 		super.receiveHit(hitStrength, attackerPos, attackingPlayer);
 		enemyNearby = true;
 	}

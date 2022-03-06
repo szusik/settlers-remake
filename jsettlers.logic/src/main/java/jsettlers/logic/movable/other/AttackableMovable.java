@@ -4,6 +4,7 @@ import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.menu.messages.SimpleMessage;
 import jsettlers.common.movable.EEffectType;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.Movable;
 import jsettlers.logic.movable.interfaces.AbstractMovableGrid;
@@ -22,7 +23,7 @@ public class AttackableMovable extends Movable implements IAttackableMovable {
 	}
 
 	@Override
-	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, byte attackingPlayer) {
+	public void receiveHit(float hitStrength, ShortPoint2D attackerPos, IPlayer attackingPlayer) {
 		if(hasEffect(EEffectType.SHIELDED)) hitStrength *= EEffectType.SHIELDED_DAMAGE_FACTOR;
 
 		this.health -= hitStrength;
@@ -30,7 +31,7 @@ public class AttackableMovable extends Movable implements IAttackableMovable {
 			this.kill();
 		}
 
-		player.showMessage(SimpleMessage.attacked(attackingPlayer, attackerPos));
+		player.showMessage(SimpleMessage.attacked(attackingPlayer.getPlayerId(), attackerPos));
 	}
 
 	@Override

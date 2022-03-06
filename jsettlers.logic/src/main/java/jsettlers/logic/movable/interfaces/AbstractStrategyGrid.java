@@ -23,6 +23,7 @@ import jsettlers.common.mapobject.EMapObjectType;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.ESearchType;
 import jsettlers.common.movable.EDirection;
+import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBearer;
 import jsettlers.logic.map.grid.partition.manager.manageables.IManageableBricklayer;
@@ -227,17 +228,16 @@ public abstract class AbstractStrategyGrid implements Serializable {
 
 	/**
 	 * Adds an arrow object to the map flying from
-	 *
-	 * @param attackedPos
-	 *            Attacked position.
-	 * @param shooterPos
+	 *  @param shooterPos
 	 *            Position of the shooter.
-	 * @param shooterPlayerId
+	 * @param shooterPlayer
 	 *            The id of the attacking player.
 	 * @param hitStrength
-	 *            Strength of the hit.
+	 * 				the damage this arrow will do.
+	 * @param attackedPos
+*            Attacked position.
 	 */
-	public abstract void addArrowObject(ShortPoint2D attackedPos, ShortPoint2D shooterPos, byte shooterPlayerId, float hitStrength);
+	public abstract void addArrowObject(ShortPoint2D shooterPos, IPlayer shooterPlayer, float hitStrength, ShortPoint2D attackedPos);
 
 	public abstract boolean hasNoMovableAt(int x, int y);
 

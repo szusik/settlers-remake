@@ -34,7 +34,7 @@ public interface IAttackable extends ILocatable, IInformable {
 	 * @param attackerPos
 	 *            The position of the attacker.
 	 */
-	void receiveHit(float strength, ShortPoint2D attackerPos, byte attackingPlayer);
+	void receiveHit(float strength, ShortPoint2D attackerPos, IPlayer attackingPlayer);
 
 	/**
 	 * Used to check if the movable is still alive

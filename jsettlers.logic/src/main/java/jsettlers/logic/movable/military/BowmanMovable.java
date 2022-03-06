@@ -56,8 +56,8 @@ public class BowmanMovable extends SoldierMovable implements IBowmanMovable {
 	@Override
 	protected void startAttack() {
 		if(!hasEffect(EEffectType.NO_ARROWS)) {
-			grid.addArrowObject(enemy.getPosition(), position, player.playerId,
-					getMovableType().getStrength() * getCombatStrength());
+			grid.addArrowObject(position, player, getMovableType().getStrength() * getCombatStrength(), enemy.getPosition()
+			);
 		}
 	}
 }

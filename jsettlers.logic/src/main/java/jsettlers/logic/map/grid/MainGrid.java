@@ -1031,7 +1031,7 @@ public final class MainGrid implements Serializable {
 
 			ILogicMovable movable = movableGrid.getMovableAt(x, y);
 			if (movable instanceof IAttackableMovable) {
-				((IAttackableMovable)movable).receiveHit(arrow.getHitStrength(), arrow.getSourcePos(), arrow.getShooterPlayerId());
+				((IAttackableMovable)movable).receiveHit(arrow.getHitStrength(), arrow.getSourcePos(), arrow.getShooterPlayer());
 				mapObjectsManager.removeMapObject(x, y, arrow);
 			}
 		}
@@ -1597,8 +1597,8 @@ public final class MainGrid implements Serializable {
 		}
 
 		@Override
-		public void addArrowObject(ShortPoint2D attackedPos, ShortPoint2D shooterPos, byte shooterPlayerId, float hitStrength) {
-			mapObjectsManager.addArrowObject(attackedPos, shooterPos, shooterPlayerId, hitStrength);
+		public void addArrowObject(ShortPoint2D shooterPos, IPlayer shooterPlayer, float hitStrength, ShortPoint2D attackedPos) {
+			mapObjectsManager.addArrowObject(attackedPos, shooterPos, shooterPlayer, hitStrength);
 		}
 
 		@Override

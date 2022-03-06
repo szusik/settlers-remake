@@ -53,7 +53,7 @@ public class InfantryMovable extends SoldierMovable {
 
 	@Override
 	protected void hitEnemy() {
-		enemy.receiveHit(getMovableType().getStrength() * getCombatStrength(), position, player.playerId);
+		enemy.receiveHit(getMovableType().getStrength() * getCombatStrength(), position, player);
 		// decrease the enemy's health
 	}
 }

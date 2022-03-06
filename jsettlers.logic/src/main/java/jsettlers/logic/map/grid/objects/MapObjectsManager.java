@@ -363,8 +363,8 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 	 * @param hitStrength
 	 * 		Strength of the hit.
 	 */
-	public void addArrowObject(ShortPoint2D attackedPos, ShortPoint2D shooterPos, byte shooterPlayerId, float hitStrength) {
-		ArrowObject arrow = new ArrowObject(grid, attackedPos, shooterPos, shooterPlayerId, hitStrength);
+	public void addArrowObject(ShortPoint2D attackedPos, ShortPoint2D shooterPos, IPlayer shooterPlayer, float hitStrength) {
+		ArrowObject arrow = new ArrowObject(grid, attackedPos, shooterPos, shooterPlayer, hitStrength);
 		addMapObject(attackedPos, arrow);
 		schedule(arrow, arrow.getEndTime(), false);
 		schedule(arrow, arrow.getEndTime() + ArrowObject.MIN_DECOMPOSE_DELAY * (1 + MatchConstants.random().nextFloat()), true);
