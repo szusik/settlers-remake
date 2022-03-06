@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 class MovableTemplate implements Consumer<String> {
 
-	private static final Pattern EXPRESSION_PATTERN = Pattern.compile("\\s*(-?\\d+)\\s*(\\p{Punct})\\s*(-?\\d+)\\s*");
+	private static final Pattern EXPRESSION_PATTERN = Pattern.compile("\\s*(-?\\d+)\\s*([+\\-*/%])\\s*(-?\\d+)\\s*");
 	private final List<String> arguments = new ArrayList<>();
 	private final List<String> lines = new ArrayList<>();
 
