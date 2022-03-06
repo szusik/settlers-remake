@@ -231,14 +231,19 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 	private static Node<SoldierMovable> attackEnemy() {
 		return sequence(
+				condition(SoldierMovable::isEnemyValid),
 				condition(SoldierMovable::isEnemyAttackable),
 				action(mov -> {mov.setDirection(EDirection.getApproxDirection(mov.position, mov.enemy.getPosition()));}),
 				action(SoldierMovable::startAttack),
 				playAction(EMovableAction.ACTION1, SoldierMovable::getAttackDuration),
-				condition(SoldierMovable::isEnemyAttackable),
+				condition(SoldierMovable::isEnemyValid),
 				action(SoldierMovable::hitEnemy)
 
 		);
+	}
+
+	protected boolean isEnemyValid() {
+		return enemy != null && enemy.isAlive();
 	}
 
 	@Override

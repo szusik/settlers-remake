@@ -23,7 +23,7 @@ public class BowmanMovable extends SoldierMovable implements IBowmanMovable {
 
 	@Override
 	protected boolean isEnemyAttackable() {
-		if (!enemy.isAlive()){
+		if (!isEnemyValid()) {
 			return false;
 		}
 

@@ -17,10 +17,13 @@ public class InfantryMovable extends SoldierMovable {
 
 	@Override
 	protected boolean isEnemyAttackable() {
-		if(!enemy.isAlive()) return false;
-		int maxDistance = position.getOnGridDistTo(enemy.getPosition());
+		if(!isEnemyValid()) {
+			return false;
+		}
 
-		return maxDistance <= getMaxAttackDistance();
+		int distance = position.getOnGridDistTo(enemy.getPosition());
+
+		return distance <= getMaxAttackDistance();
 	}
 
 	private short getMaxAttackDistance() {
