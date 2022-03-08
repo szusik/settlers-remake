@@ -31,6 +31,9 @@ import jsettlers.graphics.image.reader.DatFileSet;
 import jsettlers.graphics.image.reader.DatFileType;
 import jsettlers.graphics.image.reader.EmptyDatFile;
 import jsettlers.graphics.image.reader.custom.graphics.CustomGraphicsInterceptor;
+import jsettlers.graphics.image.reader.shadowmap.IdentityShadowMapping;
+import jsettlers.graphics.image.reader.shadowmap.ShadowMapping;
+import jsettlers.graphics.image.reader.shadowmap.ShadowMapping42;
 import jsettlers.graphics.image.reader.versions.DefaultGfxFolderMapping;
 import jsettlers.graphics.image.reader.versions.GfxFolderMapping;
 import jsettlers.graphics.image.reader.versions.SettlersVersionMapping;
@@ -308,8 +311,15 @@ public final class ImageProvider {
 
 			File file = findFileInPaths(fileName);
 
+			ShadowMapping shadowMapping;
+			if(fileIndex == 42) {
+				shadowMapping = new ShadowMapping42();
+			} else {
+				shadowMapping = new IdentityShadowMapping();
+			}
+
 			if (file != null) {
-				reader = new AdvancedDatFileReader(file, type, gfxFolderMapping.getDatFileMapping(fileIndex), "F" + fileIndex);
+				reader = new AdvancedDatFileReader(file, type, gfxFolderMapping.getDatFileMapping(fileIndex), shadowMapping, "F" + fileIndex);
 				break;
 			}
 		}

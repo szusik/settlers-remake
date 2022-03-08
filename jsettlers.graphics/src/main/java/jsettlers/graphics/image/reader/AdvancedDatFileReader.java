@@ -27,6 +27,8 @@ import jsettlers.graphics.image.Image;
 import jsettlers.graphics.image.NullImage;
 import jsettlers.graphics.image.SettlerImage;
 import jsettlers.graphics.image.reader.bytereader.ByteReader;
+import jsettlers.graphics.image.reader.shadowmap.IdentityShadowMapping;
+import jsettlers.graphics.image.reader.shadowmap.ShadowMapping;
 import jsettlers.graphics.image.reader.translator.DatBitmapTranslator;
 import jsettlers.graphics.image.reader.translator.GuiTranslator;
 import jsettlers.graphics.image.reader.translator.LandscapeTranslator;
@@ -191,6 +193,7 @@ public class AdvancedDatFileReader implements DatFileReader {
 	private final DatBitmapTranslator<SingleImage>       guiTranslator;
 
 	private final DatFileMapping mapping;
+	private final ShadowMapping shadowMapping;
 
 	private       ByteReader reader = null;
 	private final File       file;
@@ -240,13 +243,14 @@ public class AdvancedDatFileReader implements DatFileReader {
 	private final String file_name;
 
 	public AdvancedDatFileReader(File file, DatFileType type, String file_name) {
-		this(file, type, new DefaultDatFileMapping(), file_name);
+		this(file, type, new DefaultDatFileMapping(), new IdentityShadowMapping(), file_name);
 	}
 
-	public AdvancedDatFileReader(File file, DatFileType type, DatFileMapping mapping, String file_name) {
+	public AdvancedDatFileReader(File file, DatFileType type, DatFileMapping mapping, ShadowMapping shadowMapping, String file_name) {
 		this.file = file;
 		this.type = type;
 		this.mapping = mapping;
+		this.shadowMapping = shadowMapping;
 		this.file_name = file_name;
 
 		directSettlerList = new DirectSettlerSequenceList();
@@ -518,9 +522,10 @@ public class AdvancedDatFileReader implements DatFileReader {
 	}
 
 	private synchronized void loadSettlers(int goldIndex, String name) throws IOException {
-		int theseGraphicsFilesIndex = mapping.mapSettlersSequence(goldIndex);
+		int realSettlerIndex = mapping.mapSettlersSequence(goldIndex);
+		int realShadowIndex = mapping.mapSettlersSequence(shadowMapping.getShadowIndex(goldIndex));
 
-		int position = settlerStarts[theseGraphicsFilesIndex];
+		int position = settlerStarts[realSettlerIndex];
 		long[] framePositions = readSequenceHeader(position);
 
 		SettlerImage[] images = new SettlerImage[framePositions.length];
@@ -529,7 +534,7 @@ public class AdvancedDatFileReader implements DatFileReader {
 			images[i] = DatBitmapReader.getImage(settlerTranslator, reader, name + "-S" + goldIndex + ":" + i);
 		}
 
-		int torsoPosition = torsoStarts[theseGraphicsFilesIndex];
+		int torsoPosition = torsoStarts[realSettlerIndex];
 		if (torsoPosition >= 0) {
 			long[] torsoPositions = readSequenceHeader(torsoPosition);
 			for (int i = 0; i < torsoPositions.length && i < framePositions.length; i++) {
@@ -539,7 +544,7 @@ public class AdvancedDatFileReader implements DatFileReader {
 			}
 		}
 
-		int shadowPosition = shadowStarts[theseGraphicsFilesIndex];
+		int shadowPosition = shadowStarts[realShadowIndex];
 		if (shadowPosition >= 0) {
 			long[] shadowPositions = readSequenceHeader(shadowPosition);
 			for (int i = 0; i < shadowPositions.length

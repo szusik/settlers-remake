@@ -24,8 +24,6 @@ import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.RelativePoint;
 
-import static jsettlers.common.player.ECivilisation.REPLACE_ME;
-
 /**
  * This interface defines the main building type.
  * 
