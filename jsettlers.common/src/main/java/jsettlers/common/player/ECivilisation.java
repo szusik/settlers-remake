@@ -48,6 +48,8 @@ public enum ECivilisation {
 				return EBuildingType.BREWERY;
 			case ASIAN:
 				return EBuildingType.DISTILLERY;
+			case AMAZON:
+				return EBuildingType.MEAD_BREWERY;
 			default:
 				return EBuildingType.WINEGROWER;
 		}

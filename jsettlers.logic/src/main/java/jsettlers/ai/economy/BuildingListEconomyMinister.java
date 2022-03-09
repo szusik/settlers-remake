@@ -296,6 +296,12 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 			}
 		}
 
+		if(BEEKEEPING.getVariant(player.getCivilisation()) != null) {
+			for(int i = 0; i < mapBuildingCounts[BEEKEEPING.ordinal]; i++) {
+				addIfPossible(BEEKEEPING);
+			}
+		}
+
 		EBuildingType mannaProducer = player.getCivilisation().getMannaBuilding();
 
 		int mannaProducerCount = mapBuildingCounts[mannaProducer.ordinal];

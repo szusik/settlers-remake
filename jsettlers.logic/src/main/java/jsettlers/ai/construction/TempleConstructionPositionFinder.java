@@ -33,6 +33,7 @@ public class TempleConstructionPositionFinder extends NearRequiredBuildingConstr
 		switch (civilisation) {
 			case EGYPTIAN:
 			case ASIAN:
+			case AMAZON:
 				return super.findBestConstructionPosition();
 			default:
 				int availableWine = aiStatistics.getTotalWineCountForPlayer(playerId);

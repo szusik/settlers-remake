@@ -23,6 +23,7 @@ import jsettlers.algorithms.construction.AbstractConstructionMarkableMap;
 import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.map.grid.MainGrid;
 
 import static jsettlers.common.buildings.EBuildingType.*;
 import static jsettlers.common.landscape.EResourceType.COAL;
@@ -134,6 +135,15 @@ public abstract class ConstructionPositionFinder {
 				return new NearRequiredBuildingConstructionPositionFinder(this, type, RICE_FARM);
 			case RICE_FARM:
 				return new RiceFarmConstructionPositionFinder(this);
+			case BEEKEEPING:
+				return new PlantingBuildingConstructionPositionFinder(this, type) {
+					@Override
+					protected boolean isMyPlantPlantable(MainGrid mainGrid, ShortPoint2D position) {
+						return mainGrid.isHivePlantable(position);
+					}
+				};
+			case MEAD_BREWERY:
+				return new NearRequiredBuildingConstructionPositionFinder(this, type, BEEKEEPING);
 			default:
 				return new NearDiggersConstructionPositionFinder(this, type);
 			}

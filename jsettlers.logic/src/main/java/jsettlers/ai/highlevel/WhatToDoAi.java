@@ -55,6 +55,7 @@ import static jsettlers.ai.highlevel.AiBuildingConstants.*;
 import static jsettlers.common.buildings.EBuildingType.*;
 import static jsettlers.common.material.EMaterialType.GEMS;
 import static jsettlers.common.material.EMaterialType.GOLD;
+import static jsettlers.common.material.EMaterialType.MEAD;
 import jsettlers.common.action.EMoveToType;
 
 /**
@@ -382,7 +383,7 @@ class WhatToDoAi implements IWhatToDoAi {
 		case BAKER:
 			return ratioFits(FARM, FARM_TO_BAKER_RATIO, BAKER);
 		case WATERWORKS:
-			return ratioFits(FARM, FARM_TO_WATERWORKS_RATIO, WATERWORKS);
+			return ratioFits(FARM, FARM_TO_WATERWORKS_RATIO, WATERWORKS) || ratioFits(MEAD_BREWERY, MEAD_BREWERY_TO_WATERWORKS_RATIO,WATERWORKS);
 		case SLAUGHTERHOUSE:
 			return ratioFits(FARM, FARM_TO_SLAUGHTER_RATIO, SLAUGHTERHOUSE);
 		case PIG_FARM:
@@ -397,6 +398,8 @@ class WhatToDoAi implements IWhatToDoAi {
 			return ratioFits(LUMBERJACK, LUMBERJACK_TO_FORESTER_RATIO, FORESTER);
 		case DISTILLERY:
 			return ratioFits(RICE_FARM, RICE_FARM_TO_DISTILLERY_RATIO, DISTILLERY);
+		case MEAD_BREWERY:
+			return ratioFits(BEEKEEPING, BEEKEEPING_TO_MEAD_BREWERY_RATIO, MEAD_BREWERY);
 		default:
 			return true;
 		}
