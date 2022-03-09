@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import jsettlers.ai.highlevel.AiExecutor;
 import jsettlers.common.CommitInfo;
 import jsettlers.common.CommonConstants;
+import jsettlers.common.logging.MultiplexingOutputStream;
 import jsettlers.common.map.IGraphicsGrid;
 import jsettlers.common.menu.EGameError;
 import jsettlers.common.menu.EProgressState;
@@ -383,11 +384,18 @@ public class JSettlersGame {
 			systemErrorStream = System.err;
 			systemOutStream = System.out;
 
-			if (!CommonConstants.ENABLE_CONSOLE_LOGGING) {
-				PrintStream outLogStream = new PrintStream(ResourceManager.writeUserFile(getLogFile(mapcreator, "_out.log")));
-				System.setOut(outLogStream);
-				System.setErr(outLogStream);
+			OutputStream logStream;
+			OutputStream errStream;
+			OutputStream logFileStream = ResourceManager.writeUserFile(getLogFile(mapcreator, "_out.log"));
+			if(CommonConstants.ENABLE_CONSOLE_LOGGING) {
+				logStream = new MultiplexingOutputStream(System.out, logFileStream);
+				errStream = new MultiplexingOutputStream(System.err, logFileStream);
+			} else {
+				logStream = logFileStream;
+				errStream = logFileStream;
 			}
+			System.setOut(new PrintStream(logStream));
+			System.setErr(new PrintStream(errStream));
 		} catch (IOException ex) {
 			throw new RuntimeException("Error setting up logging.", ex);
 		}
