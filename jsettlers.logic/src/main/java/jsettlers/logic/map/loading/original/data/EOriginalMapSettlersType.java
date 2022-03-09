@@ -70,7 +70,7 @@ public enum EOriginalMapSettlersType {
 	CARGO_SHIP(EMovableType.CARGO_SHIP),
 	FERRY(EMovableType.FERRY),
 	BEEKEEPER(EMovableType.BEEKEEPER),
-	Metwinzer(null),
+	Metwinzer(EMovableType.MEAD_BREWER),
 	Alchemist(EMovableType.ALCHEMIST),
 
 	NOT_A_SETTLER(null);

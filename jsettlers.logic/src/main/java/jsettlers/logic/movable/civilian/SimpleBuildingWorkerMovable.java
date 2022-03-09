@@ -42,6 +42,7 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 		MovableManager.registerBehaviour(EMovableType.RICE_FARMER, new Root<>(createRiceFarmerBehaviour()));
 		MovableManager.registerBehaviour(EMovableType.BEEKEEPER, new Root<>(createBeekeeperBehaviour()));
 		MovableManager.registerBehaviour(EMovableType.DISTILLER, new Root<>(createDistillerBehaviour()));
+		MovableManager.registerBehaviour(EMovableType.MEAD_BREWER, new Root<>(createMeadBrewerBehaviour()));
 	}
 
 	private static Node<SimpleBuildingWorkerMovable> createForesterBehaviour() {
@@ -709,6 +710,36 @@ public class SimpleBuildingWorkerMovable extends BuildingWorkerMovable {
 					),
 					enterHome()
 				)
+		);
+	}
+
+	private static Node<SimpleBuildingWorkerMovable> createMeadBrewerBehaviour() {
+		return defaultWorkCycle(
+			sequence(
+				sleep(3000),
+				waitFor(
+					sequence(
+						isAllowedToWork(),
+						inputStackNotEmpty(EMaterialType.WATER),
+						inputStackNotEmpty(EMaterialType.HONEY),
+						outputStackNotFull(EMaterialType.MEAD)
+					)
+				),
+				show(),
+				ignoreFailure(
+					sequence(
+						dropIntoOven(EMaterialType.WATER, EDirection.NORTH_WEST),
+						dropIntoOven(EMaterialType.HONEY, EDirection.NORTH_EAST),
+						enterHome(),
+						sleep(3000),
+						setMaterialNode(EMaterialType.MEAD),
+						show(),
+						goToOutputStack(EMaterialType.MEAD),
+						dropProduced(mov -> EMaterialType.MEAD)
+					)
+				),
+				enterHome()
+			)
 		);
 	}
 }

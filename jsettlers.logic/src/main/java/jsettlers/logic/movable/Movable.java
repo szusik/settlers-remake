@@ -1090,6 +1090,7 @@ public abstract class Movable implements ILogicMovable, FoWTask {
 			case RICE_FARMER:
 			case BEEKEEPER:
 			case DISTILLER:
+			case MEAD_BREWER:
 				return new SimpleBuildingWorkerMovable(grid, movableType, position, player, movable);
 
 
