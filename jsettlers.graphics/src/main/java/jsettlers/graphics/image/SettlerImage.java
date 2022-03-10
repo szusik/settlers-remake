@@ -20,6 +20,7 @@ import java.nio.ByteOrder;
 import go.graphics.EUnifiedMode;
 import go.graphics.GLDrawContext;
 import go.graphics.IllegalBufferException;
+import java.nio.ShortBuffer;
 import jsettlers.common.Color;
 import jsettlers.graphics.image.reader.ImageMetadata;
 
@@ -46,14 +47,6 @@ public class SettlerImage extends SingleImage {
 	 */
 	public SettlerImage(ImageMetadata metadata, short[] data, String name) {
 		super(metadata, data, name);
-	}
-
-	@Override
-	protected void checkHandles(GLDrawContext gl) {
-		if (geometryIndex == null || !geometryIndex.isValid()) {
-			generateUData();
-		}
-		super.checkHandles(gl);
 	}
 
 	@Override
@@ -97,7 +90,7 @@ public class SettlerImage extends SingleImage {
 		return this.torso;
 	}
 
-	private void generateUData() {
+	protected ShortBuffer generateTextureData() {
 		toffsetX = offsetX;
 		toffsetY = offsetY;
 
@@ -121,7 +114,7 @@ public class SettlerImage extends SingleImage {
 		twidth = tx-toffsetX;
 		theight = ty-toffsetY;
 
-		tdata = ByteBuffer.allocateDirect(twidth * theight * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
+		ShortBuffer tdata = ByteBuffer.allocateDirect(twidth * theight * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
 
 		short[] temp = new short[0];
 
@@ -172,5 +165,6 @@ public class SettlerImage extends SingleImage {
 				if(temp[x] != 0) tdata.put((y+soffY)*twidth+soffX+x, temp[x]);
 			}
 		}
+		return tdata;
 	}
 }

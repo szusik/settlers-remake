@@ -37,7 +37,7 @@ import jsettlers.graphics.image.reader.ImageMetadata;
  */
 public class SingleImage extends Image implements ImageDataPrivider {
 
-	protected ShortBuffer data, tdata;
+	protected ShortBuffer data;
 	protected final int width;
 	protected final int height;
 	protected int twidth, theight, toffsetX, toffsetY;
@@ -63,7 +63,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	 */
 	protected SingleImage(ShortBuffer data, int width, int height, int offsetX,
 			int offsetY, String name) {
-		this.data = tdata = data;
+		this.data = data;
 		this.width = twidth = width;
 		this.height = theight = height;
 		this.offsetX = toffsetX = offsetX;
@@ -135,8 +135,13 @@ public class SingleImage extends Image implements ImageDataPrivider {
 
 	protected void checkHandles(GLDrawContext gl) {
 		if(geometryIndex == null || !geometryIndex.isValid()) {
-			geometryIndex = gl.createManagedUnifiedDrawCall(tdata, toffsetX, toffsetY, twidth, theight);
+			ShortBuffer textureBuffer = generateTextureData();
+			geometryIndex = gl.createManagedUnifiedDrawCall(textureBuffer, toffsetX, toffsetY, twidth, theight);
 		}
+	}
+
+	protected ShortBuffer generateTextureData() {
+		return data;
 	}
 
 	private void checkStaticHandles(GLDrawContext gl) {
