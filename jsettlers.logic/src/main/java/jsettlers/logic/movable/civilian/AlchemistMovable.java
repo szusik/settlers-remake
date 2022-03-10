@@ -25,6 +25,7 @@ public class AlchemistMovable extends BuildingWorkerMovable {
 
 	private static final int MAX_MATERIALS = 5;
 	private static final float NO_MATERIAL_CHANCE = 3/5.f;
+	private static final long serialVersionUID = 8460201983939801550L;
 
 	private final List<EMaterialType> materials = new LinkedList<>();
 

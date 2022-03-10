@@ -1,6 +1,5 @@
 package jsettlers.logic.movable.civilian;
 
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.landscape.ELandscapeType;
@@ -19,6 +18,8 @@ import jsettlers.logic.player.Player;
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class DiggerMovable extends CivilianMovable implements IManageableDigger {
+
+	private static final long serialVersionUID = 1L;
 
 	private IDiggerRequester requester = null;
 	private boolean registered = false;

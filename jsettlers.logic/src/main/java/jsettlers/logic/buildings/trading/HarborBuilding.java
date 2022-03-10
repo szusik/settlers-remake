@@ -36,6 +36,7 @@ import java.util.function.Function;
  */
 public class HarborBuilding extends TradingBuilding implements IDockBuilding {
 
+	private static final long serialVersionUID = -8477261512687011185L;
 	private DockPosition dockPosition = null;
 
 	public HarborBuilding(EBuildingType type, Player player, ShortPoint2D position, IBuildingsGrid buildingsGrid) {

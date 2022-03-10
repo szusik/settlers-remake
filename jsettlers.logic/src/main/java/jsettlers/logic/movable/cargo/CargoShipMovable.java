@@ -16,6 +16,7 @@ public class CargoShipMovable extends CargoMovable implements IGraphicsCargoShip
 	private static final short WAYPOINT_SEARCH_RADIUS = 50;
 
 	public static final int CARGO_STACKS = 3;
+	private static final long serialVersionUID = -2110193970372443265L;
 
 	private final EMaterialType[]	cargoType	= new EMaterialType[CARGO_STACKS];
 	private final int[]				cargoCount	= new int[CARGO_STACKS];

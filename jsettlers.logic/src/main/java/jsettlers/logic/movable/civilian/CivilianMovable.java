@@ -16,6 +16,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public abstract class CivilianMovable extends Movable implements ICivilianMovable {
 
+	private static final long serialVersionUID = -8052643329227231124L;
+
 	private int searchesCounter = 0;
 	protected boolean turnNextTime;
 

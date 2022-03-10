@@ -17,6 +17,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class MelterMovable extends BuildingWorkerMovable {
 
+	private static final long serialVersionUID = 1L;
+
 	public MelterMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
 		super(grid, EMovableType.MELTER, position, player, replace);
 	}

@@ -28,6 +28,8 @@ import jsettlers.common.utils.MathUtils;
  */
 public class PredicatedPositionableList<T extends ILocatable> extends PositionableList<T> {
 
+	private static final long serialVersionUID = 1057546947201815516L;
+
 	/**
 	 * Finds the object that's closest to the given position and removes it.
 	 *

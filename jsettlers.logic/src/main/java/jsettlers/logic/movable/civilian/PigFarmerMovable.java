@@ -21,6 +21,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class PigFarmerMovable extends BuildingWorkerMovable {
 
+	private static final long serialVersionUID = 1L;
+
 	public PigFarmerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
 		super(grid, EMovableType.PIG_FARMER, position, player, replace);
 	}

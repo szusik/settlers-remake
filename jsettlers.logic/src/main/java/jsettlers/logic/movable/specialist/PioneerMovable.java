@@ -19,6 +19,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class PioneerMovable extends AttackableHumanMovable implements IPioneerMovable {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final float ACTION1_DURATION = 1.2f;
 
 	private ShortPoint2D currentTarget = null;

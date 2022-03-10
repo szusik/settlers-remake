@@ -17,6 +17,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class MinerMovable extends BuildingWorkerMovable {
 
+	private static final long serialVersionUID = -4875647544045930908L;
+
 	public MinerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
 		super(grid, EMovableType.MINER, position, player, replace);
 	}

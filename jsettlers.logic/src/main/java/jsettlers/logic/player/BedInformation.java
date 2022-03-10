@@ -4,6 +4,7 @@ import jsettlers.common.player.IBedInformation;
 
 public class BedInformation implements IBedInformation {
 
+	private static final long serialVersionUID = 7709480763413851338L;
 	private int totalBedAmount = 0;
 	private int usedBedAmount = 0;
 

@@ -23,6 +23,7 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 public class FerryMovable extends AttackableMovable implements IFerryMovable {
 
 	private static final int MAX_NUMBER_OF_PASSENGERS = 7;
+	private static final long serialVersionUID = -8381283159755498644L;
 
 	private final List<IAttackableHumanMovable> passengers = new ArrayList<>(MAX_NUMBER_OF_PASSENGERS);
 

@@ -32,6 +32,7 @@ import jsettlers.common.movable.ESoldierType;
  * Created by Andreas Eberle on 03.07.2017.
  */
 class SoldierRequests implements Serializable {
+	private static final long serialVersionUID = 8468334443347242053L;
 	private final LinkedList<SoldierRequest>[] requestsByClass;
 
 	SoldierRequests() {

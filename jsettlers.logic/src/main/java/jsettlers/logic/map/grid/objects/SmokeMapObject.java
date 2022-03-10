@@ -6,6 +6,7 @@ import jsettlers.logic.objects.ProgressingObject;
 
 public class SmokeMapObject extends ProgressingObject {
 
+	private static final long serialVersionUID = -2653551420373458964L;
 	private final EMapObjectType type;
 
 	public SmokeMapObject(ShortPoint2D pos, EMapObjectType type, short duration) {

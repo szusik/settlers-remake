@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 public class TransportationRequest implements Serializable {
 
+	private static final long serialVersionUID = 5289692132463521081L;
 	private final ITradeBuilding tradeBuilding;
 	private final Iterator<ShortPoint2D> waypoints;
 	private final TradeManager parent;

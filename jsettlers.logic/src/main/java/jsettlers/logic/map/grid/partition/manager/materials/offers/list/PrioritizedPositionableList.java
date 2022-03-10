@@ -25,7 +25,8 @@ import java.util.function.Consumer;
 /**
  * Created by Andreas Eberle on 23.08.2016.
  */
-public class PrioritizedPositionableList<P extends Enum, T extends ILocatable & IPrioritizable<P> & IListManageable> implements Serializable {
+public class PrioritizedPositionableList<P extends Enum<P>, T extends ILocatable & IPrioritizable<P> & IListManageable> implements Serializable {
+	private static final long serialVersionUID = -5141288579664102607L;
 	private final ManagingPositionableList<T>[] lists;
 
 	@SuppressWarnings("unchecked")

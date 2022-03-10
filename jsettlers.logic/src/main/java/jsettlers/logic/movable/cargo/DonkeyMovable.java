@@ -17,6 +17,7 @@ public class DonkeyMovable extends CargoMovable {
 
 	private static final short WAYPOINT_SEARCH_RADIUS = 20;
 	public static final int CARGO_COUNT = 2;
+	private static final long serialVersionUID = -6499473212027889210L;
 
 	private final EMaterialType[] cargo = new EMaterialType[CARGO_COUNT];
 

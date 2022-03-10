@@ -16,6 +16,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class SawMillerMovable extends BuildingWorkerMovable {
 
+	private static final long serialVersionUID = 4309355969389715565L;
+
 	public SawMillerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
 		super(grid, EMovableType.SAWMILLER, position, player, replace);
 	}

@@ -14,6 +14,7 @@ import jsettlers.logic.player.Player;
 
 public class AttackableMovable extends Movable implements IAttackableMovable {
 
+	private static final long serialVersionUID = -7194469828472910405L;
 	protected boolean attackable;
 
 	public AttackableMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {

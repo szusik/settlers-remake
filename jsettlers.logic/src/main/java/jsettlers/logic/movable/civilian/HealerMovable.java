@@ -20,6 +20,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class HealerMovable extends BuildingWorkerMovable implements IHealerMovable {
 
+	private static final long serialVersionUID = 1L;
+
 	private IAttackableHumanMovable patient = null;
 
 	private IAttackableHumanMovable nextPatient = null;

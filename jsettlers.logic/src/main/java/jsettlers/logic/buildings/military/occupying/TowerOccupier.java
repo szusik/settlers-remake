@@ -25,6 +25,7 @@ import java.io.Serializable;
  * Created by Andreas Eberle on 03.07.2017.
  */
 final class TowerOccupier implements IBuildingOccupier, Serializable {
+	private static final long serialVersionUID = -4948824409073846261L;
 	final OccupierPlace place;
 	final ISoldierMovable soldier;
 

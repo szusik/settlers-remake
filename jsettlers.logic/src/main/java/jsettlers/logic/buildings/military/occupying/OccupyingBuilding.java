@@ -512,6 +512,7 @@ public class OccupyingBuilding extends Building implements IBuilding.IOccupied, 
 	}
 
 	private static class AttackableTowerMapObject extends StandardMapObject implements IAttackable, IAttackableTowerMapObject {
+		private static final long serialVersionUID = -2172130724577350091L;
 		private OccupyingBuilding occupyingBuilding;
 		private TowerOccupier currDefender;
 

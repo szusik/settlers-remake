@@ -23,6 +23,7 @@ import jsettlers.logic.map.grid.partition.manager.settings.RelativeSettings.Ordi
 public class MaterialProductionSettings implements IMaterialProductionSettings, Serializable {
 	private static final int MAXIMUM_ABSOLUTE_REQUEST_VALUE = 99;
 	private static final OrdinalToTypeMapper<EMaterialType> ordinalToTypeMapper = ordinal -> EMaterialType.VALUES[ordinal];
+	private static final long serialVersionUID = -7092550888968763911L;
 
 	private final RelativeSettings<EMaterialType> relativeWeaponRequests = new RelativeSettings<>(EMaterialType.NUMBER_OF_MATERIALS, ordinalToTypeMapper, false);
 	private final RelativeSettings<EMaterialType> relativeToolRequests = new RelativeSettings<>(EMaterialType.NUMBER_OF_MATERIALS, ordinalToTypeMapper, false);

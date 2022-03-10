@@ -33,6 +33,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class BuildingWorkerMovable extends CivilianMovable implements IBuildingWorkerMovable, IManageableWorker {
 
+	private static final long serialVersionUID = 1679128621183098990L;
+
 	protected IWorkerRequestBuilding building;
 	private boolean registered = false;
 	protected int searchFailedCtr = 0;

@@ -42,6 +42,8 @@ import static jsettlers.common.landscape.ELandscapeType.*;
 
 public class MageMovable extends AttackableHumanMovable implements IMageMovable {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final float ACTION1_DURATION = 1f;
 
 	private transient final LandscapeEditor terraformHandle = new LandscapeEditor(pt -> grid.getLandscapeTypeAt(pt.x, pt.y), (pt, type) -> grid.setLandscape(pt.x, pt.y, type));

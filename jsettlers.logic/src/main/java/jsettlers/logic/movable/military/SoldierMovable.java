@@ -24,6 +24,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public abstract class SoldierMovable extends AttackableHumanMovable implements ISoldierMovable {
 
+	private static final long serialVersionUID = 667104393129440108L;
+
 	protected IAttackable enemy;
 
 	private IOccupyableBuilding building;

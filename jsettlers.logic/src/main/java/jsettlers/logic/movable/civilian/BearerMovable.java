@@ -27,6 +27,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class BearerMovable extends CivilianMovable implements IBearerMovable, IManageableBearer {
 
+	private static final long serialVersionUID = 1L;
+
 	private IMaterialOffer   offer;
 	private IMaterialRequest request;
 	private EMaterialType    materialType;

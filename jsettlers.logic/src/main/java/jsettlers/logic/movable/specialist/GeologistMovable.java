@@ -20,6 +20,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class GeologistMovable extends AttackableHumanMovable {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final float ACTION1_DURATION = 1.4f;
 	private static final float ACTION2_DURATION = 1.5f;
 

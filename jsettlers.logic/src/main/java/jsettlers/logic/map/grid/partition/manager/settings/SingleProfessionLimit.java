@@ -6,6 +6,7 @@ import java.io.Serializable;
 
 public abstract class SingleProfessionLimit implements ISingleProfessionLimit, Serializable {
 
+	private static final long serialVersionUID = -1146142499912621153L;
 	protected final ProfessionSettings parent;
 
 	protected int currentAmount;

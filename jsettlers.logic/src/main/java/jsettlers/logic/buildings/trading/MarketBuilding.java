@@ -30,6 +30,8 @@ import jsettlers.logic.trading.TradeManager;
  */
 public class MarketBuilding extends TradingBuilding {
 
+	private static final long serialVersionUID = -2068624609186914142L;
+
 	public MarketBuilding(EBuildingType type, Player player, ShortPoint2D position, IBuildingsGrid buildingsGrid) {
 		super(type, player, position, buildingsGrid);
 	}

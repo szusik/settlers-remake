@@ -14,6 +14,7 @@ import jsettlers.logic.player.Player;
 
 public class AttackableHumanMovable extends AttackableMovable implements IAttackableHumanMovable {
 
+	private static final long serialVersionUID = 6890695823402563L;
 	protected EMoveToType nextMoveToType;
 	protected ShortPoint2D nextTarget = null;
 	protected boolean goingToHealer = false;

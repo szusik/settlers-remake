@@ -145,6 +145,7 @@ public class HiddenMapObject implements IMapObject, Serializable {
 
 	public static class HiddenPlayerableMapObject extends HiddenMapObject implements IPlayerable {
 
+		private static final long serialVersionUID = -7144155005050874615L;
 		private final IPlayer player;
 
 		public HiddenPlayerableMapObject(AbstractHexMapObject original) {
@@ -260,6 +261,7 @@ public class HiddenMapObject implements IMapObject, Serializable {
 
 	public static class HiddenMannaBowlObject extends HiddenMapObject implements IMannaBowlObject {
 
+		private static final long serialVersionUID = 8521417926939943008L;
 		private final ECivilisation civilisation;
 
 		public HiddenMannaBowlObject(AbstractHexMapObject original) {
@@ -276,6 +278,7 @@ public class HiddenMapObject implements IMapObject, Serializable {
 
 	public static class HiddenShipInConstructionObject extends HiddenPlayerableMapObject implements IShipInConstruction {
 
+		private static final long serialVersionUID = 4530464167210213660L;
 		private final EDirection direction;
 
 		public HiddenShipInConstructionObject(AbstractHexMapObject original) {

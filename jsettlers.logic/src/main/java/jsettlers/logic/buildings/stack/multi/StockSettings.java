@@ -26,6 +26,7 @@ public class StockSettings implements IMultiMaterialRequestSettings, IStockSetti
 	private static final byte ACCEPT_STATE_USE_DEFAULT = 0;
 	private static final byte ACCEPT_STATE_ACCEPT = 1;
 	private static final byte ACCEPT_STATE_REJECT = 2;
+	private static final long serialVersionUID = 6079204918775370537L;
 
 	private final StockSettings defaultSettings;
 	private final byte[] acceptedMaterials = new byte[EMaterialType.NUMBER_OF_DROPPABLE_MATERIALS];

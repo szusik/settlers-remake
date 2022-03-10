@@ -23,6 +23,7 @@ import jsettlers.logic.map.grid.objects.AbstractHexMapObject;
 import jsettlers.logic.player.Player;
 
 public class ShipInConstructionMapObject extends AbstractHexMapObject implements IShipInConstruction{
+	private static final long serialVersionUID = 62386988878129991L;
 	private final Player player;
 	private final EShipType shipType;
 	private final EDirection direction;

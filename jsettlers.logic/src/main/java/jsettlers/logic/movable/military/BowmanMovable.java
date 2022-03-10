@@ -11,6 +11,7 @@ import jsettlers.logic.player.Player;
 
 public class BowmanMovable extends SoldierMovable implements IBowmanMovable {
 	private static final float BOWMAN_ATTACK_DURATION = 1.2f;
+	private static final long serialVersionUID = 6513070596651626711L;
 
 	public BowmanMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, movableType, position, player, movable);

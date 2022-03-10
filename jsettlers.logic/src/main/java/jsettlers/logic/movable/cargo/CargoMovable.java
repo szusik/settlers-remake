@@ -19,6 +19,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public abstract class CargoMovable extends AttackableMovable implements ITrader {
 
+	private static final long serialVersionUID = 1L;
+
 	protected TransportationRequest request;
 	protected ShortPoint2D gotoPosition;
 

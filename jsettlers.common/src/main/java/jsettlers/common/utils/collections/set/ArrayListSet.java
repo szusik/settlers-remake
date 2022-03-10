@@ -8,6 +8,7 @@ import java.util.List;
 
 public class ArrayListSet<E> extends AbstractSet<E> implements Serializable {
 
+	private static final long serialVersionUID = 4735006144281753889L;
 	private final List<E> list = new ArrayList<>();
 
 	@Override

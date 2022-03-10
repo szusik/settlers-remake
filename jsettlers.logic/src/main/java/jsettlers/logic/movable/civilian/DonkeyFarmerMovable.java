@@ -18,6 +18,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class DonkeyFarmerMovable extends BuildingWorkerMovable {
 
+	private static final long serialVersionUID = 1L;
+
 	private int feedIndex;
 
 	public DonkeyFarmerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {

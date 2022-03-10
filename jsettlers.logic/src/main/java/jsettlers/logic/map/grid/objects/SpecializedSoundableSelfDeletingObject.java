@@ -9,6 +9,7 @@ import jsettlers.logic.player.Player;
 
 class SpecializedSoundableSelfDeletingObject extends SoundableSelfDeletingObject implements ISpecializedMapObject {
 
+	private static final long serialVersionUID = 5929232729004964265L;
 	private int sound;
 	private int animation;
 

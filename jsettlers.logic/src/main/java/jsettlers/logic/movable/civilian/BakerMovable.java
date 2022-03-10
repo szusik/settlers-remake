@@ -16,6 +16,8 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class BakerMovable extends BuildingWorkerMovable {
 
+	private static final long serialVersionUID = 323577854037859030L;
+
 	public BakerMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {
 		super(grid, EMovableType.BAKER, position, player, replace);
 	}

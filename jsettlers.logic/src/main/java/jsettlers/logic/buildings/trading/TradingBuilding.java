@@ -50,6 +50,8 @@ public abstract class TradingBuilding extends Building implements IBuilding.ITra
 		EPriority.HIGH,
 		EPriority.STOPPED};
 
+	private static final long serialVersionUID = -8660117211654396737L;
+
 	/**
 	 * How many materials were requested by the user. Integer#MAX_VALUE for infinity.
 	 */

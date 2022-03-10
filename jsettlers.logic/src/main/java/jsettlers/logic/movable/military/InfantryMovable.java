@@ -10,6 +10,7 @@ import jsettlers.logic.player.Player;
 
 public class InfantryMovable extends SoldierMovable {
 	private static final float INFANTRY_ATTACK_DURATION = 1;
+	private static final long serialVersionUID = -7469857575626629826L;
 
 	public InfantryMovable(AbstractMovableGrid grid, EMovableType movableType, ShortPoint2D position, Player player, Movable movable) {
 		super(grid, movableType, position, player, movable);

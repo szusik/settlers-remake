@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
  * Created by Andreas Eberle.
  */
 public class StockBuilding extends Building implements IBuilding.IStock {
+	private static final long serialVersionUID = 8108451257910163368L;
 	private final StockSettings stockSettings;
 
 	public StockBuilding(Player player, ShortPoint2D position, IBuildingsGrid buildingsGrid) {

@@ -10,6 +10,8 @@ import java.util.Set;
 
 public class TradeManager implements IScheduledTimerable {
 
+	private static final long serialVersionUID = 2776667382745359001L;
+
 	private static final int RESCHEDULE_DELAY = 100;
 
 	private final PredicatedPositionableList<ITrader> freeTraders = new PredicatedPositionableList<>();

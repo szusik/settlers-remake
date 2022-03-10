@@ -1,9 +1,7 @@
 package jsettlers.logic.movable.civilian;
 
-import jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper;
 import jsettlers.algorithms.simplebehaviortree.Node;
 import jsettlers.algorithms.simplebehaviortree.Root;
-import jsettlers.common.action.EMoveToType;
 import jsettlers.common.movable.EDirection;
 import jsettlers.common.movable.EMovableAction;
 import jsettlers.common.movable.EMovableType;
@@ -18,6 +16,9 @@ import jsettlers.logic.player.Player;
 import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class BricklayerMovable extends CivilianMovable implements IManageableBricklayer {
+
+	private static final long serialVersionUID = 1L;
+
 	private static final float BRICKLAYER_ACTION_DURATION = 1f;
 
 	private IConstructableBuilding constructionSite = null;

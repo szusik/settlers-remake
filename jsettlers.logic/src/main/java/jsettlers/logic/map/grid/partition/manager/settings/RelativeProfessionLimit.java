@@ -2,6 +2,7 @@ package jsettlers.logic.map.grid.partition.manager.settings;
 
 public class RelativeProfessionLimit extends SingleProfessionLimit {
 
+	private static final long serialVersionUID = 6282796732625133265L;
 	private float targetRatio;
 
 	protected RelativeProfessionLimit(ProfessionSettings parent, float initialTargetRatio) {

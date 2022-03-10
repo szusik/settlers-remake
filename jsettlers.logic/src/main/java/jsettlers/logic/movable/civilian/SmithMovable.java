@@ -17,6 +17,7 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class SmithMovable extends BuildingWorkerMovable {
 
+	private static final long serialVersionUID = 3900922297180669385L;
 	private EMaterialType outputMaterial;
 
 	public SmithMovable(AbstractMovableGrid grid, ShortPoint2D position, Player player, Movable replace) {

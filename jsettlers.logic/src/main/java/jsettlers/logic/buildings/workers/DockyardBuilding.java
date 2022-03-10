@@ -37,6 +37,7 @@ import jsettlers.logic.player.Player;
  * An extension to the worker building for dockyards
  */
 public class DockyardBuilding extends WorkerBuilding implements IBuilding.IShipConstruction, IDockBuilding {
+	private static final long serialVersionUID = -7714560004601048006L;
 	private EShipType                   orderedShipType = null;
 	private ShipInConstructionMapObject ship            = null;
 	private DockPosition                dockPosition    = null;

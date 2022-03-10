@@ -8,6 +8,7 @@ import jsettlers.logic.objects.SoundableSelfDeletingObject;
 
 public class EyeMapObject extends SoundableSelfDeletingObject {
 
+	private static final long serialVersionUID = -3579346920580996970L;
 	private boolean drawn = false;
 	private ShortPoint2D at;
 	private short distance;
