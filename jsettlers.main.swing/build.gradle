@@ -33,7 +33,7 @@ dependencies {
 	implementation project(':jsettlers.graphics')
 	implementation project(':jsettlers.logic')
 	implementation project(':jsettlers.network')
-	implementation 'com.google.code.gson:gson:2.8.9'
+	implementation 'com.google.code.gson:gson:2.9.0'
 
 	for (String lpglDependency : lgplDependencies) {
 		lgplDeps lpglDependency
