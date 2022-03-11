@@ -215,16 +215,13 @@ public class LWJGLDrawContext extends GLDrawContext {
 		if(glcaps.GL_ARB_vertex_array_object) vao = glGenVertexArrays();
 
 		BufferHandle vertexBuffer = new BufferHandle(this, glGenBuffers());
-		BufferHandle colorBuffer = new BufferHandle(this, glGenBuffers());
 
 		bindGeometry(vertexBuffer);
-		setObjectLabel(KHRDebug.GL_BUFFER, vertexBuffer.getBufferId(), "background-shape");
-		glBufferData(GL_ARRAY_BUFFER, vertices*5*4, GL_DYNAMIC_DRAW);
-		bindGeometry(colorBuffer);
-		setObjectLabel(KHRDebug.GL_BUFFER, colorBuffer.getBufferId(), "background-color");
-		glBufferData(GL_ARRAY_BUFFER, vertices*4, GL_DYNAMIC_DRAW);
+		setObjectLabel(KHRDebug.GL_BUFFER, vertexBuffer.getBufferId(), "background");
+		glBufferData(GL_ARRAY_BUFFER, vertices*6*4, GL_DYNAMIC_DRAW);
 
-		BackgroundDrawHandle handle = new BackgroundDrawHandle(this, vao, texture, vertexBuffer, colorBuffer);
+
+		BackgroundDrawHandle handle = new BackgroundDrawHandle(this, vao, texture, vertexBuffer);
 
 		if(glcaps.GL_ARB_vertex_array_object) {
 			bindFormat(vao);
@@ -293,11 +290,9 @@ public class LWJGLDrawContext extends GLDrawContext {
 		glEnableVertexAttribArray(2);
 
 		bindGeometry(dh.vertices);
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * 4, 0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * 4, 3 * 4);
-
-		bindGeometry(dh.colors);
-		glVertexAttribPointer(2, 1, GL_FLOAT, false, 0, 0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * 4, 0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 6 * 4, 3 * 4);
+		glVertexAttribPointer(2, 1, GL_FLOAT, false, 6 * 4, 5 * 4);
 	}
 
 	private void fillUnifiedFormat(UnifiedDrawHandle uh) {

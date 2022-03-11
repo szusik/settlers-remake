@@ -204,14 +204,13 @@ public abstract class VulkanPipeline {
 
 		@Override
 		protected VkPipelineVertexInputStateCreateInfo getVertexInputState(MemoryStack stack) {
-			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.calloc(2, stack);
-			bindings.get(0).set(0, 5*4, VK_VERTEX_INPUT_RATE_VERTEX);
-			bindings.get(1).set(1, 1*4, VK_VERTEX_INPUT_RATE_VERTEX);
+			VkVertexInputBindingDescription.Buffer bindings = VkVertexInputBindingDescription.calloc(1, stack);
+			bindings.get(0).set(0, 6*4, VK_VERTEX_INPUT_RATE_VERTEX);
 
 			VkVertexInputAttributeDescription.Buffer attributes = VkVertexInputAttributeDescription.calloc(3, stack);
 			attributes.get(0).set(0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0);
 			attributes.get(1).set(1, 0, VK_FORMAT_R32G32_SFLOAT, 3*4);
-			attributes.get(2).set(2, 1, VK_FORMAT_R32_SFLOAT, 0);
+			attributes.get(2).set(2, 0, VK_FORMAT_R32_SFLOAT, 5*4);
 
 			return VkPipelineVertexInputStateCreateInfo.calloc(stack)
 					.sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)

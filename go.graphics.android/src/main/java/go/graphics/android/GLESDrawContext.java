@@ -235,14 +235,11 @@ public class GLESDrawContext extends GLDrawContext {
 		if(gles3) vao = genVertexArray();
 
 		BufferHandle vertexBuffer = new BufferHandle(this, genBuffer());
-		BufferHandle colorBuffer = new BufferHandle(this, genBuffer());
 
 		bindGeometry(vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, (vertices*5*4), null, GL_DYNAMIC_DRAW);
-		bindGeometry(colorBuffer);
-		glBufferData(GL_ARRAY_BUFFER, (vertices*4), null, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, (vertices*6*4), null, GL_DYNAMIC_DRAW);
 
-		BackgroundDrawHandle handle = new BackgroundDrawHandle(this, vao, texture, vertexBuffer, colorBuffer);
+		BackgroundDrawHandle handle = new BackgroundDrawHandle(this, vao, texture, vertexBuffer);
 
 		if(gles3) {
 			bindFormat(vao);
@@ -301,11 +298,9 @@ public class GLESDrawContext extends GLDrawContext {
 		glEnableVertexAttribArray(2);
 
 		bindGeometry(dh.vertices);
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * 4, 0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * 4, 3 * 4);
-
-		bindGeometry(dh.colors);
-		glVertexAttribPointer(2, 1, GL_FLOAT, false, 0, 0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * 4, 0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 6 * 4, 3 * 4);
+		glVertexAttribPointer(2, 1, GL_FLOAT, false, 6 * 4, 5 * 4);
 	}
 
 	private void fillUnifiedFormat(UnifiedDrawHandle uh) {

@@ -4,13 +4,11 @@ public class BackgroundDrawHandle extends GLResourceIndex {
 
 	public final BufferHandle vertices;
 	public final TextureHandle texture;
-	public final BufferHandle colors;
 
-	public BackgroundDrawHandle(GLDrawContext dc, int id, TextureHandle texture, BufferHandle vertices, BufferHandle colors) {
+	public BackgroundDrawHandle(GLDrawContext dc, int id, TextureHandle texture, BufferHandle vertices) {
 		super(dc, id);
 		this.vertices = vertices;
 		this.texture = texture;
-		this.colors = colors;
 	}
 
 	public int[] regions;

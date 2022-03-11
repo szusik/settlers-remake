@@ -425,13 +425,11 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 				call == null ||
 				call.texture == null ||
 				call.vertices == null ||
-				call.colors == null ||
 				call.regions == null) {
 			return;
 		}
 
 		AbstractVulkanBuffer vkShape = (AbstractVulkanBuffer) call.vertices;
-		AbstractVulkanBuffer vkColor = (AbstractVulkanBuffer) call.colors;
 
 		pipelineManager.bind(EVulkanPipelineType.BACKGROUND);
 
@@ -442,7 +440,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		pipelineManager.bindDescSets(getTextureDescSet(call.texture));
 
-		pipelineManager.bindVertexBuffers(vkShape.getBufferIdVk(), vkColor.getBufferIdVk());
+		pipelineManager.bindVertexBuffers(vkShape.getBufferIdVk());
 
 		for(int i = 0; i < call.regionCount; i++) {
 			int from = call.regions[i*2];
@@ -675,9 +673,8 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 	@Override
 	public BackgroundDrawHandle createBackgroundDrawCall(int vertices, TextureHandle texture) {
-		AbstractVulkanBuffer vertexBfr = memoryManager.createBuffer(vertices*5*4, EVulkanMemoryType.STATIC, EVulkanBufferUsage.VERTEX_BUFFER);
-		AbstractVulkanBuffer colorBfr = memoryManager.createBuffer(vertices*4, EVulkanMemoryType.STATIC, EVulkanBufferUsage.VERTEX_BUFFER);
-		return new BackgroundDrawHandle(this, -1, texture, vertexBfr, colorBfr);
+		AbstractVulkanBuffer vertexBfr = memoryManager.createBuffer(vertices*6*4, EVulkanMemoryType.STATIC, EVulkanBufferUsage.VERTEX_BUFFER);
+		return new BackgroundDrawHandle(this, -1, texture, vertexBfr);
 	}
 
 	@Override

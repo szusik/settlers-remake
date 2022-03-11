@@ -59,8 +59,7 @@ public class Background implements IGraphicsBackgroundListener {
 	 */
 	private static final int TEXTURE_GRID = 32;
 
-	private static final int BYTES_PER_FIELD_SHAPE = 4*5*3*2; // 4 bytes per float * 5 components(x,y,z,t,v) * 3 points per triangle * 2 triangles per field
-	private static final int BYTES_PER_FIELD_COLOR = 4*3*2; // 4 component(r,g,b,a actually gray) * 3 points per triangle * 2 triangles per field
+	private static final int BYTES_PER_FIELD = 4*6*3*2; // 4 bytes per float * 6 components(x,y,z,t,v,color) * 3 points per triangle * 2 triangles per field
 
 	/**
 	 * Where are the textures on the map?
@@ -990,14 +989,12 @@ public class Background implements IGraphicsBackgroundListener {
 		dgp = context.getDGP();
 		hasdgp = dgp != null;
 
-		color_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_COLOR*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
-		shape_bfr2 = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
-		color_cache2 = new AdvancedUpdateBufferCache(color_bfr2, BYTES_PER_FIELD_COLOR, context::getGl, () -> backgroundHandle.colors, bufferWidth);
-		shape_cache2 = new AdvancedUpdateBufferCache(shape_bfr2, BYTES_PER_FIELD_SHAPE, context::getGl, () -> backgroundHandle.vertices, bufferWidth);
+		vertexBfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
+		vertexCache = new AdvancedUpdateBufferCache(vertexBfr, BYTES_PER_FIELD, context::getGl, () -> backgroundHandle.vertices, bufferWidth);
 		asyncAccessContext = context;
 	}
 
-	private MapDrawContext asyncAccessContext;
+	private final MapDrawContext asyncAccessContext;
 
 	private final TextureIntersections[] borderTextures = new TextureIntersections[] {
 			new TextureIntersections(ELandscapeType.SAND, ELandscapeType.WATER1, 37),
@@ -1118,36 +1115,24 @@ public class Background implements IGraphicsBackgroundListener {
 		int vertices = bufferWidth*bufferHeight*3*2;
 		backgroundHandle = context.getGl().createBackgroundDrawCall(vertices, getTexture(context.getGl()));
 
-		ByteBuffer shape_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE * bufferWidth).order(ByteOrder.nativeOrder());
-		ByteBuffer color_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_COLOR * bufferWidth).order(ByteOrder.nativeOrder());
+		fowEnabled = hasdgp && dgp.isFoWEnabled();
+
+		ByteBuffer bufferLine = ByteBuffer.allocateDirect(BYTES_PER_FIELD * bufferWidth).order(ByteOrder.nativeOrder());
 
 		for(int y = 0;y != bufferHeight;y++) {
 			for(int x = 0; x != bufferWidth;x++) {
-				addTrianglesToGeometry(context, shape_bfr, x, y);
+				addTrianglesToGeometry(context, bufferLine, x, y);
 			}
-			shape_bfr.rewind();
-			context.getGl().updateBufferAt(backgroundHandle.vertices, BYTES_PER_FIELD_SHAPE*bufferWidth*y, shape_bfr);
+			bufferLine.rewind();
+			context.getGl().updateBufferAt(backgroundHandle.vertices, BYTES_PER_FIELD*bufferWidth*y, bufferLine);
 		}
-		fowEnabled = hasdgp && dgp.isFoWEnabled();
-
-		for(int y = 0; y != bufferHeight; y++) {
-			for(int x = 0; x != bufferWidth; x++) {
-				addColorTrianglesToGeometry(context, color_bfr, x, y);
-			}
-			color_bfr.rewind();
-			context.getGl().updateBufferAt(backgroundHandle.colors, BYTES_PER_FIELD_COLOR * bufferWidth * y, color_bfr);
-		}
-
-		shape_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE).order(ByteOrder.nativeOrder());
 
 		context.getMap().setBackgroundListener(this);
 	}
 
 	private final Object bufferLock = new Object();
-	private final AdvancedUpdateBufferCache color_cache2;
-	private final AdvancedUpdateBufferCache shape_cache2;
-	private final ByteBuffer color_bfr2;
-	private final ByteBuffer shape_bfr2;
+	private final AdvancedUpdateBufferCache vertexCache;
+	private final ByteBuffer vertexBfr;
 
 	private void updateGeometry(MapDrawContext context, MapRectangle screen) {
 		fowEnabled = hasdgp && dgp.isFoWEnabled();
@@ -1168,8 +1153,7 @@ public class Background implements IGraphicsBackgroundListener {
 
 			synchronized (bufferLock) {
 				if(context.getGl() instanceof VkDrawContext) {
-					color_cache2.clearCache();
-					shape_cache2.clearCache();
+					vertexCache.clearCache();
 				} else {
 					for (int y = miny; y < maxy; y++) {
 						int lineStartX = linestart + (y / 2);
@@ -1184,8 +1168,7 @@ public class Background implements IGraphicsBackgroundListener {
 							linex = 0;
 						}
 
-						color_cache2.clearCacheRegion(y, linex, linewidth);
-						shape_cache2.clearCacheRegion(y, linex, linewidth);
+						vertexCache.clearCacheRegion(y, linex, linewidth);
 					}
 				}
 			}
@@ -1200,16 +1183,6 @@ public class Background implements IGraphicsBackgroundListener {
 	private void addTrianglesToGeometry(MapDrawContext context, ByteBuffer buffer, int x, int y) {
 		addTriangleToGeometry(context, buffer, x, y, true,x*37 + y*17);
 		addTriangleToGeometry(context, buffer, x, y, false, x);
-	}
-
-	private void addColorTrianglesToGeometry(MapDrawContext context, ByteBuffer buffer, int x, int y) {
-		addColorPointToGeometry(context, buffer, x, y);
-		addColorPointToGeometry(context, buffer, x, y + 1);
-		addColorPointToGeometry(context, buffer, x + 1, y + 1);
-
-		addColorPointToGeometry(context, buffer, x, y);
-		addColorPointToGeometry(context, buffer, x + 1, y + 1);
-		addColorPointToGeometry(context, buffer, x + 1, y);
 	}
 
 	private void addTriangleToGeometry(MapDrawContext context, ByteBuffer buffer, int x1, int y, boolean up, int useSecondParameter) {
@@ -1302,28 +1275,26 @@ public class Background implements IGraphicsBackgroundListener {
 
 
 	private void addPointToGeometry(MapDrawContext context, ByteBuffer buffer, int x, int y, float u, float v) {
-		buffer.putFloat(x);
-		buffer.putFloat(y);
-		buffer.putFloat(context.getHeight(x, y));
-		buffer.putFloat(u);
-		buffer.putFloat(v);
-	}
+		int height = context.getHeight(x, y);
+		byte visibleStatus = context.getVisibleStatus(x, y);
 
-	private void addColorPointToGeometry(MapDrawContext context, ByteBuffer buffer, int x, int y) {
-		float fColor;
-		if((x <= 0 || x >= mapWidth - 2 || y <= 0 || y >= mapHeight - 2 || (context.getVisibleStatus(x, y) <= 0) && fowEnabled)) {
-			fColor = 0;
-		} else {
-			int dHeight = context.getHeight(x, y-1) - context.getHeight(x, y);
+		float color = 0;
+		if (x > 0 && x < mapWidth - 2 && y > 0 && y < mapHeight - 2 && (visibleStatus > 0 || !fowEnabled)) {
+			int dHeight = context.getHeight(x, y-1) - height;
 
-			fColor = 0.875f + dHeight * .125f;
-			if (fColor < 0.4f) {
-				fColor = 0.4f;
+			color = 0.875f + dHeight * .125f;
+			if (color < 0.4f) {
+				color = 0.4f;
 			}
-			if(fowEnabled) fColor *= context.getVisibleStatus(x, y) / (float)CommonConstants.FOG_OF_WAR_VISIBLE;
+			if(fowEnabled) color *= visibleStatus / (float)CommonConstants.FOG_OF_WAR_VISIBLE;
 		}
 
-		buffer.putFloat(fColor);
+		buffer.putFloat(x);
+		buffer.putFloat(y);
+		buffer.putFloat(height);
+		buffer.putFloat(u);
+		buffer.putFloat(v);
+		buffer.putFloat(color);
 	}
 
 	private static int realModulo(int number, int modulo) {
@@ -1335,13 +1306,9 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private void updateLine(int y, int x1, int x2) {
-		color_cache2.gotoLine(y,x1, x2 - x1);
-		for (int i = x1; i != x2; i++) {
-			addColorTrianglesToGeometry(asyncAccessContext, color_bfr2, i, y);
-		}
-		shape_cache2.gotoLine(y, x1, x2 - x1);
+		vertexCache.gotoLine(y, x1, x2 - x1);
 		for(int i = x1; i != x2; i++) {
-			addTrianglesToGeometry(asyncAccessContext, shape_bfr2, i, y);
+			addTrianglesToGeometry(asyncAccessContext, vertexBfr, i, y);
 		}
 	}
 
