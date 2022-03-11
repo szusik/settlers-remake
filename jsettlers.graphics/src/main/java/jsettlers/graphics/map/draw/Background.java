@@ -1118,8 +1118,8 @@ public class Background implements IGraphicsBackgroundListener {
 		int vertices = bufferWidth*bufferHeight*3*2;
 		backgroundHandle = context.getGl().createBackgroundDrawCall(vertices, getTexture(context.getGl()));
 
-		shape_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE*bufferWidth).order(ByteOrder.nativeOrder());
-		color_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_COLOR*bufferWidth).order(ByteOrder.nativeOrder());
+		ByteBuffer shape_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_SHAPE * bufferWidth).order(ByteOrder.nativeOrder());
+		ByteBuffer color_bfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD_COLOR * bufferWidth).order(ByteOrder.nativeOrder());
 
 		for(int y = 0;y != bufferHeight;y++) {
 			for(int x = 0; x != bufferWidth;x++) {
@@ -1144,12 +1144,10 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private final Object bufferLock = new Object();
-	private AdvancedUpdateBufferCache color_cache2;
-	private AdvancedUpdateBufferCache shape_cache2;
+	private final AdvancedUpdateBufferCache color_cache2;
+	private final AdvancedUpdateBufferCache shape_cache2;
 	private final ByteBuffer color_bfr2;
 	private final ByteBuffer shape_bfr2;
-	private ByteBuffer shape_bfr;
-	private ByteBuffer color_bfr;
 
 	private void updateGeometry(MapDrawContext context, MapRectangle screen) {
 		fowEnabled = hasdgp && dgp.isFoWEnabled();
