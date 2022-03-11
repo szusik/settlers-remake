@@ -1143,6 +1143,7 @@ public class Background implements IGraphicsBackgroundListener {
 		context.getMap().setBackgroundListener(this);
 	}
 
+	private final Object bufferLock = new Object();
 	private AdvancedUpdateBufferCache color_cache2;
 	private AdvancedUpdateBufferCache shape_cache2;
 	private final ByteBuffer color_bfr2;
@@ -1165,33 +1166,28 @@ public class Background implements IGraphicsBackgroundListener {
 			int linestart = minx - (miny / 2);
 
 
-			if(context.getGl() instanceof VkDrawContext) {
-				synchronized (color_bfr2) {
+
+
+			synchronized (bufferLock) {
+				if(context.getGl() instanceof VkDrawContext) {
 					color_cache2.clearCache();
-				}
-				synchronized (shape_bfr2) {
 					shape_cache2.clearCache();
-				}
-			} else {
-				synchronized (color_bfr2) {
-					synchronized (shape_bfr2) {
-						for (int y = miny; y < maxy; y++) {
-							int lineStartX = linestart + (y / 2);
+				} else {
+					for (int y = miny; y < maxy; y++) {
+						int lineStartX = linestart + (y / 2);
 
-							int linewidth = (width + lineStartX);
-							if (linewidth >= bufferWidth) {
-								linewidth = bufferWidth;
-							}
-
-							int linex = lineStartX;
-							if (linex < 0) {
-								linex = 0;
-							}
-
-							color_cache2.clearCacheRegion(y, linex, linewidth);
-							shape_cache2.clearCacheRegion(y, linex, linewidth);
+						int linewidth = (width + lineStartX);
+						if (linewidth >= bufferWidth) {
+							linewidth = bufferWidth;
 						}
 
+						int linex = lineStartX;
+						if (linex < 0) {
+							linex = 0;
+						}
+
+						color_cache2.clearCacheRegion(y, linex, linewidth);
+						shape_cache2.clearCacheRegion(y, linex, linewidth);
 					}
 				}
 			}
@@ -1341,18 +1337,13 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private void updateLine(int y, int x1, int x2) {
-		synchronized (color_bfr2) {
-			color_cache2.gotoLine(y,x1, x2 - x1);
-			for (int i = x1; i != x2; i++) {
-				addColorTrianglesToGeometry(asyncAccessContext, color_bfr2, i, y);
-			}
+		color_cache2.gotoLine(y,x1, x2 - x1);
+		for (int i = x1; i != x2; i++) {
+			addColorTrianglesToGeometry(asyncAccessContext, color_bfr2, i, y);
 		}
-
-		synchronized (shape_bfr2) {
-			shape_cache2.gotoLine(y, x1, x2 - x1);
-			for(int i = x1; i != x2; i++) {
-				addTrianglesToGeometry(asyncAccessContext, shape_bfr2, i, y);
-			}
+		shape_cache2.gotoLine(y, x1, x2 - x1);
+		for(int i = x1; i != x2; i++) {
+			addTrianglesToGeometry(asyncAccessContext, shape_bfr2, i, y);
 		}
 	}
 
@@ -1365,9 +1356,11 @@ public class Background implements IGraphicsBackgroundListener {
 		if(x2 < bufferWidth) x2 = x2+1;
 		if(x2 > bufferWidth) x2 = bufferWidth;
 
-		updateLine(y, x, x2);
-		if(y > 0) updateLine(y-1, x, x2);
-		if(y < bufferHeight-1) updateLine(y+1, x, x2);
+		synchronized (bufferLock) {
+			updateLine(y, x, x2);
+			if (y > 0) updateLine(y - 1, x, x2);
+			if (y < bufferHeight - 1) updateLine(y + 1, x, x2);
+		}
 	}
 
 	@Override
