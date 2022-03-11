@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import go.graphics.UnifiedDrawHandle;
 import jsettlers.common.Color;
 import jsettlers.graphics.image.reader.ImageMetadata;
+import jsettlers.graphics.image.reader.translator.ImageDataProducer;
 
 /**
  * This is the base for all images that are directly loaded from the image file.
@@ -37,7 +38,7 @@ import jsettlers.graphics.image.reader.ImageMetadata;
  */
 public class SingleImage extends Image implements ImageDataPrivider {
 
-	protected ShortBuffer data;
+	protected final ImageDataProducer data;
 	protected final int width;
 	protected final int height;
 	protected int twidth, theight, toffsetX, toffsetY;
@@ -61,7 +62,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	 * @param offsetY
 	 * 		The y offset of the image.
 	 */
-	protected SingleImage(ShortBuffer data, int width, int height, int offsetX,
+	protected SingleImage(ImageDataProducer data, int width, int height, int offsetX,
 			int offsetY, String name) {
 		this.data = data;
 		this.width = twidth = width;
@@ -69,6 +70,11 @@ public class SingleImage extends Image implements ImageDataPrivider {
 		this.offsetX = toffsetX = offsetX;
 		this.offsetY = toffsetY = offsetY;
 		this.name = name;
+	}
+
+	protected SingleImage(ShortBuffer data, int width, int height, int offsetX,
+						  int offsetY, String name) {
+		this(() -> data, width, height, offsetX, offsetY, name);
 	}
 
 	/**
@@ -81,6 +87,19 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	 */
 	public SingleImage(ImageMetadata metadata, short[] data, String name) {
 		this(wrap(data), metadata.width, metadata.height, metadata.offsetX, metadata.offsetY, name);
+	}
+
+
+	/**
+	 * Creates a new image by linking this images data to the data of the provider.
+	 *
+	 * @param metadata
+	 * 		The mata data to use.
+	 * @param data
+	 * 		The data to use.
+	 */
+	public SingleImage(ImageMetadata metadata, ImageDataProducer data, String name) {
+		this(data, metadata.width, metadata.height, metadata.offsetX, metadata.offsetY, name);
 	}
 
 	private static ShortBuffer wrap(short[] data) {
@@ -124,7 +143,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 
 	@Override
 	public ShortBuffer getData() {
-		return this.data;
+		return this.data.produceData();
 	}
 
 	@Override
@@ -141,7 +160,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	}
 
 	protected ShortBuffer generateTextureData() {
-		return data;
+		return getData();
 	}
 
 	private void checkStaticHandles(GLDrawContext gl) {
@@ -196,6 +215,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	}
 
 	public Long hash() {
+		ShortBuffer data = getData();
 		data.rewind();
 		long hashCode = 1L;
 		long multiplier = 1L;

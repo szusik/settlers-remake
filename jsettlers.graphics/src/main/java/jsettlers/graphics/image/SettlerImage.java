@@ -19,10 +19,10 @@ import java.nio.ByteOrder;
 
 import go.graphics.EUnifiedMode;
 import go.graphics.GLDrawContext;
-import go.graphics.IllegalBufferException;
 import java.nio.ShortBuffer;
 import jsettlers.common.Color;
 import jsettlers.graphics.image.reader.ImageMetadata;
+import jsettlers.graphics.image.reader.translator.ImageDataProducer;
 
 /**
  * This is the image of something that is displayed as an object on the map, e.g. an settler.
@@ -44,8 +44,10 @@ public class SettlerImage extends SingleImage {
 	 *            The mata data to use.
 	 * @param data
 	 *            The data to use.
+	 * @param name
+	 * 				The name of the image.
 	 */
-	public SettlerImage(ImageMetadata metadata, short[] data, String name) {
+	public SettlerImage(ImageMetadata metadata, ImageDataProducer data, String name) {
 		super(metadata, data, name);
 	}
 
@@ -119,14 +121,16 @@ public class SettlerImage extends SingleImage {
 		short[] temp = new short[0];
 
 		if(shadow != null) {
+			ShortBuffer shadowData = shadow.getData();
+
 			int hoffX = shadow.offsetX-toffsetX;
 			int hoffY = shadow.offsetY-toffsetY;
 
 			if(temp.length < shadow.width) temp = new short[shadow.width];
 
 			for(int y = 0;y != shadow.height;y++) {
-				shadow.data.position(y*shadow.width);
-				shadow.data.get(temp, 0, shadow.width);
+				shadowData.position(y*shadow.width);
+				shadowData.get(temp, 0, shadow.width);
 
 				for(int x = 0;x != shadow.width;x++) {
 					if(temp[x] == 0) continue;
@@ -136,14 +140,16 @@ public class SettlerImage extends SingleImage {
 		}
 
 		if(torso != null) {
+			ShortBuffer torsoData = torso.getData();
+
 			int toffX = torso.offsetX-toffsetX;
 			int toffY = torso.offsetY-toffsetY;
 
 			if(temp.length < torso.width) temp = new short[torso.width];
 
 			for(int y = 0;y != torso.height;y++) {
-				torso.data.position(y*torso.width);
-				torso.data.get(temp, 0, torso.width);
+				torsoData.position(y*torso.width);
+				torsoData.get(temp, 0, torso.width);
 
 				for(int x = 0;x != torso.width;x++) {
 					if(temp[x] == 0) continue;
@@ -156,6 +162,8 @@ public class SettlerImage extends SingleImage {
 		int soffY = offsetY-toffsetY;
 
 		if(temp.length < width) temp = new short[width];
+
+		ShortBuffer data = getData();
 
 		for(int y = 0;y != height;y++) {
 			data.position(y*width);

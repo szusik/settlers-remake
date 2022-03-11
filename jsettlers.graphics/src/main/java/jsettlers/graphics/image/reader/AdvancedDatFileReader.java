@@ -521,7 +521,29 @@ public class AdvancedDatFileReader implements DatFileReader {
 		}
 	}
 
+	@Override
+	public synchronized <T extends Image> long readImageHeader(DatBitmapTranslator<T> translator,
+															   ImageMetadata metadata,
+															   long offset) throws IOException {
+		initializeIfNeeded();
+		reader.skipTo(offset);
+		DatBitmapReader.readImageHeader(reader, translator, metadata);
+		return reader.getReadBytes();
+	}
+
+	@Override
+	public synchronized <T extends Image> void readCompressedData(DatBitmapTranslator<T> translator,
+																  ImageMetadata metadata,
+																  ImageArrayProvider array,
+																  long offset) throws IOException {
+		initializeIfNeeded();
+		reader.skipTo(offset);
+		DatBitmapReader.readCompressedData(reader, translator, metadata.width, metadata.height, array);
+	}
+
 	private synchronized void loadSettlers(int goldIndex, String name) throws IOException {
+		initializeIfNeeded();
+
 		int realSettlerIndex = mapping.mapSettlersSequence(goldIndex);
 		int realShadowIndex = mapping.mapSettlersSequence(shadowMapping.getShadowIndex(goldIndex));
 
@@ -530,16 +552,14 @@ public class AdvancedDatFileReader implements DatFileReader {
 
 		SettlerImage[] images = new SettlerImage[framePositions.length];
 		for (int i = 0; i < framePositions.length; i++) {
-			reader.skipTo(framePositions[i]);
-			images[i] = DatBitmapReader.getImage(settlerTranslator, reader, name + "-S" + goldIndex + ":" + i);
+			images[i] = DatBitmapReader.getImage(settlerTranslator, this, framePositions[i], name + "-S" + goldIndex + ":" + i);
 		}
 
 		int torsoPosition = torsoStarts[realSettlerIndex];
 		if (torsoPosition >= 0) {
 			long[] torsoPositions = readSequenceHeader(torsoPosition);
 			for (int i = 0; i < torsoPositions.length && i < framePositions.length; i++) {
-				reader.skipTo(torsoPositions[i]);
-				SingleImage torso = DatBitmapReader.getImage(torsoTranslator, reader, name + "-T" + goldIndex + ":" + i);
+				SingleImage torso = DatBitmapReader.getImage(torsoTranslator, this, torsoPositions[i], name + "-T" + goldIndex + ":" + i);
 				images[i].setTorso(torso);
 			}
 		}
@@ -549,8 +569,7 @@ public class AdvancedDatFileReader implements DatFileReader {
 			long[] shadowPositions = readSequenceHeader(shadowPosition);
 			for (int i = 0; i < shadowPositions.length
 				&& i < framePositions.length; i++) {
-				reader.skipTo(shadowPositions[i]);
-				SingleImage shadow = DatBitmapReader.getImage(shadowTranslator, reader, name + "-SH" + goldIndex + ":" + i);
+				SingleImage shadow = DatBitmapReader.getImage(shadowTranslator, this, shadowPositions[i], name + "-SH" + goldIndex + ":" + i);
 				images[i].setShadow(shadow);
 			}
 		}
@@ -624,16 +643,17 @@ public class AdvancedDatFileReader implements DatFileReader {
 	}
 
 	@Override
-	public ByteReader getReaderForLandscape(int index) throws IOException {
+	public long getOffsetForLandscape(int index) {
 		initializeIfNeeded();
-		reader.skipTo(landscapeStarts[index]);
-		return reader;
+
+		return landscapeStarts[index];
 	}
 
 	private void loadLandscapeImage(int index, String name) {
+		initializeIfNeeded();
+
 		try {
-			reader.skipTo(landscapeStarts[index]);
-			SingleImage image = DatBitmapReader.getImage(landscapeTranslator, reader, name);
+			SingleImage image = DatBitmapReader.getImage(landscapeTranslator, this, landscapeStarts[index], name);
 			landscapeImages[index] = image;
 		} catch (IOException e) {
 			landscapeImages[index] = NullImage.getForLandscape();
@@ -683,10 +703,10 @@ public class AdvancedDatFileReader implements DatFileReader {
 	}
 
 	private void loadGuiImage(int goldIndex, String name) {
+		initializeIfNeeded();
 		try {
 			int theseGraphicsFilesIndex = mapping.mapGuiImage(goldIndex);
-			reader.skipTo(guiStarts[theseGraphicsFilesIndex]);
-			SingleImage image = DatBitmapReader.getImage(guiTranslator, reader, name);
+			SingleImage image = DatBitmapReader.getImage(guiTranslator, this, guiStarts[theseGraphicsFilesIndex], name);
 			guiImages[goldIndex] = image;
 		} catch (IOException | ArrayIndexOutOfBoundsException e) {
 			guiImages[goldIndex] = NullImage.getForGui();
@@ -706,21 +726,6 @@ public class AdvancedDatFileReader implements DatFileReader {
 		} else {
 			return null;
 		}
-	}
-
-	/**
-	 * Gets a reader positioned at the given settler
-	 *
-	 * @param pointer
-	 * 		Start of the reader
-	 * @return A reader starting at pointer
-	 * @throws IOException
-	 * 		If the file cannot be read.
-	 */
-	public ByteReader getReaderForPointer(long pointer) throws IOException {
-		initializeIfNeeded();
-		reader.skipTo(pointer);
-		return reader;
 	}
 
 	public DatBitmapTranslator<SettlerImage> getSettlerTranslator() {

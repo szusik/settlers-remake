@@ -31,12 +31,12 @@ import jsettlers.common.map.IDirectGridProvider;
 import jsettlers.common.map.IGraphicsBackgroundListener;
 import jsettlers.common.map.shapes.MapRectangle;
 import jsettlers.common.position.FloatRectangle;
+import jsettlers.graphics.image.SingleImage;
+import jsettlers.graphics.image.reader.translator.DatBitmapTranslator;
 import jsettlers.graphics.map.MapDrawContext;
-import jsettlers.graphics.image.reader.DatBitmapReader;
 import jsettlers.graphics.image.reader.DatFileReader;
 import jsettlers.graphics.image.reader.ImageArrayProvider;
 import jsettlers.graphics.image.reader.ImageMetadata;
-import go.graphics.UpdateBufferCache;
 
 /**
  * The map background.
@@ -937,6 +937,8 @@ public class Background implements IGraphicsBackgroundListener {
 
 		ImageMetadata meta = new ImageMetadata();
 
+		DatBitmapTranslator<SingleImage> translator = reader.getLandscapeTranslator();
+
 		for (int index = 0; index < TEXTURE_POSITIONS.length; index++) {
 			int[] position = TEXTURE_POSITIONS[index];
 			int x = position[0] * TEXTURE_GRID;
@@ -948,7 +950,8 @@ public class Background implements IGraphicsBackgroundListener {
 			imageWriter.cellSize = cellSize;
 			imageWriter.maxOffset = end;
 
-			DatBitmapReader.uncompressImage(reader.getReaderForLandscape(index), reader.getLandscapeTranslator(), meta, imageWriter);
+			long dataPos = reader.readImageHeader(translator, meta, reader.getOffsetForLandscape(index));
+			reader.readCompressedData(translator, meta, imageWriter, dataPos);
 
 			// freaky stuff
 			int arrayOffset = imageWriter.arrayOffset;
@@ -1194,14 +1197,6 @@ public class Background implements IGraphicsBackgroundListener {
 			}
 		} catch (IllegalBufferException e) {
 			e.printStackTrace();
-		}
-	}
-
-	private synchronized void invalidateShapePoint(int x, int y) {
-		if(x >= bufferWidth || y >= bufferHeight || x < 0 || y < 0) return;
-		synchronized (shape_bfr2) {
-			shape_cache2.gotoLine(y, x, 1);
-			addTrianglesToGeometry(asyncAccessContext, shape_bfr2, x, y);
 		}
 	}
 
