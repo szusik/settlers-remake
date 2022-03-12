@@ -296,12 +296,6 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 			}
 		}
 
-		if(BEEKEEPING.getVariant(player.getCivilisation()) != null) {
-			for(int i = 0; i < mapBuildingCounts[BEEKEEPING.ordinal]; i++) {
-				addIfPossible(BEEKEEPING);
-			}
-		}
-
 		EBuildingType mannaProducer = player.getCivilisation().getMannaBuilding();
 
 		int mannaProducerCount = mapBuildingCounts[mannaProducer.ordinal];
@@ -310,7 +304,19 @@ public class BuildingListEconomyMinister implements EconomyMinister {
 			mannaProducerCount = Math.min(mannaProducerCount, aiStatistics.getNumberOfBuildingTypeForPlayer(FARM, playerId));
 		}
 
+		int beekeepingCount = 0;
+		float beekeepingPerMeadBrewery = mapBuildingCounts[BEEKEEPING.ordinal] / (float) mannaProducerCount;
 		for (int i = 0; i < mannaProducerCount; i++) {
+			if(mannaProducer == MEAD_BREWERY) {
+				while(beekeepingPerMeadBrewery*i > beekeepingCount) {
+					addIfPossible(BEEKEEPING);
+					addIfPossible(BEEKEEPING);
+					addIfPossible(BEEKEEPING);
+					beekeepingCount++;
+				}
+				addIfPossible(WATERWORKS);
+			}
+
 			addIfPossible(mannaProducer);
 			addIfPossible(TEMPLE);
 		}

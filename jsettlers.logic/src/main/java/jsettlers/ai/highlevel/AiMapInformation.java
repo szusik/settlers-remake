@@ -135,7 +135,7 @@ public class AiMapInformation {
 		buildingCounts[EBuildingType.BAKER.ordinal] = (int) Math.ceil(numberOfFarms / FARM_TO_BAKER_RATIO);
 		buildingCounts[EBuildingType.MILL.ordinal] = (int) Math.ceil(numberOfFarms / FARM_TO_MILL_RATIO);
 		int numberOfWaterworks = (int) Math.ceil(numberOfFarms / FARM_TO_WATERWORKS_RATIO);
-		if(civilisation == ECivilisation.AMAZON) numberOfWaterworks = maxMannaProducers;
+		if(civilisation == ECivilisation.AMAZON) numberOfWaterworks += maxMannaProducers;
 		buildingCounts[EBuildingType.WATERWORKS.ordinal] = numberOfWaterworks;
 		buildingCounts[EBuildingType.SLAUGHTERHOUSE.ordinal] = (int) Math.ceil(numberOfFarms / FARM_TO_SLAUGHTER_RATIO);
 		buildingCounts[EBuildingType.PIG_FARM.ordinal] = (int) Math.ceil(numberOfFarms / FARM_TO_PIG_FARM_RATIO);
@@ -161,11 +161,7 @@ public class AiMapInformation {
 		}
 
 		buildingCounts[EBuildingType.RICE_FARM.ordinal] = maxRiceFarms;
-		buildingCounts[EBuildingType.BEEKEEPING.ordinal] = (int)(buildingCounts[EBuildingType.FORESTER.ordinal] * BEEKEEPING_TO_FORESTER_RATIO);
-
-		if(civilisation.getMannaBuilding() == EBuildingType.MEAD_BREWERY) {
-			maxMannaProducers = Math.min((int)(buildingCounts[EBuildingType.BEEKEEPING.ordinal]/BEEKEEPING_TO_MEAD_BREWERY_RATIO), maxMannaProducers);
-		}
+		buildingCounts[EBuildingType.BEEKEEPING.ordinal] = (int) (maxMannaProducers * BEEKEEPING_TO_MEAD_BREWERY_RATIO);
 
 		if (maxMannaProducers > 0) {
 			buildingCounts[civilisation.getMannaBuilding().ordinal] = maxMannaProducers;
