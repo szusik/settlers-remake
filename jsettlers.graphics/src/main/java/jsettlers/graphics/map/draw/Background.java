@@ -1130,7 +1130,6 @@ public class Background implements IGraphicsBackgroundListener {
 		context.getMap().setBackgroundListener(this);
 	}
 
-	private final Object bufferLock = new Object();
 	private final AdvancedUpdateBufferCache vertexCache;
 	private final ByteBuffer vertexBfr;
 
@@ -1148,28 +1147,23 @@ public class Background implements IGraphicsBackgroundListener {
 			if (miny < 0) miny = 0;
 			int linestart = minx - (miny / 2);
 
+			if(context.getGl() instanceof VkDrawContext) {
+				vertexCache.clearCache();
+			} else {
+				for (int y = miny; y < maxy; y++) {
+					int lineStartX = linestart + (y / 2);
 
-
-
-			synchronized (bufferLock) {
-				if(context.getGl() instanceof VkDrawContext) {
-					vertexCache.clearCache();
-				} else {
-					for (int y = miny; y < maxy; y++) {
-						int lineStartX = linestart + (y / 2);
-
-						int linewidth = (width + lineStartX);
-						if (linewidth >= bufferWidth) {
-							linewidth = bufferWidth;
-						}
-
-						int linex = lineStartX;
-						if (linex < 0) {
-							linex = 0;
-						}
-
-						vertexCache.clearCacheRegion(y, linex, linewidth);
+					int linewidth = (width + lineStartX);
+					if (linewidth >= bufferWidth) {
+						linewidth = bufferWidth;
 					}
+
+					int linex = lineStartX;
+					if (linex < 0) {
+						linex = 0;
+					}
+
+					vertexCache.clearCacheRegion(y, linex, linewidth);
 				}
 			}
 		} catch (IllegalBufferException e) {
@@ -1306,10 +1300,11 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private void updateLine(int y, int x1, int x2) {
-		vertexCache.gotoLine(y, x1, x2 - x1);
+		vertexCache.setPosition(y, x1);
 		for(int i = x1; i != x2; i++) {
 			addTrianglesToGeometry(asyncAccessContext, vertexBfr, i, y);
 		}
+		vertexCache.markLine(y, x1, x2 - x1);
 	}
 
 	@Override
@@ -1321,11 +1316,9 @@ public class Background implements IGraphicsBackgroundListener {
 		if(x2 < bufferWidth) x2 = x2+1;
 		if(x2 > bufferWidth) x2 = bufferWidth;
 
-		synchronized (bufferLock) {
-			updateLine(y, x, x2);
-			if (y > 0) updateLine(y - 1, x, x2);
-			if (y < bufferHeight - 1) updateLine(y + 1, x, x2);
-		}
+		updateLine(y, x, x2);
+		if (y > 0) updateLine(y - 1, x, x2);
+		if (y < bufferHeight - 1) updateLine(y + 1, x, x2);
 	}
 
 	@Override
