@@ -8,29 +8,23 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class AdvancedUpdateBufferCache {
-	private ByteBuffer readBuffer;
-	private ByteBuffer writeBuffer;
-	private int bfr_data_steps;
-	private Supplier<GLDrawContext> ctx_supp;
-	private Supplier<BufferHandle> bfr_supp;
-	private BitSet[] updated;
-	private int line_width;
+	private final Supplier<ByteBuffer> readBuffer;
+	private final int bfr_data_steps;
+	private final Supplier<GLDrawContext> ctx_supp;
+	private final Supplier<BufferHandle> bfr_supp;
+	private final BitSet[] updated;
+	private final int line_width;
 
-	public AdvancedUpdateBufferCache(ByteBuffer buffer, int bfr_data_steps, Supplier<GLDrawContext> ctx_supp, Supplier<BufferHandle> bfr_supp, int line_width) {
+	public AdvancedUpdateBufferCache(Supplier<ByteBuffer> buffer, int bfr_data_steps, Supplier<GLDrawContext> ctx_supp, Supplier<BufferHandle> bfr_supp, int line_width) {
 		this.bfr_data_steps = bfr_data_steps;
 		this.line_width = line_width;
 		this.ctx_supp = ctx_supp;
 		this.bfr_supp = bfr_supp;
-		this.readBuffer = buffer.slice();
-		this.writeBuffer = buffer;
+		this.readBuffer = buffer;
 
-		int lines = buffer.capacity()/bfr_data_steps/line_width;
+		int lines = buffer.get().capacity()/bfr_data_steps/line_width;
 		updated = new BitSet[lines];
 		for(int i = 0;i != lines;i++) updated[i] = new BitSet(line_width);
-	}
-
-	public void setPosition(int line, int x) {
-		writeBuffer.position((line*line_width+x) * bfr_data_steps);
 	}
 
 	public void markLine(int line, int start, int count) {
@@ -80,10 +74,11 @@ public class AdvancedUpdateBufferCache {
 				}
 			} while(globalEnd < bfrEnd && line < updated.length);
 
-			readBuffer.position(0);
-			readBuffer.limit(readBuffer.capacity());
+			ByteBuffer realBuffer = readBuffer.get();
+			realBuffer.position(0);
+			realBuffer.limit(realBuffer.capacity());
 			if(start.size() > 0) {
-				((VkDrawContext) dc).updateBufferAt(bfr_supp.get(), start, size, readBuffer);
+				((VkDrawContext) dc).updateBufferAt(bfr_supp.get(), start, size, realBuffer);
 			}
 		} else {
 			for(int i = 0; i != updated.length; i++) clearCacheRegion(i, 0, line_width);
@@ -108,9 +103,10 @@ public class AdvancedUpdateBufferCache {
 		start += line*line_width;
 		end += line*line_width;
 
-		readBuffer.limit(end * bfr_data_steps);
-		readBuffer.position(start * bfr_data_steps);
-		ctx_supp.get().updateBufferAt(bfr_supp.get(), start * bfr_data_steps, readBuffer);
-		readBuffer.limit(readBuffer.capacity());
+		ByteBuffer realBuffer = readBuffer.get();
+		realBuffer.limit(end * bfr_data_steps);
+		realBuffer.position(start * bfr_data_steps);
+		ctx_supp.get().updateBufferAt(bfr_supp.get(), start * bfr_data_steps, realBuffer);
+		realBuffer.limit(realBuffer.capacity());
 	}
 }

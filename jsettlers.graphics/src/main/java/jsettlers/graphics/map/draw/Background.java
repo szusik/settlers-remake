@@ -989,9 +989,20 @@ public class Background implements IGraphicsBackgroundListener {
 		dgp = context.getDGP();
 		hasdgp = dgp != null;
 
-		vertexBfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD*bufferHeight*bufferWidth).order(ByteOrder.nativeOrder());
-		vertexCache = new AdvancedUpdateBufferCache(vertexBfr, BYTES_PER_FIELD, context::getGl, () -> backgroundHandle.vertices, bufferWidth);
+		vertexBfr = ByteBuffer.allocateDirect(BYTES_PER_FIELD * bufferHeight * bufferWidth).order(ByteOrder.nativeOrder());
+		localVertexBfr = new ThreadLocal<>();
+		vertexCache = new AdvancedUpdateBufferCache(this::getLocalVertexBfr, BYTES_PER_FIELD, context::getGl, () -> backgroundHandle.vertices, bufferWidth);
 		asyncAccessContext = context;
+	}
+
+	private ByteBuffer getLocalVertexBfr() {
+		ByteBuffer localBfr = localVertexBfr.get();
+		if(localBfr == null) {
+			localBfr = vertexBfr.slice().order(ByteOrder.nativeOrder());
+			localVertexBfr.set(localBfr);
+		}
+		return localBfr;
+
 	}
 
 	private final MapDrawContext asyncAccessContext;
@@ -1132,6 +1143,7 @@ public class Background implements IGraphicsBackgroundListener {
 
 	private final AdvancedUpdateBufferCache vertexCache;
 	private final ByteBuffer vertexBfr;
+	private final ThreadLocal<ByteBuffer> localVertexBfr;
 
 	private void updateGeometry(MapDrawContext context, MapRectangle screen) {
 		fowEnabled = hasdgp && dgp.isFoWEnabled();
@@ -1300,9 +1312,11 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private void updateLine(int y, int x1, int x2) {
-		vertexCache.setPosition(y, x1);
+		ByteBuffer currentVertexBuffer = getLocalVertexBfr();
+		currentVertexBuffer.order(ByteOrder.nativeOrder());
+		currentVertexBuffer.position((y*bufferWidth+x1)*BYTES_PER_FIELD);
 		for(int i = x1; i != x2; i++) {
-			addTrianglesToGeometry(asyncAccessContext, vertexBfr, i, y);
+			addTrianglesToGeometry(asyncAccessContext, currentVertexBuffer, i, y);
 		}
 		vertexCache.markLine(y, x1, x2 - x1);
 	}
