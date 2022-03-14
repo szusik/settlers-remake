@@ -33,6 +33,7 @@ import jsettlers.graphics.image.reader.EmptyDatFile;
 import jsettlers.graphics.image.reader.custom.graphics.CustomGraphicsInterceptor;
 import jsettlers.graphics.image.reader.shadowmap.IdentityShadowMapping;
 import jsettlers.graphics.image.reader.shadowmap.ShadowMapping;
+import jsettlers.graphics.image.reader.shadowmap.ShadowMapping22;
 import jsettlers.graphics.image.reader.shadowmap.ShadowMapping42;
 import jsettlers.graphics.image.reader.versions.DefaultGfxFolderMapping;
 import jsettlers.graphics.image.reader.versions.GfxFolderMapping;
@@ -312,10 +313,16 @@ public final class ImageProvider {
 			File file = findFileInPaths(fileName);
 
 			ShadowMapping shadowMapping;
-			if(fileIndex == 42) {
-				shadowMapping = new ShadowMapping42();
-			} else {
-				shadowMapping = new IdentityShadowMapping();
+			switch (fileIndex) {
+				case 22:
+					shadowMapping = new ShadowMapping22();
+					break;
+				case 42:
+					shadowMapping = new ShadowMapping42();
+					break;
+				default:
+					shadowMapping = new IdentityShadowMapping();
+					break;
 			}
 
 			if (file != null) {
