@@ -339,17 +339,7 @@ public class AdvancedDatFileReader implements DatFileReader {
 					shadowStarts[i] = -1;
 				}
 			}
-			if (shadowDifference == 33) { // change shadows in file 1:
-				shadowStarts[106] = -1;
-				for (i = 105; i >= 33; i--) {
-					shadowStarts[i] = shadowStarts[i - 2]; // material...
-				}
-				shadowStarts[32] = -1;
-				for (i = 31; i >= 27; i--) {
-					shadowStarts[i] = shadowStarts[i - 1]; // decorations
-				}
-				shadowStarts[26] = -1; // wave gets no shadow
-			} else if (shadowDifference == 26) { // change shadows in file 13:
+			if (shadowDifference == 26) { // change shadows in file 13:
 				for (i = 0; i < 27; i++) {
 					shadowStarts[i] = shadowStarts[i + 3];
 				}
@@ -365,11 +355,6 @@ public class AdvancedDatFileReader implements DatFileReader {
 				for (i = 46; i < shadowStarts.length; i++) {
 					shadowStarts[i] = -1; // rest has no shadow
 				}
-			} else if (shadowDifference == 7) { // change shadows in file 6:
-				shadowStarts[18] = shadowStarts[10]; // donkey
-				shadowStarts[17] = shadowStarts[9]; // donkey
-				shadowStarts[16] = shadowStarts[8]; // donkey
-				shadowStarts[15] = shadowStarts[7]; // donkey
 			} else if (shadowDifference == 28) { // change shadows in file 36:
 				shadowStarts[4] = shadowStarts[1]; // roman ferry
 				shadowStarts[6] = -1; // roman ferry front has no extra shadow
@@ -564,7 +549,7 @@ public class AdvancedDatFileReader implements DatFileReader {
 			}
 		}
 
-		int shadowPosition = shadowStarts[realShadowIndex];
+		int shadowPosition = realShadowIndex != -1 ? shadowStarts[realShadowIndex] : -1;
 		if (shadowPosition >= 0) {
 			long[] shadowPositions = readSequenceHeader(shadowPosition);
 			for (int i = 0; i < shadowPositions.length

@@ -312,18 +312,7 @@ public final class ImageProvider {
 
 			File file = findFileInPaths(fileName);
 
-			ShadowMapping shadowMapping;
-			switch (fileIndex) {
-				case 22:
-					shadowMapping = new ShadowMapping22();
-					break;
-				case 42:
-					shadowMapping = new ShadowMapping42();
-					break;
-				default:
-					shadowMapping = new IdentityShadowMapping();
-					break;
-			}
+			ShadowMapping shadowMapping = ShadowMapping.getMappingFor(fileIndex);
 
 			if (file != null) {
 				reader = new AdvancedDatFileReader(file, type, gfxFolderMapping.getDatFileMapping(fileIndex), shadowMapping, "F" + fileIndex);
