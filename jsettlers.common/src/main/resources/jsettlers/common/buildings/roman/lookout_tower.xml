@@ -54,7 +54,7 @@
 	<bricklayer dx="3" dy="3" direction="NORTH_WEST" />
 	<bricklayer dx="3" dy="2" direction="NORTH_WEST" />
 	
-	<flag dx="1" dy="-1" />
+	<flag dx="3" dy="2" />
 	
 	<buildmark dx="-1" dy="1" />
 	<buildmark dx="2" dy="3" />
