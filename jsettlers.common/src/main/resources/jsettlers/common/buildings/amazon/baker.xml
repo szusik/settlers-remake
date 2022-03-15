@@ -27,9 +27,14 @@
 	<blocked dx="2" dy="0" />
 	<blocked dx="2" dy="1" />
 	<blocked dx="2" dy="2" />
-	<blocked dx="2" dy="3" />
-	<blocked dx="3" dy="3" />
 	<blocked dx="3" dy="1" />
+	<blocked dx="3" dy="2" />
+	<blocked dx="0" dy="3" />
+	<blocked dx="-2" dy="1" />
+	<blocked dx="-3" dy="0" />
+	<blocked dx="-3" dy="-1" />
+	<blocked dx="-3" dy="-2" />
+	<blocked dx="-3" dy="-3" />
 
 	<blocked dx="4" dy="1" block="false" />
 	<blocked dx="4" dy="2" block="false" />
@@ -37,12 +42,7 @@
 	<blocked dx="4" dy="4" block="false" />
 	<blocked dx="2" dy="4" block="false" />
 	<blocked dx="1" dy="4" block="false" />
-	<blocked dx="0" dy="3" block="false" />
 	<blocked dx="-1" dy="2" block="false" />
-	<blocked dx="-2" dy="1" block="false" />
-	<blocked dx="-3" dy="-1" block="false" />
-	<blocked dx="-3" dy="-2" block="false" />
-	<blocked dx="-3" dy="-3" block="false" />
 	<blocked dx="-3" dy="-4" block="false" />
 	<blocked dx="-2" dy="-4" block="false" />
 	<blocked dx="-1" dy="-4" block="false" />
@@ -51,8 +51,6 @@
 	<blocked dx="2" dy="-1" block="false" />
 	<blocked dx="3" dy="0" block="false" />
 	<blocked dx="3" dy="4" block="false" />
-	<blocked dx="3" dy="2" block="false" />
-	<blocked dx="-3" dy="0" block="false" />
 	<blocked dx="2" dy="5" block="false" />
 	<blocked dx="3" dy="5" block="false" />
 	<blocked dx="4" dy="5" block="false" />
@@ -60,34 +58,45 @@
 	<blocked dx="-1" dy="3" block="false" />
 	<blocked dx="0" dy="4" block="false" />
 	<blocked dx="1" dy="5" block="false" />
+	<blocked dx="-3" dy="1" block="false" />
+	<blocked dx="-4" dy="-1" block="false" />
+	<blocked dx="-4" dy="-2" block="false" />
+	<blocked dx="-4" dy="-3" block="false" />
+	<blocked dx="-4" dy="-4" block="false" />
+	<blocked dx="-4" dy="0" block="false" />
+	<blocked dx="2" dy="3" block="false" />
+	<blocked dx="3" dy="3" block="false" />
 
-	<door dx="3" dy="2" />
+	<door dx="-1" dy="2" />
 
-	<constructionStack dx="3" dy="5" material="PLANK" buildrequired="5" />
-	<constructionStack dx="4" dy="4" material="STONE" buildrequired="2" />
-	<requestStack dx="3" dy="4" material="FLOUR" />
-	<requestStack dx="4" dy="2" material="WATER" />
-	<offerStack dx="-2" dy="2" material="BREAD" />
+	<constructionStack dx="1" dy="4" material="PLANK" buildrequired="5" />
+	<constructionStack dx="4" dy="5" material="STONE" buildrequired="2" />
 
-	<bricklayer dx="-1" dy="2" direction="NORTH_EAST" />
-	<bricklayer dx="1" dy="4" direction="NORTH_EAST" />
-	<bricklayer dx="4" dy="4" direction="NORTH_WEST" />
+	<requestStack dx="1" dy="5" material="FLOUR" />
+	<requestStack dx="3" dy="5" material="WATER" />
+	<offerStack dx="2" dy="3" material="BREAD" />
+
+	<bricklayer dx="-2" dy="2" direction="NORTH_EAST" />
+	<bricklayer dx="0" dy="4" direction="NORTH_EAST" />
+	<bricklayer dx="4" dy="3" direction="NORTH_WEST" />
 	<bricklayer dx="4" dy="2" direction="NORTH_WEST" />
+	<bricklayer dx="3" dy="3" direction="NORTH_WEST" />
 
-	<flag dx="1" dy="-2" />
+	<flag dx="-3" dy="-2" />
 
-	<buildmark dx="3" dy="1" />
 	<buildmark dx="3" dy="3" />
-	<buildmark dx="1" dy="3" />
-	<buildmark dx="-2" dy="0" />
-	<buildmark dx="-2" dy="-3" />
+	<buildmark dx="1" dy="4" />
+	<buildmark dx="-3" dy="-4" />
+	<buildmark dx="3" dy="1" />
+	<buildmark dx="3" dy="2" />
+	<buildmark dx="-3" dy="0" />
 
-	<smokePosition dx="0" dy="2"/>
+	<smokePosition dx="2" dy="0"/>
 
-	<ovenPosition dx="0" dy="4" direction="NORTH_EAST"/>
+	<ovenPosition dx="4" dy="4" direction="NORTH_EAST"/>
 
-	<image file="14" for="GUI" type="GUI" sequence="39" image="0"/>
-	<image file="13" for="FINAL" type="SETTLER" sequence="23" image="0"/>
-	<image file="13" for="BUILD" type="SETTLER" sequence="23" image="1"/>
+	<image file="44" for="GUI" type="GUI" sequence="42" image="0"/>
+	<image file="43" for="FINAL" type="SETTLER" sequence="28" image="0"/>
+	<image file="43" for="BUILD" type="SETTLER" sequence="28" image="1"/>
 
 </building>
