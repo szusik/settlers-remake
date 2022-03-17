@@ -61,6 +61,7 @@
 	<blocked dx="4" dy="5" block="false" />
 	<blocked dx="2" dy="5" block="false" />
 	<blocked dx="1" dy="5" block="false" />
+	<blocked dx="0" dy="4" block="false" />
 
 	<door dx="0" dy="3" />
 
