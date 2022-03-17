@@ -52,6 +52,8 @@ public abstract class AbstractTextDrawer<T extends GLDrawContext> {
 
 		// TODO add more language specific characters if needed
 
+		// infinity symbol
+		charsBuilder.append('\u221E');
 
 		CHARACTERS = charsBuilder.toString();
 		CHARACTER_COUNT = CHARACTERS.length();

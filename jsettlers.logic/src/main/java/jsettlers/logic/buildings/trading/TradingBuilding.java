@@ -84,14 +84,19 @@ public abstract class TradingBuilding extends Building implements IBuilding.ITra
 
 	@Override
 	public int getRequestedTradingFor(EMaterialType materialType) {
-		return requestedMaterials.getRequestedAmount(materialType);
+		short amount = requestedMaterials.getRequestedAmount(materialType);
+		if(amount == Short.MAX_VALUE) {
+			return Integer.MAX_VALUE;
+		} else {
+			return amount;
+		}
 	}
 
 	public void changeRequestedMaterial(EMaterialType materialType, int amount, boolean relative) {
 		long newValue = amount;
 		if (relative) {
-			int old = requestedMaterials.getRequestedAmount(materialType);
-			if (old == Integer.MAX_VALUE) {
+			short old = requestedMaterials.getRequestedAmount(materialType);
+			if (old == Short.MAX_VALUE) {
 				// infinity stays infinity.
 				return;
 			}
