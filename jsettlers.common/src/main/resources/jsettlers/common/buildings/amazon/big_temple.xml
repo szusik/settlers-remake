@@ -141,8 +141,10 @@
 	<buildmark dx="4" dy="2" />
 	<buildmark dx="4" dy="-1" />
 	<buildmark dx="-1" dy="-5" />
-	<buildmark dx="-1" dy="1" />
-	<buildmark dx="2" dy="3" />
+	<buildmark dx="2" dy="6" />
+	<buildmark dx="-1" dy="5" />
+	<buildmark dx="-2" dy="4" />
+	<buildmark dx="-4" dy="-4" />
 
 	<image file="44" for="GUI" type="GUI" sequence="111" image="0"/>
 	<image file="43" type="SETTLER" for="FINAL" image="0" sequence="36"/>
