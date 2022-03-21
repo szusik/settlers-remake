@@ -34,6 +34,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
 import jsettlers.common.movable.ESoldierClass;
 import jsettlers.common.movable.IGraphicsMovable;
+import jsettlers.graphics.localization.Labels;
 
 /**
  * This class saves the state parts of the building that is displayed by the gui, to detect changes.
@@ -127,6 +128,16 @@ public class BuildingState {
 
 		public int getRequired() {
 			return required;
+		}
+
+		public String getInfoString() {
+			String label;
+			if (required < 0) {
+				label = "building-material-count";
+			} else {
+				label = "building-material-required";
+			}
+			return Labels.getString(label, count, required);
 		}
 	}
 

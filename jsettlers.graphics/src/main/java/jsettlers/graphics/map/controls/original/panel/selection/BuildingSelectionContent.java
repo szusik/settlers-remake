@@ -395,7 +395,7 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 		float offerX = 1 - buttonSpace - buttonWidth;
 
 		for (StackState mat : state.getStackStates()) {
-			MaterialDisplay display = new MaterialDisplay(mat.getType(), mat.getCount(), mat.getRequired());
+			MaterialDisplay display = new MaterialDisplay(mat);
 			if (mat.isOffering()) {
 				materialArea.addChild(display, offerX, 0, offerX + buttonWidth, 1);
 				offerX -= buttonSpace + buttonWidth;
@@ -417,24 +417,14 @@ public class BuildingSelectionContent extends AbstractSelectionContent {
 		/**
 		 * Create a new {@link MaterialDisplay}
 		 *
-		 * @param type
-		 *            The type of material.
-		 * @param amount
-		 *            The number of materials to show.
-		 * @param required
-		 *            <code>true</code> if those are required materials for build.
+		 * @param mat
+		 * 		The stack state this MaterialDisplay should display
 		 */
-		public MaterialDisplay(EMaterialType type, int amount, int required) {
-			String label;
-			if (required < 0) {
-				label = "building-material-count";
-			} else {
-				label = "building-material-required";
-			}
-			String text = Labels.getString(label, amount, required);
+		public MaterialDisplay(StackState mat) {
 			// TODO: use Labels.getName(type) ?
-			addChild(new Button(null, type.getIcon(), type.getIcon(), ""), 0, BUTTON_BOTTOM, 1, 1);
-			addChild(new Label(text, EFontSize.NORMAL), 0, 0, 1, BUTTON_BOTTOM);
+			ImageLink icon = mat.getType().getIcon();
+			addChild(new Button(null, icon, icon, ""), 0, BUTTON_BOTTOM, 1, 1);
+			addChild(new Label(mat.getInfoString(), EFontSize.NORMAL), 0, 0, 1, BUTTON_BOTTOM);
 		}
 	}
 
