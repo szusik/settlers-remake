@@ -64,7 +64,7 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 				// go to tower
 				guard(mov -> mov.building != null && !mov.isInTower,
 					resetAfter(mov -> {
-						if(!mov.isInTower) {
+						if(!mov.isInTower && mov.building != null) {
 							mov.notifyTowerThatRequestFailed();
 							mov.building = null;
 						}
