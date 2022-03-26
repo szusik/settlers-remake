@@ -135,14 +135,7 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 					)
 				),
 				guard(mov -> mov.request != null,
-					resetAfter(
-						mov -> {
-							EMaterialType carriedMaterial = mov.setMaterial(EMaterialType.NO_MATERIAL);
-
-							if (carriedMaterial != EMaterialType.NO_MATERIAL) {
-								mov.grid.dropMaterial(mov.position, carriedMaterial, true, false);
-							}
-						},
+					resetAfter(BearerMovable::forceDropMaterial,
 						selector(
 							sequence(
 								handleOffer(),
@@ -213,6 +206,8 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 
 	@Override
 	protected void abortJob() {
+		forceDropMaterial();
+
 		if(offer != null) offer.distributionAborted();
 
 		if(workerCreationRequest != null) {
@@ -282,4 +277,11 @@ public class BearerMovable extends CivilianMovable implements IBearerMovable, IM
 		grid.removeJobless(this);
 	}
 
+	private void forceDropMaterial() {
+		EMaterialType carriedMaterial = setMaterial(EMaterialType.NO_MATERIAL);
+
+		if (carriedMaterial != EMaterialType.NO_MATERIAL) {
+			grid.dropMaterial(position, carriedMaterial, true, false);
+		}
+	}
 }
