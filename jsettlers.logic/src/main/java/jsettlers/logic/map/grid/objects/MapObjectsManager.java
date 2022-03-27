@@ -317,7 +317,7 @@ public final class MapObjectsManager implements IScheduledTimerable, Serializabl
 		for (RelativePoint point : mapObject.getBlockedTiles()) {
 			int currX = point.calculateX(x);
 			int currY = point.calculateY(y);
-			if (!grid.isInBounds(currX, currY) || grid.isBlocked(currX, currY)) {
+			if (!grid.isInBounds(currX, currY) || grid.isProtected(currX, currY)) {
 				return false;
 			}
 		}
