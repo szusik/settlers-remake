@@ -179,11 +179,7 @@ public class RegroupArmyModule extends ArmyModule {
 						float dst = poi.getOnGridDistTo(soldier)/ SOLDIER_THREAT_DISTANCE;
 						if(dst < 1) {
 							float threat = 1 - dst;
-							if(parent.getEnemiesInTown().contains(soldier))  {
-								threat *= SOLDIER_OWN_GROUND_THREAT_MOD;
-							}
-							float threatConst = threat;
-							poiThreatLevels.compute(poi, (key, val) -> val + threatConst);
+							poiThreatLevels.compute(poi, (key, val) -> val + threat);
 						}
 					}
 				}
