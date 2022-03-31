@@ -21,10 +21,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DefenseStrategyModule extends ArmyModule {
+public class RegroupArmyModule extends ArmyModule {
 
 	private static final float SOLDIER_THREAT_DISTANCE = CommonConstants.TOWER_RADIUS * 4;
-	private static final float SOLDIER_OWN_GROUND_THREAT_MOD = 3;
 	private static final float MAX_THREAT_OVER_COMMIT_FACTOR = 3;
 	private static final float SOLDIER_FORCE_MOVE_DISTANCE = CommonConstants.TOWER_RADIUS * 0.5f;
 	private static final float SOLDIER_MIN_MOVE_DISTANCE = 10;
@@ -33,7 +32,7 @@ public class DefenseStrategyModule extends ArmyModule {
 	private final GroupMap<ShortPoint2D, Integer> groups = new GroupMap<>();
 	private final Comparator<Map.Entry<ShortPoint2D, Float>> POI_COMPARATOR;
 
-	public DefenseStrategyModule(ArmyFramework parent) {
+	public RegroupArmyModule(ArmyFramework parent) {
 		super(parent);
 
 		POI_COMPARATOR = Map.Entry.<ShortPoint2D, Float>comparingByValue().reversed();
@@ -68,11 +67,10 @@ public class DefenseStrategyModule extends ArmyModule {
 		soldiersWithOrders.forEach(s -> groups.setMember(s, null));
 
 		List<ShortPoint2D> unassignedSoldiers = getAvailableSoldiers(soldiersWithOrders);
-		updateDefenseGroups(pois, unassignedSoldiers);
-
+		updateIdleGroups(pois, unassignedSoldiers);
 	}
 
-	private void updateDefenseGroups(Map<ShortPoint2D, Float> pois, List<ShortPoint2D> unassignedSoldiers) {
+	private void updateIdleGroups(Map<ShortPoint2D, Float> pois, List<ShortPoint2D> unassignedSoldiers) {
 		List<Map.Entry<ShortPoint2D, Float>> sortedPOIs = pois.entrySet().stream().sorted(POI_COMPARATOR).collect(Collectors.toList());
 
 		for (Map.Entry<ShortPoint2D, Float> poiData : sortedPOIs) {
