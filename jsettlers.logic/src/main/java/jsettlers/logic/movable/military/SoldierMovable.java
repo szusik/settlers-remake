@@ -405,4 +405,8 @@ public abstract class SoldierMovable extends AttackableHumanMovable implements I
 
 		return player.getCombatStrengthInformation().getCombatStrength(isOnOwnGround()) * strengthMod;
 	}
+
+	public ShortPoint2D getCurrentTarget() {
+		return path != null ? path.getTargetPosition() : null;
+	}
 }

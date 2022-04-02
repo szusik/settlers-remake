@@ -8,6 +8,7 @@ import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
+import jsettlers.logic.movable.military.SoldierMovable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -17,7 +18,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,8 +28,8 @@ public class RegroupArmyModule extends ArmyModule {
 
 	private static final float SOLDIER_THREAT_DISTANCE = CommonConstants.TOWER_RADIUS * 4;
 	private static final float MAX_THREAT_OVER_COMMIT_FACTOR = 3;
-	private static final float SOLDIER_FORCE_MOVE_DISTANCE = CommonConstants.TOWER_RADIUS * 0.5f;
-	private static final float SOLDIER_MIN_MOVE_DISTANCE = 10;
+	private static final float SOLDIER_FORCE_MOVE_DISTANCE = CommonConstants.TOWER_RADIUS;
+	private static final float SOLDIER_MIN_MOVE_DISTANCE = CommonConstants.TOWER_RADIUS* 0.5F;
 	private static final float MIN_THREAT_LEVEL = 1f;
 
 	private final GroupMap<ShortPoint2D, Integer> groups = new GroupMap<>();
@@ -54,6 +57,7 @@ public class RegroupArmyModule extends ArmyModule {
 			i++;
 			return;
 		}
+		removeDeadSoldiers();
 		sendSoldiers(soldiersWithOrders);
 		i = 0;
 	}
@@ -62,12 +66,17 @@ public class RegroupArmyModule extends ArmyModule {
 		Map<ShortPoint2D, Float> pois = calculateThreatLevels(calculatePointsOfInterest());
 
 		removeUnnecessaryGroups(pois.keySet());
+		removeDeadSoldiers();
 
 		// ignore otherwise assigned soldiers
 		soldiersWithOrders.forEach(s -> groups.setMember(s, null));
 
 		List<ShortPoint2D> unassignedSoldiers = getAvailableSoldiers(soldiersWithOrders);
 		updateIdleGroups(pois, unassignedSoldiers);
+	}
+
+	private void removeDeadSoldiers() {
+		groups.removeMemberIf(id -> MovableManager.getMovableByID(id) == null);
 	}
 
 	private void updateIdleGroups(Map<ShortPoint2D, Float> pois, List<ShortPoint2D> unassignedSoldiers) {
@@ -106,7 +115,12 @@ public class RegroupArmyModule extends ArmyModule {
 		for(int i = 0; i < limit && groupMembers.hasNext(); i++) {
 			int soldier = groupMembers.next();
 			groups.setMember(soldier, null);
-			unassignedSoldiers.add(MovableManager.getMovableByID(soldier).getPosition());
+			assert MovableManager.getMovableByID(soldier).isAlive();
+			ShortPoint2D pos = MovableManager.getMovableByID(soldier).getPosition();
+			// the movable might not actually be at its position for different reasons
+			if(parent.movableGrid.getMovableAt(pos.x, pos.y) != null) {
+				unassignedSoldiers.add(pos);
+			}
 		}
 	}
 
