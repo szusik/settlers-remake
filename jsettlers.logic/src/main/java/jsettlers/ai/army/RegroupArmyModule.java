@@ -6,6 +6,7 @@ import jsettlers.common.buildings.EBuildingType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.MovableManager;
 import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.military.SoldierMovable;
@@ -49,17 +50,8 @@ public class RegroupArmyModule extends ArmyModule {
 		sendSoldiers(soldiersWithOrders);
 	}
 
-	private int i = 0;
-
 	@Override
 	public void applyLightRules(Set<Integer> soldiersWithOrders) {
-		if (i < 3) {
-			i++;
-			return;
-		}
-		removeDeadSoldiers();
-		sendSoldiers(soldiersWithOrders);
-		i = 0;
 	}
 
 	private void updateGroups(Set<Integer> soldiersWithOrders) {
@@ -176,6 +168,19 @@ public class RegroupArmyModule extends ArmyModule {
 		for(ShortPoint2D building : parent.aiStatistics.getBuildingPositionsOfTypesForPlayer(EnumSet.allOf(EBuildingType.class), parent.getPlayerId())) {
 			if(pois.stream().mapToInt(poi -> poi.getOnGridDistTo(building)).min().orElse(0) >= CommonConstants.TOWER_RADIUS) {
 				pois.add(building);
+			}
+		}
+
+		for(IPlayer enemy : parent.aiStatistics.getAliveEnemiesOf(parent.getPlayer())) {
+			Iterator<ShortPoint2D> poi = pois.iterator();
+			while(poi.hasNext()) {
+				ShortPoint2D next = poi.next();
+				for(ShortPoint2D enemyBuilding : parent.aiStatistics.getBuildingPositionsOfTypesForPlayer(EBuildingType.MILITARY_BUILDINGS, enemy.getPlayerId())) {
+					if(next.getOnGridDistTo(enemyBuilding) <= CommonConstants.TOWER_RADIUS*2) {
+						poi.remove();
+						break;
+					}
+				}
 			}
 		}
 		return pois;
