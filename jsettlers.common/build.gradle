@@ -23,7 +23,7 @@ task findGitRevision {
 
     FileRepositoryBuilder builder = new FileRepositoryBuilder()
     Repository repository = builder.readEnvironment().findGitDir(file('.')).build()
-    def headRef = repository.getRef("HEAD")
+    def headRef = repository.exactRef("HEAD")
     def localRev = headRef.objectId.name
     repository.close()
 
