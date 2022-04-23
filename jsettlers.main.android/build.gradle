@@ -1,5 +1,18 @@
 apply plugin: 'com.android.application'
 
+
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+
+ext {
+    FileRepositoryBuilder builder = new FileRepositoryBuilder()
+    Repository repository = builder.readEnvironment().findGitDir(file('.')).build()
+    def des = new Git(repository).describe();
+    des.setTags(true);
+    versionString = des.call();
+}
+
 android {
     compileSdkVersion rootProject.ext.androidCompileSdkVersion
     buildToolsVersion rootProject.ext.androidBuildToolsVersion
@@ -9,7 +22,7 @@ android {
         minSdkVersion rootProject.ext.androidMinSdkVersion
         targetSdkVersion rootProject.ext.androidTargetSdkVersion
         versionCode 1
-        versionName '0.0.1'
+        versionName versionString
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
