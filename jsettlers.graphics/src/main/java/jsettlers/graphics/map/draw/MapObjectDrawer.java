@@ -1063,6 +1063,9 @@ public class MapObjectDrawer {
 	private void drawWaves(int x, int y, float color) {
 		Sequence<? extends Image> seq = this.imageProvider.getSettlerSequence(OBJECTS_FILE, WAVES);
 		int len = seq.length();
+		if (len < 1) {
+			return;
+		}
 		int step = (animationStep / 2 + x / 2 + y / 2) % len;
 		if (step < len) {
 			draw(seq.getImageSafe(step, () -> "wave"), x, y, BACKGROUND_Z, color); // waves must not be drawn on top of other things than water
