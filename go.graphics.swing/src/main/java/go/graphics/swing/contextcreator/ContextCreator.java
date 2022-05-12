@@ -15,8 +15,10 @@
 package go.graphics.swing.contextcreator;
 
 import java.awt.Component;
+import java.awt.GraphicsConfiguration;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.SwingUtilities;
 
@@ -70,8 +72,14 @@ public abstract class ContextCreator<T extends Component> implements ComponentLi
 		if(!SwingUtilities.windowForComponent(canvas).isFocused()) return;
 
 		synchronized (wnd_lock) {
-			double scaleX = canvas.getGraphicsConfiguration().getDefaultTransform().getScaleX();
-			double scaleY = canvas.getGraphicsConfiguration().getDefaultTransform().getScaleY();
+			AffineTransform scaleInfo = canvas.getGraphicsConfiguration().getDefaultTransform();
+
+			double scaleX = 1;
+			double scaleY = 1;
+			if(scaleInfo != null) {
+				scaleX = scaleInfo.getScaleX();
+				scaleY = scaleInfo.getScaleX();
+			}
 			new_width = (int) (canvas.getWidth()*scaleX);
 			new_height = (int) (canvas.getHeight()*scaleY);
 			change_res = true;

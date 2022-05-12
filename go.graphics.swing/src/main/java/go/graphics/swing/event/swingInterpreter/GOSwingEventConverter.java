@@ -30,6 +30,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
 import java.lang.reflect.Field;
 import java.util.EnumSet;
 import java.util.Set;
@@ -71,7 +72,10 @@ public class GOSwingEventConverter extends AbstractEventConverter
 	 */
 	public GOSwingEventConverter(Component component, GOEventHandlerProvider provider) {
 		super(provider);
-		this.scaleFactor = () -> component.getGraphicsConfiguration().getDefaultTransform().getScaleX();
+		this.scaleFactor = () -> {
+			AffineTransform trans = component.getGraphicsConfiguration().getDefaultTransform();
+			return (trans != null) ? trans.getScaleX() : 1.0;
+		};
 
 		component.setFocusTraversalKeysEnabled(false);
 
