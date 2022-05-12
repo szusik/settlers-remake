@@ -11,6 +11,21 @@ ext {
     def des = new Git(repository).describe();
     des.setTags(true);
     versionString = des.call();
+
+    def c = new GregorianCalendar();
+    c.setTime(new Date());
+    versionId = 0;
+    versionId *= 100
+    versionId += (c.get(Calendar.YEAR)-2000)
+
+    versionId *= 100
+    versionId += c.get(Calendar.MONTH)
+
+    versionId *= 100
+    versionId += c.get(Calendar.DAY_OF_MONTH)
+
+    versionId *= 100
+    versionId += c.get(Calendar.HOUR_OF_DAY)
 }
 
 android {
@@ -21,7 +36,7 @@ android {
         applicationId "jsettlers.main.android"
         minSdkVersion rootProject.ext.androidMinSdkVersion
         targetSdkVersion rootProject.ext.androidTargetSdkVersion
-        versionCode 1
+        versionCode versionId
         versionName versionString
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
