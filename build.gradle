@@ -4,7 +4,7 @@ apply plugin: 'java'
 ext {
 
     androidAnnotationsVersion = '4.8.0'
-    androidSupportLibraryVersion = '27.1.0'
+    androidSupportLibraryVersion = '28.0.0'
 
     androidBuildToolsVersion = '30.0.3'
     androidCompileSdkVersion = 30
