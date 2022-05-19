@@ -8,13 +8,14 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 ext {
     FileRepositoryBuilder builder = new FileRepositoryBuilder()
     Repository repository = builder.readEnvironment().findGitDir(file('.')).build()
-    def des = new Git(repository).describe();
-    des.setTags(true);
-    versionString = des.call();
+    def des = new Git(repository).describe()
+    def headCommit = new Git(repository).log().call().iterator().next();
+    des.setTags(true)
+    versionString = des.call()
 
-    def c = new GregorianCalendar();
-    c.setTime(new Date());
-    versionId = 0;
+    def c = new GregorianCalendar()
+    c.setTime(headCommit.getAuthorIdent().getWhen())
+    versionId = 0
     versionId *= 100
     versionId += (c.get(Calendar.YEAR)-2000)
 
