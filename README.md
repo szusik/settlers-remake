@@ -6,7 +6,11 @@ This project intends to create a remake of the famous strategy game "The Settler
 The game is currently in an **alpha** status! Therefore bugs, frequent changes making saved games invalid and server abortions need to be expected. Nevertheless we will try to minimize trouble.
 
 ### Found a Bug? Report it!
-If you experience troubles / find a bug, help us fix it. The JSettlers game creates log files of your games that are essential for debugging. Therefore always include the following information in a bug report:
+If you experience troubles / find a bug, help us fix it.
+Please either report your bug as an issue or post it on the JSettlers Discord in the #support channel.
+
+The JSettlers game creates log files of your games that are essential for debugging.
+Therefore, always include the following information in a bug report:
 1. What OS and JRE are you using? If it is Android, please state your Android version.
 2. Revision of your build:
   1. In the PC/Mac version this can be found in the head of the window as "JSettlers - commit: XXXXXXX".
