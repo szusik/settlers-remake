@@ -16,6 +16,8 @@ package jsettlers.graphics.map;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.BitSet;
 
 import go.graphics.EPrimitiveType;
@@ -394,8 +396,8 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			lastException = t;
 		}
 
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PrintStream writer = new PrintStream(out);
+		StringWriter out = new StringWriter();
+		PrintWriter writer = new PrintWriter(out);
 		if(lastException != null) {
 			lastException.printStackTrace(writer);
 		}
