@@ -114,6 +114,7 @@ task run(dependsOn: ':jsettlers.main.swing:run') {
 }
 tasks.getByPath(":jsettlers.mapcreator:run").onlyIf { !gradle.taskGraph.hasTask(":run") }
 tasks.getByPath(":jsettlers.network:run").onlyIf { !gradle.taskGraph.hasTask(":run") }
+tasks.getByPath(":jsettlers.tools:run").onlyIf { !gradle.taskGraph.hasTask(":run") }
 
 task runMapCreator(dependsOn: ':jsettlers.mapcreator:run') {}
 
