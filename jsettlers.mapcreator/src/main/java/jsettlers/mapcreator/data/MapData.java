@@ -351,6 +351,11 @@ public class MapData implements IMapData {
 	}
 
 	@Override
+	public boolean hasStartBuildings() {
+		return false;
+	}
+
+	@Override
 	public byte getLandscapeHeight(int x, int y) {
 		if(!contains(x, y)) return 0;
 		return heights[x][y];

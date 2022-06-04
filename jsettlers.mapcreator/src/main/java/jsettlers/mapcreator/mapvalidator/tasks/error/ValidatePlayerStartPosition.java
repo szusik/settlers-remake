@@ -36,6 +36,7 @@ public class ValidatePlayerStartPosition extends AbstractValidationTask {
 
 		for (int player = 0; player < data.getPlayerCount(); player++) {
 			ShortPoint2D point = data.getStartPoint(player);
+			// TODO fix for no start buildings
 			if (players[point.x][point.y] != player) {
 				addErrorMessage("playerstart.text", point, player);
 			}

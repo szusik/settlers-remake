@@ -21,7 +21,7 @@ import jsettlers.algorithms.partitions.PartitionCalculatorAlgorithm;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.common.logging.MilliStopWatch;
-import jsettlers.logic.map.loading.data.IMapData;
+import jsettlers.logic.map.loading.data.IMutableMapData;
 import jsettlers.logic.map.loading.data.objects.BuildingMapDataObject;
 import jsettlers.logic.map.loading.data.objects.MapDataObject;
 import jsettlers.logic.map.loading.data.objects.MovableObject;
@@ -39,9 +39,9 @@ import jsettlers.common.position.ShortPoint2D;
  * @author Thomas Zeugner
  * @author codingberlin
  */
-public class OriginalMapFileContent implements IMapData {
+public class OriginalMapFileContent implements IMutableMapData {
 
-	// - Heigh of original maps are 0..225 and of remake 0..127
+	// - Height of original maps are 0..225 and of remake 0..127
 	private static final float ORIGINAL_TO_REMAKE_HEIGHT_FACTOR = 127f / 225f;
 	private static final float ORIGINAL_TO_REMAKE_RESOURCE_AMOUNT_FACTOR = 127f / 15f;
 
@@ -85,6 +85,8 @@ public class OriginalMapFileContent implements IMapData {
 
 	private MapPlayerInfo[] mapPlayerInfos;
 
+	private int buildingCount;
+
 	public OriginalMapFileContent(int widthHeight) {
 		setWidthHeight(widthHeight);
 	}
@@ -123,10 +125,22 @@ public class OriginalMapFileContent implements IMapData {
 	}
 
 	public void setMapObject(int pos, int type) {
+		setMapObject(pos, EOriginalMapObjectType.getTypeByInt(type).getNewInstance());
+	}
+
+	public void setMapObject(int pos, MapDataObject object) {
 		if ((pos < 0) || (pos > dataCount))
 			return;
 
-		mapObject[pos] = EOriginalMapObjectType.getTypeByInt(type).getNewInstance();
+		if(mapObject[pos] instanceof BuildingMapDataObject) {
+			buildingCount--;
+		}
+
+		if(object instanceof BuildingMapDataObject) {
+			buildingCount++;
+		}
+
+		mapObject[pos] = object;
 	}
 
 	public void setPlayerCount(int count) {
@@ -153,10 +167,7 @@ public class OriginalMapFileContent implements IMapData {
 	public void setMapObject(int x, int y, MapDataObject newMapObject) {
 		int pos = y * widthHeight + x;
 
-		if ((pos < 0) || (pos >= dataCount))
-			return;
-
-		mapObject[pos] = newMapObject;
+		setMapObject(pos, newMapObject);
 	}
 
 	public void setBuilding(int x, int y, int buildingType, int party, int countSword1, int countSword2, int countSword3, int countArcher1, int countArcher2,
@@ -171,7 +182,7 @@ public class OriginalMapFileContent implements IMapData {
 		if (mapBuildingType == EOriginalMapBuildingType.NOT_A_BUILDING)
 			return;
 		if (mapBuildingType.getValue() != null) {
-			mapObject[pos] = new BuildingMapDataObject(mapBuildingType.getValue(), (byte) party);
+			setMapObject(x, y, new BuildingMapDataObject(mapBuildingType.getValue(), (byte) party));
 		}
 	}
 
@@ -186,7 +197,7 @@ public class OriginalMapFileContent implements IMapData {
 		if (mapSettlerType == EOriginalMapSettlersType.NOT_A_SETTLER)
 			return;
 		if (mapSettlerType.value != null) {
-			mapObject[pos] = new MovableObject(mapSettlerType.value, (byte) party);
+			setMapObject(pos, new MovableObject(mapSettlerType.value, (byte) party));
 		}
 	}
 
@@ -201,7 +212,7 @@ public class OriginalMapFileContent implements IMapData {
 		if (mapStackType == EOriginalMapStackType.NOT_A_STACK)
 			return;
 		if (mapStackType.value != null) {
-			mapObject[pos] = new StackMapDataObject(mapStackType.value, count);
+			setMapObject(pos, new StackMapDataObject(mapStackType.value, count));
 		}
 	}
 
@@ -274,6 +285,11 @@ public class OriginalMapFileContent implements IMapData {
 			return null;
 
 		return mapObject[pos];
+	}
+
+	@Override
+	public boolean hasStartBuildings() {
+		return buildingCount!=0;
 	}
 
 	@Override

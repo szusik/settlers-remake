@@ -17,6 +17,8 @@ package jsettlers.logic.map.loading.newmap;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.landscape.EResourceType;
 import jsettlers.logic.map.loading.data.IMapData;
+import jsettlers.logic.map.loading.data.IMutableMapData;
+import jsettlers.logic.map.loading.data.objects.BuildingMapDataObject;
 import jsettlers.logic.map.loading.data.objects.MapDataObject;
 import jsettlers.common.position.ShortPoint2D;
 
@@ -25,7 +27,7 @@ import jsettlers.common.position.ShortPoint2D;
  * 
  * @author michael
  */
-public class FreshMapData implements FreshMapSerializer.IMapDataReceiver, IMapData {
+public class FreshMapData implements FreshMapSerializer.IMapDataReceiver, IMutableMapData {
 
 	private int width;
 	private int height;
@@ -39,6 +41,8 @@ public class FreshMapData implements FreshMapSerializer.IMapDataReceiver, IMapDa
 	private EResourceType[][] resourceTypes;
 	private byte[][] resourceAmount;
 	private short[][] blockedPartitions;
+
+	private int buildingCount;
 
 	@Override
 	public void setDimension(int width, int height, int playerCount) {
@@ -71,6 +75,13 @@ public class FreshMapData implements FreshMapSerializer.IMapDataReceiver, IMapDa
 
 	@Override
 	public void setMapObject(int x, int y, MapDataObject object) {
+		if(mapObjects[x][y] instanceof BuildingMapDataObject) {
+			buildingCount--;
+		}
+		if(object instanceof BuildingMapDataObject) {
+			buildingCount++;
+		}
+
 		mapObjects[x][y] = object;
 	}
 
@@ -94,6 +105,11 @@ public class FreshMapData implements FreshMapSerializer.IMapDataReceiver, IMapDa
 	@Override
 	public MapDataObject getMapObject(int x, int y) {
 		return mapObjects[x][y];
+	}
+
+	@Override
+	public boolean hasStartBuildings() {
+		return buildingCount!=0;
 	}
 
 	@Override
