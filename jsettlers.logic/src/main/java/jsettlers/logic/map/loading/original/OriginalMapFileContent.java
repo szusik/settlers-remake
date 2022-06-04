@@ -16,6 +16,7 @@ package jsettlers.logic.map.loading.original;
 
 import java.util.BitSet;
 
+import jsettlers.algorithms.datastructures.TrackingArray;
 import jsettlers.algorithms.partitions.IBlockingProvider;
 import jsettlers.algorithms.partitions.PartitionCalculatorAlgorithm;
 import jsettlers.common.landscape.ELandscapeType;
@@ -77,15 +78,13 @@ public class OriginalMapFileContent implements IMutableMapData {
 
 	private byte[] height = null;
 	private ELandscapeType[] landscapeType = null;
-	private MapDataObject[] mapObject = null;
+	private TrackingArray<MapDataObject> mapObject;
 	private byte[] accessible = null;
 	private EResourceType[] resources = null;
 	private byte[] resourceAmount = null;
 	private short[] blockedPartitions = null;
 
 	private MapPlayerInfo[] mapPlayerInfos;
-
-	private int buildingCount;
 
 	public OriginalMapFileContent(int widthHeight) {
 		setWidthHeight(widthHeight);
@@ -98,7 +97,7 @@ public class OriginalMapFileContent implements IMutableMapData {
 
 		height = new byte[dataCount];
 		landscapeType = new ELandscapeType[dataCount];
-		mapObject = new MapDataObject[dataCount];
+		mapObject = new TrackingArray<>(MapDataObject[]::new, dataCount, obj -> obj instanceof BuildingMapDataObject);
 		accessible = new byte[dataCount];
 		resources = new EResourceType[dataCount];
 		resourceAmount = new byte[dataCount];
@@ -132,15 +131,7 @@ public class OriginalMapFileContent implements IMutableMapData {
 		if ((pos < 0) || (pos > dataCount))
 			return;
 
-		if(mapObject[pos] instanceof BuildingMapDataObject) {
-			buildingCount--;
-		}
-
-		if(object instanceof BuildingMapDataObject) {
-			buildingCount++;
-		}
-
-		mapObject[pos] = object;
+		mapObject.set(pos, object);
 	}
 
 	public void setPlayerCount(int count) {
@@ -284,12 +275,12 @@ public class OriginalMapFileContent implements IMutableMapData {
 		if ((pos < 0) || (pos >= dataCount))
 			return null;
 
-		return mapObject[pos];
+		return mapObject.get(pos);
 	}
 
 	@Override
 	public boolean hasStartBuildings() {
-		return buildingCount!=0;
+		return mapObject.getTrackedCount()!=0;
 	}
 
 	@Override
