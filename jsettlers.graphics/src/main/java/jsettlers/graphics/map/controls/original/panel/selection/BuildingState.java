@@ -33,6 +33,7 @@ import jsettlers.common.map.partition.IStockSettings;
 import jsettlers.common.material.EMaterialType;
 import jsettlers.common.material.EPriority;
 import jsettlers.common.movable.ESoldierClass;
+import jsettlers.common.movable.ESoldierType;
 import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.graphics.localization.Labels;
 
@@ -52,6 +53,7 @@ public class BuildingState {
 	 * An array: soldier class -> available places.
 	 */
 	private final Hashtable<ESoldierClass, ArrayList<OccupierState>> occupierStates;
+	private final Map<ESoldierType, Integer> availableSoldiers;
 	private final BitSet stockStates;
 	private final int[] tradingCounts;
 	private final boolean isSeaTrading;
@@ -198,6 +200,7 @@ public class BuildingState {
 		supportedPriorities = building.getSupportedPriorities();
 		construction = building.getStateProgress() < 1;
 		occupierStates = computeOccupierStates(building);
+		availableSoldiers = computeAvailableSoldiers(building);
 		stockStates = computeStockStates(building);
 		tradingCounts = computeTradingCounts(building);
 		for (IBuildingMaterial mat : building.getMaterials()) {
@@ -291,6 +294,16 @@ public class BuildingState {
 		return newStates;
 	}
 
+	private Map<ESoldierType, Integer> computeAvailableSoldiers(IBuilding building) {
+		if(building instanceof IBuilding.IOccupied && !construction) {
+			IBuilding.IOccupied occupied = (IBuilding.IOccupied) building;
+
+			return occupied.calculateAvailableSoldiers();
+		}
+
+		return null;
+	}
+
 	/**
 	 * Gets a list of priorities supported by this state.
 	 * 
@@ -362,6 +375,10 @@ public class BuildingState {
 
 	public List<OccupierState> getOccupiers(ESoldierClass soldierClass) {
 		return Collections.unmodifiableList(occupierStates.get(soldierClass));
+	}
+
+	public Map<ESoldierType, Integer> getAvailableSoldiers() {
+		return Collections.unmodifiableMap(availableSoldiers);
 	}
 
 	public int getTradingCount(EMaterialType material) {
