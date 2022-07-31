@@ -68,7 +68,7 @@ import jsettlers.main.swing.SwingManagedJSettlers;
 import jsettlers.main.swing.settings.SettingsManager;
 import jsettlers.mapcreator.data.MapData;
 import jsettlers.mapcreator.data.MapDataDelta;
-import jsettlers.mapcreator.data.SymmetryConfig;
+import jsettlers.mapcreator.data.symmetry.SymmetryConfig;
 import jsettlers.mapcreator.localization.EditorLabels;
 import jsettlers.mapcreator.main.action.AbortDrawingAction;
 import jsettlers.mapcreator.main.action.CombiningActionFirerer;

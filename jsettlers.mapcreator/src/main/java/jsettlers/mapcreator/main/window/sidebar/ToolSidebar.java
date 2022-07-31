@@ -32,7 +32,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.exceptionhandler.ExceptionHandler;
 import jsettlers.mapcreator.control.IPlayerSetter;
-import jsettlers.mapcreator.data.SymmetryConfig;
+import jsettlers.mapcreator.data.symmetry.SymmetryConfig;
 import jsettlers.mapcreator.localization.EditorLabels;
 import jsettlers.mapcreator.main.tools.PlaceStackToolbox;
 import jsettlers.mapcreator.main.tools.ToolTreeModel;

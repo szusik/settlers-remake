@@ -15,9 +15,8 @@
 package jsettlers.mapcreator.tools;
 
 import jsettlers.common.position.ShortPoint2D;
-import jsettlers.mapcreator.control.IPlayerSetter;
 import jsettlers.mapcreator.data.MapData;
-import jsettlers.mapcreator.data.SymmetryConfig;
+import jsettlers.mapcreator.data.symmetry.SymmetryConfig;
 import jsettlers.mapcreator.main.window.sidebar.ToolSettingsPanel;
 import jsettlers.mapcreator.tools.shapes.EShapeType;
 import jsettlers.mapcreator.tools.shapes.ShapeType;

@@ -1,16 +1,16 @@
 package jsettlers.mapcreator.main.window.sidebar;
 
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.common.utils.collections.map.ArrayListMap;
 import jsettlers.common.utils.mutables.Mutable;
-import jsettlers.graphics.localization.Labels;
-import jsettlers.mapcreator.data.SymmetryConfig;
+import jsettlers.mapcreator.data.symmetry.DefaultSymmetries;
+import jsettlers.mapcreator.data.symmetry.SymmetryConfig;
 import jsettlers.mapcreator.tools.shapes.ShapeIcon;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import java.util.HashMap;
@@ -50,9 +50,10 @@ public class SymmetryWindow extends JPanel {
 		return symInfo;
 	}
 
-	private static final Map<SymmetryConfig, ShapeIcon> PRESETS = new HashMap<>();
+	private static final Map<SymmetryConfig, ShapeIcon> PRESETS = new ArrayListMap<>();
 
 	static {
-		PRESETS.put(SymmetryConfig.DEFAULT, ShapeIcon.NO_SYM);
+		PRESETS.put(DefaultSymmetries.DEFAULT, ShapeIcon.NO_SYM);
+		PRESETS.put(DefaultSymmetries.REPEAT4, ShapeIcon.SYM_REPEAT4);
 	}
 }

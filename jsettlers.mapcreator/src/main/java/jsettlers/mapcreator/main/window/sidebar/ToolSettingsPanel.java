@@ -31,7 +31,8 @@ import javax.swing.JToolBar;
 
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.mutables.Mutable;
-import jsettlers.mapcreator.data.SymmetryConfig;
+import jsettlers.mapcreator.data.symmetry.DefaultSymmetries;
+import jsettlers.mapcreator.data.symmetry.SymmetryConfig;
 import jsettlers.mapcreator.tools.Tool;
 import jsettlers.mapcreator.tools.shapes.EShapeProperty;
 import jsettlers.mapcreator.tools.shapes.EShapeType;
@@ -51,8 +52,8 @@ public class ToolSettingsPanel extends Box {
 	 */
 	private ShapeType activeShape = null;
 
-	private Mutable<SymmetryConfig> symmetry = new Mutable<>();
-	private Mutable<ShortPoint2D> symmetryPoint = new Mutable<>();
+	private final Mutable<SymmetryConfig> symmetry = new Mutable<>(DefaultSymmetries.DEFAULT);
+	private final Mutable<ShortPoint2D> symmetryPoint = new Mutable<>();
 
 	/**
 	 * All buttons

@@ -22,7 +22,7 @@ import javax.swing.Icon;
 
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.mapcreator.data.MapData;
-import jsettlers.mapcreator.data.SymmetryConfig;
+import jsettlers.mapcreator.data.symmetry.SymmetryConfig;
 import jsettlers.mapcreator.localization.EditorLabels;
 import jsettlers.mapcreator.tools.icons.ToolIcon;
 import jsettlers.mapcreator.tools.shapes.EShapeType;
@@ -97,6 +97,8 @@ public abstract class AbstractTool implements Tool {
 
 	@Override
 	public void apply(MapData map, SymmetryConfig symmetry, ShapeType shapeType, ShortPoint2D start, ShortPoint2D end, double uidx) {
-		apply(map, shapeType, start, end, uidx);
+		symmetry.transform(map.getWidth(), map.getHeight(), start, end,null).forEach(tuple -> {
+			apply(map, shapeType, tuple.getE1(), tuple.getE2(), uidx);
+		});
 	}
 }
