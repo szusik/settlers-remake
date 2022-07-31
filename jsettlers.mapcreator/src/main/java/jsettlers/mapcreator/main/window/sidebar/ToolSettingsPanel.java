@@ -29,6 +29,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import jsettlers.common.position.ShortPoint2D;
 import jsettlers.common.utils.mutables.Mutable;
 import jsettlers.mapcreator.data.SymmetryConfig;
 import jsettlers.mapcreator.tools.Tool;
@@ -51,6 +52,7 @@ public class ToolSettingsPanel extends Box {
 	private ShapeType activeShape = null;
 
 	private Mutable<SymmetryConfig> symmetry = new Mutable<>();
+	private Mutable<ShortPoint2D> symmetryPoint = new Mutable<>();
 
 	/**
 	 * All buttons
@@ -87,7 +89,7 @@ public class ToolSettingsPanel extends Box {
 		JToolBar tb = new JToolBar();
 		tb.setFloatable(false);
 
-		add(SymmetryWindow.createOverview(symmetry));
+		add(SymmetryWindow.createOverview(symmetry, symmetryPoint));
 
 		ButtonGroup group = new ButtonGroup();
 
@@ -124,6 +126,10 @@ public class ToolSettingsPanel extends Box {
 
 	public SymmetryConfig getSymmetry() {
 		return symmetry.object;
+	}
+
+	public void setSymmetryPoint(ShortPoint2D symmetryPoint) {
+		this.symmetryPoint.object = symmetryPoint;
 	}
 
 	/**

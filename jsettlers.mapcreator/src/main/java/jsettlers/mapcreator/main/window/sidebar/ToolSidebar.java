@@ -38,6 +38,7 @@ import jsettlers.mapcreator.main.tools.PlaceStackToolbox;
 import jsettlers.mapcreator.main.tools.ToolTreeModel;
 import jsettlers.mapcreator.presetloader.PresetLoader;
 import jsettlers.mapcreator.tools.SetStartpointTool;
+import jsettlers.mapcreator.tools.SetSymmetrypointTool;
 import jsettlers.mapcreator.tools.Tool;
 import jsettlers.mapcreator.tools.ToolBox;
 import jsettlers.mapcreator.tools.ToolNode;
@@ -242,6 +243,7 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 			PRESETS,
 
 			new SetStartpointTool(this),
+			new SetSymmetrypointTool(drawProperties),
 			new DeleteObjectTool(),
 	});
 	// @formatter:on
