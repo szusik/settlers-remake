@@ -15,7 +15,6 @@
 package jsettlers.mapcreator.main.window.sidebar;
 
 import java.awt.BorderLayout;
-import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -70,7 +69,7 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 	/**
 	 * Panel with the shape settings
 	 */
-	private final ShapeSelectionPanel shapeSettingsPanel = new ShapeSelectionPanel();
+	private final ToolSettingsPanel drawProperties = new ToolSettingsPanel();
 
 	/**
 	 * Presets, Templates: Loaded from .xml file
@@ -279,7 +278,7 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 		toolshelf.setCellRenderer(new ToolRenderer());
 		toolshelf.setRootVisible(false);
 
-		add(shapeSettingsPanel, BorderLayout.NORTH);
+		add(drawProperties, BorderLayout.NORTH);
 	}
 
 	/**
@@ -299,7 +298,7 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 	 * @return The active shape
 	 */
 	public ShapeType getActiveShape() {
-		return shapeSettingsPanel.getActiveShape();
+		return drawProperties.getActiveShape();
 	}
 
 	protected abstract void changeTool(Tool lastPathComponent);
@@ -316,10 +315,10 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 	 *            Selected tool
 	 */
 	public void updateShapeSettings(Tool tool) {
-		shapeSettingsPanel.updateShapeSettings(tool);
+		drawProperties.updateShapeSettings(tool);
 	}
 
 	public SymmetryConfig getSymmetry() {
-		return null;
+		return drawProperties.getSymmetry();
 	}
 }

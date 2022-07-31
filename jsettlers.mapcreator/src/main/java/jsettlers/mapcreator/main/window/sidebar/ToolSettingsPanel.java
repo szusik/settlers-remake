@@ -29,6 +29,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import jsettlers.common.utils.mutables.Mutable;
+import jsettlers.mapcreator.data.SymmetryConfig;
 import jsettlers.mapcreator.tools.Tool;
 import jsettlers.mapcreator.tools.shapes.EShapeProperty;
 import jsettlers.mapcreator.tools.shapes.EShapeType;
@@ -40,13 +42,15 @@ import jsettlers.mapcreator.tools.shapes.ShapeType;
  * 
  * @author Andreas Butti
  */
-public class ShapeSelectionPanel extends Box {
+public class ToolSettingsPanel extends Box {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Active shape
 	 */
 	private ShapeType activeShape = null;
+
+	private Mutable<SymmetryConfig> symmetry = new Mutable<>();
 
 	/**
 	 * All buttons
@@ -78,10 +82,12 @@ public class ShapeSelectionPanel extends Box {
 	/**
 	 * Constructor
 	 */
-	public ShapeSelectionPanel() {
+	public ToolSettingsPanel() {
 		super(BoxLayout.Y_AXIS);
 		JToolBar tb = new JToolBar();
 		tb.setFloatable(false);
+
+		add(SymmetryWindow.createOverview(symmetry));
 
 		ButtonGroup group = new ButtonGroup();
 
@@ -114,6 +120,10 @@ public class ShapeSelectionPanel extends Box {
 	 */
 	public ShapeType getActiveShape() {
 		return activeShape;
+	}
+
+	public SymmetryConfig getSymmetry() {
+		return symmetry.object;
 	}
 
 	/**
