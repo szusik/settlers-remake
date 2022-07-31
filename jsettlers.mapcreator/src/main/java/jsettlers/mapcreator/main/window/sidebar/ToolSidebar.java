@@ -33,6 +33,7 @@ import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.exceptionhandler.ExceptionHandler;
 import jsettlers.mapcreator.control.IPlayerSetter;
+import jsettlers.mapcreator.data.SymmetryConfig;
 import jsettlers.mapcreator.localization.EditorLabels;
 import jsettlers.mapcreator.main.tools.PlaceStackToolbox;
 import jsettlers.mapcreator.main.tools.ToolTreeModel;
@@ -316,5 +317,9 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 	 */
 	public void updateShapeSettings(Tool tool) {
 		shapeSettingsPanel.updateShapeSettings(tool);
+	}
+
+	public SymmetryConfig getSymmetry() {
+		return null;
 	}
 }
