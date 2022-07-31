@@ -190,6 +190,7 @@ public abstract class ToolSidebar extends JPanel implements IPlayerSetter {
 							new PlaceStackToolbox(EMaterialType.FISH, 8),
 							new PlaceStackToolbox(EMaterialType.FLOUR, 8),
 							new PlaceStackToolbox(EMaterialType.PIG, 8),
+							new PlaceStackToolbox(EMaterialType.MEAT, 8),
 							new PlaceStackToolbox(EMaterialType.WATER, 8),
 							new PlaceStackToolbox(EMaterialType.RICE, 8),
 							new PlaceStackToolbox(EMaterialType.WINE, 8),
