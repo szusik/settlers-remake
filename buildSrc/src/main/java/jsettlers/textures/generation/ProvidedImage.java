@@ -21,10 +21,12 @@ public class ProvidedImage {
 
 	private final BufferedImage image;
 	private final int[] offsets;
+	private final int[] imageSize;
 
-	public ProvidedImage(BufferedImage image, int[] offsets) {
+	public ProvidedImage(BufferedImage image, int[] offsets, int[] imageSize) {
 		this.image = image;
 		this.offsets = offsets;
+		this.imageSize = imageSize;
 	}
 
 	public ShortBuffer getData() {
@@ -39,12 +41,20 @@ public class ProvidedImage {
 		return data;
 	}
 
-	public int getWidth() {
+	public int getTextureWidth() {
 		return image.getWidth();
 	}
 
-	public int getHeight() {
+	public int getTextureHeight() {
 		return image.getHeight();
+	}
+
+	public int getImageWidth() {
+		return imageSize[0];
+	}
+
+	public int getImageHeight() {
+		return imageSize[1];
 	}
 
 	public int getOffsetX() {

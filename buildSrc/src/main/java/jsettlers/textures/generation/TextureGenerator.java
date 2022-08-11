@@ -14,6 +14,10 @@
  */
 package jsettlers.textures.generation;
 
+import java.nio.file.Files;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -33,6 +37,11 @@ public final class TextureGenerator {
 		ProvidedImage torso = null;
 		String name;
 	}
+
+	private static final Pattern TUPLE_PATTERN = Pattern.compile("^(?<first>[-?\\d+]+)\\s+(?<second>[-?\\d+]+)\\R*$");
+
+	private static final String OFFSET_SUFFIX = ".offset";
+	private static final String SIZE_SUFFIX = ".size";
 
 	private final File outDirectory;
 	private final TextureIndex textureIndex;
@@ -123,18 +132,18 @@ public final class TextureGenerator {
 	private int storeImage(String name, ProvidedImage image, Integer torsoIndex, boolean isTorso) throws IOException {
 		int texture = textureIndex.getNextTextureIndex();
 		TexturePosition position = addAsNewImage(image, texture);
-		int index = textureIndex.registerTexture(name, texture, image.getOffsetX(), image.getOffsetY(), image.getWidth(), image.getHeight(), torsoIndex, isTorso, position);
-		System.out.println("Texture file #" + texture + ": add name=" + name + " using offsets x=" + image.getOffsetX() + ".." + (image.getOffsetX() + image.getWidth()) + ", y=" + image
-				.getOffsetY() + ".." + (image.getOffsetY() + image.getHeight()) + " => in texture at x=" + position.getLeft() + ".." + position.getRight() + ", y=" + position.getTop() + ".."
+		int index = textureIndex.registerTexture(name, texture, image.getOffsetX(), image.getOffsetY(), image.getImageWidth(), image.getImageHeight(), torsoIndex, isTorso, position);
+		System.out.println("Texture file #" + texture + ": add name=" + name + " using values x=" + image.getOffsetX() + ".." + (image.getOffsetX() + image.getImageWidth()) + ", y=" + image
+				.getOffsetY() + ".." + (image.getOffsetY() + image.getImageHeight()) + " => in texture at x=" + position.getLeft() + ".." + position.getRight() + ", y=" + position.getTop() + ".."
 				+ position.getBottom());
 		return index;
 	}
 
 	// This is slow.
 	private TexturePosition addAsNewImage(ProvidedImage data, int texture) throws IOException {
-		int size = getNextPOT(Math.max(data.getWidth(), data.getHeight()));
+		int size = getNextPOT(Math.max(data.getTextureWidth(), data.getTextureHeight()));
 		TextureFile file = new TextureFile(new File(outDirectory, "images_" + texture), size, size);
-		TexturePosition position = file.addImage(data.getData(), data.getWidth());
+		TexturePosition position = file.addImage(data.getData(), data.getTextureWidth());
 		file.write();
 		return position;
 	}
@@ -149,35 +158,48 @@ public final class TextureGenerator {
 
 	private ProvidedImage getImage(File imageFile) {
 		try {
-			int[] offsets = getOffsets(imageFile);
 			BufferedImage image = ImageIO.read(imageFile);
+			int[] size = getTupleFile(imageFile, SIZE_SUFFIX)
+					.orElse(new int[] {image.getWidth(), image.getHeight()});
 
-			return new ProvidedImage(image, offsets);
+			int[] offsets = getTupleFile(imageFile, OFFSET_SUFFIX)
+					.orElse(new int[2]);
+
+			return new ProvidedImage(image, offsets, size);
 		} catch (Throwable t) {
 			System.err.println("WARNING: Problem reading image " + imageFile + ". Problem was: " + t.getMessage());
 			return null;
 		}
 	}
+	private Optional<int[]> getTupleFile(File file, String suffix) {
+		return getTupleFile(new File(file.getPath() + suffix));
+	}
 
-	private int[] getOffsets(File imageFile) {
-		File offset = new File(imageFile.getPath() + ".offset");
+	private Optional<int[]> getTupleFile(File file) {
 
-		if (!offset.exists()) {
-			return new int[] { 0, 0 };
+		if (!file.exists()) {
+			return Optional.empty();
 		}
 
-		int[] offsets = new int[2];
 
-		try (Scanner in = new Scanner(offset)) {
-			offsets[0] = in.nextInt();
-			in.skip("\\s+");
-			offsets[1] = in.nextInt();
-			in.close();
-			return offsets;
-
-		} catch (Throwable t) {
-			System.err.println("WARNING: Problem reading offsets for " + imageFile + ", assuming (0,0). Problem was: " + t.getMessage());
-			return new int[] { 0, 0 };
+		String content;
+		try {
+			content = Files.readString(file.toPath());
+		} catch (IOException e) {
+			System.err.println("WARNING: " + file + " could not be read: ");
+			e.printStackTrace();
+			return Optional.empty();
 		}
+
+		Matcher matcher = TUPLE_PATTERN.matcher(content);
+		if (!matcher.matches()) {
+			System.err.println("WARNING: " + file + " has wrong file format!");
+			return Optional.empty();
+		}
+
+		int[] values = new int[2];
+		values[0] = Integer.parseInt(matcher.group("first"));
+		values[1] = Integer.parseInt(matcher.group("second"));
+		return Optional.of(values);
 	}
 }
