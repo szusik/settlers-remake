@@ -31,19 +31,15 @@ public class TextureFile {
 	public static void write(File file, ShortBuffer data, int width, int height, int imageWidth, int imageHeight) throws IOException {
 		try(DataOutputStream out = new DataOutputStream(new BufferedOutputStream(
 				new FileOutputStream(file)))) {
-			out.writeShort(imageWidth);
-			out.writeShort(imageHeight);
+			out.writeShort(width);
+			out.writeShort(height);
 
 			if(data.remaining() != width*height) {
 				throw new IllegalStateException("illegal amount of data: actual: " + data.remaining() + ", expected: " + width*height);
 			}
 
-			for(int y = 0; y < imageHeight; y++) {
-				for (int x = 0; x < imageWidth; x++) {
-					int rx = (int) (x*width/(float)imageWidth);
-					int ry = (int) (y*height/(float)imageHeight);
-					out.writeShort(data.get(rx + ry*width));
-				}
+			while(data.hasRemaining()) {
+				out.writeShort(data.get());
 			}
 		}
 	}
