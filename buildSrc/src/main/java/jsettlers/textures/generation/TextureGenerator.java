@@ -116,44 +116,32 @@ public final class TextureGenerator {
 	private void storeImage(String name, ProvidedImage data, ProvidedImage torso) {
 		try {
 			if (data != null) {
-				Integer torsoIndex = null;
+				int torsoIndex = -1;
 
 				if (torso != null) {
-					torsoIndex = storeImage(name + "_torso", torso, null, true);
+					torsoIndex = storeImage(name + "_torso", torso, -1);
 				}
 
-				storeImage(name, data, torsoIndex, false);
+				storeImage(name, data, torsoIndex);
 			}
 		} catch (Throwable t) {
 			System.err.println("WARNING: Problem writing image " + name + ". Problem was: " + t.getMessage());
 		}
 	}
 
-	private int storeImage(String name, ProvidedImage image, Integer torsoIndex, boolean isTorso) throws IOException {
+	private int storeImage(String name, ProvidedImage image, int torsoIndex) throws IOException {
 		int texture = textureIndex.getNextTextureIndex();
-		TexturePosition position = addAsNewImage(image, texture);
-		int index = textureIndex.registerTexture(name, texture, image.getOffsetX(), image.getOffsetY(), image.getImageWidth(), image.getImageHeight(), torsoIndex, isTorso, position);
+		addAsNewImage(image, texture);
+		int index = textureIndex.registerTexture(name, texture, image.getOffsetX(), image.getOffsetY(), image.getImageWidth(), image.getImageHeight(), torsoIndex);
 		System.out.println("Texture file #" + texture + ": add name=" + name + " using values x=" + image.getOffsetX() + ".." + (image.getOffsetX() + image.getImageWidth()) + ", y=" + image
-				.getOffsetY() + ".." + (image.getOffsetY() + image.getImageHeight()) + " => in texture at x=" + position.getLeft() + ".." + position.getRight() + ", y=" + position.getTop() + ".."
-				+ position.getBottom());
+				.getOffsetY() + ".." + (image.getOffsetY() + image.getImageHeight()));
 		return index;
 	}
 
 	// This is slow.
-	private TexturePosition addAsNewImage(ProvidedImage data, int texture) throws IOException {
-		int size = getNextPOT(Math.max(data.getTextureWidth(), data.getTextureHeight()));
-		TextureFile file = new TextureFile(new File(outDirectory, "images_" + texture), size, size);
-		TexturePosition position = file.addImage(data.getData(), data.getTextureWidth());
-		file.write();
-		return position;
-	}
-
-	private static int getNextPOT(int height) {
-		int i = 2;
-		while (i < height) {
-			i *= 2;
-		}
-		return i;
+	private void addAsNewImage(ProvidedImage data, int texture) throws IOException {
+		File imageFile = new File(outDirectory, "images_" + texture);
+		TextureFile.write(imageFile, data.getData(), data.getTextureWidth(), data.getTextureHeight(), data.getImageWidth(), data.getImageHeight());
 	}
 
 	private ProvidedImage getImage(File imageFile) {
