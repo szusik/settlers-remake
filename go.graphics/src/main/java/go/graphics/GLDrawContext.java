@@ -121,18 +121,21 @@ public abstract class GLDrawContext {
 		managedHandles.add(new ManagedHandle(parent, quad_count, texture_size));
 	}
 
-	public ManagedUnifiedDrawHandle createManagedUnifiedDrawCall(ShortBuffer texData, float offsetX, float offsetY, int width, int height) {
+	public ManagedUnifiedDrawHandle createManagedUnifiedDrawCall(ImageData texture, float offsetX, float offsetY, int width, int height) {
+		int texWidth = texture.getWidth();
+		int texHeight = texture.getHeight();
+
 		for(ManagedHandle handle : managedHandles) {
 			int position;
-			if(handle.quad_index != handle.quad_count && (position = handle.findTextureHole(width, height)) != -1) {
+			if(handle.quad_index != handle.quad_count && (position = handle.findTextureHole(texWidth, texHeight)) != -1) {
 				UIPoint corner;
-				if((corner = handle.addTexture(texData, width, height, position)) == null) continue;
+				if((corner = handle.addTexture(texture.getData(), texWidth, texHeight, position)) == null) continue;
 
 
 				float lu = (float) corner.getX();
 				float lv = (float) corner.getY();
-				float hu = lu + width/(float) handle.texture_size;
-				float hv = lv + height/(float) handle.texture_size;
+				float hu = lu + texWidth/(float) handle.texture_size;
+				float hv = lv + texHeight/(float) handle.texture_size;
 
 				float[] data = createQuadGeometry(offsetX, -offsetY, offsetX+width, -offsetY-height, lu, lv, hu, hv);
 
@@ -143,7 +146,7 @@ public abstract class GLDrawContext {
 		}
 
 		addNewHandle();
-		return createManagedUnifiedDrawCall(texData, offsetX, offsetY, width, height);
+		return createManagedUnifiedDrawCall(texture, offsetX, offsetY, width, height);
 	}
 
 	private boolean valid = true;

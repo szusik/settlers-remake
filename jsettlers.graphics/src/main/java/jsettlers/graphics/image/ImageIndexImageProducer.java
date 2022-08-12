@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+import go.graphics.ImageData;
 import jsettlers.graphics.image.reader.translator.ImageDataProducer;
 
 public class ImageIndexImageProducer implements ImageDataProducer {
@@ -16,7 +17,7 @@ public class ImageIndexImageProducer implements ImageDataProducer {
 	}
 
 	@Override
-	public ShortBuffer produceData() {
+	public ImageData produceData() {
 		try(DataInputStream dis = new DataInputStream(ImageIndexFile.getResource("images_" + textureNumber))) {
 			int width = dis.readShort();
 			int height = dis.readShort();
@@ -29,7 +30,7 @@ public class ImageIndexImageProducer implements ImageDataProducer {
 				output.put(dis.readShort());
 			}
 			output.rewind();
-			return output;
+			return ImageData.of(output, width, height);
 		} catch (IOException e) {
 			throw new IllegalStateException("failed to load imageIndexImage", e);
 		}

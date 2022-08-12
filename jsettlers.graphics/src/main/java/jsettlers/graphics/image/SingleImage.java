@@ -24,9 +24,9 @@ import go.graphics.ManagedUnifiedDrawHandle;
 
 import java.awt.image.BufferedImage;
 
-import go.graphics.UnifiedDrawHandle;
 import jsettlers.common.Color;
 import jsettlers.graphics.image.reader.ImageMetadata;
+import go.graphics.ImageData;
 import jsettlers.graphics.image.reader.translator.ImageDataProducer;
 
 /**
@@ -74,7 +74,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 
 	protected SingleImage(ShortBuffer data, int width, int height, int offsetX,
 						  int offsetY, String name) {
-		this(() -> data, width, height, offsetX, offsetY, name);
+		this(() -> ImageData.of(data, width, height), width, height, offsetX, offsetY, name);
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	}
 
 	@Override
-	public ShortBuffer getData() {
+	public ImageData getData() {
 		return this.data.produceData();
 	}
 
@@ -154,12 +154,12 @@ public class SingleImage extends Image implements ImageDataPrivider {
 
 	protected void checkHandles(GLDrawContext gl) {
 		if(geometryIndex == null || !geometryIndex.isValid()) {
-			ShortBuffer textureBuffer = generateTextureData();
-			geometryIndex = gl.createManagedUnifiedDrawCall(textureBuffer, toffsetX, toffsetY, twidth, theight);
+			ImageData texture = generateTextureData();
+			geometryIndex = gl.createManagedUnifiedDrawCall(texture, toffsetX, toffsetY, twidth, theight);
 		}
 	}
 
-	protected ShortBuffer generateTextureData() {
+	protected ImageData generateTextureData() {
 		return getData();
 	}
 
@@ -188,7 +188,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 		}
 
 		BufferedImage rendered = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		ShortBuffer data = getData().duplicate();
+		ShortBuffer data = getData().convert(width, height).getData();
 		data.rewind();
 
 		int[] rgbArray = new int[data.remaining()];
@@ -202,7 +202,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	}
 
 	public Long hash() {
-		ShortBuffer data = getData();
+		ShortBuffer data = getData().getData().duplicate();
 		data.rewind();
 		long hashCode = 1L;
 		long multiplier = 1L;
@@ -210,7 +210,6 @@ public class SingleImage extends Image implements ImageDataPrivider {
 			multiplier *= 31L;
 			hashCode += (data.get() + 27L) * multiplier;
 		}
-		data.rewind();
 		return hashCode;
 	}
 }

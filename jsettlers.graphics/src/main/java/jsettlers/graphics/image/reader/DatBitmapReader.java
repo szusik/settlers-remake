@@ -20,6 +20,7 @@ import jsettlers.graphics.image.Image;
 import jsettlers.graphics.image.reader.bytereader.ByteReader;
 import jsettlers.graphics.image.reader.translator.HeaderType;
 import jsettlers.graphics.image.reader.translator.DatBitmapTranslator;
+import go.graphics.ImageData;
 
 /**
  * This class is capable of reading an image from the given stram.
@@ -246,7 +247,7 @@ public final class DatBitmapReader<T extends Image> {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			return array.getArray();
+			return ImageData.of(array.getArray(), metadata.width, metadata.height);
 		}, name);
 	}
 }

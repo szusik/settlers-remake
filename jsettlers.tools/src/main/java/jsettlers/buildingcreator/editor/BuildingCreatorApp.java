@@ -72,8 +72,8 @@ public class BuildingCreatorApp implements IMapInterfaceListener, Runnable {
 	@Override
 	public void run() {
 		try {
-			EBuildingType type = askType();
-			BuildingVariant variant = askVariant(type);
+			EBuildingType type = EBuildingType.SAWMILL;//askType();
+			BuildingVariant variant = type.getVariant(ECivilisation.EGYPTIAN);//askVariant(type);
 
 			definition = new BuildingDefinition(variant);
 			map = new BuildingtestMap(definition);
