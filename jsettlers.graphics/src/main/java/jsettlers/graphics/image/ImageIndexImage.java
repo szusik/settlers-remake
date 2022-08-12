@@ -25,8 +25,6 @@ import jsettlers.common.Color;
  * @author Michael Zangl
  */
 public class ImageIndexImage extends Image {
-	private static final float IMAGE_DRAW_OFFSET = .5f;
-
 	private final short width;
 	private final short height;
 	private final float[] geometry;
@@ -76,8 +74,8 @@ public class ImageIndexImage extends Image {
 		this.vmax = vmax;
 		this.isTorso = isTorso;
 
-		geometry = GLDrawContext.createQuadGeometry(-offsetX + IMAGE_DRAW_OFFSET, -offsetY + IMAGE_DRAW_OFFSET,
-				-offsetX + width + IMAGE_DRAW_OFFSET,-offsetY + IMAGE_DRAW_OFFSET + height,
+		geometry = GLDrawContext.createQuadGeometry(-offsetX, -offsetY,
+				-offsetX + width,-offsetY + height,
 				umin, vmin, umax, vmax);
 	}
 
@@ -113,13 +111,36 @@ public class ImageIndexImage extends Image {
 
 	@Override
 	public void drawImageAtRect(GLDrawContext gl, float x, float y, float width, float height, float intensity) {
-
 		if(imageRectHandle == null || !imageRectHandle.isValid()) imageRectHandle = gl.createUnifiedDrawCall(4, "image-index", texture.getTextureIndex(gl), GLDrawContext.createQuadGeometry(0,1, 1, 0, umin, vmin, umax, vmax));
 		draw(gl, imageRectHandle, x, y, 0, width, height, 0, null, 1);
 
 		if (torso != null) {
 			torso.drawImageAtRect(gl, x, y, width, height, 1);
 		}
+	}
+
+	@Override
+	public void drawOnlyImageWithProgressAt(GLDrawContext gl, float x, float y, float z, float u1, float v1, float u2, float v2, float fow, boolean triangle) {
+		if(geometryIndex == null || !geometryIndex.isValid()) {
+			geometryIndex = gl.createUnifiedDrawCall(4, "image-index", texture.getTextureIndex(gl), geometry);
+		}
+
+
+		BuildingProgressDrawer.drawOnlyImageWithProgressAt(gl,
+				x,
+				y,
+				z,
+				u1, v1, u2, v2,
+				umin,
+				umax,
+				vmax, // v is swapped because the image is upside down
+				vmin,
+				geometryIndex.texture,
+				-offsetX,
+				-offsetY,
+				height,
+				width,
+				fow, triangle);
 	}
 
 	public void setTorso(ImageIndexImage torso) {

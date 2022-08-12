@@ -131,7 +131,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 
 	@Override
 	public void drawImageAtRect(GLDrawContext gl, float x, float y, float width, float height, float intensity) {
-		checkStaticHandles(gl);
+		checkHandles(gl);
 
 		// dark magic
 		float sx = width/(float)twidth;
@@ -163,36 +163,23 @@ public class SingleImage extends Image implements ImageDataPrivider {
 		return getData();
 	}
 
-	private void checkStaticHandles(GLDrawContext gl) {
+
+	@Override
+	public void drawOnlyImageWithProgressAt(GLDrawContext gl, float x, float y, float z, float u1, float v1, float u2, float v2, float fow, boolean triangle) {
 		checkHandles(gl);
 
-		if(progressHandle == null || !progressHandle.isValid()) {
-			progressHandle = gl.createUnifiedDrawCall(4, "building-progress-quad", geometryIndex.texture, GLDrawContext.createQuadGeometry(0, 0, 1, 1, 0, 0, 1, 1));
-			progressHandle.forceNoCache();
-		}
-
-		if(triProgressHandle == null || !triProgressHandle.isValid()) {
-			triProgressHandle = gl.createUnifiedDrawCall(3, "building-progress-tri", geometryIndex.texture, new float[] {0, 0, 0, 0, 0.5f, 1, 0.5f, 1, 1, 0, 1, 0});
-			triProgressHandle.forceNoCache();
-		}
-	}
-
-	private static UnifiedDrawHandle progressHandle = null;
-	private static UnifiedDrawHandle triProgressHandle = null;
-
-
-	public void drawOnlyImageWithProgressAt(GLDrawContext gl, float x, float y, float z, float u1, float v1, float u2, float v2, float fow, boolean triangle) {
-		checkStaticHandles(gl);
-
-		float nu1 = geometryIndex.texX+u1*(geometryIndex.texWidth-geometryIndex.texX);
-		float nu2 = geometryIndex.texX+u2*(geometryIndex.texWidth-geometryIndex.texX);
-
-		float nv1 = geometryIndex.texY+v1*(geometryIndex.texHeight-geometryIndex.texY);
-		float nv2 = geometryIndex.texY+v2*(geometryIndex.texHeight-geometryIndex.texY);
-
-		UnifiedDrawHandle dh = triangle?triProgressHandle:progressHandle;
-		dh.texture = geometryIndex.texture;
-		dh.drawProgress(triangle?EPrimitiveType.Triangle:EPrimitiveType.Quad, x+toffsetX+twidth*u1, y-toffsetY-theight*v1, z, twidth*(u2-u1), -theight*(v2-v1), new Color(nu1, nv1, nu2, nv2), fow);
+		BuildingProgressDrawer.drawOnlyImageWithProgressAt(gl,
+				x, y, z, u1, v1, u2, v2,
+				geometryIndex.texX,
+				geometryIndex.texWidth,
+				geometryIndex.texY,
+				geometryIndex.texHeight,
+				geometryIndex.texture,
+				toffsetX,
+				toffsetY,
+				theight,
+				twidth,
+				fow, triangle);
 	}
 
 	public BufferedImage convertToBufferedImage() {
