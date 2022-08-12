@@ -141,7 +141,7 @@ public final class TextureGenerator {
 	// This is slow.
 	private void addAsNewImage(ProvidedImage data, int texture) throws IOException {
 		File imageFile = new File(outDirectory, "images_" + texture);
-		TextureFile.write(imageFile, data.getData(), data.getTextureWidth(), data.getTextureHeight(), data.getImageWidth(), data.getImageHeight());
+		TextureFile.write(imageFile, data.getData(), data.getTextureWidth(), data.getTextureHeight());
 	}
 
 	private ProvidedImage getImage(File imageFile) {

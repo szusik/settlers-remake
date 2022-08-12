@@ -28,7 +28,7 @@ import java.nio.ShortBuffer;
  */
 public class TextureFile {
 
-	public static void write(File file, ShortBuffer data, int width, int height, int imageWidth, int imageHeight) throws IOException {
+	public static void write(File file, ShortBuffer data, int width, int height) throws IOException {
 		try(DataOutputStream out = new DataOutputStream(new BufferedOutputStream(
 				new FileOutputStream(file)))) {
 			out.writeShort(width);
