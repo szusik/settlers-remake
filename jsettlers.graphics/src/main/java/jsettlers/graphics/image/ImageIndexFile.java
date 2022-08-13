@@ -78,6 +78,7 @@ public class ImageIndexFile {
 		short height = in.readShort();
 		short textureFileNumber = in.readShort();
 		int torsoIndex = in.readInt();
+		int shadowIndex = in.readInt();
 		String name = in.readUTF();
 
 		ImageMetadata metadata = new ImageMetadata();
@@ -88,13 +89,22 @@ public class ImageIndexFile {
 
 		ImageDataProducer prod = new ImageIndexImageProducer(textureFileNumber);
 
-		if(torsoIndex >= 0) {
+		if(torsoIndex >= 0 || shadowIndex >= 0) {
 			SettlerImage img = new SettlerImage(metadata, prod, name);
-			img.setTorso(images.get(torsoIndex));
+			img.setTorso(getImageNegSafe(torsoIndex));
+			img.setShadow(getImageNegSafe(shadowIndex));
 			return img;
 		} else {
 			return new SingleImage(metadata, prod, name);
 		}
+	}
+
+	private SingleImage getImageNegSafe(int index) {
+		if(index >= 0) {
+			return images.get(index);
+		}
+
+		return null;
 	}
 
 	public static InputStream getResource(String string) {

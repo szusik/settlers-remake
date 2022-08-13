@@ -23,7 +23,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Scanner;
 
 /**
  * This class lets you generate a texture that can be understood by the graphics module. It generates the .texture file.
@@ -35,6 +34,7 @@ public final class TextureGenerator {
 	private static class ImageData {
 		ProvidedImage data = null;
 		ProvidedImage torso = null;
+		ProvidedImage shadow = null;
 		String name;
 	}
 
@@ -70,12 +70,13 @@ public final class TextureGenerator {
 				.filter(File::isFile)
 				.filter(file -> file.getName().endsWith(".png"))
 				.filter(file -> !file.getName().endsWith(".t.png")) // torso files are added with their corresponding image file
+				.filter(file -> !file.getName().endsWith(".s.png")) // shadow files are added with their corresponding image file
 				.forEach(file -> processTexturesFile(resourceDirectory, file));
 	}
 
 	private void processTexturesFile(File baseDirectory, File file) {
 		ImageData imageData = addIdToTexture(baseDirectory, file);
-		storeImageData(imageData);
+		storeImage(imageData);
 	}
 
 	private ImageData addIdToTexture(File baseDirectory, File imageFile) {
@@ -84,12 +85,8 @@ public final class TextureGenerator {
 		ImageData imageData = new ImageData();
 		imageData.name = name;
 		imageData.data = getImage(imageFile);
-
-		File torsoFile = new File(imageFile.getPath().replace(".png", ".t.png"));
-
-		if (torsoFile.exists()) {
-			imageData.torso = getImage(torsoFile);
-		}
+		imageData.torso = getImage(imageFile, ".t.png");
+		imageData.shadow = getImage(imageFile, ".s.png");
 
 		if (imageData.data == null) {
 			System.err.println("WARNING: loading image " + name + ": No image file found.");
@@ -109,30 +106,31 @@ public final class TextureGenerator {
 		return name.toString();
 	}
 
-	private void storeImageData(ImageData imageData) {
-		storeImage(imageData.name, imageData.data, imageData.torso);
-	}
-
-	private void storeImage(String name, ProvidedImage data, ProvidedImage torso) {
+	private void storeImage(ImageData image) {
 		try {
-			if (data != null) {
+			if (image.data != null) {
 				int torsoIndex = -1;
+				int shadowIndex = -1;
 
-				if (torso != null) {
-					torsoIndex = storeImage(name + "_torso", torso, -1);
+				if (image.torso != null) {
+					torsoIndex = storeImage(image.name + "_torso", image.torso, -1, -1);
 				}
 
-				storeImage(name, data, torsoIndex);
+				if (image.shadow != null) {
+					shadowIndex = storeImage(image.name + "_shadow", image.shadow, -1, -1);
+				}
+
+				storeImage(image.name, image.data, torsoIndex, shadowIndex);
 			}
 		} catch (Throwable t) {
-			System.err.println("WARNING: Problem writing image " + name + ". Problem was: " + t.getMessage());
+			System.err.println("WARNING: Problem writing image " + image.name + ". Problem was: " + t.getMessage());
 		}
 	}
 
-	private int storeImage(String name, ProvidedImage image, int torsoIndex) throws IOException {
+	private int storeImage(String name, ProvidedImage image, int torsoIndex, int shadowIndex) throws IOException {
 		int texture = textureIndex.getNextTextureIndex();
 		addAsNewImage(image, texture);
-		int index = textureIndex.registerTexture(name, texture, image.getOffsetX(), image.getOffsetY(), image.getImageWidth(), image.getImageHeight(), torsoIndex);
+		int index = textureIndex.registerTexture(name, texture, image.getOffsetX(), image.getOffsetY(), image.getImageWidth(), image.getImageHeight(), torsoIndex, shadowIndex);
 		System.out.println("Texture file #" + texture + ": add name=" + name + " using values x=" + image.getOffsetX() + ".." + (image.getOffsetX() + image.getImageWidth()) + ", y=" + image
 				.getOffsetY() + ".." + (image.getOffsetY() + image.getImageHeight()));
 		return index;
@@ -144,7 +142,16 @@ public final class TextureGenerator {
 		TextureFile.write(imageFile, data.getData(), data.getTextureWidth(), data.getTextureHeight());
 	}
 
+	private ProvidedImage getImage(File baseFile, String variant) {
+		String path = baseFile.getPath();
+		int charPos = path.lastIndexOf('.');
+
+		return getImage(new File(path.substring(0, charPos) + variant));
+	}
+
 	private ProvidedImage getImage(File imageFile) {
+		if(!imageFile.exists()) return null;
+
 		try {
 			BufferedImage image = ImageIO.read(imageFile);
 			int[] size = getTupleFile(imageFile, SIZE_SUFFIX)
