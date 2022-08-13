@@ -34,6 +34,8 @@ public final class Color {
 	private static final int SHORT_SHIFT_RED = 12;
 	private static final int SHORT_SHIFT_GREEN = 8;
 	private static final int SHORT_SHIFT_BLUE = 4;
+
+	private static final int SHORT_SHIFT_ALPHA = 0;
 	private static final int SHORT_FIELD_MAX = 15;
 	private static final int SHORT_MASK_ALPHA = 0b1111;
 
@@ -124,7 +126,8 @@ public final class Color {
 		} else {
 			return (short) (convertToShortField(red, multiply) << SHORT_SHIFT_RED
 					| convertToShortField(green, multiply) << SHORT_SHIFT_GREEN
-					| convertToShortField(blue, multiply) << SHORT_SHIFT_BLUE | SHORT_MASK_ALPHA);
+					| convertToShortField(blue, multiply) << SHORT_SHIFT_BLUE
+					| convertToShortField(alpha, multiply) << SHORT_SHIFT_ALPHA);
 		}
 	}
 
