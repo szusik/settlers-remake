@@ -60,7 +60,7 @@ public final class Color {
 				argbFieldToFloat(argb >> SHIFT_ARGB_A));
 	}
 
-	private Color(float red, float green, float blue, float alpha) {
+	public Color(float red, float green, float blue, float alpha) {
 		this(Color.getARGB(red, green, blue, alpha), red, green, blue, alpha);
 	}
 
@@ -137,5 +137,25 @@ public final class Color {
 
 	private static int floatToAnyField(float f, int fieldMax) {
 		return (int) (f * fieldMax) & fieldMax;
+	}
+
+	public int getRed8() {
+		return (int) (red*255f);
+	}
+
+	public int getGreen8() {
+		return (int) (green*255f);
+	}
+
+	public int getBlue8() {
+		return (int) (blue*255f);
+	}
+
+	public int getAlpha8() {
+		return (int) (alpha*255f);
+	}
+
+	public boolean getAlpha1() {
+		return alpha > 0;
 	}
 }

@@ -15,7 +15,8 @@
 package jsettlers.textures.generation;
 
 import java.awt.image.BufferedImage;
-import java.nio.ShortBuffer;
+import java.io.IOException;
+import jsettlers.textures.generation.formats.ColorReader;
 
 public class ProvidedImage {
 
@@ -29,16 +30,13 @@ public class ProvidedImage {
 		this.imageSize = imageSize;
 	}
 
-	public ShortBuffer getData() {
-		ShortBuffer data = ShortBuffer.allocate(image.getWidth() * image.getHeight());
-		for (int y = 0; y < image.getHeight(); y++) {
-			for (int x = 0; x < image.getWidth(); x++) {
+	public void getData(ColorReader reader) throws IOException {
+		for(int y = 0; y < image.getHeight(); y++) {
+			for(int x = 0; x < image.getWidth(); x++) {
 				Color color = new Color(image.getRGB(x, y));
-				data.put(color.toShortColor(1));
+				reader.readColor(color);
 			}
 		}
-		data.rewind();
-		return data;
 	}
 
 	public int getTextureWidth() {

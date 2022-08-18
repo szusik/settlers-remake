@@ -19,7 +19,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ShortBuffer;
+import jsettlers.textures.generation.formats.ImageFormat;
+import jsettlers.textures.generation.formats.ColorReader;
 
 /**
  * This class writes texture files
@@ -28,19 +29,16 @@ import java.nio.ShortBuffer;
  */
 public class TextureFile {
 
-	public static void write(File file, ShortBuffer data, int width, int height) throws IOException {
+	public static void write(File file, ProvidedImage image, ImageFormat format) throws IOException {
 		try(DataOutputStream out = new DataOutputStream(new BufferedOutputStream(
 				new FileOutputStream(file)))) {
-			out.writeShort(width);
-			out.writeShort(height);
+			out.writeInt(format.getMagic());
+			out.writeShort(image.getTextureWidth());
+			out.writeShort(image.getTextureHeight());
 
-			if(data.remaining() != width*height) {
-				throw new IllegalStateException("illegal amount of data: actual: " + data.remaining() + ", expected: " + width*height);
-			}
-
-			while(data.hasRemaining()) {
-				out.writeShort(data.get());
-			}
+			ColorReader reader = format.createProcessor(out);
+			image.getData(reader);
+			reader.flush();
 		}
 	}
 }

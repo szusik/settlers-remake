@@ -23,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import jsettlers.textures.generation.formats.ImageFormat;
 
 /**
  * This class lets you generate a texture that can be understood by the graphics module. It generates the .texture file.
@@ -113,23 +114,23 @@ public final class TextureGenerator {
 				int shadowIndex = -1;
 
 				if (image.torso != null) {
-					torsoIndex = storeImage(image.name + "_torso", image.torso, -1, -1);
+					torsoIndex = storeImage(image.name + "_torso", image.torso, ImageFormat.GRAY8, -1, -1);
 				}
 
 				if (image.shadow != null) {
-					shadowIndex = storeImage(image.name + "_shadow", image.shadow, -1, -1);
+					shadowIndex = storeImage(image.name + "_shadow", image.shadow, ImageFormat.GRAY1, -1, -1);
 				}
 
-				storeImage(image.name, image.data, torsoIndex, shadowIndex);
+				storeImage(image.name, image.data, ImageFormat.RGB8, torsoIndex, shadowIndex);
 			}
 		} catch (Throwable t) {
 			System.err.println("WARNING: Problem writing image " + image.name + ". Problem was: " + t.getMessage());
 		}
 	}
 
-	private int storeImage(String name, ProvidedImage image, int torsoIndex, int shadowIndex) throws IOException {
+	private int storeImage(String name, ProvidedImage image, ImageFormat format, int torsoIndex, int shadowIndex) throws IOException {
 		int texture = textureIndex.getNextTextureIndex();
-		addAsNewImage(image, texture);
+		addAsNewImage(image, texture, format);
 		int index = textureIndex.registerTexture(name, texture, image.getOffsetX(), image.getOffsetY(), image.getImageWidth(), image.getImageHeight(), torsoIndex, shadowIndex);
 		System.out.println("Texture file #" + texture + ": add name=" + name + " using values x=" + image.getOffsetX() + ".." + (image.getOffsetX() + image.getImageWidth()) + ", y=" + image
 				.getOffsetY() + ".." + (image.getOffsetY() + image.getImageHeight()));
@@ -137,9 +138,9 @@ public final class TextureGenerator {
 	}
 
 	// This is slow.
-	private void addAsNewImage(ProvidedImage data, int texture) throws IOException {
+	private void addAsNewImage(ProvidedImage data, int texture, ImageFormat format) throws IOException {
 		File imageFile = new File(outDirectory, "images_" + texture);
-		TextureFile.write(imageFile, data.getData(), data.getTextureWidth(), data.getTextureHeight());
+		TextureFile.write(imageFile, data, format);
 	}
 
 	private ProvidedImage getImage(File baseFile, String variant) {

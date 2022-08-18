@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import go.graphics.ImageData;
+import jsettlers.graphics.image.reader.imageindex.ImageIndexFormat;
 import jsettlers.graphics.image.reader.translator.ImageDataProducer;
 
 public class ImageIndexImageProducer implements ImageDataProducer {
@@ -19,6 +20,13 @@ public class ImageIndexImageProducer implements ImageDataProducer {
 	@Override
 	public ImageData produceData() {
 		try(DataInputStream dis = new DataInputStream(ImageIndexFile.getResource("images_" + textureNumber))) {
+			int magic = dis.readInt();
+
+			ImageIndexFormat format = ImageIndexFormat.byMagic(magic);
+			if(format == null) {
+				throw new IllegalStateException("unknown image magic " + magic + "!");
+			}
+
 			int width = dis.readShort();
 			int height = dis.readShort();
 
@@ -26,10 +34,8 @@ public class ImageIndexImageProducer implements ImageDataProducer {
 					.order(ByteOrder.nativeOrder())
 					.asShortBuffer();
 
-			while(output.hasRemaining()) {
-				output.put(dis.readShort());
-			}
-			output.rewind();
+			format.convert(dis, width*height, output);
+
 			return ImageData.of(output, width, height);
 		} catch (IOException e) {
 			throw new IllegalStateException("failed to load imageIndexImage", e);
