@@ -10,6 +10,14 @@ public class ImageData {
 	private final int width;
 	private final int height;
 
+	public ImageData(int width, int height) {
+		this(ByteBuffer.allocateDirect(width*height*2)
+				.order(ByteOrder.nativeOrder())
+				.asShortBuffer(),
+				width,
+				height);
+	}
+
 	public ImageData(ShortBuffer data, int width, int height) {
 		this.data = data;
 		this.width = width;
@@ -33,9 +41,9 @@ public class ImageData {
 			return this;
 		}
 
-		ShortBuffer newData = ByteBuffer.allocateDirect(newWidth*newHeight*2)
-				.order(ByteOrder.nativeOrder())
-				.asShortBuffer();
+		ImageData newImage = new ImageData(newWidth, newHeight);
+		ShortBuffer newData = newImage.getData();
+
 		for(int y = 0; y < newHeight; y++) {
 			for(int x = 0; x < newWidth; x++) {
 				int ox = (int) (x*width/(float)newWidth);
@@ -45,7 +53,7 @@ public class ImageData {
 			}
 		}
 		newData.rewind();
-		return of(newData, newWidth, newHeight);
+		return newImage;
 	}
 
 	public static ImageData of(ShortBuffer data, int width, int height) {

@@ -30,13 +30,11 @@ public class ImageIndexImageProducer implements ImageDataProducer {
 			int width = dis.readShort();
 			int height = dis.readShort();
 
-			ShortBuffer output = ByteBuffer.allocateDirect(width*height*2)
-					.order(ByteOrder.nativeOrder())
-					.asShortBuffer();
+			ImageData output = new ImageData(width, height);
 
-			format.convert(dis, width*height, output);
+			format.convert(dis, width*height, output.getData());
 
-			return ImageData.of(output, width, height);
+			return output;
 		} catch (IOException e) {
 			throw new IllegalStateException("failed to load imageIndexImage", e);
 		}
