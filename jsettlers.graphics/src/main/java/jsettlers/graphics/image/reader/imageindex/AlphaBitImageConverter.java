@@ -26,6 +26,7 @@ public abstract class AlphaBitImageConverter implements ImageConverter {
 		short[] restBlock = new short[remaining];
 		readSingleBlock(dis, restBlock);
 		output.put(restBlock);
+		output.rewind();
 	}
 
 	private void readSingleBlock(DataInputStream dis, short[] data) throws IOException {
