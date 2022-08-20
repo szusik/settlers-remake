@@ -14,29 +14,38 @@
  *******************************************************************************/
 package jsettlers.graphics.map.draw;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 
 import go.graphics.AdvancedUpdateBufferCache;
 import go.graphics.BackgroundDrawHandle;
 import go.graphics.GLDrawContext;
 import go.graphics.IllegalBufferException;
+import go.graphics.ImageData;
 import go.graphics.TextureHandle;
 
 import go.graphics.VkDrawContext;
+import jsettlers.common.Color;
 import jsettlers.common.CommonConstants;
+import jsettlers.common.images.ImageLink;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.common.map.IDirectGridProvider;
 import jsettlers.common.map.IGraphicsBackgroundListener;
 import jsettlers.common.map.shapes.MapRectangle;
 import jsettlers.common.position.FloatRectangle;
+import jsettlers.graphics.image.Image;
 import jsettlers.graphics.image.SingleImage;
 import jsettlers.graphics.image.reader.translator.DatBitmapTranslator;
 import jsettlers.graphics.map.MapDrawContext;
 import jsettlers.graphics.image.reader.DatFileReader;
 import jsettlers.graphics.image.reader.ImageArrayProvider;
 import jsettlers.graphics.image.reader.ImageMetadata;
+
+import javax.imageio.ImageIO;
 
 /**
  * The map background.
@@ -839,6 +848,7 @@ public class Background implements IGraphicsBackgroundListener {
 	};
 
 	private static final Object preloadMutex = new Object();
+	private static final ImageLink ALTERNATIVE_BACKGROUND = ImageLink.fromName("background");
 
 	private final int bufferWidth; // in map points.
 	private final int bufferHeight; // in map points.
@@ -853,16 +863,40 @@ public class Background implements IGraphicsBackgroundListener {
 
 	private final int mapWidth, mapHeight;
 
-	private static short[] preloadedTexture = null;
+	private static ImageData preloadedTexture = null;
 
-	private static short[] getTexture() {
+	private static ImageData getTexture() {
 		short[] data = new short[TEXTURE_SIZE * TEXTURE_SIZE];
 		try {
 			addTextures(data);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return data;
+
+		ImageData orig = new ImageData(TEXTURE_SIZE, TEXTURE_SIZE);
+		orig.getData().put(data).rewind();
+
+		Image img = ImageProvider.getInstance().getImage(ALTERNATIVE_BACKGROUND);
+		if(!(img instanceof SingleImage)) {
+			return orig;
+		}
+
+		ImageData alt = ((SingleImage)img).getData();
+
+		ImageData origScaled = orig.convert(alt.getWidth(), alt.getHeight());
+
+		ShortBuffer altBfr = alt.getData();
+		ShortBuffer origBfr = origScaled.getData();
+
+		int size = altBfr.limit();
+		for(int i = 0; i < size; i++) {
+			short value = altBfr.get(i);
+			if ((value & 0xF) == 0) {
+				altBfr.put(i, origBfr.get(i));
+			}
+		}
+		altBfr.rewind();
+		return alt;
 	}
 
 	static void preloadTexture() {
@@ -874,10 +908,29 @@ public class Background implements IGraphicsBackgroundListener {
 		}
 	}
 
+	private static void saveOriginal(ImageData data) {
+		ShortBuffer image = data.getData();
+		final int width = data.getWidth();
+		final int height = data.getHeight();
+
+		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		for(int y = 0; y < height; y++) {
+			for(int x = 0; x < width; x++) {
+				short color = image.get(y*height+x);
+				img.setRGB(x, y, Color.convert4444to8888(color));
+			}
+		}
+		try {
+			ImageIO.write(img, "PNG", new File("background.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private static TextureHandle getTexture(GLDrawContext context) {
 		if (texture == null || !texture.isValid()) {
 			long startTime = System.currentTimeMillis();
-			short[] data;
+			ImageData data;
 			synchronized (preloadMutex) {
 				if (preloadedTexture != null) {
 					data = preloadedTexture;
@@ -887,9 +940,7 @@ public class Background implements IGraphicsBackgroundListener {
 					data = getTexture();
 				}
 			}
-			ByteBuffer buffer = ByteBuffer.allocateDirect(data.length * 2).order(ByteOrder.nativeOrder());
-			buffer.asShortBuffer().put(data);
-			texture = context.generateTexture(TEXTURE_SIZE, TEXTURE_SIZE, buffer.asShortBuffer(), "background");
+			texture = context.generateTexture(data.getWidth(), data.getHeight(), data.getData(), "background");
 
 			System.out.println("Background texture generated in " + (System.currentTimeMillis() - startTime) + "ms");
 		}

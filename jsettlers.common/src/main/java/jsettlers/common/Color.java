@@ -254,6 +254,14 @@ public final class Color extends AbstractColor {
 		return ((argb555 & 0x7800) << 1) | ((argb555 & 0x3c0) << 2) | ((argb555 & 0x1e) << 3) | 0xf;
 	}
 
+	public static int convert4444to8888(int argb4444) {
+		return cnv4to8(argb4444) << 24| cnv4to8(argb4444>>4) << 0 | cnv4to8(argb4444>>8) << 8 | cnv4to8(argb4444>>12) << 16;
+	}
+
+	private static int cnv4to8(int data) {
+		return (int)((data&0xF)*255f/15f);
+	}
+
 	/**
 	 * Converts this color to a short color value required by OpenGL.
 	 * 
