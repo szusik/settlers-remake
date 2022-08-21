@@ -14,8 +14,6 @@
  *******************************************************************************/
 package jsettlers.graphics.map;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.BitSet;
@@ -89,6 +87,7 @@ import jsettlers.graphics.localization.Labels;
 import jsettlers.graphics.map.controls.IControls;
 import jsettlers.graphics.map.controls.original.OriginalControls;
 import jsettlers.graphics.map.draw.Background;
+import jsettlers.graphics.map.draw.DrawConstants;
 import jsettlers.graphics.map.draw.ImageProvider;
 import jsettlers.graphics.map.draw.MapObjectDrawer;
 import jsettlers.graphics.messages.Messenger;
@@ -1024,7 +1023,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 			System.out.println("Current debugColorMode: " + debugColorMode);
 			break;
 		case TOGGLE_ORIGINAL_GRAPHICS:
-			context.ENABLE_ORIGINAL = !context.ENABLE_ORIGINAL;
+			DrawConstants.FORCE_ORIGINAL = !DrawConstants.FORCE_ORIGINAL;
 			break;
 		case PAN_TO:
 			PointAction panAction = (PointAction) action;
