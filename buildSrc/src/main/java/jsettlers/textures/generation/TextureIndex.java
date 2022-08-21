@@ -66,7 +66,7 @@ public class TextureIndex {
 		textureConstantsOut.println("	public static int getIndex(String name) {");
 		textureConstantsOut.println("		int arrindex = Arrays.binarySearch(names, name);");
 		textureConstantsOut.println("		if (arrindex < 0) {");
-		textureConstantsOut.println("			throw new IllegalArgumentException(\"Could not find \" + name + \" in image map.\");");
+		textureConstantsOut.println("			return -1;");
 		textureConstantsOut.println("		}");
 		textureConstantsOut.println("		return indexes[arrindex];");
 		textureConstantsOut.println("	}");
