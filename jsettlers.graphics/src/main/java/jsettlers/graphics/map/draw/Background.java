@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import go.graphics.AdvancedUpdateBufferCache;
 import go.graphics.BackgroundDrawHandle;
@@ -846,14 +848,12 @@ public class Background implements IGraphicsBackgroundListener {
 
 			// ...
 	};
-
-	private static final Object preloadMutex = new Object();
 	private static final ImageLink ALTERNATIVE_BACKGROUND = ImageLink.fromName("background");
 
 	private final int bufferWidth; // in map points.
 	private final int bufferHeight; // in map points.
 
-	private static TextureHandle texture = null;
+	private static Map<Boolean, TextureHandle> textures = new HashMap<>();
 
 	private BackgroundDrawHandle backgroundHandle = null;
 
@@ -863,9 +863,7 @@ public class Background implements IGraphicsBackgroundListener {
 
 	private final int mapWidth, mapHeight;
 
-	private static ImageData preloadedTexture = null;
-
-	private static ImageData getTexture() {
+	private static ImageData getTextureData(boolean original) {
 		short[] data = new short[TEXTURE_SIZE * TEXTURE_SIZE];
 		try {
 			addTextures(data);
@@ -875,6 +873,11 @@ public class Background implements IGraphicsBackgroundListener {
 
 		ImageData orig = new ImageData(TEXTURE_SIZE, TEXTURE_SIZE);
 		orig.getData().put(data).rewind();
+
+		if(original) {
+			return orig;
+		}
+
 
 		Image img = ImageProvider.getInstance().getImage(ALTERNATIVE_BACKGROUND);
 		if(!(img instanceof SingleImage)) {
@@ -899,15 +902,6 @@ public class Background implements IGraphicsBackgroundListener {
 		return alt;
 	}
 
-	static void preloadTexture() {
-		synchronized (preloadMutex) {
-			if (preloadedTexture == null) {
-				preloadedTexture = getTexture();
-				ImageProvider.getInstance().addPreloadTask(Background::getTexture);
-			}
-		}
-	}
-
 	private static void saveOriginal(ImageData data) {
 		ShortBuffer image = data.getData();
 		final int width = data.getWidth();
@@ -927,24 +921,23 @@ public class Background implements IGraphicsBackgroundListener {
 		}
 	}
 
-	private static TextureHandle getTexture(GLDrawContext context) {
+	private static TextureHandle getTextureData(GLDrawContext context, boolean original) {
+		TextureHandle texture = textures.get(original);
+
 		if (texture == null || !texture.isValid()) {
 			long startTime = System.currentTimeMillis();
-			ImageData data;
-			synchronized (preloadMutex) {
-				if (preloadedTexture != null) {
-					data = preloadedTexture;
-					// free the array
-					preloadedTexture = null;
-				} else {
-					data = getTexture();
-				}
-			}
-			texture = context.generateTexture(data.getWidth(), data.getHeight(), data.getData(), "background");
+			ImageData data = getTextureData(original);
+			texture = context.generateTexture(data.getWidth(), data.getHeight(), data.getData(), "background-" + (original?"original":"custom"));
+			textures.put(original, texture);
 
 			System.out.println("Background texture generated in " + (System.currentTimeMillis() - startTime) + "ms");
 		}
 		return texture;
+
+	}
+
+	private static TextureHandle getTextureData(GLDrawContext context) {
+		return getTextureData(context, DrawConstants.FORCE_ORIGINAL);
 	}
 
 	private static class ImageWriter implements ImageArrayProvider {
@@ -1155,6 +1148,8 @@ public class Background implements IGraphicsBackgroundListener {
 
 		updateGeometry(context, screenArea);
 
+		backgroundHandle.texture = getTextureData(gl);
+
 		backgroundHandle.regionCount = screenArea.getLines();
 		backgroundHandle.regions = new int[backgroundHandle.regionCount*2];
 		for(int i = 0; i < backgroundHandle.regionCount; i++) {
@@ -1175,7 +1170,7 @@ public class Background implements IGraphicsBackgroundListener {
 
 	private void generateGeometry(MapDrawContext context) throws IllegalBufferException {
 		int vertices = bufferWidth*bufferHeight*3*2;
-		backgroundHandle = context.getGl().createBackgroundDrawCall(vertices, getTexture(context.getGl()));
+		backgroundHandle = context.getGl().createBackgroundDrawCall(vertices, getTextureData(context.getGl()));
 
 		fowEnabled = hasdgp && dgp.isFoWEnabled();
 
@@ -1395,6 +1390,6 @@ public class Background implements IGraphicsBackgroundListener {
 	 * Invalidates the background texture.
 	 */
 	static void invalidateTexture() {
-		texture = null;
+		textures.clear();
 	}
 }
