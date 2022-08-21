@@ -22,6 +22,9 @@ public class CustomEgyptianBuildingsDatFile extends CustomDatFile {
 		if (index == 1) {
 			return new WrappedAnimation(imageProvider, new AnimationSequence("egyptian_sawmill_sawmill", 0, 2));
 		}
+		if(index == 3) {
+			return new WrappedAnimation(imageProvider, new AnimationSequence("egyptian_stonecutter_stonecutter", 0, 2));
+		}
 		return null;
 	}
 
