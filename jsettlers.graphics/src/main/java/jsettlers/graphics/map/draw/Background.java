@@ -40,6 +40,7 @@ import jsettlers.common.map.IGraphicsBackgroundListener;
 import jsettlers.common.map.shapes.MapRectangle;
 import jsettlers.common.position.FloatRectangle;
 import jsettlers.graphics.image.Image;
+import jsettlers.graphics.image.NullImage;
 import jsettlers.graphics.image.SingleImage;
 import jsettlers.graphics.image.reader.translator.DatBitmapTranslator;
 import jsettlers.graphics.map.MapDrawContext;
@@ -880,7 +881,7 @@ public class Background implements IGraphicsBackgroundListener {
 
 
 		Image img = ImageProvider.getInstance().getImage(ALTERNATIVE_BACKGROUND);
-		if(!(img instanceof SingleImage)) {
+		if(img instanceof NullImage || (!(img instanceof SingleImage))) {
 			return orig;
 		}
 
