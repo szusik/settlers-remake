@@ -159,7 +159,7 @@ public final class TextureGenerator {
 					.orElse(new int[] {image.getWidth(), image.getHeight()});
 
 			int[] offsets = getTupleFile(imageFile, OFFSET_SUFFIX)
-					.orElse(new int[2]);
+					.orElse(new int[] {size[0]/2, size[1]/2});
 
 			return new ProvidedImage(image, offsets, size);
 		} catch (Throwable t) {
