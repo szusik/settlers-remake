@@ -16,6 +16,7 @@ package jsettlers.graphics.image;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import go.graphics.EPrimitiveType;
@@ -72,7 +73,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 		this.name = name;
 	}
 
-	protected SingleImage(ShortBuffer data, int width, int height, int offsetX,
+	protected SingleImage(IntBuffer data, int width, int height, int offsetX,
 						  int offsetY, String name) {
 		this(() -> ImageData.of(data, width, height), width, height, offsetX, offsetY, name);
 	}
@@ -85,7 +86,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	 * @param data
 	 * 		The data to use.
 	 */
-	public SingleImage(ImageMetadata metadata, short[] data, String name) {
+	public SingleImage(ImageMetadata metadata, int[] data, String name) {
 		this(wrap(data), metadata.width, metadata.height, metadata.offsetX, metadata.offsetY, name);
 	}
 
@@ -102,8 +103,8 @@ public class SingleImage extends Image implements ImageDataPrivider {
 		this(data, metadata.width, metadata.height, metadata.offsetX, metadata.offsetY, name);
 	}
 
-	private static ShortBuffer wrap(short[] data) {
-		ShortBuffer bfr = ByteBuffer.allocateDirect(data.length*2).order(ByteOrder.nativeOrder()).asShortBuffer();
+	private static IntBuffer wrap(int[] data) {
+		IntBuffer bfr = ByteBuffer.allocateDirect(data.length*4).order(ByteOrder.nativeOrder()).asIntBuffer();
 		bfr.put(data);
 		bfr.rewind();
 		return bfr;

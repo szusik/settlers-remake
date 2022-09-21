@@ -101,8 +101,8 @@ public class ImageData {
 		}
 
 		ImageData newImage = new ImageData(newWidth, newHeight);
-		ShortBuffer newData = newImage.getWriteData16();
-		ShortBuffer oldData = getReadData16();
+		IntBuffer newData = newImage.getWriteData32();
+		IntBuffer oldData = getReadData32();
 
 		for(int y = 0; y < newHeight; y++) {
 			for(int x = 0; x < newWidth; x++) {
