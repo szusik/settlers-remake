@@ -8,6 +8,6 @@ public class GRAY1Converter extends AlphaBitImageConverter {
 
 	@Override
 	protected int readPixel(byte[] bfr, int offset, boolean alpha) {
-		return alpha?0xFF:0;
+		return alpha?136:0;
 	}
 }
