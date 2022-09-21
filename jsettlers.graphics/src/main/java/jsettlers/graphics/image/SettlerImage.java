@@ -19,6 +19,8 @@ import java.nio.ByteOrder;
 
 import go.graphics.EUnifiedMode;
 import go.graphics.GLDrawContext;
+
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import jsettlers.common.Color;
 import jsettlers.graphics.image.reader.ImageMetadata;
@@ -149,11 +151,11 @@ public class SettlerImage extends SingleImage {
 		int texWidth = (int) (twidth*scaleX);
 		int texHeight = (int) (theight*scaleY);
 
-		ShortBuffer tdata = ByteBuffer.allocateDirect(texWidth * texHeight * 2)
+		IntBuffer tdata = ByteBuffer.allocateDirect(texWidth * texHeight * 4)
 				.order(ByteOrder.nativeOrder())
-				.asShortBuffer();
+				.asIntBuffer();
 
-		short[] temp = new short[0];
+		int[] temp = new int[0];
 
 		if(shadowData != null) {
 			int sdWidth = (int) (shadow.width*scaleX);
@@ -164,9 +166,9 @@ public class SettlerImage extends SingleImage {
 			int hoffX = (int) ((shadow.offsetX-toffsetX)*scaleX);
 			int hoffY = (int) ((shadow.offsetY-toffsetY)*scaleY);
 
-			if(temp.length < sdWidth) temp = new short[sdWidth];
+			if(temp.length < sdWidth) temp = new int[sdWidth];
 
-			ShortBuffer shadowBfr = shadowData.getReadData16();
+			IntBuffer shadowBfr = shadowData.getReadData32();
 
 			for(int y = 0;y != sdHeight;y++) {
 				shadowBfr.position(y*sdWidth);
@@ -174,7 +176,7 @@ public class SettlerImage extends SingleImage {
 
 				for(int x = 0;x != sdWidth;x++) {
 					if(temp[x] == 0) continue;
-					tdata.put((y+hoffY)*texWidth+hoffX+x, (short)((temp[x]&0xF)<<8)); // move alpha to green
+					tdata.put((y+hoffY)*texWidth+hoffX+x, (temp[x]&0xFF)<<16); // move alpha to green
 				}
 			}
 		}
@@ -188,9 +190,9 @@ public class SettlerImage extends SingleImage {
 			int toffX = (int) ((torso.offsetX-toffsetX)*scaleX);
 			int toffY = (int) ((torso.offsetY-toffsetY)*scaleY);
 
-			if(temp.length < tdWidth) temp = new short[tdWidth];
+			if(temp.length < tdWidth) temp = new int[tdWidth];
 
-			ShortBuffer torsoBfr = torsoData.getReadData16();
+			IntBuffer torsoBfr = torsoData.getReadData32();
 
 			for(int y = 0;y != tdHeight;y++) {
 				torsoBfr.position(y*tdWidth);
@@ -198,7 +200,7 @@ public class SettlerImage extends SingleImage {
 
 				for(int x = 0;x != tdWidth;x++) {
 					if(temp[x] == 0) continue;
-					tdata.put((y+toffY)*texWidth+toffX+x, (short) ((temp[x]&0xF0)|0xF000)); // strip out everything except blue channel and set full red channel
+					tdata.put((y+toffY)*texWidth+toffX+x, (temp[x]&0xFF00)|0xFF000000); // strip out everything except blue channel and set full red channel
 				}
 			}
 		}
@@ -211,9 +213,9 @@ public class SettlerImage extends SingleImage {
 		int soffX = (int) ((offsetX-toffsetX)*scaleX);
 		int soffY = (int) ((offsetY-toffsetY)*scaleY);
 
-		if(temp.length < dWidth) temp = new short[dWidth];
+		if(temp.length < dWidth) temp = new int[dWidth];
 
-		ShortBuffer bfr = data.getReadData16();
+		IntBuffer bfr = data.getReadData32();
 
 		for(int y = 0;y != dHeight;y++) {
 			bfr.position(y*dWidth);
