@@ -129,7 +129,7 @@ public abstract class GLDrawContext {
 			int position;
 			if(handle.quad_index != handle.quad_count && (position = handle.findTextureHole(texWidth, texHeight)) != -1) {
 				UIPoint corner;
-				if((corner = handle.addTexture(texture.getWriteData16(), texWidth, texHeight, position)) == null) continue;
+				if((corner = handle.addTexture(texture.getReadData16(), texWidth, texHeight, position)) == null) continue;
 
 
 				float lu = (float) corner.getX();

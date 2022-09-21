@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -889,13 +890,13 @@ public class Background implements IGraphicsBackgroundListener {
 
 		ImageData origScaled = orig.convert(alt.getWidth(), alt.getHeight());
 
-		ShortBuffer altBfr = alt.getWriteData16();
-		ShortBuffer origBfr = origScaled.getReadData16();
+		IntBuffer altBfr = alt.getWriteData32();
+		IntBuffer origBfr = origScaled.getReadData32();
 
 		int size = altBfr.limit();
 		for(int i = 0; i < size; i++) {
-			short value = altBfr.get(i);
-			if ((value & 0xF) == 0) {
+			int value = altBfr.get(i);
+			if ((value & 0xFF) == 0) {
 				altBfr.put(i, origBfr.get(i));
 			}
 		}

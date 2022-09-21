@@ -37,11 +37,6 @@ public class ImageData {
 		return data16;
 	}
 
-	public ShortBuffer getWriteData16() {
-		convertTo16();
-		return data16;
-	}
-
 	public IntBuffer getReadData32() {
 		convertTo32();
 		return data32;
