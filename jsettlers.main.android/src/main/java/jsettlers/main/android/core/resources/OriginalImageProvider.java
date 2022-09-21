@@ -104,15 +104,14 @@ public class OriginalImageProvider {
 
 			if (loaded instanceof SingleImage) {
 				ImageData data = ((SingleImage) loaded).getData();
-				ShortBuffer bfr = data.getData().duplicate();
-				bfr.rewind();
+				ShortBuffer bfr = data.getReadData16();
 
 				width = data.getWidth();
 				height = data.getHeight();
 
 				colors = new int[width * height];
 				for (int i = 0; i < colors.length; i++) {
-					colors[i] = Color.convertTo32Bit(bfr.get());
+					colors[i] = Color.convertTo32Bit(bfr.get(i));
 				}
 			} else {
 				// TODO: Handle error.

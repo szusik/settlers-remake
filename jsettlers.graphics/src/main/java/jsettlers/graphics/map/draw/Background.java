@@ -873,7 +873,7 @@ public class Background implements IGraphicsBackgroundListener {
 		}
 
 		ImageData orig = new ImageData(TEXTURE_SIZE, TEXTURE_SIZE);
-		orig.getData().put(data).rewind();
+		orig.getWriteData16().put(data).rewind();
 
 		if(original) {
 			return orig;
@@ -889,8 +889,8 @@ public class Background implements IGraphicsBackgroundListener {
 
 		ImageData origScaled = orig.convert(alt.getWidth(), alt.getHeight());
 
-		ShortBuffer altBfr = alt.getData();
-		ShortBuffer origBfr = origScaled.getData();
+		ShortBuffer altBfr = alt.getWriteData16();
+		ShortBuffer origBfr = origScaled.getReadData16();
 
 		int size = altBfr.limit();
 		for(int i = 0; i < size; i++) {
@@ -904,7 +904,7 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private static void saveOriginal(ImageData data) {
-		ShortBuffer image = data.getData();
+		ShortBuffer image = data.getReadData16();
 		final int width = data.getWidth();
 		final int height = data.getHeight();
 
@@ -928,7 +928,7 @@ public class Background implements IGraphicsBackgroundListener {
 		if (texture == null || !texture.isValid()) {
 			long startTime = System.currentTimeMillis();
 			ImageData data = getTextureData(original);
-			texture = context.generateTexture(data.getWidth(), data.getHeight(), data.getData(), "background-" + (original?"original":"custom"));
+			texture = context.generateTexture(data.getWidth(), data.getHeight(), data.getReadData16(), "background-" + (original?"original":"custom"));
 			textures.put(original, texture);
 
 			System.out.println("Background texture generated in " + (System.currentTimeMillis() - startTime) + "ms");

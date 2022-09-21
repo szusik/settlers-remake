@@ -2,9 +2,7 @@ package jsettlers.graphics.image;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
+
 import go.graphics.ImageData;
 import jsettlers.graphics.image.reader.imageindex.ImageIndexFormat;
 import jsettlers.graphics.image.reader.translator.ImageDataProducer;
@@ -32,7 +30,7 @@ public class ImageIndexImageProducer implements ImageDataProducer {
 
 			ImageData output = new ImageData(width, height);
 
-			format.convert(dis, width*height, output.getData());
+			format.convert(dis, width*height, output.getWriteData32());
 
 			return output;
 		} catch (IOException e) {

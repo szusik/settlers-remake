@@ -166,7 +166,7 @@ public class SettlerImage extends SingleImage {
 
 			if(temp.length < sdWidth) temp = new short[sdWidth];
 
-			ShortBuffer shadowBfr = shadowData.getData();
+			ShortBuffer shadowBfr = shadowData.getReadData16();
 
 			for(int y = 0;y != sdHeight;y++) {
 				shadowBfr.position(y*sdWidth);
@@ -190,7 +190,7 @@ public class SettlerImage extends SingleImage {
 
 			if(temp.length < tdWidth) temp = new short[tdWidth];
 
-			ShortBuffer torsoBfr = torsoData.getData();
+			ShortBuffer torsoBfr = torsoData.getReadData16();
 
 			for(int y = 0;y != tdHeight;y++) {
 				torsoBfr.position(y*tdWidth);
@@ -213,7 +213,7 @@ public class SettlerImage extends SingleImage {
 
 		if(temp.length < dWidth) temp = new short[dWidth];
 
-		ShortBuffer bfr = data.getData();
+		ShortBuffer bfr = data.getReadData16();
 
 		for(int y = 0;y != dHeight;y++) {
 			bfr.position(y*dWidth);

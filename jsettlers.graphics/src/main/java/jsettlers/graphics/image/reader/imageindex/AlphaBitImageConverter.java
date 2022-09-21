@@ -2,7 +2,7 @@ package jsettlers.graphics.image.reader.imageindex;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.ShortBuffer;
+import java.nio.IntBuffer;
 
 public abstract class AlphaBitImageConverter implements ImageConverter {
 
@@ -13,23 +13,23 @@ public abstract class AlphaBitImageConverter implements ImageConverter {
 	}
 
 	@Override
-	public final void convert(DataInputStream dis, int count, ShortBuffer output) throws IOException {
+	public final void convert(DataInputStream dis, int count, IntBuffer output) throws IOException {
 		int blocks = count / 8;
 
-		short[] blockData = new short[8];
+		int[] blockData = new int[8];
 		for(int i = 0; i < blocks; i++) {
 			readSingleBlock(dis, blockData);
 			output.put(blockData);
 		}
 
 		int remaining = count % 8;
-		short[] restBlock = new short[remaining];
+		int[] restBlock = new int[remaining];
 		readSingleBlock(dis, restBlock);
 		output.put(restBlock);
 		output.rewind();
 	}
 
-	private void readSingleBlock(DataInputStream dis, short[] data) throws IOException {
+	private void readSingleBlock(DataInputStream dis, int[] data) throws IOException {
 		int blockSize = data.length*dataPerPixel+1;
 		byte[] bfr = dis.readNBytes(blockSize);
 		if(blockSize != bfr.length) {
@@ -45,10 +45,5 @@ public abstract class AlphaBitImageConverter implements ImageConverter {
 		}
 	}
 
-	protected abstract short readPixel(byte[] bfr, int offset, boolean alpha);
-
-	protected final int cnv8to4(byte c8bit) {
-		int unsigned = c8bit&0xFF;
-		return (int) (unsigned/255f*15f);
-	}
+	protected abstract int readPixel(byte[] bfr, int offset, boolean alpha);
 }

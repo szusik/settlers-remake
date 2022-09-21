@@ -6,8 +6,8 @@ public class GRAY8Converter extends AlphaBitImageConverter {
 	}
 
 	@Override
-	protected short readPixel(byte[] bfr, int offset, boolean alpha) {
-		int value = cnv8to4(bfr[offset]);
-		return (short) (value<<12 | value<<8 | value << 4 | (alpha?0b1111:0));
+	protected int readPixel(byte[] bfr, int offset, boolean alpha) {
+		int value = bfr[offset]&0xFF;
+		return value<<24 | value<<16 | value<<8 | (alpha?0xFF:0);
 	}
 }

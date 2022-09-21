@@ -188,7 +188,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 		}
 
 		BufferedImage rendered = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		ShortBuffer data = getData().convert(width, height).getData();
+		ShortBuffer data = getData().convert(width, height).getReadData16();
 		data.rewind();
 
 		int[] rgbArray = new int[data.remaining()];
@@ -202,7 +202,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	}
 
 	public Long hash() {
-		ShortBuffer data = getData().getData().duplicate();
+		ShortBuffer data = getData().getReadData16().duplicate();
 		data.rewind();
 		long hashCode = 1L;
 		long multiplier = 1L;

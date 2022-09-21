@@ -7,7 +7,7 @@ public class GRAY1Converter extends AlphaBitImageConverter {
 	}
 
 	@Override
-	protected short readPixel(byte[] bfr, int offset, boolean alpha) {
-		return (short) (alpha?0x8:0);
+	protected int readPixel(byte[] bfr, int offset, boolean alpha) {
+		return alpha?0xFF:0;
 	}
 }

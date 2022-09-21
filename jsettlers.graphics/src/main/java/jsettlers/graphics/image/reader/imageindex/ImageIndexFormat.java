@@ -2,6 +2,7 @@ package jsettlers.graphics.image.reader.imageindex;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.function.Supplier;
 
@@ -35,7 +36,7 @@ public enum ImageIndexFormat {
 		return magic;
 	}
 
-	public void convert(DataInputStream dis, int count, ShortBuffer output) throws IOException {
+	public void convert(DataInputStream dis, int count, IntBuffer output) throws IOException {
 		converter.get().convert(dis, count, output);
 	}
 }

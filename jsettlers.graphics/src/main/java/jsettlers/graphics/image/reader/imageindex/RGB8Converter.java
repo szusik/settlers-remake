@@ -6,7 +6,7 @@ public class RGB8Converter extends AlphaBitImageConverter {
 	}
 
 	@Override
-	protected short readPixel(byte[] bfr, int offset, boolean alpha) {
-		return (short) (cnv8to4(bfr[offset]) << 12 | cnv8to4(bfr[offset+1]) << 8 | cnv8to4(bfr[offset+2]) << 4 | (alpha?0b1111 : 0));
+	protected int readPixel(byte[] bfr, int offset, boolean alpha) {
+		return (bfr[offset]&0xFF) << 24 | (bfr[offset+1]&0xFF) << 16 | (bfr[offset+2]&0xFF) << 8 | (alpha?0xFF : 0);
 	}
 }
