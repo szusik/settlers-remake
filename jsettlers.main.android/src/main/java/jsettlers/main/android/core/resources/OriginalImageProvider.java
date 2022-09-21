@@ -15,6 +15,7 @@
 
 package jsettlers.main.android.core.resources;
 
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,15 +105,14 @@ public class OriginalImageProvider {
 
 			if (loaded instanceof SingleImage) {
 				ImageData data = ((SingleImage) loaded).getData();
-				ShortBuffer bfr = data.getReadData16();
+				IntBuffer bfr = data.getReadData32();
 
 				width = data.getWidth();
 				height = data.getHeight();
 
 				colors = new int[width * height];
-				for (int i = 0; i < colors.length; i++) {
-					colors[i] = Color.convertTo32Bit(bfr.get(i));
-				}
+				bfr.get(colors);
+				bfr.rewind();
 			} else {
 				// TODO: Handle error.
 			}

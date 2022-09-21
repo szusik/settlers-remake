@@ -13,17 +13,11 @@ public class ImageData {
 	private final int height;
 
 	public ImageData(int width, int height) {
-		this(ByteBuffer.allocateDirect(width*height*2)
+		this(ByteBuffer.allocateDirect(width*height*4)
 				.order(ByteOrder.nativeOrder())
-				.asShortBuffer(),
+				.asIntBuffer(),
 				width,
 				height);
-	}
-
-	private ImageData(ShortBuffer data, int width, int height) {
-		this.data16 = data;
-		this.width = width;
-		this.height = height;
 	}
 
 	private ImageData(IntBuffer data, int width, int height) {
@@ -48,8 +42,6 @@ public class ImageData {
 	}
 
 	private void convertTo16() {
-		if(data16 != null) return;
-
 		data16 = ByteBuffer.allocateDirect(width*height*2).order(ByteOrder.nativeOrder()).asShortBuffer();
 
 		while(data32.hasRemaining()) {
@@ -61,8 +53,8 @@ public class ImageData {
 
 			data16.put((short) (cnv8to4(c1) << 12 | cnv8to4(c2) << 8 | cnv8to4(c3) << 4 | cnv8to4(c4)));
 		}
+		data32.rewind();
 		data16.rewind();
-		data32 = null;
 	}
 
 	protected final int cnv8to4(int c8bit) {
@@ -109,10 +101,6 @@ public class ImageData {
 		}
 		newData.rewind();
 		return newImage;
-	}
-
-	public static ImageData of(ShortBuffer data, int width, int height) {
-		return new ImageData(data, width, height);
 	}
 
 	public static ImageData of(IntBuffer data, int width, int height) {

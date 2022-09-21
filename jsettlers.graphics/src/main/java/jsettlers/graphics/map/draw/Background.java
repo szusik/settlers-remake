@@ -905,15 +905,15 @@ public class Background implements IGraphicsBackgroundListener {
 	}
 
 	private static void saveOriginal(ImageData data) {
-		ShortBuffer image = data.getReadData16();
+		IntBuffer image = data.getReadData32();
 		final int width = data.getWidth();
 		final int height = data.getHeight();
 
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		for(int y = 0; y < height; y++) {
 			for(int x = 0; x < width; x++) {
-				short color = image.get(y*height+x);
-				img.setRGB(x, y, Color.convert4444to8888(color));
+				int color = image.get(y*height+x);
+				img.setRGB(x, y, color);
 			}
 		}
 		try {

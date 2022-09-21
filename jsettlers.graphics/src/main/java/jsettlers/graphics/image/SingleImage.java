@@ -189,13 +189,13 @@ public class SingleImage extends Image implements ImageDataPrivider {
 		}
 
 		BufferedImage rendered = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		ShortBuffer data = getData().convert(width, height).getReadData16();
+		IntBuffer data = getData().convert(width, height).getReadData32();
 		data.rewind();
 
 		int[] rgbArray = new int[data.remaining()];
 		for (int i = 0; i < rgbArray.length; i++) {
-			short myColor = data.get();
-			rgbArray[i] = Color.convertTo32Bit(myColor);
+			int value = data.get();
+			rgbArray[i] = (value>>8)|((value&0xFF)<<24);
 		}
 
 		rendered.setRGB(0, 0, width, height, rgbArray, 0, width);
@@ -203,7 +203,7 @@ public class SingleImage extends Image implements ImageDataPrivider {
 	}
 
 	public Long hash() {
-		ShortBuffer data = getData().getReadData16().duplicate();
+		IntBuffer data = getData().getReadData32().duplicate();
 		data.rewind();
 		long hashCode = 1L;
 		long multiplier = 1L;
