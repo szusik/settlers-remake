@@ -123,9 +123,9 @@ public final class DatBitmapReader<T extends Image> {
 	public static <T extends Image> void readCompressedData(
 			ByteReader reader, DatBitmapTranslator<T> translator, int width,
 			int height, ImageArrayProvider array) throws IOException {
-		short transparent = translator.getTransparentColor();
+		int transparent = translator.getTransparentColor();
 		// TODO: buffer the buffer but be thread safe!
-		short[] lineBuffer = new short[width];
+		int[] lineBuffer = new int[width];
 
 
 		array.startImage(width, height);
@@ -241,7 +241,7 @@ public final class DatBitmapReader<T extends Image> {
 		ImageMetadata metadata = new ImageMetadata();
 		long dataPos = reader.readImageHeader(translator, metadata, position);
 		return translator.createImage(metadata, () -> {
-			ShortArrayWriter array = new ShortArrayWriter();
+			IntArrayWriter array = new IntArrayWriter();
 			try {
 				reader.readCompressedData(translator, metadata, array, dataPos);
 			} catch (IOException e) {

@@ -865,7 +865,7 @@ public class Background implements IGraphicsBackgroundListener {
 	private final int mapWidth, mapHeight;
 
 	private static ImageData getTextureData(boolean original) {
-		short[] data = new short[TEXTURE_SIZE * TEXTURE_SIZE];
+		int[] data = new int[TEXTURE_SIZE * TEXTURE_SIZE];
 		try {
 			addTextures(data);
 		} catch (IOException e) {
@@ -873,7 +873,7 @@ public class Background implements IGraphicsBackgroundListener {
 		}
 
 		ImageData orig = new ImageData(TEXTURE_SIZE, TEXTURE_SIZE);
-		orig.getWriteData16().put(data).rewind();
+		orig.getWriteData32().put(data).rewind();
 
 		if(original) {
 			return orig;
@@ -945,7 +945,7 @@ public class Background implements IGraphicsBackgroundListener {
 		int arrayOffset;
 		int cellSize;
 		int maxOffset;
-		short[] data;
+		int[] data;
 
 		// nothing to do. We assume images are a rectangle and have the right size.
 		@Override
@@ -953,7 +953,7 @@ public class Background implements IGraphicsBackgroundListener {
 		}
 
 		@Override
-		public void writeLine(short[] data, int length) {
+		public void writeLine(int[] data, int length) {
 			if (arrayOffset < maxOffset) {
 				for (int i = 0; i < cellSize; i++) {
 					this.data[arrayOffset + i] = data[i % length];
@@ -971,7 +971,7 @@ public class Background implements IGraphicsBackgroundListener {
 	 * @throws IOException
 	 *            If the necessary file reader is missing
 	 */
-	private static void addTextures(short[] data) throws IOException {
+	private static void addTextures(int[] data) throws IOException {
 		DatFileReader reader = ImageProvider.getInstance().getFileReader(LAND_FILE);
 		if (reader == null) {
 			throw new IOException("Could not get a file reader for the file.");
