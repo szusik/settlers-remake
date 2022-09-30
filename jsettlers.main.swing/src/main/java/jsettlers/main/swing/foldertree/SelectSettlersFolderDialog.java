@@ -193,7 +193,10 @@ public class SelectSettlersFolderDialog extends JFrame {
 	public static File askForFolder() {
 		if(FLATPAK_FLAG.exists()) {
 			try {
-				Process proc = Runtime.getRuntime().exec(new String[]{"zenity", "--file-selection" ,"--directory" ,"--title", "\"Settlers\""});
+				JOptionPane.showMessageDialog(null, "JSettlers needs graphics and sound files from a Settlers 3 installation to run.\n" +
+						"If you don't own a copy read the README on our GitHub page.\n" +
+						"You must now select such an installation directory to proceed.");
+				Process proc = Runtime.getRuntime().exec(new String[]{"zenity", "--file-selection" ,"--directory" ,"--title", "Select original game directory"});
 				proc.waitFor();
 				String dir = null;
 				try(BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
