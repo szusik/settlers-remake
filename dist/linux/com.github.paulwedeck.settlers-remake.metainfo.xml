@@ -28,6 +28,8 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="v0.6.0.3-alpha" date="2022-10-02" type="development">
+      <url>https://github.com/paulwedeck/settlers-remake/releases/tag/v0.6.0.2-alpha</url>
     <release version="v0.6.0.2-alpha" date="2022-08-07" type="development">
       <url>https://github.com/paulwedeck/settlers-remake/releases/tag/v0.6.0.2-alpha</url>
     </release>
