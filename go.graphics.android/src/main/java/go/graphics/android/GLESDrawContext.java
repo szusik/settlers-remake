@@ -119,7 +119,7 @@ public class GLESDrawContext extends GLDrawContext {
 
 	public TextureHandle resizeTexture(TextureHandle textureIndex, ImageData image) {
 		bindTexture(textureIndex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, image.getReadData16());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getReadData32());
 		return textureIndex;
 	}
 
@@ -127,7 +127,7 @@ public class GLESDrawContext extends GLDrawContext {
 							  ImageData image) {
 		bindTexture(textureIndex);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, left, bottom, image.getWidth(), image.getHeight(),
-				GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, image.getReadData16());
+				GL_RGBA, GL_UNSIGNED_BYTE, image.getReadData32());
 	}
 
 	protected void bindTexture(TextureHandle texture) {
