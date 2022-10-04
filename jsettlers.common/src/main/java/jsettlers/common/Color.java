@@ -119,6 +119,10 @@ public final class Color extends AbstractColor {
 		return new Color(red * color.getRed(), green * color.getGreen(), blue * color.getBlue(), alpha * color.getAlpha());
 	}
 
+	public Color multiply(float factor) {
+		return new Color(red * factor, green * factor, blue * factor, alpha);
+	}
+
 	/**
 	 * Gets the (float) alpha value.
 	 * 
@@ -192,6 +196,10 @@ public final class Color extends AbstractColor {
 	 */
 	public int getABGR() {
 		return (argb & 0xff00ff00) | ((argb & 0xff) << 16) | ((argb >> 16) & 0xff);
+	}
+
+	public int getRGBA() {
+		return ((argb >> 24)&0xff) | ((argb&0xffffff)<<8);
 	}
 
 	/**

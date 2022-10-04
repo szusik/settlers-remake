@@ -482,7 +482,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	}
 
 	@Override
-	public void updateTexture(TextureHandle handle, List<int[]> diff, ByteBuffer data) {
+	public void updateTexture(TextureHandle handle, List<int[]> diff, Buffer data) {
 		if(!commandBufferRecording || handle == null) return;
 
 		VulkanTextureHandle vkTexture = (VulkanTextureHandle)handle;

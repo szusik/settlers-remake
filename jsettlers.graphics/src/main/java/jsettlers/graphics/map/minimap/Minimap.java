@@ -17,9 +17,11 @@ package jsettlers.graphics.map.minimap;
 import go.graphics.EPrimitiveType;
 import go.graphics.GLDrawContext;
 import go.graphics.IllegalBufferException;
+import go.graphics.ImageData;
 import go.graphics.TextureHandle;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -66,7 +68,7 @@ public final class Minimap implements IMinimapData {
 	private TextureHandle texture      = null;
 	private boolean       imageIsValid = false;
 
-	private short[][] buffer;
+	private int[][] buffer;
 	private boolean   stopped = false;
 
 	public Minimap(MapDrawContext context, MinimapMode modeSettings) {
@@ -110,16 +112,16 @@ public final class Minimap implements IMinimapData {
 			synchronized (updateMutex) {
 				if (!imageIsValid || texture == null || !texture.isValid()) {
 					imageWasCreatedJustNow = true;
-					ShortBuffer data = ByteBuffer.allocateDirect(width * height * 2)
-												 .order(ByteOrder.nativeOrder()).asShortBuffer();
+					ImageData img = new ImageData(width, height);
+					IntBuffer data = img.getWriteData32();
 					for (int i = 0; i < width * height; i++) {
 						data.put(LineLoader.BLACK);
 					}
 					data.position(0);
 					if(texture != null && texture.isValid()) {
-						texture = context.resizeTexture(texture, width, height, data);
+						texture = context.resizeTexture(texture, width, height, img.getReadData16());
 					} else {
-						texture = context.generateTexture(width, height, data, "minimap");
+						texture = context.generateTexture(width, height, img.getReadData16(), "minimap");
 					}
 					updatedLines.clear();
 					imageIsValid = true;
@@ -130,27 +132,26 @@ public final class Minimap implements IMinimapData {
 					if(context instanceof VkDrawContext) {
 						int padding = -(-width%2);
 
-						ByteBuffer currData = ByteBuffer.allocateDirect((width+padding) * 2 * updatedLineCount)
-								.order(ByteOrder.nativeOrder());
-						ShortBuffer currShortData = currData.asShortBuffer();
+						ImageData img = new ImageData(width+padding, updatedLineCount);
+						IntBuffer currImgData = img.getWriteData32();
 						List<int[]> updateInfo = new ArrayList<>(updatedLineCount);
 						for(int i = 0; i != updatedLineCount; i++) {
 							int currLine = updatedLines.get(i);
-							currShortData.position((width+padding)*i);
-							currShortData.put(buffer[currLine]);
+							currImgData.position((width+padding)*i);
+							currImgData.put(buffer[currLine]);
 							updateInfo.add(new int[] {0, currLine, width, 1, (width+padding)*2*i});
 						}
-						((VkDrawContext)context).updateTexture(texture, updateInfo, currData);
+						((VkDrawContext)context).updateTexture(texture, updateInfo, img.getReadData16());
 					} else {
-						ShortBuffer currData = ByteBuffer.allocateDirect(width * 2)
-								.order(ByteOrder.nativeOrder()).asShortBuffer();
+						ImageData img = new ImageData(width, 1);
+						IntBuffer currData = img.getWriteData32();
 						for(int i = 0; i != updatedLineCount; i++) {
 							int currLine = updatedLines.get(i);
 							currData.position(0);
 							currData.put(buffer[currLine]);
 							currData.position(0);
 
-							context.updateTexture(texture, 0, currLine, width, 1, currData);
+							context.updateTexture(texture, 0, currLine, width, 1, img.getReadData16());
 						}
 					}
 					updatedLines.clear();
@@ -247,7 +248,7 @@ public final class Minimap implements IMinimapData {
 		}
 	}
 
-	public void setBufferArray(short[][] buffer) {
+	public void setBufferArray(int[][] buffer) {
 		this.buffer = buffer;
 	}
 
