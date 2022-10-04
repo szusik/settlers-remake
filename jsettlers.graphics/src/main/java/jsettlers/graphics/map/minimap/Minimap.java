@@ -22,7 +22,6 @@ import go.graphics.TextureHandle;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -119,9 +118,9 @@ public final class Minimap implements IMinimapData {
 					}
 					data.position(0);
 					if(texture != null && texture.isValid()) {
-						texture = context.resizeTexture(texture, width, height, img.getReadData16());
+						texture = context.resizeTexture(texture, img);
 					} else {
-						texture = context.generateTexture(width, height, img.getReadData16(), "minimap");
+						texture = context.generateTexture(img, "minimap");
 					}
 					updatedLines.clear();
 					imageIsValid = true;
@@ -151,7 +150,7 @@ public final class Minimap implements IMinimapData {
 							currData.put(buffer[currLine]);
 							currData.position(0);
 
-							context.updateTexture(texture, 0, currLine, width, 1, img.getReadData16());
+							context.updateTexture(texture, 0, currLine, img);
 						}
 					}
 					updatedLines.clear();

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +31,6 @@ import go.graphics.ImageData;
 import go.graphics.TextureHandle;
 
 import go.graphics.VkDrawContext;
-import jsettlers.common.Color;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.landscape.ELandscapeType;
@@ -929,7 +927,7 @@ public class Background implements IGraphicsBackgroundListener {
 		if (texture == null || !texture.isValid()) {
 			long startTime = System.currentTimeMillis();
 			ImageData data = getTextureData(original);
-			texture = context.generateTexture(data.getWidth(), data.getHeight(), data.getReadData16(), "background-" + (original?"original":"custom"));
+			texture = context.generateTexture(data, "background-" + (original?"original":"custom"));
 			textures.put(original, texture);
 
 			System.out.println("Background texture generated in " + (System.currentTimeMillis() - startTime) + "ms");

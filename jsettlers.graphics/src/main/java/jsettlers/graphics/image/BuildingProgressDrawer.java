@@ -2,6 +2,7 @@ package jsettlers.graphics.image;
 
 import go.graphics.EPrimitiveType;
 import go.graphics.GLDrawContext;
+import go.graphics.ImageData;
 import go.graphics.TextureHandle;
 import go.graphics.UnifiedDrawHandle;
 import java.nio.ByteBuffer;
@@ -16,17 +17,15 @@ public class BuildingProgressDrawer {
 
 	private static TextureHandle dummyTexture = null;
 
-	private static final ShortBuffer dummyBuffer;
+	private static final ImageData dummyImage;
 
 	static {
-		dummyBuffer = ByteBuffer.allocateDirect(2)
-				.order(ByteOrder.nativeOrder())
-				.asShortBuffer();
+		dummyImage = new ImageData(1, 1);
 	}
 
 	private static void checkStaticHandles(GLDrawContext gl) {
 		if(dummyTexture == null || !dummyTexture.isValid()) {
-			dummyTexture = gl.generateTexture(1, 1, dummyBuffer, "dummy-texture");
+			dummyTexture = gl.generateTexture(dummyImage, "dummy-texture");
 		}
 
 		if(progressHandle == null || !progressHandle.isValid()) {

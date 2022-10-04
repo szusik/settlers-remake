@@ -23,10 +23,7 @@ import go.graphics.TextureHandle;
 import go.graphics.UnifiedDrawHandle;
 
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
 
 /**
  * This class is a text drawer used to wrap the text renderer.
@@ -148,7 +145,7 @@ public abstract class AbstractTextDrawer<T extends GLDrawContext> {
 		}
 
 		data.rewind();
-		font_tex = drawContext.generateTexture(max_len, tex_height, img.getReadData16(), "text-drawer");
+		font_tex = drawContext.generateTexture(img, "text-drawer");
 		if(font_tex != null) font_tex.setType(ETextureType.LINEAR_FILTER);
 	}
 

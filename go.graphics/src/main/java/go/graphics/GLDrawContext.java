@@ -1,7 +1,6 @@
 package go.graphics;
 
 import java.nio.ByteBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,15 +24,11 @@ public abstract class GLDrawContext {
 	/**
 	 * Returns a texture id which is positive or 0. It returns a negative number on error.
 	 *
-	 * @param width
-	 * @param height
-	 *            The height of the image.
-	 * @param data
-	 *            The data as array. It needs to have a length of width * height and each element is a color with: 4 bits red, 4 bits green, 4 bits
-	 *            blue and 4 bits alpha.
+	 * @param image The data as array. It needs to have a length of width * height and each element is a color with: 4 bits red, 4 bits green, 4 bits
+	 *              blue and 4 bits alpha.
 	 * @return The id of the generated texture.
 	 */
-	public abstract TextureHandle generateTexture(int width, int height, ShortBuffer data, String name);
+	public abstract TextureHandle generateTexture(ImageData image, String name);
 
 	protected abstract void drawMulti(MultiDrawHandle call);
 	protected abstract void drawUnifiedArray(UnifiedDrawHandle call, int primitive, int vertexCount, float[] trans, float[] colors, int array_len);
@@ -48,18 +43,15 @@ public abstract class GLDrawContext {
 	/**
 	 * Updates a part of a texture image.
 	 *
-	 * @param textureIndex
-	 *            The texture to use.
+	 * @param textureIndex The texture to use.
 	 * @param left
 	 * @param bottom
-	 * @param width
-	 * @param height
-	 * @param data
+	 * @param image
 	 * @throws IllegalBufferException
 	 */
-	public abstract void updateTexture(TextureHandle textureIndex, int left, int bottom, int width, int height, ShortBuffer data) throws IllegalBufferException;
+	public abstract void updateTexture(TextureHandle textureIndex, int left, int bottom, ImageData image) throws IllegalBufferException;
 
-	public abstract TextureHandle resizeTexture(TextureHandle textureIndex, int width, int height, ShortBuffer data);
+	public abstract TextureHandle resizeTexture(TextureHandle textureIndex, ImageData image);
 
 	public abstract void updateBufferAt(BufferHandle handle, int pos, ByteBuffer data) throws IllegalBufferException;
 
@@ -116,7 +108,7 @@ public abstract class GLDrawContext {
 		int quad_count = getMaxManagedQuads();
 		int texture_size = getMaxManagedTextureSize();
 
-		TextureHandle tex = generateTexture(texture_size, texture_size, null, "managed" + ManagedHandle.instance_count);
+		TextureHandle tex = generateTexture(new ImageData(texture_size, texture_size), "managed" + ManagedHandle.instance_count);
 		UnifiedDrawHandle parent = createUnifiedDrawCall(quad_count*4, "managed" + ManagedHandle.instance_count, tex, null);
 		managedHandles.add(new ManagedHandle(parent, quad_count, texture_size));
 	}
