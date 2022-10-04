@@ -543,11 +543,13 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private int prepareStagingData(Buffer data) {
 		ByteBuffer bdata = (data instanceof ByteBuffer)?(ByteBuffer)data : null;
 		ShortBuffer sdata = (data instanceof ShortBuffer)?(ShortBuffer)data : null;
+		IntBuffer idata = (data instanceof IntBuffer)?(IntBuffer) data : null;
 
 
 		int size;
 		if(bdata != null) size = bdata.remaining();
 		else if(sdata != null) size = sdata.remaining()*2;
+		else if(idata != null) size = idata.remaining()*4;
 		else throw new Error("Not yet implemented Buffer variant: " + data.getClass().getName());
 
 		do {
@@ -573,6 +575,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		if(bdata != null) mapped.put(bdata.asReadOnlyBuffer());
 		if(sdata != null) mapped.asShortBuffer().put(sdata.asReadOnlyBuffer());
+		if(idata != null) mapped.asIntBuffer().put(idata.asReadOnlyBuffer());
 
 		currentStagingBuffer.unmap();
 
