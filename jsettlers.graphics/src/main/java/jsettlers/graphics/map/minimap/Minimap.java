@@ -138,9 +138,10 @@ public final class Minimap implements IMinimapData {
 							int currLine = updatedLines.get(i);
 							currImgData.position((width+padding)*i);
 							currImgData.put(buffer[currLine]);
-							updateInfo.add(new int[] {0, currLine, width, 1, (width+padding)*2*i});
+							updateInfo.add(new int[] {0, currLine, width, 1, (width+padding)*4*i});
 						}
-						((VkDrawContext)context).updateTexture(texture, updateInfo, img.getReadData16());
+						currImgData.rewind();
+						((VkDrawContext)context).updateTexture(texture, updateInfo, currImgData);
 					} else {
 						ImageData img = new ImageData(width, 1);
 						IntBuffer currData = img.getWriteData32();

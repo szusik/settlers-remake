@@ -282,10 +282,19 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		return generateTextureInternal(image, 0L);
 	}
 
+	private IntBuffer fixRGBA8Buffer(IntBuffer orig) {
+		IntBuffer bfr = BufferUtils.createIntBuffer(orig.remaining());
+		while(orig.hasRemaining()) {
+			int color = orig.get();
+			bfr.put(((color<<24)&0xFF000000) | ((color >> 8)&0xFFFFFF));
+		}
+		bfr.rewind();
+		return bfr;
+	}
+
 	private TextureHandle generateTextureInternal(ImageData image, long descSet) {
 		int width = image.getWidth();
 		int height = image.getHeight();
-		ShortBuffer data = image.getReadData16();
 
 		if(!commandBufferRecording) return null;
 
@@ -295,7 +304,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		VulkanTextureHandle vkTexHandle = createTexture(width, height, descSet);
 		vkTexHandle.getImage().changeLayout(memCommandBuffer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		if(data != null) updateTexture(vkTexHandle, 0, 0, image);
+		if(image.getReadData32() != null) updateTexture(vkTexHandle, 0, 0, image);
 		return vkTexHandle;
 	}
 
@@ -493,7 +502,14 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 		VulkanTextureHandle vkTexture = (VulkanTextureHandle)handle;
 		if(!vkTexture.isValid()) return;
 
-		int stagingPos = prepareStagingData(data);
+		Buffer fixedBfr;
+		if(data instanceof IntBuffer) {
+			fixedBfr = fixRGBA8Buffer((IntBuffer) data);
+		} else {
+			fixedBfr = data;
+		}
+
+		int stagingPos = prepareStagingData(fixedBfr);
 
 		int count = diff.size();
 		VkBufferImageCopy.Buffer regions = VkBufferImageCopy.create(count);
@@ -520,8 +536,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 
 		VulkanTextureHandle vkTexture = (VulkanTextureHandle) textureIndex;
 		if(!vkTexture.isValid()) return;
-
-		int stagingPos = prepareStagingData(image.getReadData16());
+		int stagingPos = prepareStagingData(fixRGBA8Buffer(image.getReadData32()));
 
 		VkBufferImageCopy.Buffer region = VkBufferImageCopy.create(1);
 		region.get(0).imageOffset().set(left, bottom, 0);
@@ -644,7 +659,7 @@ public class VulkanDrawContext extends GLDrawContext implements VkDrawContext {
 	private long firstTextureDescSet = 0;
 
 	private VulkanTextureHandle createTexture(int width, int height, long descSet) {
-		VulkanImage image = memoryManager.createImage(width, height, EVulkanImageType.COLOR_IMAGE_RGBA4);
+		VulkanImage image = memoryManager.createImage(width, height, EVulkanImageType.COLOR_IMAGE_RGBA8);
 
 		long textureDescSet = descSet;
 
