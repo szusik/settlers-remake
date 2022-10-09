@@ -235,7 +235,6 @@ public final class MainGrid implements Serializable {
 		ois.defaultReadObject();
 		initAdditional();
 		this.bordersThread.checkArea(0, 0, width, height);
-		movablePathfinderGrid.initPathfinders();
 	}
 
 	public void startThreads() {
@@ -1228,11 +1227,16 @@ public final class MainGrid implements Serializable {
 		transient         DijkstraAlgorithm dijkstra; // not private, because it's used by BuildingsGrid
 		private transient InAreaFinder      inAreaFinder;
 
-		public MovablePathfinderGrid() {
-			initPathfinders();
+		private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+			ois.defaultReadObject();
+			initPathfinders(width, height);
 		}
 
-		private void initPathfinders() {
+		public MovablePathfinderGrid() {
+			initPathfinders(width, height);
+		}
+
+		private void initPathfinders(short width, short height) {
 			pathfinderGrid = new PathfinderGrid();
 
 			aStar = new BucketQueueAStar(pathfinderGrid, width, height);
