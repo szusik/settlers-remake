@@ -229,7 +229,7 @@ public class LWJGLDrawContext extends GLDrawContext {
 	}
 
 	@Override
-	public UnifiedDrawHandle createUnifiedDrawCall(int vertices, String name, TextureHandle texture, float[] data) {
+	public UnifiedDrawHandle createUnifiedDrawCall(int vertices, String name, TextureHandle texture, TextureHandle texture2, float[] data) {
 		int vao = -1;
 
 		if(glcaps.GL_ARB_vertex_array_object) vao = glGenVertexArrays();
@@ -244,7 +244,7 @@ public class LWJGLDrawContext extends GLDrawContext {
 			glBufferData(GL_ARRAY_BUFFER, vertices*(texture!=null?4:2)*4, GL_DYNAMIC_DRAW);
 		}
 
-		UnifiedDrawHandle handle = new UnifiedDrawHandle(this, vao, 0, vertices, texture, vertexBuffer);
+		UnifiedDrawHandle handle = new UnifiedDrawHandle(this, vao, 0, vertices, texture, texture2, vertexBuffer);
 
 		if(glcaps.GL_ARB_vertex_array_object) {
 			bindFormat(vao);

@@ -503,7 +503,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		if (this.currentSelectionAreaStart != null && this.currentSelectionAreaEnd != null) {
 
 			if(selectionArea == null || !selectionArea.isValid()) {
-				selectionArea = gl.createUnifiedDrawCall(4, "selection-area", null, new float[] {0, 0, 1, 0, 1, 1, 0, 1});
+				selectionArea = gl.createUnifiedDrawCall(4, "selection-area", null, null, new float[] {0, 0, 1, 0, 1, 1, 0, 1});
 			}
 
 			float width = (float)(currentSelectionAreaEnd.getX() - currentSelectionAreaStart.getX());
@@ -684,7 +684,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private void drawDebugColors() {
 		GLDrawContext gl = this.context.getGl();
 
-		if(shapeHandle == null || !shapeHandle.isValid()) shapeHandle = gl.createUnifiedDrawCall(4, "debugshape", null, shape);
+		if(shapeHandle == null || !shapeHandle.isValid()) shapeHandle = gl.createUnifiedDrawCall(4, "debugshape", null, null, shape);
 
 		context.getScreenArea().stream().filterBounds(width, height).forEach((x, y) -> {
 			int argb = map.getDebugColorAt(x, y, debugColorMode);

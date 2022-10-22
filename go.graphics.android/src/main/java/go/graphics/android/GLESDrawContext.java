@@ -244,7 +244,7 @@ public class GLESDrawContext extends GLDrawContext {
 	}
 
 	@Override
-	public UnifiedDrawHandle createUnifiedDrawCall(int vertices, String name, TextureHandle texture, float[] data) {
+	public UnifiedDrawHandle createUnifiedDrawCall(int vertices, String name, TextureHandle texture, TextureHandle texture2, float[] data) {
 		int vao = -1;
 
 		if(gles3) vao = genVertexArray();
@@ -258,7 +258,7 @@ public class GLESDrawContext extends GLDrawContext {
 			glBufferData(GL_ARRAY_BUFFER, vertices*(texture!=null?4:2)*4, null, GL_DYNAMIC_DRAW);
 		}
 
-		UnifiedDrawHandle handle = new UnifiedDrawHandle(this, vao, 0, vertices, texture, vertexBuffer);
+		UnifiedDrawHandle handle = new UnifiedDrawHandle(this, vao, 0, vertices, texture, texture2, vertexBuffer);
 
 		if(gles3) {
 			bindFormat(vao);
