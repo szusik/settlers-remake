@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 import go.graphics.AbstractColor;
@@ -117,9 +118,30 @@ public class GLESDrawContext extends GLDrawContext {
 		return texture;
 	}
 
+	private ImageData fixFormat(ImageData orig) {
+		if(orig == null) return null;
+
+		ImageData conv = new ImageData(orig.getWidth(), orig.getHeight());
+		IntBuffer from = orig.getReadData32();
+		IntBuffer to = conv.getWriteData32();
+		while(from.hasRemaining()) {
+			int pixel = from.get();
+			int r = pixel&0xFF;
+			int g = (pixel>>8)&0xFF;
+			int b = (pixel>>16)&0xFF;
+			int a = (pixel>>24)&0xFF;
+
+			int reversed = r<<24 | g << 16 | b << 8 | a;
+			to.put(reversed);
+		}
+
+		to.rewind();
+		return conv;
+	}
+
 	public TextureHandle resizeTexture(TextureHandle textureIndex, ImageData image) {
 		bindTexture(textureIndex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getReadData32());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, fixFormat(image).getReadData32());
 		return textureIndex;
 	}
 
@@ -127,7 +149,7 @@ public class GLESDrawContext extends GLDrawContext {
 							  ImageData image) {
 		bindTexture(textureIndex);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, left, bottom, image.getWidth(), image.getHeight(),
-				GL_RGBA, GL_UNSIGNED_BYTE, image.getReadData32());
+				GL_RGBA, GL_UNSIGNED_BYTE, fixFormat(image).getReadData32());
 	}
 
 	protected void bindTexture(TextureHandle texture) {
