@@ -18,8 +18,8 @@ import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 
-import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.logic.map.loading.newmap.MapFileHeader;
+import jsettlers.mapcreator.data.MapData;
 import jsettlers.mapcreator.localization.EditorLabels;
 
 /**
@@ -55,8 +55,8 @@ public class NewFileDialog extends AbstractOkCancelDialog {
 	/**
 	 * @return The selected ground type
 	 */
-	public ELandscapeType getGroundTypes() {
-		return newFilePanel.getGroundTypes();
+	public MapData getNewMapData() {
+		return newFilePanel.getMapData();
 	}
 
 	/**

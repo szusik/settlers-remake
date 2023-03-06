@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.logic.map.loading.newmap.MapFileHeader;
 import jsettlers.logic.map.loading.newmap.MapFileHeader.MapType;
+import jsettlers.mapcreator.data.MapData;
 import jsettlers.mapcreator.localization.EditorLabels;
 import jsettlers.mapcreator.main.window.sidebar.RectIcon;
 
@@ -98,8 +99,8 @@ public class NewFilePanel extends Box {
 	/**
 	 * @return The selected ground type
 	 */
-	public ELandscapeType getGroundTypes() {
-		return (ELandscapeType) groundTypes.getSelectedItem();
+	public MapData getMapData() {
+		return new MapData(getHeader(), (ELandscapeType) groundTypes.getSelectedItem());
 	}
 
 	/**
