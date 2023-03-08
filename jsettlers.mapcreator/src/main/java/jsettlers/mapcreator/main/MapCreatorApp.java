@@ -24,7 +24,7 @@ import jsettlers.exceptionhandler.ExceptionHandler;
 import jsettlers.main.swing.JSettlersSwingUtil;
 import jsettlers.main.swing.SwingManagedJSettlers;
 import jsettlers.mapcreator.control.EditorControl;
-import jsettlers.mapcreator.main.window.NewFilePanel;
+import jsettlers.mapcreator.main.window.newmap.NewFilePanel;
 import jsettlers.mapcreator.main.window.NewOrOpenDialog;
 import jsettlers.mapcreator.main.window.OpenPanel;
 

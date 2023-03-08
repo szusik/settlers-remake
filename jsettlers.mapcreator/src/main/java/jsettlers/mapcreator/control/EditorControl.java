@@ -77,7 +77,7 @@ import jsettlers.mapcreator.main.action.StartDrawingAction;
 import jsettlers.mapcreator.main.map.MapEditorControls;
 import jsettlers.mapcreator.main.window.EditorFrame;
 import jsettlers.mapcreator.main.window.LastUsedHandler;
-import jsettlers.mapcreator.main.window.NewFileDialog;
+import jsettlers.mapcreator.main.window.newmap.NewFileDialog;
 import jsettlers.mapcreator.main.window.OpenExistingDialog;
 import jsettlers.mapcreator.main.window.SettingsDialog;
 import jsettlers.mapcreator.main.window.sidebar.RectIcon;

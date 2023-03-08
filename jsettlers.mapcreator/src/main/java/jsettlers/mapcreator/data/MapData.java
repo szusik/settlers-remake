@@ -320,6 +320,10 @@ public class MapData implements IMapData {
 			}
 		}
 
+		setHeightUnsafe(x, y, height);
+	}
+
+	public void setHeightUnsafe(int x, int y, int height) {
 		byte safeHeight;
 		if (height >= Byte.MAX_VALUE) {
 			safeHeight = Byte.MAX_VALUE;

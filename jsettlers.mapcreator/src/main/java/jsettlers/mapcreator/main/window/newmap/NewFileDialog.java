@@ -12,7 +12,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package jsettlers.mapcreator.main.window;
+package jsettlers.mapcreator.main.window.newmap;
 
 import java.awt.BorderLayout;
 
@@ -21,6 +21,7 @@ import javax.swing.JFrame;
 import jsettlers.logic.map.loading.newmap.MapFileHeader;
 import jsettlers.mapcreator.data.MapData;
 import jsettlers.mapcreator.localization.EditorLabels;
+import jsettlers.mapcreator.main.window.AbstractOkCancelDialog;
 
 /**
  * Display new file dialog
