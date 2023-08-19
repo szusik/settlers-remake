@@ -12,15 +12,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *******************************************************************************/
-package jsettlers.mapcreator.main.window;
+package jsettlers.mapcreator.main.window.newmap;
 
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 
-import jsettlers.common.landscape.ELandscapeType;
 import jsettlers.logic.map.loading.newmap.MapFileHeader;
+import jsettlers.mapcreator.data.MapData;
 import jsettlers.mapcreator.localization.EditorLabels;
+import jsettlers.mapcreator.main.window.AbstractOkCancelDialog;
 
 /**
  * Display new file dialog
@@ -55,8 +56,8 @@ public class NewFileDialog extends AbstractOkCancelDialog {
 	/**
 	 * @return The selected ground type
 	 */
-	public ELandscapeType getGroundTypes() {
-		return newFilePanel.getGroundTypes();
+	public MapData getNewMapData() {
+		return newFilePanel.getMapData();
 	}
 
 	/**
