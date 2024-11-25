@@ -27,7 +27,7 @@ Many thanks in advance for helping to improve this game!
 
 ## Playing JSettlers
 
-In order to play the game, you need to have the "GFX" and "SND" folders of the original version of "The Settlers 3" as obtained by installing the original "The Settlers 3" game (DEMO version also works).
+In order to play the game, you need to have the folders "GFX", "SND" and "MAP" (optional) of the original version of "The Settlers 3" as obtained by installing the original "The Settlers 3" game (DEMO version also works).
 
 Furthermore, you need an up-to-date installation of [Java 11 or newer](https://adoptium.net/). A Java Installation is needed to run the desktop version of JSettlers, as it is written in the programming language Java.
 
@@ -36,7 +36,7 @@ Java is preinstalled on Android.
 After that, follow the detailed installation instructions for you platform.
 
 ### Windows, Linux, Mac OS
-1. Install "The Settlers III" or a demo version ([Settlers III Amazons Demo](http://www.siedler-maps.de/downloads.php?action=download&downloadid=41)) of it. Don't worry, if it is not running on your OS, we only need the graphics and sound files. In order to get them, you can also unzip the Amazons Demo exe file (yes: unzip the .exe) and copy the folders `Gfx` and `Snd` into an empty folder on your computer.
+1. Install "The Settlers III" or a demo version ([Settlers III Amazons Demo](http://www.siedler-maps.de/downloads.php?action=download&downloadid=41)) of it. Don't worry, if it is not running on your OS, we only need the graphics and sound files. In order to get them, you can also unzip the Amazons Demo exe file (yes: unzip the .exe) and copy the folders `Gfx`, `Snd` and `Map` (optional) into an empty folder on your computer.
 2. Download the newest stable [release of JSettlers*.zip](https://github.com/paulwedeck/settlers-remake/releases) (this also includes the MapEditor).
 3. Unpack the downloaded archive to wherever you want JSettlers' installation to be.
 5. Run the "JSettlers.jar" file.
@@ -67,7 +67,7 @@ All the options above can also be specified as command line options. For this, y
 
 ### Android
 1. Enable installation of Apps from "Unknown Sources".
-2. Copy the "GFX" and the "SND" folders of your original "The Settlers 3" installation into a folder called "JSettlers" on your device. The "JSettlers" folder must be located in the root directory of your internal storage (alongside folders like "Download" or "DCIM") or your external storage (e.g. memory card).
+2. Copy the folders "GFX", "SND" and "MAP" (optional) of your original "The Settlers 3" installation into a folder called "JSettlers" on your device. The "JSettlers" folder must be located in the root directory of your internal storage (alongside folders like "Download" or "DCIM") or your external storage (e.g. memory card).
 3. Download the newest stable JSettlers-Android_v*.apk onto your Android device.
 4. Install JSettlers by running the downloaded file.
 
