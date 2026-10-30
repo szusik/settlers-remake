@@ -14,7 +14,10 @@
  *******************************************************************************/
 package jsettlers.logic.player;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.movable.ESoldierType;
@@ -47,6 +50,11 @@ public class MannaInformation implements Serializable, IMannaInformation {
 
 	public MannaInformation(ECivilisation civilisation) {
 		this.civilisation = civilisation;
+	}
+
+	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+		ois.defaultReadObject();
+		spellUsedCount = Arrays.copyOf(spellUsedCount, ESpellType.values().length); // older savegames know fewer spells
 	}
 
 	public void increaseManna() {

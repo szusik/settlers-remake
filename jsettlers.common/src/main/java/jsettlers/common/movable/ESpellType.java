@@ -47,7 +47,10 @@ public enum ESpellType {
 
 	REMOVE_GOLD(20, true, ECivilisation.AMAZON, "original_44_GUI_264"),
 	CALL_GOODS(25, false, ECivilisation.AMAZON, "original_44_GUI_267"),
-	DESTROY_ARROWS(40, true, ECivilisation.AMAZON, "original_44_GUI_270");
+	DESTROY_ARROWS(40, true, ECivilisation.AMAZON, "original_44_GUI_270"),
+
+	// new spells must stay at the end: savegames, replays and network tasks use the ordinals
+	CREATE_RICE_PADDY(0, true, ECivilisation.ASIAN, "original_34_GUI_129");
 
 	private short manna;
 	private ImageLink imageLink;
@@ -115,6 +118,7 @@ public enum ESpellType {
 	public static final int DESERTIFICATION_RADIUS = 7;
 	public static final int DRAIN_MOOR_RADIUS = 7;
 	public static final int MELT_SNOW_RADIUS = 7;
+	public static final int CREATE_RICE_PADDY_RADIUS = 4;
 
 	// don't place stone in a blob that nobody can pass
 	public static final int SUMMON_STONE_OFFSET = 10;

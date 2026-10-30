@@ -390,6 +390,16 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 				effectLocations.add(currentTarget);
 				animation = 127;
 				break;
+			case CREATE_RICE_PADDY:
+				// the walkable border type: the moor inside is blocked and rice farmers couldn't reach it
+				terraformHandle.fill(MOORBORDEROUTER, spellRegion(ESpellType.CREATE_RICE_PADDY_RADIUS)
+						.filter((x, y) -> grid.getLandscapeTypeAt(x, y) == GRASS && !grid.isBlockedOrProtected(x, y))
+						.filter((x, y) -> player.hasSameTeam(grid.getPlayerAt(new ShortPoint2D(x, y))))
+						.toList());
+
+				effectLocations.add(currentTarget);
+				animation = 125;
+				break;
 			case AMAZON_EYE:
 				grid.addEyeMapObject(position, ESpellType.AMAZON_EYE_RADIUS, ESpellType.AMAZON_EYE_TIME, player);
 				effectLocations.add(position);
