@@ -32,12 +32,16 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 
 import go.graphics.event.command.EModifier;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.IIDable;
 import jsettlers.common.player.ECivilisation;
+import jsettlers.common.selectable.ISelectable;
+import jsettlers.common.selectable.ISelectionSet;
 import jsettlers.graphics.map.draw.ECommonLinkType;
 import jsettlers.graphics.map.draw.ImageLinkMap;
 import jsettlers.main.android.R;
@@ -77,11 +81,13 @@ public class SoldiersSelectionFragment extends SelectionFragment {
 	Switch forceMove;
 
 	private ActionControls actionControls;
+	private boolean forceMoveAtStart = false;
 
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		actionControls = new ControlsResolver(getActivity()).getActionControls();
+		forceMove.setChecked(forceMoveAtStart);
 
 		LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 
@@ -132,6 +138,32 @@ public class SoldiersSelectionFragment extends SelectionFragment {
 		default:
 			throw new RuntimeException("SoldiersSelectionFragment can't display movable: " + movableType.name());
 		}
+	}
+
+	/**
+	 * Takes over the force move setting of the given menu, if this is the same group of soldiers. The game replaces the selection, and so this menu, whenever a soldier dies.
+	 */
+	public void continueFrom(SelectionFragment previousMenu, ISelectionSet selection) {
+		if (previousMenu instanceof SoldiersSelectionFragment) {
+			SoldiersSelectionFragment previous = (SoldiersSelectionFragment) previousMenu;
+			forceMoveAtStart = previous.forceMove != null && previous.forceMove.isChecked() && isSubset(selection, previous.getSelection());
+		}
+	}
+
+	private static boolean isSubset(ISelectionSet selection, ISelectionSet previousSelection) {
+		Set<Integer> previousIds = new HashSet<>();
+		for (ISelectable selectable : previousSelection) {
+			if (selectable instanceof IIDable) {
+				previousIds.add(((IIDable) selectable).getID());
+			}
+		}
+
+		for (ISelectable selectable : selection) {
+			if (!(selectable instanceof IIDable) || !previousIds.contains(((IIDable) selectable).getID())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

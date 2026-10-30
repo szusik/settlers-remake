@@ -382,7 +382,9 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 			currentSelectionManager = BuildingSelectionFragment.newInstance();
 			break;
 		case SOLDIERS:
-			currentSelectionManager = SoldiersSelectionFragment.newInstance();
+			SoldiersSelectionFragment soldiersMenu = SoldiersSelectionFragment.newInstance();
+			soldiersMenu.continueFrom(currentSelectionManager, selectionControls.getCurrentSelection());
+			currentSelectionManager = soldiersMenu;
 			break;
 		case PRIESTS:
 			showMenu();
