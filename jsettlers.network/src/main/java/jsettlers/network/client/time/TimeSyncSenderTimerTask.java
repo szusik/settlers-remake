@@ -37,7 +37,7 @@ public class TimeSyncSenderTimerTask extends TimerTask {
 
 	@Override
 	public void run() {
-		int localTime = clock.getTime();
+		int localTime = clock.getNetworkTime();
 		int expectedTimeAtServer = localTime + channel.getRoundTripTime().getRtt() / 2;
 
 		channel.sendPacketAsync(NetworkConstants.ENetworkKey.TIME_SYNC, new TimeSyncPacket(expectedTimeAtServer));

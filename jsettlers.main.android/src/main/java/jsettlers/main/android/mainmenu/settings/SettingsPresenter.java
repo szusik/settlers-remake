@@ -34,6 +34,7 @@ public class SettingsPresenter {
 		view.setPlayerName(androidPreferences.getPlayerName());
 		view.setServerAddress(androidPreferences.getServer());
 		view.setPlayAllMusic(androidPreferences.isPlayAllMusic());
+		view.setStatusOverlayDisplayed(androidPreferences.isStatusOverlayDisplayed());
 	}
 
 	public void playerNameEdited(String playerName) {
@@ -44,6 +45,11 @@ public class SettingsPresenter {
 	public void serverAddressEdited(String serverAddress) {
 		androidPreferences.setServer(serverAddress);
 		view.setServerAddress(serverAddress);
+	}
+
+	public void statusOverlayEdited(boolean displayed) {
+		androidPreferences.setStatusOverlayDisplayed(displayed);
+		view.setStatusOverlayDisplayed(displayed);
 	}
 
 	public void playAllMusicEdited(boolean playAll) {

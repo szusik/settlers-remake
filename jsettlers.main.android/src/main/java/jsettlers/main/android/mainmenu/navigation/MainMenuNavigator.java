@@ -29,6 +29,8 @@ public interface MainMenuNavigator {
 
 	void showJoinMultiPlayerPicker();
 
+	void showLoadMultiPlayerPicker();
+
 	void showNewMultiPlayerSetup(String mapId);
 
 	void showJoinMultiPlayerSetup(String mapId);

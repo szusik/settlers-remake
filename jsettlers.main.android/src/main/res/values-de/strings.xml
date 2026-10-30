@@ -80,6 +80,7 @@
 	<string name="halt">Stopp</string>
 	<string name="join_multi_player_game">Multiplayer Spiel beitreten</string>
 	<string name="load_single_player_game">Lade Einzelspieler</string>
+	<string name="load_multi_player_game">Lade Mehrspieler</string>
 	<string name="menu_game_in_progress">Spiel läuft</string>
 	<string name="menu_join">Beitreten</string>
 	<string name="menu_load">Laden</string>
@@ -128,4 +129,5 @@
 	<string name="ask_spell">Zauberstelle auswählen</string>
 	<string name="force_move">Zielpunkt erzwingen</string>
 	<string name="settings_play_all_music">Alle Musikdateien abspielen</string>
+	<string name="settings_status_overlay">Statusanzeige einblenden</string>
 </resources>

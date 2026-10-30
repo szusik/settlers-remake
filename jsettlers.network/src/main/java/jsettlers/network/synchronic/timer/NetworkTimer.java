@@ -53,6 +53,7 @@ public final class NetworkTimer extends TimerTask implements INetworkClientClock
 
 	private int time = 0;
 	private volatile int maxAllowedLockstep = -1;
+	private volatile int lockstepOffset = 0;
 	private volatile boolean waitingForLockstep = false;
 	private volatile int lockstepWaitCount = 0;
 	private volatile long lockstepWaitTimeMs = 0;
@@ -303,24 +304,34 @@ public final class NetworkTimer extends TimerTask implements INetworkClientClock
 	}
 
 	@Override
-	public void scheduleSyncTasksPacket(SyncTasksPacket tasksPacket) {
+	public void scheduleSyncTasksPacket(SyncTasksPacket receivedPacket) {
+		SyncTasksPacket tasksPacket;
+		synchronized (tasks) { // the offset must not change between applying it and storing the packet
+			tasksPacket = shiftLockstep(receivedPacket);
+			scheduleShiftedPacket(tasksPacket);
+		}
+
+		synchronized (lockstepLock) {
+			lockstepLock.notifyAll();
+		}
+	}
+
+	private SyncTasksPacket shiftLockstep(SyncTasksPacket packet) {
+		return lockstepOffset == 0 ? packet : new SyncTasksPacket(packet.getLockstepNumber() + lockstepOffset, packet.getTasks());
+	}
+
+	private void scheduleShiftedPacket(SyncTasksPacket tasksPacket) {
 		assert maxAllowedLockstep == Integer.MAX_VALUE
 				|| maxAllowedLockstep + 1 == tasksPacket.getLockstepNumber() : "received unlock for wrong step! current max allowed: "
 						+ maxAllowedLockstep + " new: " + tasksPacket.getLockstepNumber();
 
 		if (!tasksPacket.getTasks().isEmpty()) {
-			synchronized (tasks) {
-				System.out.println("Scheduled SyncTasksPacket(" + tasksPacket + " for " + getLockstepText(tasksPacket.getLockstepNumber()));
-				tasks.addLast(tasksPacket);
-				tasks.sort(tasksByTimeComparator);
-				saveReplayIfNeeded(tasksPacket);
-			}
+			System.out.println("Scheduled SyncTasksPacket(" + tasksPacket + " for " + getLockstepText(tasksPacket.getLockstepNumber()));
+			tasks.addLast(tasksPacket);
+			tasks.sort(tasksByTimeComparator);
+			saveReplayIfNeeded(tasksPacket);
 		}
 		maxAllowedLockstep = Math.max(maxAllowedLockstep, tasksPacket.getLockstepNumber());
-
-		synchronized (lockstepLock) {
-			lockstepLock.notifyAll();
-		}
 	}
 
 	private void saveReplayIfNeeded(SyncTasksPacket tasksPacket) {
@@ -357,6 +368,23 @@ public final class NetworkTimer extends TimerTask implements INetworkClientClock
 	@Override
 	public void setTime(int newTime) {
 		this.time = newTime;
+	}
+
+	@Override
+	public void resumeAtTime(int savedTime) {
+		synchronized (tasks) {
+			if (maxAllowedLockstep != Integer.MAX_VALUE) { // without a server, the locksteps are not limited
+				lockstepOffset = savedTime / NetworkConstants.Client.LOCKSTEP_PERIOD;
+				maxAllowedLockstep += lockstepOffset;
+				tasks.replaceAll(this::shiftLockstep); // the server already started the match while the game was loading
+			}
+			this.time = savedTime;
+		}
+	}
+
+	@Override
+	public int getNetworkTime() {
+		return time - lockstepOffset * NetworkConstants.Client.LOCKSTEP_PERIOD;
 	}
 
 	@Override

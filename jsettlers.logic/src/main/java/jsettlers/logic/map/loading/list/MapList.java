@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import jsettlers.common.CommonConstants;
 import jsettlers.common.logging.MilliStopWatch;
 import jsettlers.common.utils.collections.ChangingList;
@@ -235,9 +236,10 @@ public class MapList implements IMapListerCallable {
 		loadFileList();
 	}
 
-	public ArrayList<MapLoader> getSavedMultiplayerMaps() {
-		// TODO: save multiplayer maps, so that we can load them.
-		return null;
+	public synchronized ChangingList<MapLoader> getSavedMultiplayerMaps() {
+		return new ChangingList<>(getSavedMaps().getItems().stream()
+				.filter(map -> map.getFileHeader().isMultiplayerSave())
+				.collect(Collectors.toList()));
 	}
 
 	/**

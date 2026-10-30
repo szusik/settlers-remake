@@ -96,4 +96,27 @@
 				android:text="@string/settings_play_all_music"
 		/>
 	</LinearLayout>
+
+	<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:background="?android:attr/listDivider"/>
+
+
+	<LinearLayout
+			android:id="@+id/layout_status_overlay"
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/settings_item_height"
+			android:padding="16dp"
+			android:gravity="center_vertical"
+			android:background="?android:attr/selectableItemBackground">
+
+		<Switch
+				android:layout_width="261dp"
+				android:layout_height="match_parent"
+				android:id="@+id/switch_status_overlay"
+				android:text="@string/settings_status_overlay"
+		/>
+	</LinearLayout>
 </LinearLayout>

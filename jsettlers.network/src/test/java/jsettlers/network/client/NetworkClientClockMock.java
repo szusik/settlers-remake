@@ -56,6 +56,16 @@ public class NetworkClientClockMock implements INetworkClientClock {
 	}
 
 	@Override
+	public int getNetworkTime() {
+		return time;
+	}
+
+	@Override
+	public void resumeAtTime(int savedTime) {
+		throw new UnsupportedOperationException("not mocked");
+	}
+
+	@Override
 	public void pauseClockFor(int timeDelta) {
 		time -= timeDelta;
 		adjustmentEvents.add(timeDelta);

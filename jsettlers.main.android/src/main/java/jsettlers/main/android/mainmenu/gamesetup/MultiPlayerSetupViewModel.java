@@ -143,7 +143,7 @@ public abstract class MultiPlayerSetupViewModel extends MapSetupViewModel implem
 					playerSlotPresenter.setSlotStateListener(null, false, false);
 				}
 			} else {
-				playerSlotPresenter.setName("Computer " + i);
+				playerSlotPresenter.setName(remoteSlot.getType() == EPlayerType.HUMAN ? "Waiting for player" : "Computer " + i);
 				playerSlotPresenter.setShowReadyControl(false);
 				if(amITheHost()) {
 					playerSlotPresenter.setSlotStateListener(this, false, amITheHost());

@@ -28,6 +28,11 @@ public interface ISynchronizableClock {
 	int getTime();
 
 	/**
+	 * @return Returns the time since the start of the network match. It only differs from {@link #getTime()} if the match continues a saved game.
+	 */
+	int getNetworkTime();
+
+	/**
 	 * Pauses the clock for at least the given period of time.
 	 * 
 	 * @param pauseTime

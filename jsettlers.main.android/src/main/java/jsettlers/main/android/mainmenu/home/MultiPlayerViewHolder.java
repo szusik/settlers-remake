@@ -39,6 +39,7 @@ public class MultiPlayerViewHolder extends RecyclerView.ViewHolder {
 
 		viewModel.getShowMultiplayerPlayer().observe(parent, z -> mainMenuNavigator.showNewMultiPlayerPicker());
 		viewModel.getShowJoinMultiplayerPlayer().observe(parent, z -> mainMenuNavigator.showJoinMultiPlayerPicker());
+		viewModel.getShowLoadMultiplayerPlayer().observe(parent, z -> mainMenuNavigator.showLoadMultiPlayerPicker());
 		viewModel.getMultiplayerStatus().observe(parent, z -> {
 			if(z == Boolean.FALSE) {
 				connectButton.setText(R.string.menu_multi_player_start_server);

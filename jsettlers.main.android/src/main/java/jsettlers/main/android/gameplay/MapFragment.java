@@ -48,6 +48,7 @@ import jsettlers.graphics.map.MapContent;
 import jsettlers.graphics.map.draw.ImageProvider;
 import jsettlers.logic.constants.MatchConstants;
 import jsettlers.main.android.R;
+import jsettlers.main.android.core.AndroidPreferences;
 import jsettlers.main.android.core.controls.ControlsResolver;
 import jsettlers.main.android.core.controls.GameMenu;
 import jsettlers.main.android.core.controls.SelectionControls;
@@ -152,6 +153,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 	@Override
 	public void onResume() {
 		super.onResume();
+		performanceOverlay.setVisibility(new AndroidPreferences(getActivity()).isStatusOverlayDisplayed() ? View.VISIBLE : View.GONE);
 		if (gameMenu.isPausedState().getValue() == Boolean.FALSE) {
 			gameMenu.unMute();
 		}

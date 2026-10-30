@@ -74,9 +74,19 @@ public class PerformanceOverlayView extends AppCompatTextView {
 	}
 
 	@Override
+	public void setVisibility(int visibility) {
+		super.setVisibility(visibility);
+		updateRunningState(getWindowVisibility());
+	}
+
+	@Override
 	protected void onWindowVisibilityChanged(int visibility) {
 		super.onWindowVisibilityChanged(visibility);
-		if (visibility == VISIBLE) {
+		updateRunningState(visibility);
+	}
+
+	private void updateRunningState(int windowVisibility) {
+		if (windowVisibility == VISIBLE && getVisibility() == VISIBLE) {
 			start();
 		} else {
 			stop();

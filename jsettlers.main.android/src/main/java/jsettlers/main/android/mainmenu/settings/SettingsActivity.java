@@ -46,6 +46,9 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 	@ViewById(R.id.switch_play_all_music)
 	Switch switchPlayAllMusic;
 
+	@ViewById(R.id.switch_status_overlay)
+	Switch switchStatusOverlay;
+
 	@ViewById(R.id.toolbar)
 	Toolbar toolbar;
 
@@ -86,6 +89,11 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 		presenter.playAllMusicEdited(switchPlayAllMusic.isChecked());
 	}
 
+	@CheckedChange(R.id.switch_status_overlay)
+	void onCheckedChangedStatusOverlay() {
+		presenter.statusOverlayEdited(switchStatusOverlay.isChecked());
+	}
+
 	@OptionsItem(android.R.id.home)
 	void homeSelected() {
 		finish();
@@ -104,6 +112,11 @@ public class SettingsActivity extends AppCompatActivity implements SettingsView,
 	@Override
 	public void setPlayAllMusic(boolean playAll) {
 		switchPlayAllMusic.setChecked(playAll);
+	}
+
+	@Override
+	public void setStatusOverlayDisplayed(boolean displayed) {
+		switchStatusOverlay.setChecked(displayed);
 	}
 
 	@Override

@@ -134,6 +134,19 @@ public class NetworkStatusTest {
 		waitFor(() -> client2.getClockOffsetInMs() > NetworkConstants.Client.TIME_SYNC_TOLERATED_DIFFERENCE);
 	}
 
+	@Test
+	public void testSavedGameContinuesAtItsGameTime() throws InterruptedException {
+		final int savedTime = 1800000;
+		timer1.resumeAtTime(savedTime);
+		timer2.resumeAtTime(savedTime);
+
+		startMatch();
+		waitFor(() -> timer1.getTime() > savedTime + 1000 && timer2.getTime() > savedTime + 1000);
+
+		assertFalse(client1.isWaitingForLockstep() && client2.isWaitingForLockstep());
+		assertTrue("the server must not run away from the clients", client1.getLockstepLeadInMs() < 2000);
+	}
+
 	private void startMatch() throws InterruptedException {
 		client1.logIn("id1", "first", packet -> {
 		});

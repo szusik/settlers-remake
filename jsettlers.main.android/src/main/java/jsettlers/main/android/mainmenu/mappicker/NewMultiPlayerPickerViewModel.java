@@ -118,16 +118,19 @@ public class NewMultiPlayerPickerViewModel extends MapPickerViewModel implements
 
 		private final Activity activity;
 		private final GameStarter gameStarter;
+		private final boolean loadingSavegame;
 
-		public Factory(Activity activity) {
+		public Factory(Activity activity, boolean loadingSavegame) {
 			this.activity = activity;
+			this.loadingSavegame = loadingSavegame;
 			gameStarter = (GameStarter) activity.getApplication();
 		}
 
 		@Override
 		public <T extends ViewModel> T create(Class<T> modelClass) {
 			if (modelClass == NewMultiPlayerPickerViewModel.class) {
-				return (T) new NewMultiPlayerPickerViewModel(gameStarter, new AndroidPreferences(activity), gameStarter.getMapList().getFreshMaps());
+				ChangingList<MapLoader> maps = loadingSavegame ? gameStarter.getMapList().getSavedMultiplayerMaps() : gameStarter.getMapList().getFreshMaps();
+				return (T) new NewMultiPlayerPickerViewModel(gameStarter, new AndroidPreferences(activity), maps);
 			}
 			throw new RuntimeException("NewSinglePlayerPickerViewModel.Factory doesn't know how to create a: " + modelClass.toString());
 		}

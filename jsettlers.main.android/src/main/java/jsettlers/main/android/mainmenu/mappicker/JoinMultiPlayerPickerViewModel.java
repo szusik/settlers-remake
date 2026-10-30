@@ -138,7 +138,9 @@ public class JoinMultiPlayerPickerViewModel extends ViewModel implements IJoinin
 		}
 
 		private IJoinableGame[] sortedMaps(List<? extends IJoinableGame> items) {
-			return items.toArray(new IJoinableGame[0]);
+			return items.stream()
+					.filter(game -> game.getMap() != null) // the save of a loaded match or the map is missing on this device
+					.toArray(IJoinableGame[]::new);
 		}
 	}
 

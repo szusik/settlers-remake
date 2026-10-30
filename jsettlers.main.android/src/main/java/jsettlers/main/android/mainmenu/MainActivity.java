@@ -30,6 +30,7 @@ import jsettlers.main.android.mainmenu.gamesetup.NewMultiPlayerSetupFragment;
 import jsettlers.main.android.mainmenu.gamesetup.NewSinglePlayerSetupFragment;
 import jsettlers.main.android.mainmenu.home.MainMenuFragment;
 import jsettlers.main.android.mainmenu.mappicker.JoinMultiPlayerPickerFragment;
+import jsettlers.main.android.mainmenu.mappicker.LoadMultiPlayerPickerFragment;
 import jsettlers.main.android.mainmenu.mappicker.LoadSinglePlayerPickerFragment;
 import jsettlers.main.android.mainmenu.mappicker.NewMultiPlayerPickerFragment;
 import jsettlers.main.android.mainmenu.mappicker.NewSinglePlayerPickerFragment;
@@ -86,6 +87,14 @@ public class MainActivity extends AppCompatActivity implements MainMenuNavigator
 	public void showNewSinglePlayerSetup(String mapId) {
 		getSupportFragmentManager().beginTransaction()
 				.replace(R.id.frame_layout, NewSinglePlayerSetupFragment.create(mapId))
+				.addToBackStack(null)
+				.commit();
+	}
+
+	@Override
+	public void showLoadMultiPlayerPicker() {
+		getSupportFragmentManager().beginTransaction()
+				.replace(R.id.frame_layout, LoadMultiPlayerPickerFragment.newInstance())
 				.addToBackStack(null)
 				.commit();
 	}

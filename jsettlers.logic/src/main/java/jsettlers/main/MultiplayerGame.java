@@ -37,6 +37,7 @@ import jsettlers.common.player.ECivilisation;
 import jsettlers.common.utils.collections.ChangingList;
 import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.logic.map.loading.list.MapList;
+import jsettlers.logic.map.loading.savegame.SavegameLoader;
 import jsettlers.logic.player.InitialGameState;
 import jsettlers.logic.player.PlayerSetting;
 import jsettlers.main.datatypes.MultiplayerPlayer;
@@ -69,6 +70,7 @@ public class MultiplayerGame {
 	private IMultiplayerListener multiplayerListener;
 	private IChatMessageListener chatMessageListener;
 	private boolean iAmTheHost = false;
+	private boolean savedSlotsApplied = false;
 	private int maxPlayers;
 
 	public MultiplayerGame(AsyncNetworkClientConnector networkClientFactory) {
@@ -145,14 +147,63 @@ public class MultiplayerGame {
 		};
 	}
 
+	/**
+	 * @return The settings of the players in the saved game or null if this match doesn't continue a saved game.
+	 */
+	private PlayerSetting[] getSavedPlayerSettings() {
+		MapLoader map = MapList.getDefaultList().getMapById(networkClient.getMatchInfo().getMapInfo().getId());
+		return map instanceof SavegameLoader ? map.getFileHeader().getPlayerSettings() : null;
+	}
+
+	/**
+	 * Shows the nations of the saved game in the slots and makes the match wait for the humans that played the game.
+	 */
+	private void applySavedSlotsIfNeeded() {
+		PlayerSetting[] savedSettings = iAmTheHost && !savedSlotsApplied ? getSavedPlayerSettings() : null;
+		savedSlotsApplied = true;
+		if (savedSettings == null) {
+			return;
+		}
+
+		for (byte slot = 0; slot < savedSettings.length; slot++) {
+			PlayerSetting savedSetting = savedSettings[slot];
+			if (savedSetting.isAvailable()) {
+				networkClient.setCivilisation(slot, (byte) savedSetting.getCivilisation().ordinal);
+				networkClient.setTeam(slot, savedSetting.getTeamId());
+				if (savedSetting.getPlayerType() == EPlayerType.HUMAN) {
+					networkClient.setType(slot, (byte) EPlayerType.HUMAN.ordinal());
+				}
+			}
+		}
+	}
+
+	private boolean canStartWithSavedPlayers() {
+		PlayerSetting[] savedSettings = getSavedPlayerSettings();
+		if (savedSettings == null) {
+			return true;
+		}
+
+		return slotList.getItems().stream().allMatch(slot -> {
+			boolean available = savedSettings[slot.getPosition()].isAvailable();
+			return slot.getPlayer() != null ? available : !available || slot.getType() != EPlayerType.HUMAN;
+		});
+	}
+
 	private PlayerSetting[] determinePlayerSettings() {
+		PlayerSetting[] savedSettings = getSavedPlayerSettings();
 		Map<Byte, PlayerSetting> playerSettings = slotList.getItems().stream().sorted(Comparator.comparingInt(IMultiplayerSlot::getPosition))
 				.map(slot -> {
+					PlayerSetting savedSetting = savedSettings != null ? savedSettings[slot.getPosition()] : null;
+					ECivilisation civilisation = savedSetting != null ? savedSetting.getCivilisation() : slot.getCivilisation();
+					Byte team = savedSetting != null ? savedSetting.getTeamId() : Byte.valueOf(slot.getTeam());
+
 					PlayerSetting playerSetting;
-					if(iAmTheHost) {
-						playerSetting = new PlayerSetting(slot.getType(), slot.getCivilisation(), slot.getTeam());
+					if (savedSetting != null && !savedSetting.isAvailable()) {
+						playerSetting = new PlayerSetting();
+					} else if(iAmTheHost) {
+						playerSetting = new PlayerSetting(slot.getType(), civilisation, team);
 					} else {
-						playerSetting = new PlayerSetting(EPlayerType.HUMAN, slot.getCivilisation(), slot.getTeam());
+						playerSetting = new PlayerSetting(EPlayerType.HUMAN, civilisation, team);
 					}
 
 					return Map.entry(slot.getPosition(), playerSetting);
@@ -178,6 +229,7 @@ public class MultiplayerGame {
 			}
 
 			updateLists(packet.getMatchInfo());
+			applySavedSlotsIfNeeded();
 			if(packet.getUpdatedPlayer() != null) {
 				receiveSystemMessage(new MultiplayerPlayer(packet.getUpdatedPlayer()), getNetworkMessageById(packet.getUpdateReason()));
 			}
@@ -245,7 +297,7 @@ public class MultiplayerGame {
 		return new IJoinPhaseMultiplayerGameConnector() {
 			@Override
 			public boolean startGame() {
-				if (areAllPlayersReady()) {
+				if (areAllPlayersReady() && canStartWithSavedPlayers()) {
 					networkClient.startMatch();
 					return true;
 				} else {
@@ -260,12 +312,16 @@ public class MultiplayerGame {
 
 			@Override
 			public void setCivilisation(byte slot, ECivilisation civilisation) {
-				networkClient.setCivilisation(slot, (byte) civilisation.ordinal);
+				if (getSavedPlayerSettings() == null) { // the nations of a saved game can't change
+					networkClient.setCivilisation(slot, (byte) civilisation.ordinal);
+				}
 			}
 
 			@Override
 			public void setTeam(byte slot, byte team) {
-				networkClient.setTeam(slot, team);
+				if (getSavedPlayerSettings() == null) {
+					networkClient.setTeam(slot, team);
+				}
 			}
 
 			@Override
@@ -280,7 +336,9 @@ public class MultiplayerGame {
 
 			@Override
 			public void setPlayerCount(int playerCount) {
-				networkClient.setPlayerCount(playerCount);
+				if (getSavedPlayerSettings() == null) {
+					networkClient.setPlayerCount(playerCount);
+				}
 			}
 
 			@Override

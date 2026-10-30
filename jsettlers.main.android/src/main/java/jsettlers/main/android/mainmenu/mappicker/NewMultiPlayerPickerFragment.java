@@ -40,14 +40,18 @@ public class NewMultiPlayerPickerFragment extends MapPickerFragment {
 
 	@Override
 	protected MapPickerViewModel createViewModel() {
-		viewModel = ViewModelProviders.of(this, new NewMultiPlayerPickerViewModel.Factory(getActivity())).get(NewMultiPlayerPickerViewModel.class);
+		viewModel = ViewModelProviders.of(this, new NewMultiPlayerPickerViewModel.Factory(getActivity(), isLoadingSavegame())).get(NewMultiPlayerPickerViewModel.class);
 		return viewModel;
+	}
+
+	protected boolean isLoadingSavegame() {
+		return false;
 	}
 
 	@Override
 	void setupToolbar() {
 		super.setupToolbar();
-		toolbar.setTitle(R.string.new_multi_player_game);
+		toolbar.setTitle(isLoadingSavegame() ? R.string.load_multi_player_game : R.string.new_multi_player_game);
 	}
 
 	@Override

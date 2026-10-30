@@ -62,6 +62,7 @@ public class MapFileHeader {
 	};
 
 	public static final int PREVIEW_IMAGE_SIZE = 128;
+	private static final String MULTIPLAYER_SAVE_ID_PREFIX = "multiplayer-save-";
 
 	private final String name;
 	private final String mapId;
@@ -96,7 +97,7 @@ public class MapFileHeader {
 		this(type, name, UUID.randomUUID().toString(), baseMapId, description, width, height, minPlayers, playerConfigurations, date, previewImage, playerId);
 	}
 
-	private MapFileHeader(MapType type, String name, String mapId, String baseMapId, String description, short width, short height, short minPlayers, PlayerSetting[] playerSettings, Date date,
+	public MapFileHeader(MapType type, String name, String mapId, String baseMapId, String description, short width, short height, short minPlayers, PlayerSetting[] playerSettings, Date date,
 			short[] previewImage, Byte playerId) {
 		if (previewImage.length != PREVIEW_IMAGE_SIZE * PREVIEW_IMAGE_SIZE) {
 			throw new IllegalArgumentException("bg image has wrong size.");
@@ -263,6 +264,17 @@ public class MapFileHeader {
 				throw new IOException(t);
 			}
 		}
+	}
+
+	/**
+	 * Every client of a match writes its own save file. They all get the same id, so that a match can find the file of each client.
+	 */
+	public static String createMultiplayerSaveId(String matchId, int gameTime) {
+		return MULTIPLAYER_SAVE_ID_PREFIX + matchId + "-" + gameTime;
+	}
+
+	public boolean isMultiplayerSave() {
+		return mapId.startsWith(MULTIPLAYER_SAVE_ID_PREFIX);
 	}
 
 	public String getUniqueId() {

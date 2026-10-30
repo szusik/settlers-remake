@@ -45,6 +45,7 @@ public class MainMenuViewModel extends ViewModel {
 	private final SingleLiveEvent<Void> showLoadSinglePlayer = new SingleLiveEvent<>();
 	private final SingleLiveEvent<Void> showMultiplayerPlayer = new SingleLiveEvent<>();
 	private final SingleLiveEvent<Void> showJoinMultiplayerPlayer = new SingleLiveEvent<>();
+	private final SingleLiveEvent<Void> showLoadMultiplayerPlayer = new SingleLiveEvent<>();
 	private final MutableLiveData<Boolean> multiplayerStatus = new MutableLiveData<>();
 
 	public MainMenuViewModel(GameManager gameManager, AndroidResourcesLoader androidResourcesLoader, GameStarter gameStarter) {
@@ -73,6 +74,10 @@ public class MainMenuViewModel extends ViewModel {
 
 	public LiveData<Void> getShowMultiplayerPlayer() {
 		return showMultiplayerPlayer;
+	}
+
+	public LiveData<Void> getShowLoadMultiplayerPlayer() {
+		return showLoadMultiplayerPlayer;
 	}
 
 	public LiveData<Void> getShowJoinMultiplayerPlayer() {
@@ -130,6 +135,12 @@ public class MainMenuViewModel extends ViewModel {
 	public void newMultiPlayerSelected() {
 		if (areResourcesLoaded.getValue() == Boolean.TRUE) {
 			showMultiplayerPlayer.call();
+		}
+	}
+
+	public void loadMultiPlayerSelected() {
+		if (areResourcesLoaded.getValue() == Boolean.TRUE) {
+			showLoadMultiplayerPlayer.call();
 		}
 	}
 

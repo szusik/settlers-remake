@@ -39,17 +39,16 @@ public class TaskCollectingListener extends PacketChannelListener<ServersideTask
 	}
 
 	/**
-	 * 
-	 * @return
+	 * @return The collected tasks. No further tasks get added to this list, so all clients get the same tasks.
 	 */
-	public List<ServersideTaskPacket> getAndResetTasks() {
+	public synchronized List<ServersideTaskPacket> getAndResetTasks() {
 		List<ServersideTaskPacket> temp = currTasksList;
 		currTasksList = new LinkedList<>();
 		return temp;
 	}
 
 	@Override
-	protected void receivePacket(ENetworkKey key, ServersideTaskPacket deserialized) {
+	protected synchronized void receivePacket(ENetworkKey key, ServersideTaskPacket deserialized) {
 		currTasksList.add(deserialized);
 	}
 }

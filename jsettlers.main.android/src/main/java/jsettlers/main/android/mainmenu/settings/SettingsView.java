@@ -24,4 +24,6 @@ public interface SettingsView {
 	void setServerAddress(String serverAddress);
 
 	void setPlayAllMusic(boolean playAll);
+
+	void setStatusOverlayDisplayed(boolean displayed);
 }

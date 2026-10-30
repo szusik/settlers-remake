@@ -22,6 +22,7 @@ import java.util.BitSet;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 
 import java.util.Optional;
 import jsettlers.algorithms.borders.BordersThread;
@@ -135,6 +136,7 @@ import jsettlers.logic.objects.arrow.ArrowObject;
 import jsettlers.logic.objects.stack.StackMapObject;
 import jsettlers.logic.player.Player;
 import jsettlers.logic.player.PlayerSetting;
+import jsettlers.network.client.interfaces.INetworkStatus;
 
 /**
  * This is the main grid offering an interface for interacting with the grid.
@@ -427,9 +429,13 @@ public final class MainGrid implements Serializable {
 			}
 		}
 
+		INetworkStatus networkStatus = MatchConstants.networkStatus();
+		String saveId = networkStatus != null ? MapFileHeader.createMultiplayerSaveId(networkStatus.getMatchId(), MatchConstants.clock().getTime()) : UUID.randomUUID().toString();
+
 		return new MapFileHeader(
 			MapType.SAVED_SINGLE,
 			mapName,
+			saveId,
 			mapId,
 			"TODO: description",
 			width,

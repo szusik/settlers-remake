@@ -359,6 +359,11 @@ public class NetworkClient implements ITaskScheduler, INetworkConnector, INetwor
 	}
 
 	@Override
+	public String getMatchId() {
+		return matchInfo.getId();
+	}
+
+	@Override
 	public String getPlayerName() {
 		return playerInfo.getName();
 	}

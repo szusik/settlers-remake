@@ -120,7 +120,7 @@ public final class MatchConstants {
 	}
 
 	public static void deserialize(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-		clock.setTime(ois.readInt());
+		clock.resumeAtTime(ois.readInt());
 		gameRandom = (ExtendedRandom) ois.readObject();
 		aiRandom = (ExtendedRandom) ois.readObject();
 	}

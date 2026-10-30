@@ -29,6 +29,11 @@ public interface INetworkStatus {
 	boolean isConnected();
 
 	/**
+	 * @return The id of the match. It is the same on all clients.
+	 */
+	String getMatchId();
+
+	/**
 	 * @return The name of the player on this client.
 	 */
 	String getPlayerName();

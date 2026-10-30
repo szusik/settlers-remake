@@ -28,6 +28,7 @@ public class AndroidPreferences {
 	private static final String PREF_PLAYER_NAME = "playername";
 	private static final String PREF_SERVER = "server";
 	private static final String PREF_PLAYALL_MUSIC = "playall";
+	private static final String PREF_STATUS_OVERLAY = "statusoverlay";
 
 	private final SharedPreferences preferences;
 
@@ -72,5 +73,13 @@ public class AndroidPreferences {
 
 	public void setPlayAllMusic(boolean playAll) {
 		preferences.edit().putBoolean(PREF_PLAYALL_MUSIC, playAll).apply();
+	}
+
+	public boolean isStatusOverlayDisplayed() {
+		return preferences.getBoolean(PREF_STATUS_OVERLAY, true);
+	}
+
+	public void setStatusOverlayDisplayed(boolean displayed) {
+		preferences.edit().putBoolean(PREF_STATUS_OVERLAY, displayed).apply();
 	}
 }

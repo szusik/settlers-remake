@@ -33,6 +33,14 @@ public interface IGameClock extends IPausingSupplier {
 
 	void setTime(int newTime);
 
+	/**
+	 * Continues a saved game at the given time. The server counts the locksteps of a match from zero, even if the game time doesn't start at zero.
+	 *
+	 * @param savedTime
+	 *            The game time of the saved game.
+	 */
+	void resumeAtTime(int savedTime);
+
 	void setTaskExecutor(ITaskExecutor taskExecutor);
 
 	void multiplyGameSpeed(float factor);
