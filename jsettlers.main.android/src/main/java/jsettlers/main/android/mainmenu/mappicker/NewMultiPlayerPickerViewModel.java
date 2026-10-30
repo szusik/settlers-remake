@@ -30,6 +30,7 @@ public class NewMultiPlayerPickerViewModel extends MapPickerViewModel implements
 
 	private final SingleLiveEvent<String> mapSelectedEvent = new SingleLiveEvent<>();
 	private final MutableLiveData<JoiningViewState> joiningState = new MutableLiveData<>();
+	private final SingleLiveEvent<Void> connectionFailedEvent = new SingleLiveEvent<>();
 
 	private IJoiningGame joiningGame;
 	private IMapDefinition tempMapDefinition;
@@ -62,9 +63,9 @@ public class NewMultiPlayerPickerViewModel extends MapPickerViewModel implements
 			}
 		});
 
-		joiningGame.setListener(this);
-
+		joiningState.postValue(new JoiningViewState("Connecting to server...", 0));
 		gameStarter.setJoiningGame(joiningGame);
+		joiningGame.setListener(this);
 	}
 
 	@Override
@@ -75,6 +76,10 @@ public class NewMultiPlayerPickerViewModel extends MapPickerViewModel implements
 
 	public LiveData<String> getMapSelectedEvent() {
 		return mapSelectedEvent;
+	}
+
+	public LiveData<Void> getConnectionFailedEvent() {
+		return connectionFailedEvent;
 	}
 
 	public LiveData<JoiningViewState> getJoiningState() {
@@ -99,6 +104,15 @@ public class NewMultiPlayerPickerViewModel extends MapPickerViewModel implements
 		int progressPercentage = (int) (progress * 100);
 
 		joiningState.postValue(new JoiningViewState(stateString, progressPercentage));
+	}
+
+	@Override
+	public void joinFailed() {
+		joiningGame = null; // this game has no connection it could leave
+		gameStarter.setJoiningGame(null);
+		gameStarter.closeMultiPlayerConnector();
+		joiningState.postValue(null);
+		connectionFailedEvent.postValue(null);
 	}
 
 	@Override

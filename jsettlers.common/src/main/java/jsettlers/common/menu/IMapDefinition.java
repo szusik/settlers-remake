@@ -39,6 +39,13 @@ public interface IMapDefinition {
 	String getMapName();
 
 	/**
+	 * @return The name to show to the user. It may contain characters that aren't allowed in file names.
+	 */
+	default String getDisplayName() {
+		return getMapName();
+	}
+
+	/**
 	 * Gets the description of this map.
 	 * 
 	 * @return A string that describes this map. It may contain linebreaks.

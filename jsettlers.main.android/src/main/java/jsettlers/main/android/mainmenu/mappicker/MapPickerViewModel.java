@@ -68,7 +68,7 @@ public abstract class MapPickerViewModel extends ViewModel {
 
 		private MapLoader[] sortedMaps(List<? extends MapLoader> items) {
 			return items.stream()
-					.sorted((o1, o2) -> o1.getMapName().compareToIgnoreCase(o2.getMapName()))
+					.sorted() // saved games by date, newest first, other maps by name
 					.toArray(MapLoader[]::new);
 		}
 	}

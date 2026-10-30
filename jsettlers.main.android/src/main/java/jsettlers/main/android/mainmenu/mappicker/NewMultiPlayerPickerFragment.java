@@ -21,6 +21,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.widget.Toast;
 
 import jsettlers.main.android.R;
 import jsettlers.main.android.mainmenu.navigation.MainMenuNavigator;
@@ -62,6 +63,8 @@ public class NewMultiPlayerPickerFragment extends MapPickerFragment {
 			MainMenuNavigator mainMenuNavigator = (MainMenuNavigator) getActivity();
 			mainMenuNavigator.showNewMultiPlayerSetup(mapId);
 		});
+
+		viewModel.getConnectionFailedEvent().observe(this, z -> Toast.makeText(getContext(), R.string.multiplayer_server_unreachable, Toast.LENGTH_LONG).show());
 
 		viewModel.getJoiningState().observe(this, joiningViewState -> {
 			if (joiningViewState == null) {

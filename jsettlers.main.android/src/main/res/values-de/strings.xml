@@ -81,6 +81,7 @@
 	<string name="join_multi_player_game">Multiplayer Spiel beitreten</string>
 	<string name="load_single_player_game">Lade Einzelspieler</string>
 	<string name="load_multi_player_game">Lade Mehrspieler</string>
+	<string name="multiplayer_server_unreachable">Server nicht erreichbar. Starte den Server oder prüfe die Serveradresse in den Einstellungen.</string>
 	<string name="menu_game_in_progress">Spiel läuft</string>
 	<string name="menu_join">Beitreten</string>
 	<string name="menu_load">Laden</string>

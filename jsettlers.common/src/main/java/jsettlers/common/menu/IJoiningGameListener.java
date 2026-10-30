@@ -23,4 +23,10 @@ public interface IJoiningGameListener {
 	void joinProgressChanged(EProgressState state, float progress);
 
 	void gameJoined(IJoinPhaseMultiplayerGameConnector connector);
+
+	/**
+	 * Called when the server could not be reached.
+	 */
+	default void joinFailed() {
+	}
 }

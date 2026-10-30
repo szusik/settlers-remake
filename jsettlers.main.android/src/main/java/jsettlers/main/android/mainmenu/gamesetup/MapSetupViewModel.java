@@ -60,7 +60,7 @@ public abstract class MapSetupViewModel extends ViewModel implements PositionCha
 		peaceTimeOptions.setValue(peaceTimeOptions());
 		peaceTime.setValue(peaceTimeOptions.getValue()[0]);
 		image.setValue(mapLoader.getImage());
-		title.setValue(mapLoader.getMapName());
+		title.setValue(mapLoader.getDisplayName());
 
 		playerSlots.addSource(playerCount, playerCount -> {
 			playerSlots.setValue(playerSlotPresenters.stream()

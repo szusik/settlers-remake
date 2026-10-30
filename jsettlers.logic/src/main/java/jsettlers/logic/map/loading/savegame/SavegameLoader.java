@@ -16,6 +16,8 @@ package jsettlers.logic.map.loading.savegame;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import jsettlers.logic.map.loading.data.IMapData;
 import jsettlers.logic.map.loading.MapLoadException;
@@ -41,7 +43,12 @@ public class SavegameLoader extends RemakeMapLoader {
 		super(file, header);
 	}
 
-		@Override
+	@Override
+	public String getDisplayName() {
+		return getMapName() + " " + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ROOT).format(getCreationDate());
+	}
+
+	@Override
 	public MainGridWithUiSettings loadMainGrid(PlayerSetting[] playerSettings, EMapStartResources startResources) throws MapLoadException {
 		try (ObjectInputStream ois = new ObjectInputStream(super.getMapDataStream())) {
 			MatchConstants.deserialize(ois);

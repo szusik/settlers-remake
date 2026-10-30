@@ -210,7 +210,7 @@ public class MapListCellRenderer implements ListCellRenderer<MapLoader> {
 	@Override
 	public Component getListCellRendererComponent(JList<? extends MapLoader> list, MapLoader value, int index, boolean isSelected,
 			boolean cellHasFocus) {
-		mapNameLabel.setText(value.getMapName());
+		mapNameLabel.setText(value.getDisplayName());
 		String date = "???";
 		if (value.getCreationDate() != null) {
 			date = df.format(value.getCreationDate());

@@ -1,6 +1,6 @@
 #version 300 es
 
-precision mediump float;
+precision highp float;
 
 in vec3 position; //attribute
 in vec2 scale; //attribute

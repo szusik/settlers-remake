@@ -2,7 +2,7 @@
 
 #extension GL_NV_fragdepth : enable
 
-precision mediump float;
+precision highp float;
 
 in vec4 frag_color;
 flat in int frag_mode;

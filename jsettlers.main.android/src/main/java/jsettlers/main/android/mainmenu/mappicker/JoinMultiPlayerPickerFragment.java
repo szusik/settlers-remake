@@ -193,7 +193,7 @@ public class JoinMultiPlayerPickerFragment extends Fragment {
 					return;
 
 				hostNameTextView.setText(joinableGame.getName());
-				mapNameTextView.setText(mapDefinition.getMapName());
+				mapNameTextView.setText(mapDefinition.getDisplayName());
 
 				playerCountTextView.setText(mapDefinition.getMinPlayers() + "-" + mapDefinition.getMaxPlayers());
 

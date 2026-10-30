@@ -54,6 +54,7 @@ public class MainMenuViewModel extends ViewModel {
 		this.androidResourcesLoader = androidResourcesLoader;
 
 		areResourcesLoaded.setValue(androidResourcesLoader.setup());
+		multiplayerStatus.setValue(gameStarter.isServerRunning()); // the server keeps running while the menu is closed
 	}
 
 	public LiveData<ResumeViewState> getResumeState() {

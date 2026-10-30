@@ -72,6 +72,7 @@ public class MultiplayerGame {
 	private IChatMessageListener chatMessageListener;
 	private boolean iAmTheHost = false;
 	private boolean aborted = false;
+	private boolean connectionFailed = false;
 	private boolean ownNationClaimed = false;
 	private boolean savedHumansMarked = false;
 	private int maxPlayers;
@@ -118,6 +119,7 @@ public class MultiplayerGame {
 		INetworkClient client = networkClientFactory.getNetworkClient();
 		if (client == null) {
 			System.out.println("Can't reach the multiplayer server.");
+			reportConnectionFailure();
 			return false;
 		}
 
@@ -127,11 +129,23 @@ public class MultiplayerGame {
 		}
 	}
 
+	private synchronized void reportConnectionFailure() {
+		connectionFailed = true;
+		if (joiningGameListener != null && !aborted) {
+			joiningGameListener.joinFailed();
+		}
+	}
+
 	private IJoiningGame generateJoiningGame() {
 		return new IJoiningGame() {
 			@Override
 			public void setListener(IJoiningGameListener joiningGameListener) {
-				MultiplayerGame.this.joiningGameListener = joiningGameListener;
+				synchronized (MultiplayerGame.this) { // the connection can fail before the listener is set
+					MultiplayerGame.this.joiningGameListener = joiningGameListener;
+					if (connectionFailed) {
+						reportConnectionFailure();
+					}
+				}
 				if (joiningGameListener != null && networkClient != null && networkClient.getState() == EPlayerState.IN_MATCH) {
 					joiningGameListener.gameJoined(generateJoinPhaseGameConnector());
 				}

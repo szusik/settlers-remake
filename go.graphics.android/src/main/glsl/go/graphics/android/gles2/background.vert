@@ -1,6 +1,6 @@
 #version 100
 
-precision mediump float;
+precision highp float;
 
 attribute vec3 vertex;
 attribute vec2 texcoord;

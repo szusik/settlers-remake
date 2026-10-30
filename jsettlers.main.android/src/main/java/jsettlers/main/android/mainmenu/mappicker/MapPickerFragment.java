@@ -173,7 +173,7 @@ public abstract class MapPickerFragment extends Fragment {
 
 			public void bind(IMapDefinition mapDefinition) {
 				mapPreviewImageView.setImageDrawable(null);
-				nameTextView.setText(mapDefinition.getMapName());
+				nameTextView.setText(mapDefinition.getDisplayName());
 				playerCountTextView.setText(mapDefinition.getMinPlayers() + "-" + mapDefinition.getMaxPlayers());
 
 				if (showMapDates()) {
