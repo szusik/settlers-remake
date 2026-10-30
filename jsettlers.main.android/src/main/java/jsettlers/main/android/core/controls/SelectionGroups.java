@@ -45,7 +45,10 @@ public class SelectionGroups implements SelectionListener, DrawListener, ISelect
 	private final MutableLiveData<List<Integer>> groupNumbers = new MutableLiveData<>();
 	private final MutableLiveData<Integer> nextGroupNumber = new MutableLiveData<>();
 	private final MutableLiveData<Boolean> canSaveSelection = new MutableLiveData<>();
+	private final MutableLiveData<Integer> activeGroupNumber = new MutableLiveData<>();
 
+	private Integer requestedGroup = null;
+	private Integer activeGroup = null;
 	private ISelectionSet selection;
 
 	SelectionGroups(ActionControls actionControls) {
@@ -65,6 +68,21 @@ public class SelectionGroups implements SelectionListener, DrawListener, ISelect
 
 	public LiveData<Boolean> getCanSaveSelection() {
 		return canSaveSelection;
+	}
+
+	/**
+	 * @return The number of the group the current selection came from or null if there is none.
+	 */
+	public LiveData<Integer> getActiveGroupNumber() {
+		return activeGroupNumber;
+	}
+
+	public synchronized void removeActiveGroup() {
+		if (activeGroup != null) {
+			groups.remove(activeGroup);
+			setActiveGroup(null);
+			groupsChanged();
+		}
 	}
 
 	public synchronized void saveSelection() {
@@ -88,6 +106,7 @@ public class SelectionGroups implements SelectionListener, DrawListener, ISelect
 	public synchronized void select(int groupNumber) {
 		Set<Integer> members = groups.get(groupNumber);
 		if (members != null) {
+			requestedGroup = groupNumber;
 			actionControls.fireAction(new SelectMovablesAction(new HashSet<>(members)));
 		}
 	}
@@ -102,6 +121,7 @@ public class SelectionGroups implements SelectionListener, DrawListener, ISelect
 	@Override
 	public synchronized void restoreSelectionGroups(Map<Integer, Set<Integer>> savedGroups) {
 		groups.clear();
+		setActiveGroup(null);
 		savedGroups.forEach((number, members) -> groups.put(number, new HashSet<>(members)));
 		groupsChanged();
 	}
@@ -110,6 +130,31 @@ public class SelectionGroups implements SelectionListener, DrawListener, ISelect
 	public synchronized void selectionChanged(ISelectionSet selection) {
 		this.selection = selection;
 		canSaveSelection.postValue(isSaveable(selection));
+
+		if (requestedGroup != null) {
+			setActiveGroup(requestedGroup);
+			requestedGroup = null;
+		} else if (activeGroup != null && !isPartOfGroup(selection, groups.get(activeGroup))) {
+			setActiveGroup(null); // a selection shrinks by itself when members die, so a smaller one still belongs to the group
+		}
+	}
+
+	private static boolean isPartOfGroup(ISelectionSet selection, Set<Integer> members) {
+		if (selection == null || selection.getSize() == 0 || members == null) {
+			return false;
+		}
+
+		for (ISelectable selectable : selection) {
+			if (!(selectable instanceof IIDable) || !members.contains(((IIDable) selectable).getID())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void setActiveGroup(Integer groupNumber) {
+		activeGroup = groupNumber;
+		activeGroupNumber.postValue(groupNumber);
 	}
 
 	/**
@@ -130,6 +175,9 @@ public class SelectionGroups implements SelectionListener, DrawListener, ISelect
 			members.retainAll(aliveIds);
 			return members.isEmpty();
 		})) {
+			if (activeGroup != null && !groups.containsKey(activeGroup)) {
+				setActiveGroup(null);
+			}
 			groupsChanged();
 		}
 	}

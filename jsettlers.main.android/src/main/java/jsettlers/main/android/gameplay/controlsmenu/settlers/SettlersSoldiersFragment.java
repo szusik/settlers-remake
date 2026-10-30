@@ -23,6 +23,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -47,6 +48,8 @@ public class SettlersSoldiersFragment extends Fragment {
 
 	@ViewById(R.id.button_save_group)
 	Button saveGroupButton;
+	@ViewById(R.id.button_remove_group)
+	Button removeGroupButton;
 
 	@ViewById(R.id.text_view_soldier_strength)
 	TextView soldierStrengthTextView;
@@ -67,6 +70,12 @@ public class SettlersSoldiersFragment extends Fragment {
 		selectionGroups = new ControlsResolver(getActivity()).getSelectionGroups();
 		selectionGroups.getNextGroupNumber().observe(this, number -> saveGroupButton.setText(getString(R.string.save_as_group, number)));
 		selectionGroups.getCanSaveSelection().observe(this, canSave -> saveGroupButton.setEnabled(canSave));
+		selectionGroups.getActiveGroupNumber().observe(this, number -> {
+			removeGroupButton.setVisibility(number != null ? View.VISIBLE : View.GONE);
+			if (number != null) {
+				removeGroupButton.setText(getString(R.string.remove_group, number));
+			}
+		});
 
 		viewModel.getStrengthText().observe(this, s -> soldierStrengthTextView.setText(s));
 		viewModel.getPromotionText().observe(this, s -> soldierPromotionTextView.setText(s));
@@ -76,6 +85,11 @@ public class SettlersSoldiersFragment extends Fragment {
 		viewModel.getSwordsmenImageLink().observe(this, imageLink -> setPromotionButtonImage(swordsmenPromotionImageView, imageLink));
 		viewModel.getBowmenImageLink().observe(this, imageLink -> setPromotionButtonImage(bowmenPromotionImageView, imageLink));
 		viewModel.getPikemenImageLink().observe(this, imageLink -> setPromotionButtonImage(pikemenPromotionImageView, imageLink));
+	}
+
+	@Click(R.id.button_remove_group)
+	void removeGroupClicked() {
+		selectionGroups.removeActiveGroup();
 	}
 
 	@Click(R.id.button_save_group)

@@ -80,6 +80,7 @@
 	<string name="halt">Stopp</string>
 	<string name="join_multi_player_game">Multiplayer Spiel beitreten</string>
 	<string name="load_single_player_game">Lade Einzelspieler</string>
+	<string name="remove_group">Gruppe %1$d entfernen</string>
 	<string name="save_as_group">Als Gruppe %1$d speichern</string>
 	<string name="none_of_type_visible">Keine davon sichtbar</string>
 	<string name="delete">Löschen</string>

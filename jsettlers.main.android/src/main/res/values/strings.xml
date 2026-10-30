@@ -123,6 +123,7 @@
 	<string name="menu_load">Load</string>
 	<string name="menu_join">Join</string>
 
+	<string name="remove_group">Remove group %1$d</string>
 	<string name="save_as_group">Save as group %1$d</string>
 	<string name="none_of_type_visible">None of them are visible</string>
 	<string name="delete">Delete</string>
