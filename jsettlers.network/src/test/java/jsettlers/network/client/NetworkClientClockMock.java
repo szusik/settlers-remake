@@ -68,6 +68,26 @@ public class NetworkClientClockMock implements INetworkClientClock {
 	}
 
 	@Override
+	public int getLockstepLeadInMs() {
+		throw new UnsupportedOperationException("not mocked");
+	}
+
+	@Override
+	public boolean isWaitingForLockstep() {
+		throw new UnsupportedOperationException("not mocked");
+	}
+
+	@Override
+	public int getLockstepWaitCount() {
+		throw new UnsupportedOperationException("not mocked");
+	}
+
+	@Override
+	public long getLockstepWaitTimeInMs() {
+		throw new UnsupportedOperationException("not mocked");
+	}
+
+	@Override
 	public void setTaskExecutor(ITaskExecutor taskExecutor) {
 		throw new UnsupportedOperationException("not mocked");
 	}

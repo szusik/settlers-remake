@@ -38,6 +38,7 @@ import jsettlers.input.tasks.ConvertGuiTask;
 import jsettlers.input.tasks.EGuiAction;
 import jsettlers.input.tasks.MovableGuiTask;
 import jsettlers.input.tasks.MoveToGuiTask;
+import jsettlers.input.tasks.SyncCheckGuiTask;
 import jsettlers.input.tasks.OrderShipGuiTask;
 import jsettlers.input.tasks.SetAcceptedStockMaterialGuiTask;
 import jsettlers.input.tasks.SetBuildingPriorityGuiTask;
@@ -58,6 +59,7 @@ import jsettlers.logic.buildings.IDockBuilding;
 import jsettlers.logic.buildings.military.occupying.OccupyingBuilding;
 import jsettlers.logic.buildings.others.StockBuilding;
 import jsettlers.logic.buildings.trading.TradingBuilding;
+import jsettlers.logic.constants.MatchConstants;
 import jsettlers.logic.buildings.workers.DockyardBuilding;
 import jsettlers.logic.map.grid.partition.manager.settings.MaterialProductionSettings;
 import jsettlers.logic.movable.Movable;
@@ -115,6 +117,14 @@ class GuiTaskExecutor implements ITaskExecutor {
 			case BUILD: {
 				ConstructBuildingTask task = (ConstructBuildingTask) guiTask;
 				grid.constructBuildingAt(task.getPosition(), task.getType(), task.getPlayerId());
+				break;
+			}
+
+			case SYNC_CHECK: {
+				GameSyncChecker syncChecker = MatchConstants.syncChecker();
+				if (syncChecker != null) { // there is no checker while replaying
+					syncChecker.receiveReport((SyncCheckGuiTask) guiTask);
+				}
 				break;
 			}
 

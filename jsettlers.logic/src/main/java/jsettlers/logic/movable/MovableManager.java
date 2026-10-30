@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import jsettlers.algorithms.fogofwar.FogOfWar;
 import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.SerializationUtils;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.constants.MatchConstants;
@@ -27,6 +28,23 @@ public final class MovableManager {
 	static byte fowTeam = -1;
 
 	private static final Map<EMovableType, Root<Movable>> BEHAVIOUR_TREES = new EnumMap<>(EMovableType.class);
+
+	/**
+	 * @return A checksum of all movables. It doesn't depend on the order of the movables.
+	 */
+	public static long calculateChecksum() {
+		long checksum = 0;
+		for (ILogicMovable movable : allMovables) {
+			ShortPoint2D position = movable.getPosition();
+			long hash = movable.getID();
+			hash = hash * 31 + position.x;
+			hash = hash * 31 + position.y;
+			hash = hash * 31 + movable.getPlayer().getPlayerId();
+			hash = hash * 31 + movable.getMovableType().ordinal();
+			checksum += hash * 0x9E3779B97F4A7C15L ^ hash >>> 29;
+		}
+		return checksum;
+	}
 
 	public static void initFow(byte fow) {
 		fowTeam = fow;

@@ -30,9 +30,14 @@ import jsettlers.network.infrastructure.channel.ping.IRoundTripTimeSupplier;
  * 
  */
 public class TimeSynchronizationListener extends PacketChannelListener<TimeSyncPacket> {
+	private static final long CLOCK_OFFSET_WINDOW_MS = 1000;
 
 	private final IRoundTripTimeSupplier rttSupplier;
 	private final ISynchronizableClock clock;
+
+	private long windowStartMs = 0;
+	private int windowOffsetMs = 0;
+	private int previousWindowOffsetMs = 0;
 
 	public TimeSynchronizationListener(IRoundTripTimeSupplier rttSupplier, ISynchronizableClock clock) {
 		super(NetworkConstants.ENetworkKey.TIME_SYNC, new GenericDeserializer<>(TimeSyncPacket.class));
@@ -46,9 +51,35 @@ public class TimeSynchronizationListener extends PacketChannelListener<TimeSyncP
 		int localTime = clock.getTime();
 
 		int deltaTime = localTime - expectedRemoteTime;
+		recordClockOffset(deltaTime);
 
 		if (deltaTime > Client.TIME_SYNC_TOLERATED_DIFFERENCE) {
 			clock.pauseClockFor((int) (deltaTime * Client.TIME_SYNC_APPROACH_FACTOR));
+		}
+	}
+
+	/**
+	 * @return The largest clock offset to any other player seen in the last second. Packets do not identify their sender, so this can't be broken down per player.
+	 */
+	public synchronized int getClockOffsetInMs() {
+		advanceWindow();
+		return Math.abs(windowOffsetMs) > Math.abs(previousWindowOffsetMs) ? windowOffsetMs : previousWindowOffsetMs;
+	}
+
+	private synchronized void recordClockOffset(int offsetMs) {
+		advanceWindow();
+		if (Math.abs(offsetMs) > Math.abs(windowOffsetMs)) {
+			windowOffsetMs = offsetMs;
+		}
+	}
+
+	private void advanceWindow() {
+		long now = System.currentTimeMillis();
+		long elapsedMs = now - windowStartMs;
+		if (elapsedMs >= CLOCK_OFFSET_WINDOW_MS) {
+			previousWindowOffsetMs = elapsedMs < 2 * CLOCK_OFFSET_WINDOW_MS ? windowOffsetMs : 0;
+			windowOffsetMs = 0;
+			windowStartMs = now;
 		}
 	}
 

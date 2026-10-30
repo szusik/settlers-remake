@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import jsettlers.input.GameSyncChecker;
 import jsettlers.logic.movable.civilian.BuildingWorkerMovable;
 import jsettlers.network.client.interfaces.IGameClock;
+import jsettlers.network.client.interfaces.INetworkStatus;
 
 /**
  * 
@@ -52,6 +54,8 @@ public final class MatchConstants {
 	}
 
 	private static IGameClock clock;
+	private static INetworkStatus networkStatus;
+	private static GameSyncChecker syncChecker;
 	private static ExtendedRandom gameRandom;
 	private static ExtendedRandom aiRandom;
 
@@ -69,12 +73,36 @@ public final class MatchConstants {
 			clock.stopExecution();
 		}
 		clock = null;
+		networkStatus = null;
+		syncChecker = null;
 		gameRandom = null;
 		aiRandom = null;
 	}
 
 	public static IGameClock clock() {
 		return clock;
+	}
+
+	public static void setNetworkStatus(INetworkStatus networkStatus) {
+		MatchConstants.networkStatus = networkStatus;
+	}
+
+	/**
+	 * @return The status of the running network match or null if this is not a network match.
+	 */
+	public static INetworkStatus networkStatus() {
+		return networkStatus;
+	}
+
+	public static void setSyncChecker(GameSyncChecker syncChecker) {
+		MatchConstants.syncChecker = syncChecker;
+	}
+
+	/**
+	 * @return The checker of the running network match or null if this is not a network match.
+	 */
+	public static GameSyncChecker syncChecker() {
+		return syncChecker;
 	}
 
 	public static ExtendedRandom random() {

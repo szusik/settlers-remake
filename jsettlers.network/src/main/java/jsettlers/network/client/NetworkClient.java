@@ -15,6 +15,8 @@
 package jsettlers.network.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 
 import jsettlers.network.NetworkConstants;
@@ -22,6 +24,7 @@ import jsettlers.network.NetworkConstants.ENetworkKey;
 import jsettlers.network.client.interfaces.IGameClock;
 import jsettlers.network.client.interfaces.INetworkClient;
 import jsettlers.network.client.interfaces.INetworkConnector;
+import jsettlers.network.client.interfaces.INetworkStatus;
 import jsettlers.network.client.interfaces.ITaskScheduler;
 import jsettlers.network.client.receiver.IPacketReceiver;
 import jsettlers.network.client.task.TaskPacketListener;
@@ -57,16 +60,17 @@ import jsettlers.network.synchronic.timer.NetworkTimer;
  * @author Andreas Eberle
  * 
  */
-public class NetworkClient implements ITaskScheduler, INetworkConnector, INetworkClient {
+public class NetworkClient implements ITaskScheduler, INetworkConnector, INetworkClient, INetworkStatus {
 
 	private final AsyncChannel channel;
 	private final Timer timer;
 	private final INetworkClientClock clock;
 
-	private EPlayerState state = EPlayerState.CHANNEL_CONNECTED;
+	private volatile EPlayerState state = EPlayerState.CHANNEL_CONNECTED;
 	private PlayerInfoPacket playerInfo;
 
-	private MatchInfoPacket matchInfo;
+	private volatile MatchInfoPacket matchInfo;
+	private volatile TimeSynchronizationListener timeSynchronizationListener;
 
 	/**
 	 * 
@@ -271,7 +275,8 @@ public class NetworkClient implements ITaskScheduler, INetworkConnector, INetwor
 	}
 
 	private void startTimeSynchronization(ISynchronizableClock clock) {
-		channel.registerListener(new TimeSynchronizationListener(channel, clock));
+		timeSynchronizationListener = new TimeSynchronizationListener(channel, clock);
+		channel.registerListener(timeSynchronizationListener);
 		TimeSyncSenderTimerTask timeSyncSender = new TimeSyncSenderTimerTask(channel, clock);
 		timer.schedule(timeSyncSender, 0, NetworkConstants.Client.TIME_SYNC_SEND_INTERVALL);
 	}
@@ -341,5 +346,65 @@ public class NetworkClient implements ITaskScheduler, INetworkConnector, INetwor
 	@Override
 	public INetworkConnector getNetworkConnector() {
 		return this;
+	}
+
+	@Override
+	public INetworkStatus getNetworkStatus() {
+		return this;
+	}
+
+	@Override
+	public boolean isConnected() {
+		return state == EPlayerState.IN_RUNNING_MATCH;
+	}
+
+	@Override
+	public String getPlayerName() {
+		return playerInfo.getName();
+	}
+
+	@Override
+	public List<String> getOtherPlayerNames() {
+		List<String> names = new ArrayList<>();
+		MatchInfoPacket currentMatchInfo = matchInfo;
+		if (currentMatchInfo != null) {
+			for (PlayerInfoPacket player : currentMatchInfo.getPlayers()) {
+				if (!player.getId().equals(playerInfo.getId())) {
+					names.add(player.getName());
+				}
+			}
+		}
+		return names;
+	}
+
+	@Override
+	public int getJitterInMs() {
+		return channel.getRoundTripTime().getAveragedJitter();
+	}
+
+	@Override
+	public int getLockstepLeadInMs() {
+		return clock.getLockstepLeadInMs();
+	}
+
+	@Override
+	public boolean isWaitingForLockstep() {
+		return clock.isWaitingForLockstep();
+	}
+
+	@Override
+	public int getLockstepWaitCount() {
+		return clock.getLockstepWaitCount();
+	}
+
+	@Override
+	public long getLockstepWaitTimeInMs() {
+		return clock.getLockstepWaitTimeInMs();
+	}
+
+	@Override
+	public int getClockOffsetInMs() {
+		TimeSynchronizationListener listener = timeSynchronizationListener;
+		return listener == null ? 0 : listener.getClockOffsetInMs();
 	}
 }

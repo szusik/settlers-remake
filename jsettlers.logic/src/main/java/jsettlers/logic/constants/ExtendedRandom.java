@@ -25,8 +25,24 @@ import java.util.Random;
 public class ExtendedRandom extends Random {
 	private static final long serialVersionUID = -2814532519838158362L;
 
+	private transient long drawChecksum = 0;
+
 	public ExtendedRandom(long seed) {
 		super(seed);
+	}
+
+	@Override
+	protected int next(int bits) {
+		int value = super.next(bits);
+		drawChecksum = drawChecksum * 31 + value;
+		return value;
+	}
+
+	/**
+	 * @return A checksum of all values drawn since this object has been created. It is the same for two objects only if they have been used in exactly the same way.
+	 */
+	public long getDrawChecksum() {
+		return drawChecksum;
 	}
 
 	/**

@@ -46,6 +46,7 @@ import go.graphics.region.Region;
 import jsettlers.common.selectable.ISelectionSet;
 import jsettlers.graphics.map.MapContent;
 import jsettlers.graphics.map.draw.ImageProvider;
+import jsettlers.logic.constants.MatchConstants;
 import jsettlers.main.android.R;
 import jsettlers.main.android.core.controls.ControlsResolver;
 import jsettlers.main.android.core.controls.GameMenu;
@@ -64,6 +65,7 @@ import jsettlers.main.android.gameplay.controlsmenu.selection.ShipsSelectionFrag
 import jsettlers.main.android.gameplay.controlsmenu.selection.SoldiersSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.SpecialistsSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.settlers.SettlersMenuFragment;
+import jsettlers.main.android.gameplay.customviews.PerformanceOverlayView;
 import jsettlers.main.android.gameplay.gamemenu.GameMenuDialog;
 import jsettlers.main.android.gameplay.navigation.MenuNavigator;
 
@@ -91,6 +93,8 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 	FrameLayout frameLayout;
 	@ViewById(R.id.bottom_sheet)
 	View bottomSheet;
+	@ViewById(R.id.performance_overlay)
+	PerformanceOverlayView performanceOverlay;
 
 	@AfterViews
 	void setupToolbar() {
@@ -112,6 +116,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 		taskControls = controlsResolver.getTaskControls();
 		gameMenu = controlsResolver.getGameMenu();
 		addMapViews(controlsResolver.getMapContent());
+		performanceOverlay.setNetworkStatus(MatchConstants.networkStatus(), MatchConstants.syncChecker());
 	}
 
 	@AfterViews

@@ -41,6 +41,7 @@ import jsettlers.common.menu.IStartingGameListener;
 import jsettlers.common.player.IInGamePlayer;
 import jsettlers.common.resources.ResourceManager;
 import jsettlers.common.statistics.IGameTimeProvider;
+import jsettlers.input.GameSyncChecker;
 import jsettlers.input.GuiInterface;
 import jsettlers.input.IGameStoppable;
 import jsettlers.input.PlayerState;
@@ -60,6 +61,7 @@ import jsettlers.logic.timer.RescheduleTimer;
 import jsettlers.main.replay.ReplayUtils;
 import jsettlers.network.client.OfflineNetworkConnector;
 import jsettlers.network.client.interfaces.INetworkConnector;
+import jsettlers.network.client.interfaces.INetworkStatus;
 
 /**
  * This class can start a Thread that loads and sets up a game and wait's for its termination.
@@ -189,6 +191,7 @@ public class JSettlersGame {
 
 				clearState();
 				MatchConstants.init(networkConnector.getGameClock(), initialGameState.getRandomSeed());
+				MatchConstants.setNetworkStatus(networkConnector.getNetworkStatus());
 				try {
 					MatchConstants.clock().setReplayLogStream(createReplayFileStream());
 				} catch (IOException e) {
@@ -227,6 +230,13 @@ public class JSettlersGame {
 						mainGrid.getGuiInputGrid(), this, initialGameState.getPlayerId(), multiplayer);
 				connector.loadUIState(playerState.getUiState()); // This is required after the GuiInterface instantiation so that
 				// ConstructionMarksThread has it's mapArea variable initialized via the EActionType.SCREEN_CHANGE event.
+
+				INetworkStatus networkStatus = networkConnector.getNetworkStatus();
+				if (networkStatus != null) {
+					GameSyncChecker syncChecker = new GameSyncChecker(networkConnector.getTaskScheduler(), initialGameState.getPlayerId(), networkStatus.getPlayerName());
+					MatchConstants.setSyncChecker(syncChecker);
+					networkConnector.getGameClock().schedule(syncChecker, GameSyncChecker.CHECK_INTERVAL_MS);
+				}
 
 				aiExecutor = new AiExecutor(initialGameState.getPlayerSettings(), mainGrid, networkConnector.getTaskScheduler());
 				networkConnector.getGameClock().schedule(aiExecutor, (short) 1000);

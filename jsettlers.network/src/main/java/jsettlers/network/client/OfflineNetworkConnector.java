@@ -19,6 +19,7 @@ import java.util.Arrays;
 import jsettlers.network.NetworkConstants;
 import jsettlers.network.client.interfaces.IGameClock;
 import jsettlers.network.client.interfaces.INetworkConnector;
+import jsettlers.network.client.interfaces.INetworkStatus;
 import jsettlers.network.client.interfaces.ITaskScheduler;
 import jsettlers.network.client.task.packets.SyncTasksPacket;
 import jsettlers.network.client.task.packets.TaskPacket;
@@ -55,6 +56,11 @@ public class OfflineNetworkConnector implements ITaskScheduler, INetworkConnecto
 	@Override
 	public IGameClock getGameClock() {
 		return networkTimer;
+	}
+
+	@Override
+	public INetworkStatus getNetworkStatus() {
+		return null;
 	}
 
 	@Override

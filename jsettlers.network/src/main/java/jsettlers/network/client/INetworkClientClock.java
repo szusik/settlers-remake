@@ -26,4 +26,23 @@ import jsettlers.network.client.time.ISynchronizableClock;
  */
 public interface INetworkClientClock extends IGameClock, ISynchronizableClock, ISyncTasksPacketScheduler {
 
+	/**
+	 * @return The game time in milliseconds the clock may still advance before it has to wait for the next lockstep.
+	 */
+	int getLockstepLeadInMs();
+
+	/**
+	 * @return True if the clock is currently waiting for the next lockstep.
+	 */
+	boolean isWaitingForLockstep();
+
+	/**
+	 * @return The number of times the clock had to wait for a lockstep.
+	 */
+	int getLockstepWaitCount();
+
+	/**
+	 * @return The total time in milliseconds the clock had to wait for locksteps.
+	 */
+	long getLockstepWaitTimeInMs();
 }

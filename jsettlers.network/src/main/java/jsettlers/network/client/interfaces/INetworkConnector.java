@@ -43,4 +43,9 @@ public interface INetworkConnector {
 	void setStartFinished(boolean startFinished);
 
 	boolean haveAllPlayersStartFinished();
+
+	/**
+	 * @return The status of the network match or null if this connector doesn't use a network.
+	 */
+	INetworkStatus getNetworkStatus();
 }

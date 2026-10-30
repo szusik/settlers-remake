@@ -52,7 +52,10 @@ public final class NetworkTimer extends TimerTask implements INetworkClientClock
 	private final LinkedList<SyncTasksPacket> tasks = new LinkedList<>();
 
 	private int time = 0;
-	private int maxAllowedLockstep = -1;
+	private volatile int maxAllowedLockstep = -1;
+	private volatile boolean waitingForLockstep = false;
+	private volatile int lockstepWaitCount = 0;
+	private volatile long lockstepWaitTimeMs = 0;
 
 	private boolean isPausing;
 	private int pauseTime;
@@ -115,9 +118,8 @@ public final class NetworkTimer extends TimerTask implements INetworkClientClock
 
 			// check if the lockstep is allowed
 			synchronized (lockstepLock) {
-				while (lockstep > maxAllowedLockstep) {
-					System.out.println("WAITING for lockstep!");
-					lockstepLock.wait();
+				if (lockstep > maxAllowedLockstep) {
+					waitForLockstep(lockstep);
 				}
 			}
 
@@ -153,6 +155,21 @@ public final class NetworkTimer extends TimerTask implements INetworkClientClock
 		} catch (Throwable t) {
 			System.err.println("WARNING: Networking Timer catched Throwable!!!");
 			t.printStackTrace();
+		}
+	}
+
+	private void waitForLockstep(int lockstep) throws InterruptedException {
+		long waitStart = System.currentTimeMillis();
+		waitingForLockstep = true;
+		try {
+			while (lockstep > maxAllowedLockstep) {
+				System.out.println("WAITING for lockstep!");
+				lockstepLock.wait();
+			}
+		} finally {
+			waitingForLockstep = false;
+			lockstepWaitCount++;
+			lockstepWaitTimeMs += System.currentTimeMillis() - waitStart;
 		}
 	}
 
@@ -315,6 +332,26 @@ public final class NetworkTimer extends TimerTask implements INetworkClientClock
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	public int getLockstepLeadInMs() {
+		return (maxAllowedLockstep - time / NetworkConstants.Client.LOCKSTEP_PERIOD) * NetworkConstants.Client.LOCKSTEP_PERIOD;
+	}
+
+	@Override
+	public boolean isWaitingForLockstep() {
+		return waitingForLockstep;
+	}
+
+	@Override
+	public int getLockstepWaitCount() {
+		return lockstepWaitCount;
+	}
+
+	@Override
+	public long getLockstepWaitTimeInMs() {
+		return lockstepWaitTimeMs;
 	}
 
 	@Override
