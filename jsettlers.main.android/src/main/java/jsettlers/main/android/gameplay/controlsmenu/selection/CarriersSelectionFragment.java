@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.os.SystemClock;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import jsettlers.common.action.ConvertAction;
@@ -35,6 +36,7 @@ import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.player.IPlayer;
 import jsettlers.common.position.ShortPoint2D;
+import jsettlers.graphics.localization.Labels;
 import jsettlers.graphics.map.MapContent;
 import jsettlers.graphics.map.draw.ECommonLinkType;
 import jsettlers.graphics.map.draw.ImageLinkMap;
@@ -62,6 +64,12 @@ public class CarriersSelectionFragment extends SelectionFragment {
 	ImageView geologistImageView;
 	@ViewById(R.id.image_view_thief)
 	ImageView thiefImageView;
+	@ViewById(R.id.text_view_pioneer)
+	TextView pioneerTextView;
+	@ViewById(R.id.text_view_geologist)
+	TextView geologistTextView;
+	@ViewById(R.id.text_view_thief)
+	TextView thiefTextView;
 
 	private ActionControls actionControls;
 	private MapContent mapContent;
@@ -84,6 +92,10 @@ public class CarriersSelectionFragment extends SelectionFragment {
 		OriginalImageProvider.get(ImageLinkMap.get(civilisation, ECommonLinkType.SETTLER_GUI, EMovableType.PIONEER)).setAsImage(pioneerImageView);
 		OriginalImageProvider.get(ImageLinkMap.get(civilisation, ECommonLinkType.SETTLER_GUI, EMovableType.GEOLOGIST)).setAsImage(geologistImageView);
 		OriginalImageProvider.get(ImageLinkMap.get(civilisation, ECommonLinkType.SETTLER_GUI, EMovableType.THIEF)).setAsImage(thiefImageView);
+
+		pioneerTextView.setText(Labels.getName(EMovableType.PIONEER));
+		geologistTextView.setText(Labels.getName(EMovableType.GEOLOGIST));
+		thiefTextView.setText(Labels.getName(EMovableType.THIEF));
 	}
 
 	@Click(R.id.button_convert_one_pioneer)

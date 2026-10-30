@@ -124,9 +124,17 @@ public final class RescheduleTimer implements INetworkTimerable, Serializable {
 		} catch (Throwable t) {
 			throw new MapLoadException(t);
 		}
+
+		if (uniIns == null) { // nothing would ever wake up the movables, buildings and managers of this game
+			throw new MapLoadException("The savegame is incomplete: it was written while the game was shutting down.");
+		}
 	}
 
 	public static void saveTo(ObjectOutputStream oos) throws IOException {
+		if (uniIns == null) {
+			throw new IOException("There is no running game to save.");
+		}
+
 		oos.writeObject(uniIns);
 		oos.flush();
 	}

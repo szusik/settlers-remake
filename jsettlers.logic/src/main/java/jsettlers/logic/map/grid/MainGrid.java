@@ -147,6 +147,11 @@ public final class MainGrid implements Serializable {
 	private static final long serialVersionUID = 3824511313693431424L;
 
 	final String mapId;
+	/**
+	 * Held while a game is saved. The shutdown of a game must wait for it, because it clears the state that gets written.
+	 */
+	public static final Object SAVE_LOCK = new Object();
+
 	final String mapName;
 
 	final short width;
@@ -368,20 +373,26 @@ public final class MainGrid implements Serializable {
 	}
 
 	public void save(Byte playerId, UIState uiState) throws IOException {
-		boolean savedPausingState = MatchConstants.clock().isPausing();
-		MatchConstants.clock().setPausing(true);
-		try {
-			Thread.sleep(300L); // FIXME @Andreas serializer should wait until threads did their work!
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		synchronized (SAVE_LOCK) {
+			if (MatchConstants.clock() == null) {
+				return; // the game has already been shut down
+			}
+
+			boolean savedPausingState = MatchConstants.clock().isPausing();
+			MatchConstants.clock().setPausing(true);
+			try {
+				Thread.sleep(300L); // FIXME @Andreas serializer should wait until threads did their work!
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			PlayerState[] playerStates = calculatePlayerStates(playerId, uiState);
+			MapFileHeader header = generateSaveHeader(playerId);
+			MapList list = MapList.getDefaultList();
+			list.saveMap(playerStates, header, MainGrid.this);
+
+			MatchConstants.clock().setPausing(savedPausingState);
 		}
-
-		PlayerState[] playerStates = calculatePlayerStates(playerId, uiState);
-		MapFileHeader header = generateSaveHeader(playerId);
-		MapList list = MapList.getDefaultList();
-		list.saveMap(playerStates, header, MainGrid.this);
-
-		MatchConstants.clock().setPausing(savedPausingState);
 	}
 
 	private PlayerState[] calculatePlayerStates(Byte playerId, UIState uiState) {

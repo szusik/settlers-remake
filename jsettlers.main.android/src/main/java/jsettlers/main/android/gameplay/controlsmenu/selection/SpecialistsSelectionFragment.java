@@ -31,6 +31,7 @@ import jsettlers.common.action.ConvertAction;
 import jsettlers.common.action.EActionType;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ECivilisation;
+import jsettlers.graphics.localization.Labels;
 import jsettlers.graphics.map.draw.ECommonLinkType;
 import jsettlers.graphics.map.draw.ImageLinkMap;
 import jsettlers.main.android.R;
@@ -77,6 +78,10 @@ public class SpecialistsSelectionFragment extends SelectionFragment {
 
 				OriginalImageProvider.get(ImageLinkMap.get(civilisation, ECommonLinkType.SETTLER_GUI, movableType)).setAsImage(imageView);
 				textView.setText(count + "");
+
+				TextView nameTextView = view.findViewById(R.id.text_view_specialist_name);
+				nameTextView.setText(Labels.getName(movableType));
+				nameTextView.setVisibility(View.VISIBLE);
 
 				specialistsLayout.addView(view);
 			}

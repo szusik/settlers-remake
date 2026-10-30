@@ -46,7 +46,9 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 
 	private static final float ACTION1_DURATION = 1f;
 
-	private transient final LandscapeEditor terraformHandle = new LandscapeEditor(pt -> grid.getLandscapeTypeAt(pt.x, pt.y), (pt, type) -> grid.setLandscape(pt.x, pt.y, type));
+	private LandscapeEditor getTerraformHandle() { // transient fields are lost when a game gets loaded
+		return new LandscapeEditor(pt -> grid.getLandscapeTypeAt(pt.x, pt.y), (pt, type) -> grid.setLandscape(pt.x, pt.y, type));
+	}
 
 	private ESpellType nextSpell;
 
@@ -392,7 +394,7 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 				break;
 			case CREATE_RICE_PADDY:
 				// the walkable border type: the moor inside is blocked and rice farmers couldn't reach it
-				terraformHandle.fill(MOORBORDEROUTER, spellRegion(ESpellType.CREATE_RICE_PADDY_RADIUS)
+				getTerraformHandle().fill(MOORBORDEROUTER, spellRegion(ESpellType.CREATE_RICE_PADDY_RADIUS)
 						.filter((x, y) -> grid.getLandscapeTypeAt(x, y) == GRASS && !grid.isBlockedOrProtected(x, y))
 						.filter((x, y) -> player.hasSameTeam(grid.getPlayerAt(new ShortPoint2D(x, y))))
 						.toList());
@@ -467,10 +469,10 @@ public class MageMovable extends AttackableHumanMovable implements IMageMovable 
 			flattenedRegion = affectedRegion.filter((x, y) -> fromFlatCond.apply(grid.getLandscapeTypeAt(x, y))).toList();
 		}
 
-		terraformHandle.fill(to, affectedRegion.toList());
+		getTerraformHandle().fill(to, affectedRegion.toList());
 
 		if(fromFlatCond != null) {
-			terraformHandle.fill(toFlat, flattenedRegion);
+			getTerraformHandle().fill(toFlat, flattenedRegion);
 		}
 	}
 

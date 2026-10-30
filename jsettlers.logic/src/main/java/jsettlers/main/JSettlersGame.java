@@ -260,7 +260,9 @@ public class JSettlersGame {
 				mainGrid.stopThreads();
 				connector.shutdown();
 				guiInterface.stop();
-				clearState();
+				synchronized (MainGrid.SAVE_LOCK) {
+					clearState();
+				}
 
 				System.setErr(systemErrorStream);
 				System.setOut(systemOutStream);
