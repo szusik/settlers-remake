@@ -124,6 +124,7 @@
 	<string name="menu_join">Join</string>
 
 	<string name="save_as_group">Save as group %1$d</string>
+	<string name="none_of_type_visible">None of them are visible</string>
 	<string name="build_queue">Build queue</string>
 	<string name="build_queue_levelling">Levelling ground</string>
 	<string name="build_queue_waiting_for_materials">Waiting for materials</string>

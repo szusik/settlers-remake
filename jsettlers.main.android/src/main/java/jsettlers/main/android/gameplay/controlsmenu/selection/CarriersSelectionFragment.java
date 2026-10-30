@@ -15,6 +15,9 @@
 
 package jsettlers.main.android.gameplay.controlsmenu.selection;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
@@ -22,23 +25,32 @@ import org.androidannotations.annotations.ViewById;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.os.SystemClock;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import jsettlers.common.action.ConvertAction;
+import jsettlers.common.action.SelectMovablesAction;
 import jsettlers.common.movable.EMovableType;
 import jsettlers.common.player.ECivilisation;
+import jsettlers.common.player.IPlayer;
+import jsettlers.common.position.ShortPoint2D;
+import jsettlers.graphics.map.MapContent;
 import jsettlers.graphics.map.draw.ECommonLinkType;
 import jsettlers.graphics.map.draw.ImageLinkMap;
 import jsettlers.main.android.R;
 import jsettlers.main.android.core.controls.ActionControls;
 import jsettlers.main.android.core.controls.ControlsResolver;
 import jsettlers.main.android.core.resources.OriginalImageProvider;
+import jsettlers.logic.movable.MovableManager;
+import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 /**
  * Created by tompr on 13/01/2017.
  */
 @EFragment(R.layout.menu_selection_carriers)
 public class CarriersSelectionFragment extends SelectionFragment {
+	private static final long DOUBLE_CLICK_TIME_MS = 400;
 
 	public static CarriersSelectionFragment newInstance() {
 		return new CarriersSelectionFragment_();
@@ -52,14 +64,22 @@ public class CarriersSelectionFragment extends SelectionFragment {
 	ImageView thiefImageView;
 
 	private ActionControls actionControls;
+	private MapContent mapContent;
+	private IPlayer player;
+
+	private EMovableType lastClickedType;
+	private long lastClickTime;
 
 
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		actionControls = new ControlsResolver(getActivity()).getActionControls();
+		ControlsResolver controlsResolver = new ControlsResolver(getActivity());
+		actionControls = controlsResolver.getActionControls();
+		mapContent = controlsResolver.getMapContent();
+		player = getSelection().get(0).getPlayer();
 
-		ECivilisation civilisation = getSelection().get(0).getPlayer().getCivilisation();
+		ECivilisation civilisation = player.getCivilisation();
 
 		OriginalImageProvider.get(ImageLinkMap.get(civilisation, ECommonLinkType.SETTLER_GUI, EMovableType.PIONEER)).setAsImage(pioneerImageView);
 		OriginalImageProvider.get(ImageLinkMap.get(civilisation, ECommonLinkType.SETTLER_GUI, EMovableType.GEOLOGIST)).setAsImage(geologistImageView);
@@ -94,6 +114,49 @@ public class CarriersSelectionFragment extends SelectionFragment {
 	@Click(R.id.button_convert_all_thief)
 	void convertAllThiefClicked() {
 		fireConvertAction(EMovableType.THIEF, true);
+	}
+
+	@Click(R.id.image_view_pioneer)
+	void pioneerIconClicked() {
+		typeIconClicked(EMovableType.PIONEER);
+	}
+
+	@Click(R.id.image_view_geologist)
+	void geologistIconClicked() {
+		typeIconClicked(EMovableType.GEOLOGIST);
+	}
+
+	@Click(R.id.image_view_thief)
+	void thiefIconClicked() {
+		typeIconClicked(EMovableType.THIEF);
+	}
+
+	private void typeIconClicked(EMovableType type) {
+		long now = SystemClock.uptimeMillis();
+		boolean doubleClick = type == lastClickedType && now - lastClickTime <= DOUBLE_CLICK_TIME_MS;
+
+		lastClickedType = doubleClick ? null : type;
+		lastClickTime = now;
+
+		if (doubleClick) {
+			selectVisible(type);
+		}
+	}
+
+	private void selectVisible(EMovableType type) {
+		Set<Integer> visibleIds = new HashSet<>();
+		for (ILogicMovable movable : MovableManager.getAllMovables()) {
+			ShortPoint2D position = movable.getPosition();
+			if (movable.getMovableType() == type && movable.getPlayer().getPlayerId() == player.getPlayerId() && position != null && mapContent.isOnScreen(position)) {
+				visibleIds.add(movable.getID());
+			}
+		}
+
+		if (visibleIds.isEmpty()) {
+			Toast.makeText(getContext(), R.string.none_of_type_visible, Toast.LENGTH_SHORT).show();
+		} else {
+			actionControls.fireAction(new SelectMovablesAction(visibleIds));
+		}
 	}
 
 	private void fireConvertAction(EMovableType convertToType, boolean convertAll) {

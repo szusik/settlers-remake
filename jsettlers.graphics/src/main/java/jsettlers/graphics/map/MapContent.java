@@ -1127,6 +1127,17 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		controls.stop();
 	}
 
+	/**
+	 * @return True if the given tile is currently drawn inside of the window.
+	 */
+	public boolean isOnScreen(ShortPoint2D point) {
+		int height = context.getHeight(point.x, point.y);
+		float viewX = context.getConverter().getViewX(point.x, point.y, height);
+		float viewY = context.getConverter().getViewY(point.x, point.y, height);
+		FloatRectangle screen = context.getScreen().getPosition();
+		return viewX >= screen.getMinX() && viewX <= screen.getMaxX() && viewY >= screen.getMinY() && viewY <= screen.getMaxY();
+	}
+
 	public void setSelectionGroupStore(ISelectionGroupStore selectionGroupStore) {
 		this.selectionGroupStore = selectionGroupStore;
 	}

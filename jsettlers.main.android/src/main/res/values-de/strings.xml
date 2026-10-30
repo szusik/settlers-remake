@@ -81,6 +81,7 @@
 	<string name="join_multi_player_game">Multiplayer Spiel beitreten</string>
 	<string name="load_single_player_game">Lade Einzelspieler</string>
 	<string name="save_as_group">Als Gruppe %1$d speichern</string>
+	<string name="none_of_type_visible">Keine davon sichtbar</string>
 	<string name="build_queue">Bauliste</string>
 	<string name="build_queue_levelling">Boden wird planiert</string>
 	<string name="build_queue_waiting_for_materials">Wartet auf Material</string>
