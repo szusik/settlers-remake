@@ -15,33 +15,48 @@
 
 package jsettlers.main.android.gameplay.controlsmenu.selection;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.ViewsById;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import jsettlers.common.action.EActionType;
+import jsettlers.common.images.EImageLinkType;
 import jsettlers.common.images.ImageLink;
+import jsettlers.common.images.OriginalImageLink;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.IGraphicsFerry;
+import jsettlers.common.movable.IGraphicsMovable;
+import jsettlers.common.player.ECivilisation;
+import jsettlers.common.selectable.ISelectable;
+import jsettlers.graphics.map.draw.ECommonLinkType;
+import jsettlers.graphics.map.draw.ImageLinkMap;
 import jsettlers.main.android.R;
 import jsettlers.main.android.core.controls.ActionControls;
 import jsettlers.main.android.core.controls.ControlsResolver;
+import jsettlers.main.android.core.controls.DrawControls;
+import jsettlers.main.android.core.controls.DrawListener;
 import jsettlers.main.android.core.resources.OriginalImageProvider;
 
 /**
  * Created by Rudolf Polzer
  */
 @EFragment(R.layout.menu_selection_ships)
-public class ShipsSelectionFragment extends SelectionFragment {
+public class ShipsSelectionFragment extends SelectionFragment implements DrawListener {
+	private static final OriginalImageLink FREE_SLOT = new OriginalImageLink(EImageLinkType.GUI, 3, 45, 0);
+
 	private static final EMovableType[] shipTypes = new EMovableType[] {
 			EMovableType.FERRY,
 			EMovableType.CARGO_SHIP,
@@ -59,7 +74,12 @@ public class ShipsSelectionFragment extends SelectionFragment {
 	@ViewsById({ R.id.imageView_ferry, R.id.imageView_tradeShip })
 	List<ImageView> shipImageViews;
 
+	@ViewById(R.id.layout_passengers)
+	LinearLayout passengersLayout;
+
 	private ActionControls actionControls;
+	private DrawControls drawControls;
+	private List<List<EMovableType>> shownPassengers;
 
 	public static ShipsSelectionFragment newInstance() {
 		return ShipsSelectionFragment_.builder().build();
@@ -68,7 +88,9 @@ public class ShipsSelectionFragment extends SelectionFragment {
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		actionControls = new ControlsResolver(getActivity()).getActionControls();
+		ControlsResolver controlsResolver = new ControlsResolver(getActivity());
+		actionControls = controlsResolver.getActionControls();
+		drawControls = controlsResolver.getDrawControls();
 
 		for (int i = 0; i < shipTypes.length; i++) {
 			EMovableType shipType = shipTypes[i];
@@ -81,6 +103,83 @@ public class ShipsSelectionFragment extends SelectionFragment {
 				shipLayouts.get(i).setVisibility(View.GONE);
 			}
 		}
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		updatePassengers();
+		drawControls.addInfrequentDrawListener(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		drawControls.removeInfrequentDrawListener(this);
+	}
+
+	@Override
+	public void draw() {
+		passengersLayout.post(this::updatePassengers);
+	}
+
+	private void updatePassengers() {
+		List<List<EMovableType>> passengers = new ArrayList<>();
+		for (ISelectable selectable : getSelection()) {
+			if (selectable instanceof IGraphicsFerry) {
+				passengers.add(getPassengerTypes((IGraphicsFerry) selectable));
+			}
+		}
+
+		if (passengers.equals(shownPassengers)) {
+			return;
+		}
+		shownPassengers = passengers;
+
+		passengersLayout.removeAllViews();
+		if (passengers.isEmpty()) {
+			return; // only cargo ships are selected, or the selected ships are gone
+		}
+
+		ECivilisation civilisation = getSelection().get(0).getPlayer().getCivilisation();
+		for (List<EMovableType> shipPassengers : passengers) {
+			passengersLayout.addView(createShipRow(civilisation, shipPassengers));
+		}
+	}
+
+	private static List<EMovableType> getPassengerTypes(IGraphicsFerry ferry) {
+		List<EMovableType> types = new ArrayList<>();
+		for (Object passenger : ferry.getPassengers().toArray()) { // the game changes this list on another thread
+			if (passenger != null) {
+				types.add(((IGraphicsMovable) passenger).getMovableType());
+			}
+		}
+		return types;
+	}
+
+	private View createShipRow(ECivilisation civilisation, List<EMovableType> passengers) {
+		int occupiedHeight = getResources().getDimensionPixelSize(R.dimen.menu_tile_occupied_height);
+		int freeHeight = getResources().getDimensionPixelSize(R.dimen.menu_tile_waiting_height);
+
+		LinearLayout row = new LinearLayout(getActivity());
+		row.setGravity(Gravity.CENTER_VERTICAL);
+
+		for (int slot = 0; slot < IGraphicsFerry.MAX_NUMBER_OF_PASSENGERS; slot++) {
+			ImageView slotImageView = new ImageView(getActivity());
+			boolean occupied = slot < passengers.size();
+			ImageLink image = occupied ? ImageLinkMap.get(civilisation, ECommonLinkType.SETTLER_GUI, passengers.get(slot)) : FREE_SLOT;
+			if (image != null) {
+				OriginalImageProvider.get(image).setAsImage(slotImageView);
+			}
+			row.addView(slotImageView, new LinearLayout.LayoutParams(0, occupied ? occupiedHeight : freeHeight, 1));
+		}
+
+		TextView countTextView = new TextView(getActivity());
+		countTextView.setText(passengers.size() + "/" + IGraphicsFerry.MAX_NUMBER_OF_PASSENGERS);
+		countTextView.setPadding(occupiedHeight / 4, 0, 0, 0);
+		row.addView(countTextView);
+
+		return row;
 	}
 
 	@Click(R.id.button_unload)

@@ -14,8 +14,8 @@
 		android:layout_height="0dp"
 		android:gravity="center"
 		android:orientation="vertical"
-		android:paddingLeft="16dp"
-		android:paddingRight="16dp">
+		android:paddingLeft="0dp"
+		android:paddingRight="0dp">
 
 		<LinearLayout
 			android:id="@+id/layout_ferries"
@@ -58,6 +58,18 @@
 				android:paddingLeft="8dp"
 				android:text="test"/>
 		</LinearLayout>
+
+		<android.support.v4.widget.NestedScrollView
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1">
+
+			<LinearLayout
+				android:id="@+id/layout_passengers"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"/>
+		</android.support.v4.widget.NestedScrollView>
 
 	</LinearLayout>
 

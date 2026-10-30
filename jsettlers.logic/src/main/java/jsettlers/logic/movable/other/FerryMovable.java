@@ -8,6 +8,7 @@ import jsettlers.algorithms.simplebehaviortree.Root;
 import jsettlers.common.action.EMoveToType;
 import jsettlers.common.map.shapes.HexGridArea;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.IGraphicsFerry;
 import jsettlers.common.position.ShortPoint2D;
 import jsettlers.logic.constants.Constants;
 import jsettlers.logic.movable.Movable;
@@ -22,10 +23,9 @@ import static jsettlers.algorithms.simplebehaviortree.BehaviorTreeHelper.*;
 
 public class FerryMovable extends AttackableMovable implements IFerryMovable {
 
-	private static final int MAX_NUMBER_OF_PASSENGERS = 7;
 	private static final long serialVersionUID = -8381283159755498644L;
 
-	private final List<IAttackableHumanMovable> passengers = new ArrayList<>(MAX_NUMBER_OF_PASSENGERS);
+	private final List<IAttackableHumanMovable> passengers = new ArrayList<>(IGraphicsFerry.MAX_NUMBER_OF_PASSENGERS);
 
 	private ShortPoint2D currentTarget = null;
 	private ShortPoint2D nextTarget = null;
@@ -63,7 +63,7 @@ public class FerryMovable extends AttackableMovable implements IFerryMovable {
 
 	@Override
 	public boolean addPassenger(IAttackableHumanMovable movable) {
-		if (passengers.size() == MAX_NUMBER_OF_PASSENGERS) return false;
+		if (passengers.size() == IGraphicsFerry.MAX_NUMBER_OF_PASSENGERS) return false;
 
 		passengers.add(movable);
 		return true;
