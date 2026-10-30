@@ -71,6 +71,7 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 		selectionGroups = new SelectionGroups(this);
 		addSelectionListener(selectionGroups);
 		addInfrequentDrawListener(selectionGroups);
+		mapContent.setSelectionGroupStore(selectionGroups);
 	}
 
 	public IControls getControls() {

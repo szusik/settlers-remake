@@ -48,6 +48,7 @@ import jsettlers.common.action.EActionType;
 import jsettlers.common.action.IAction;
 import jsettlers.common.action.PointAction;
 import jsettlers.common.action.ScreenChangeAction;
+import jsettlers.common.menu.ISelectionGroupStore;
 import jsettlers.common.action.SelectAreaAction;
 import jsettlers.common.action.ShowConstructionMarksAction;
 import jsettlers.common.buildings.BuildingVariant;
@@ -203,6 +204,7 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 	private final IControls controls;
 
 	private FloatRectangle oldScreen;
+	private ISelectionGroupStore selectionGroupStore;
 	private UIPoint mousePosition = new UIPoint(0, 0);
 
 	private int windowWidth = 1;
@@ -1125,9 +1127,17 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 		controls.stop();
 	}
 
+	public void setSelectionGroupStore(ISelectionGroupStore selectionGroupStore) {
+		this.selectionGroupStore = selectionGroupStore;
+	}
+
 	void loadUIState(UIState state) {
 		if (state == null) {
 			return;
+		}
+
+		if (selectionGroupStore != null) {
+			selectionGroupStore.restoreSelectionGroups(state.getSelectionGroups());
 		}
 
 		if (state.getStartPoint() != null) {
@@ -1140,7 +1150,11 @@ public final class MapContent implements RegionContent, IMapInterfaceListener, A
 
 	protected UIState getUIState() {
 		ScreenPosition screen = context.getScreen();
-		return new UIState(screen.getScreenCenterX(), screen.getScreenCenterY(), screen.getZoom());
+		UIState state = new UIState(screen.getScreenCenterX(), screen.getScreenCenterY(), screen.getZoom());
+		if (selectionGroupStore != null) {
+			state.setSelectionGroups(selectionGroupStore.getSelectionGroups());
+		}
+		return state;
 	}
 
 	public MusicManager getMusicManager() {

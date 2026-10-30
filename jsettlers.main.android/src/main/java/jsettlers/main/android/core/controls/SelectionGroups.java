@@ -15,8 +15,10 @@
 package jsettlers.main.android.core.controls;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -24,6 +26,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 
 import jsettlers.common.action.SelectMovablesAction;
+import jsettlers.common.menu.ISelectionGroupStore;
 import jsettlers.common.movable.IIDable;
 import jsettlers.common.selectable.ESelectionType;
 import jsettlers.common.selectable.ISelectable;
@@ -33,9 +36,9 @@ import jsettlers.logic.movable.interfaces.ILogicMovable;
 
 /**
  * Numbered sets of settlers the player saved to select them again later. A settler can be part of several groups and stays in a group when it changes its job, because it keeps its id. Selections are
- * not part of the synchronized game state, so this only affects the local player.
+ * not part of the synchronized game state, so this only affects the local player. The groups are stored in the savegame of the local player.
  */
-public class SelectionGroups implements SelectionListener, DrawListener {
+public class SelectionGroups implements SelectionListener, DrawListener, ISelectionGroupStore {
 	private final ActionControls actionControls;
 
 	private final TreeMap<Integer, Set<Integer>> groups = new TreeMap<>();
@@ -87,6 +90,20 @@ public class SelectionGroups implements SelectionListener, DrawListener {
 		if (members != null) {
 			actionControls.fireAction(new SelectMovablesAction(new HashSet<>(members)));
 		}
+	}
+
+	@Override
+	public synchronized Map<Integer, Set<Integer>> getSelectionGroups() {
+		Map<Integer, Set<Integer>> copy = new HashMap<>();
+		groups.forEach((number, members) -> copy.put(number, new HashSet<>(members)));
+		return copy;
+	}
+
+	@Override
+	public synchronized void restoreSelectionGroups(Map<Integer, Set<Integer>> savedGroups) {
+		groups.clear();
+		savedGroups.forEach((number, members) -> groups.put(number, new HashSet<>(members)));
+		groupsChanged();
 	}
 
 	@Override

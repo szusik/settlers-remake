@@ -15,6 +15,10 @@
 package jsettlers.common.menu;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import jsettlers.common.position.ShortPoint2D;
 
@@ -32,6 +36,7 @@ public class UIState implements Serializable {
 	private final float screenCenterY;
 	private final float zoom;
 	private ShortPoint2D startPoint = null;
+	private HashMap<Integer, Set<Integer>> selectionGroups = null; // this is missing in older savegames
 
 	/**
 	 * Creates a {@link UIState} object for the given pixel position.
@@ -94,5 +99,16 @@ public class UIState implements Serializable {
 	 */
 	public ShortPoint2D getStartPoint() {
 		return startPoint;
+	}
+
+	/**
+	 * @return The saved groups as map from the group number to the ids of its movables.
+	 */
+	public Map<Integer, Set<Integer>> getSelectionGroups() {
+		return selectionGroups != null ? selectionGroups : Collections.emptyMap();
+	}
+
+	public void setSelectionGroups(Map<Integer, Set<Integer>> selectionGroups) {
+		this.selectionGroups = new HashMap<>(selectionGroups);
 	}
 }
