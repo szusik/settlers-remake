@@ -66,6 +66,11 @@ public class LoadSinglePlayerPickerFragment extends MapPickerFragment {
 	}
 
 	@Override
+	protected boolean canDeleteMaps() {
+		return true;
+	}
+
+	@Override
 	protected boolean showMapDates() {
 		return true;
 	}

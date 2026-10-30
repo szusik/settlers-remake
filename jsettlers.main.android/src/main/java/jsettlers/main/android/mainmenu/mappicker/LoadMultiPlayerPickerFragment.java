@@ -33,4 +33,9 @@ public class LoadMultiPlayerPickerFragment extends NewMultiPlayerPickerFragment 
 	protected boolean isLoadingSavegame() {
 		return true;
 	}
+
+	@Override
+	protected boolean canDeleteMaps() {
+		return true;
+	}
 }

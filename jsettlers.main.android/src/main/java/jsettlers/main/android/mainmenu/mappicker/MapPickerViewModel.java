@@ -8,6 +8,7 @@ import android.arch.lifecycle.ViewModel;
 import jsettlers.common.utils.collections.ChangingList;
 import jsettlers.common.utils.collections.IChangingListListener;
 import jsettlers.logic.map.loading.MapLoader;
+import jsettlers.logic.map.loading.newmap.RemakeMapLoader;
 import jsettlers.main.android.core.GameStarter;
 
 /**
@@ -39,6 +40,13 @@ public abstract class MapPickerViewModel extends ViewModel {
 	}
 
 	public abstract void selectMap(MapLoader map);
+
+	/**
+	 * @return False if the savegame could not be deleted.
+	 */
+	public boolean deleteSavedMap(MapLoader map) {
+		return gameStarter.getMapList().deleteSavedMap((RemakeMapLoader) map);
+	}
 
 	protected void abort() {
 	}

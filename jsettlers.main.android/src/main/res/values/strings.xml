@@ -125,6 +125,9 @@
 
 	<string name="save_as_group">Save as group %1$d</string>
 	<string name="none_of_type_visible">None of them are visible</string>
+	<string name="delete">Delete</string>
+	<string name="delete_saved_game_question">Delete saved game \"%1$s\"? This can\'t be undone.</string>
+	<string name="delete_saved_game_failed">Couldn\'t delete the saved game</string>
 	<string name="build_queue">Build queue</string>
 	<string name="build_queue_levelling">Levelling ground</string>
 	<string name="build_queue_waiting_for_materials">Waiting for materials</string>

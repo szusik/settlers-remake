@@ -40,5 +40,14 @@
 		android:textColor="@color/accent"
 		tools:text="Player count"/>
 
+	<ImageButton
+		android:id="@+id/button_delete_map"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:contentDescription="@string/delete"
+		android:src="@android:drawable/ic_menu_delete"
+		android:visibility="gone"/>
+
 
 </LinearLayout>

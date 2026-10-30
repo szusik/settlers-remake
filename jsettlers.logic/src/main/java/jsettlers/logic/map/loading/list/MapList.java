@@ -21,6 +21,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -71,6 +72,7 @@ public class MapList implements IMapListerCallable {
 
 	private final ChangingList<MapLoader> freshMaps = new ChangingList<>();
 	private final ChangingList<RemakeMapLoader> savedMaps = new ChangingList<>();
+	private final ChangingList<MapLoader> savedMultiplayerMaps = new ChangingList<>();
 
 	private boolean fileListLoaded = false;
 
@@ -86,6 +88,13 @@ public class MapList implements IMapListerCallable {
 		for (IMapLister dir : mapDirectories) {
 			dir.listMaps(this);
 		}
+		updateSavedMultiplayerMaps();
+	}
+
+	private void updateSavedMultiplayerMaps() {
+		savedMultiplayerMaps.setList(savedMaps.getItems().stream()
+				.filter(map -> map.getFileHeader().isMultiplayerSave())
+				.collect(Collectors.toList()));
 	}
 
 	@Override
@@ -237,9 +246,30 @@ public class MapList implements IMapListerCallable {
 	}
 
 	public synchronized ChangingList<MapLoader> getSavedMultiplayerMaps() {
-		return new ChangingList<>(getSavedMaps().getItems().stream()
-				.filter(map -> map.getFileHeader().isMultiplayerSave())
-				.collect(Collectors.toList()));
+		getSavedMaps(); // makes sure the files have been read
+		return savedMultiplayerMaps;
+	}
+
+	/**
+	 * Deletes a savegame from the disk and removes it from the lists.
+	 *
+	 * @param map
+	 *            The savegame.
+	 * @return False if the file could not be deleted.
+	 */
+	public synchronized boolean deleteSavedMap(RemakeMapLoader map) {
+		try {
+			map.getListedMap().delete();
+		} catch (UnsupportedOperationException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		List<RemakeMapLoader> remainingMaps = new ArrayList<>(savedMaps.getItems());
+		remainingMaps.removeIf(other -> other.getMapId().equals(map.getMapId()));
+		savedMaps.setList(remainingMaps);
+		updateSavedMultiplayerMaps();
+		return true;
 	}
 
 	/**

@@ -27,6 +27,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -104,6 +106,22 @@ public abstract class MapPickerFragment extends Fragment {
 		return false;
 	}
 
+	protected boolean canDeleteMaps() {
+		return false;
+	}
+
+	private void askToDelete(MapLoader map) {
+		new AlertDialog.Builder(getActivity())
+				.setMessage(getString(R.string.delete_saved_game_question, map.getDisplayName()))
+				.setPositiveButton(R.string.delete, (dialog, which) -> {
+					if (!viewModel.deleteSavedMap(map)) {
+						Toast.makeText(getActivity(), R.string.delete_saved_game_failed, Toast.LENGTH_LONG).show();
+					}
+				})
+				.setNegativeButton(R.string.cancel, null)
+				.show();
+	}
+
 	/**
 	 * RecyclerView Adapter for displaying list of maps
 	 */
@@ -137,6 +155,12 @@ public abstract class MapPickerFragment extends Fragment {
 			final View itemView = getActivity().getLayoutInflater().inflate(R.layout.item_map, parent, false);
 			final MapHolder mapHolder = new MapHolder(itemView);
 			itemView.setOnClickListener(itemClickListener);
+			mapHolder.deleteButton.setOnClickListener(v -> {
+				int position = mapHolder.getAdapterPosition();
+				if (position != RecyclerView.NO_POSITION) {
+					askToDelete(maps[position]);
+				}
+			});
 			return mapHolder;
 		}
 
@@ -156,6 +180,7 @@ public abstract class MapPickerFragment extends Fragment {
 			final TextView dateTextView;
 			final TextView playerCountTextView;
 			final ImageView mapPreviewImageView;
+			final View deleteButton;
 
 			Disposable subscription;
 
@@ -165,6 +190,8 @@ public abstract class MapPickerFragment extends Fragment {
 				dateTextView = itemView.findViewById(R.id.text_view_date);
 				playerCountTextView = itemView.findViewById(R.id.text_view_player_count);
 				mapPreviewImageView = itemView.findViewById(R.id.image_view_map_preview);
+				deleteButton = itemView.findViewById(R.id.button_delete_map);
+				deleteButton.setVisibility(canDeleteMaps() ? View.VISIBLE : View.GONE);
 
 				if (showMapDates()) {
 					dateTextView.setVisibility(View.VISIBLE);

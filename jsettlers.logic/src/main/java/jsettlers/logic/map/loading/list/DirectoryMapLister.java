@@ -62,7 +62,9 @@ public class DirectoryMapLister implements IMapLister {
 
 		@Override
 		public void delete() {
-			file.delete();
+			if (!file.delete()) {
+				throw new UnsupportedOperationException("Couldn't delete " + file);
+			}
 		}
 
 		@Override

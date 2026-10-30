@@ -82,6 +82,9 @@
 	<string name="load_single_player_game">Lade Einzelspieler</string>
 	<string name="save_as_group">Als Gruppe %1$d speichern</string>
 	<string name="none_of_type_visible">Keine davon sichtbar</string>
+	<string name="delete">Löschen</string>
+	<string name="delete_saved_game_question">Spielstand \"%1$s\" löschen? Das kann nicht rückgängig gemacht werden.</string>
+	<string name="delete_saved_game_failed">Spielstand konnte nicht gelöscht werden</string>
 	<string name="build_queue">Bauliste</string>
 	<string name="build_queue_levelling">Boden wird planiert</string>
 	<string name="build_queue_waiting_for_materials">Wartet auf Material</string>
