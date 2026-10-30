@@ -45,6 +45,7 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 	private final MapContent mapContent;
 	private final GameMenu gameMenu;
 	private final IGraphicsGrid graphicsGrid;
+	private final SelectionGroups selectionGroups;
 
 	private final LinkedList<SelectionListener> selectionListeners = new LinkedList<>();
 	private final LinkedList<ActionListener> actionListeners = new LinkedList<>();
@@ -66,6 +67,10 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 		mapContent = new MapContent(game, SOUND_PLAYER, ETextDrawPosition.MOBILE, androidControls);
 		gameMenu = new GameMenu(context, SOUND_PLAYER, this, new GameSpeedLiveData(gameClock, this), game.isMultiplayerGame());
 		graphicsGrid = game.getMap();
+
+		selectionGroups = new SelectionGroups(this);
+		addSelectionListener(selectionGroups);
+		addInfrequentDrawListener(selectionGroups);
 	}
 
 	public IControls getControls() {
@@ -74,6 +79,10 @@ public class ControlsAdapter implements ActionControls, DrawControls, SelectionC
 
 	public MapContent getMapContent() {
 		return mapContent;
+	}
+
+	public SelectionGroups getSelectionGroups() {
+		return selectionGroups;
 	}
 
 	public GameMenu getGameMenu() {

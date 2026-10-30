@@ -53,6 +53,10 @@ public class ControlsResolver {
 		return controlsAdapter.getMapContent();
 	}
 
+	public SelectionGroups getSelectionGroups() {
+		return controlsAdapter.getSelectionGroups();
+	}
+
 	public GameMenu getGameMenu() {
 		return controlsAdapter.getGameMenu();
 	}

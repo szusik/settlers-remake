@@ -126,6 +126,13 @@ public enum EActionType {
 	SELECT_AREA,
 
 	/**
+	 * Selects a given set of movables.
+	 *
+	 * @see SelectMovablesAction
+	 */
+	SELECT_MOVABLES,
+
+	/**
 	 * Deselect everything.
 	 */
 	DESELECT,

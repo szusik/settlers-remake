@@ -17,6 +17,7 @@ package jsettlers.main.android.gameplay;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.androidannotations.annotations.AfterViews;
@@ -36,13 +37,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import biz.laenger.android.vpbs.ViewPagerBottomSheetBehavior;
 import go.graphics.android.GOSurfaceView;
 import go.graphics.area.Area;
 import go.graphics.region.Region;
+import jsettlers.common.selectable.ESelectionType;
 import jsettlers.common.selectable.ISelectionSet;
 import jsettlers.graphics.map.MapContent;
 import jsettlers.graphics.map.draw.ImageProvider;
@@ -52,6 +57,7 @@ import jsettlers.main.android.core.AndroidPreferences;
 import jsettlers.main.android.core.controls.ControlsResolver;
 import jsettlers.main.android.core.controls.GameMenu;
 import jsettlers.main.android.core.controls.SelectionControls;
+import jsettlers.main.android.core.controls.SelectionGroups;
 import jsettlers.main.android.core.controls.SelectionListener;
 import jsettlers.main.android.core.controls.TaskControls;
 import jsettlers.main.android.core.navigation.BackPressedListener;
@@ -85,6 +91,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 	private SelectionControls selectionControls;
 	private TaskControls taskControls;
 	private GameMenu gameMenu;
+	private SelectionGroups selectionGroups;
 	private ViewPagerBottomSheetBehavior bottomSheetBehavior;
 	private SelectionFragment currentSelectionManager = null;
 
@@ -98,6 +105,8 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 	View bottomSheet;
 	@ViewById(R.id.performance_overlay)
 	PerformanceOverlayView performanceOverlay;
+	@ViewById(R.id.layout_selection_groups)
+	ViewGroup selectionGroupsLayout;
 
 	@AfterViews
 	void setupToolbar() {
@@ -120,12 +129,25 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 		gameMenu = controlsResolver.getGameMenu();
 		addMapViews(controlsResolver.getMapContent());
 		performanceOverlay.setNetworkStatus(MatchConstants.networkStatus(), MatchConstants.syncChecker());
+		selectionGroups = controlsResolver.getSelectionGroups();
 	}
 
 	@AfterViews
 	void registerObservers() {
 		gameMenu.isPausedState().observe(this, pauseObserver);
 		gameMenu.getGameState().observeForever(gameStateObserver);
+		selectionGroups.getGroupNumbers().observe(this, this::showSelectionGroups);
+	}
+
+	private void showSelectionGroups(List<Integer> groupNumbers) {
+		selectionGroupsLayout.removeAllViews();
+		LayoutInflater inflater = LayoutInflater.from(getActivity());
+		for (int groupNumber : groupNumbers) {
+			TextView button = (TextView) inflater.inflate(R.layout.item_selection_group, selectionGroupsLayout, false);
+			button.setText(Integer.toString(groupNumber));
+			button.setOnClickListener(view -> selectionGroups.select(groupNumber));
+			selectionGroupsLayout.addView(button);
+		}
 	}
 
 	private void addMapViews(MapContent mapContent) {
@@ -299,6 +321,10 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 
 	@Click(R.id.button_settlers_menu)
 	void showSettlersMenu() {
+		ISelectionSet selection = selectionControls.getCurrentSelection();
+		if (currentSelectionManager != null && selection != null && selection.getSelectionType() != ESelectionType.BUILDING) {
+			currentSelectionManager.keepSelection(); // the selected settlers can be saved as a group in this menu
+		}
 		removeSelectionMenu();
 		showMenu();
 

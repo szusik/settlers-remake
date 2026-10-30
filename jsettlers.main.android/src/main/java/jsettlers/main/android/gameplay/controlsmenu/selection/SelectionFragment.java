@@ -34,6 +34,7 @@ import jsettlers.main.android.gameplay.navigation.MenuNavigator;
 public abstract class SelectionFragment extends Fragment {
 	private SelectionControls selectionControls;
 	private ISelectionSet selection;
+	private boolean keepSelection = false;
 
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -49,6 +50,13 @@ public abstract class SelectionFragment extends Fragment {
 		}
 	}
 
+	/**
+	 * Keeps the current selection when this menu gets removed, so that the next menu can still use it.
+	 */
+	public void keepSelection() {
+		keepSelection = true;
+	}
+
 	public Set<EModifier> getModifiers() {
 		return Set.of();
 	}
@@ -59,7 +67,7 @@ public abstract class SelectionFragment extends Fragment {
 		// If the selection hasn't changed when the selection menu is dismissed by the user then the user has started using some other menu and we should deselect by calling endTask(). Check
 		// isRemoving to confirm its not just a rotation.
 		// If the selection has changed then we don't want to overwrite it.
-		if (selection == selectionControls.getCurrentSelection() && isRemoving()) {
+		if (!keepSelection && selection == selectionControls.getCurrentSelection() && isRemoving()) {
 			selectionControls.deselect();
 		}
 	}

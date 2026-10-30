@@ -23,11 +23,14 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import jsettlers.common.images.ImageLink;
 import jsettlers.main.android.R;
+import jsettlers.main.android.core.controls.ControlsResolver;
+import jsettlers.main.android.core.controls.SelectionGroups;
 import jsettlers.main.android.core.resources.OriginalImageProvider;
 
 /**
@@ -40,6 +43,10 @@ public class SettlersSoldiersFragment extends Fragment {
 	}
 
 	private SoldiersViewModel viewModel;
+	private SelectionGroups selectionGroups;
+
+	@ViewById(R.id.button_save_group)
+	Button saveGroupButton;
 
 	@ViewById(R.id.text_view_soldier_strength)
 	TextView soldierStrengthTextView;
@@ -57,6 +64,10 @@ public class SettlersSoldiersFragment extends Fragment {
 		super.onActivityCreated(savedInstanceState);
 		viewModel = ViewModelProviders.of(this, new SoldiersViewModel.Factory(getActivity())).get(SoldiersViewModel.class);
 
+		selectionGroups = new ControlsResolver(getActivity()).getSelectionGroups();
+		selectionGroups.getNextGroupNumber().observe(this, number -> saveGroupButton.setText(getString(R.string.save_as_group, number)));
+		selectionGroups.getCanSaveSelection().observe(this, canSave -> saveGroupButton.setEnabled(canSave));
+
 		viewModel.getStrengthText().observe(this, s -> soldierStrengthTextView.setText(s));
 		viewModel.getPromotionText().observe(this, s -> soldierPromotionTextView.setText(s));
 		viewModel.getSwordsmenPromotionEnabled().observe(this, enabled -> bowmenPromotionImageView.setEnabled(enabled));
@@ -65,6 +76,11 @@ public class SettlersSoldiersFragment extends Fragment {
 		viewModel.getSwordsmenImageLink().observe(this, imageLink -> setPromotionButtonImage(swordsmenPromotionImageView, imageLink));
 		viewModel.getBowmenImageLink().observe(this, imageLink -> setPromotionButtonImage(bowmenPromotionImageView, imageLink));
 		viewModel.getPikemenImageLink().observe(this, imageLink -> setPromotionButtonImage(pikemenPromotionImageView, imageLink));
+	}
+
+	@Click(R.id.button_save_group)
+	void saveGroupClicked() {
+		selectionGroups.saveSelection();
 	}
 
 	@Click(R.id.image_view_promotion_swordsmen)

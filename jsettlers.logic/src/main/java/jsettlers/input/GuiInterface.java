@@ -40,6 +40,7 @@ import jsettlers.common.action.MoveToAction;
 import jsettlers.common.action.PointAction;
 import jsettlers.common.action.ScreenChangeAction;
 import jsettlers.common.action.SelectAreaAction;
+import jsettlers.common.action.SelectMovablesAction;
 import jsettlers.common.action.SetAcceptedStockMaterialAction;
 import jsettlers.common.action.SetBuildingPriorityAction;
 import jsettlers.common.action.SetDockAction;
@@ -100,6 +101,8 @@ import jsettlers.logic.buildings.IDockBuilding;
 import jsettlers.logic.buildings.military.occupying.OccupyingBuilding;
 import jsettlers.logic.buildings.workers.DockyardBuilding;
 import jsettlers.logic.constants.MatchConstants;
+import jsettlers.logic.movable.MovableManager;
+import jsettlers.logic.movable.interfaces.ILogicMovable;
 import jsettlers.logic.movable.interfaces.IDebugable;
 import jsettlers.logic.player.Player;
 import jsettlers.network.client.interfaces.IGameClock;
@@ -227,6 +230,10 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 
 			case SELECT_AREA:
 				selectArea((SelectAreaAction) action);
+				break;
+
+			case SELECT_MOVABLES:
+				selectMovables(((SelectMovablesAction) action).getMovableIds());
 				break;
 
 			case DESELECT:
@@ -624,6 +631,18 @@ public class GuiInterface implements IMapInterfaceListener, ITaskExecutorGuiInte
 			}
 		}
 		return selectedIds;
+	}
+
+	private void selectMovables(Set<Integer> movableIds) {
+		final SelectionSet selectionSet = new SelectionSet();
+
+		for (ILogicMovable movable : MovableManager.getAllMovables()) {
+			if (movableIds.contains(movable.getID()) && canSelectPlayer(movable.getPlayer().getPlayerId())) {
+				selectionSet.add(movable);
+			}
+		}
+
+		setSelection(selectionSet);
 	}
 
 	private void selectArea(SelectAreaAction action) {
