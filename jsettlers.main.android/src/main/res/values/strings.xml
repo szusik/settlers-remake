@@ -123,6 +123,13 @@
 	<string name="menu_load">Load</string>
 	<string name="menu_join">Join</string>
 
+	<string name="build_queue">Build queue</string>
+	<string name="build_queue_levelling">Levelling ground</string>
+	<string name="build_queue_waiting_for_materials">Waiting for materials</string>
+	<string name="build_queue_constructing">Under construction</string>
+	<string name="build_queue_high_priority">High priority: %1$s</string>
+	<string name="build_queue_stopped">Stopped</string>
+	<string name="build_queue_empty">No buildings under construction</string>
 	<string name="start_game">Start game</string>
 	<string name="multiplayer_server_unreachable">Can\'t reach the server. Use Start server or check the server address in the settings.</string>
 

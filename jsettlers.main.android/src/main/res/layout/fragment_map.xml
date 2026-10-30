@@ -39,21 +39,31 @@
 
 				<Button
 					android:id="@+id/button_buildings_menu"
-					android:layout_width="wrap_content"
+					android:layout_width="0dp"
+					android:layout_weight="1"
 					android:layout_height="wrap_content"
 					android:text="@string/buildings"/>
 
 				<Button
 					android:id="@+id/button_goods_menu"
-					android:layout_width="wrap_content"
+					android:layout_width="0dp"
+					android:layout_weight="1"
 					android:layout_height="wrap_content"
 					android:text="@string/goods"/>
 
 				<Button
 					android:id="@+id/button_settlers_menu"
-					android:layout_width="wrap_content"
+					android:layout_width="0dp"
+					android:layout_weight="1"
 					android:layout_height="wrap_content"
 					android:text="@string/settlers"/>
+
+				<Button
+					android:id="@+id/button_build_queue_menu"
+					android:layout_width="0dp"
+					android:layout_weight="1"
+					android:layout_height="wrap_content"
+					android:text="@string/build_queue"/>
 
 			</LinearLayout>
 

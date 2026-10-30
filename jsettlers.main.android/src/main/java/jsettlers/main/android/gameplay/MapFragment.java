@@ -57,6 +57,7 @@ import jsettlers.main.android.core.controls.TaskControls;
 import jsettlers.main.android.core.navigation.BackPressedListener;
 import jsettlers.main.android.core.ui.FragmentUtil;
 import jsettlers.main.android.gameplay.controlsmenu.buildings.BuildingsMenuFragment;
+import jsettlers.main.android.gameplay.controlsmenu.buildqueue.BuildQueueMenuFragment;
 import jsettlers.main.android.gameplay.controlsmenu.goods.GoodsMenuFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.BuildingSelectionFragment;
 import jsettlers.main.android.gameplay.controlsmenu.selection.CarriersSelectionFragment;
@@ -78,6 +79,7 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 	private static final String TAG_FRAGMENT_BUILDINGS_MENU = "com.jsettlers.buildingsmenufragment";
 	private static final String TAG_FRAGMENT_GOODS_MENU = "com.jsettlers.goodsmenufragment";
 	private static final String TAG_FRAGMENT_SETTLERS_MENU = "com.jsettlers.settlersmenufragment";
+	private static final String TAG_FRAGMENT_BUILD_QUEUE_MENU = "com.jsettlers.buildqueuemenufragment";
 	private static final String SAVE_BOTTOM_SHEET_STATE = "save_bottom_sheet_state";
 
 	private SelectionControls selectionControls;
@@ -303,6 +305,18 @@ public class MapFragment extends Fragment implements SelectionListener, BackPres
 		if (getChildFragmentManager().findFragmentByTag(TAG_FRAGMENT_SETTLERS_MENU) == null) {
 			getChildFragmentManager().beginTransaction()
 					.replace(R.id.container_menu, SettlersMenuFragment.newInstance(), TAG_FRAGMENT_SETTLERS_MENU)
+					.commit();
+		}
+	}
+
+	@Click(R.id.button_build_queue_menu)
+	void showBuildQueueMenu() {
+		removeSelectionMenu();
+		showMenu();
+
+		if (getChildFragmentManager().findFragmentByTag(TAG_FRAGMENT_BUILD_QUEUE_MENU) == null) {
+			getChildFragmentManager().beginTransaction()
+					.replace(R.id.container_menu, BuildQueueMenuFragment.newInstance(), TAG_FRAGMENT_BUILD_QUEUE_MENU)
 					.commit();
 		}
 	}
