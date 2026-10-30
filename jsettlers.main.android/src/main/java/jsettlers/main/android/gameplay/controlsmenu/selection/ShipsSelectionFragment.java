@@ -36,13 +36,16 @@ import jsettlers.common.action.EActionType;
 import jsettlers.common.images.EImageLinkType;
 import jsettlers.common.images.ImageLink;
 import jsettlers.common.images.OriginalImageLink;
+import jsettlers.common.material.EMaterialType;
 import jsettlers.common.movable.EMovableType;
+import jsettlers.common.movable.IGraphicsCargoShip;
 import jsettlers.common.movable.IGraphicsFerry;
 import jsettlers.common.movable.IGraphicsMovable;
 import jsettlers.common.player.ECivilisation;
 import jsettlers.common.selectable.ISelectable;
 import jsettlers.graphics.map.draw.ECommonLinkType;
 import jsettlers.graphics.map.draw.ImageLinkMap;
+import jsettlers.logic.constants.Constants;
 import jsettlers.main.android.R;
 import jsettlers.main.android.core.controls.ActionControls;
 import jsettlers.main.android.core.controls.ControlsResolver;
@@ -80,6 +83,7 @@ public class ShipsSelectionFragment extends SelectionFragment implements DrawLis
 	private ActionControls actionControls;
 	private DrawControls drawControls;
 	private List<List<EMovableType>> shownPassengers;
+	private List<List<CargoStack>> shownCargo;
 
 	public static ShipsSelectionFragment newInstance() {
 		return ShipsSelectionFragment_.builder().build();
@@ -108,7 +112,7 @@ public class ShipsSelectionFragment extends SelectionFragment implements DrawLis
 	@Override
 	public void onStart() {
 		super.onStart();
-		updatePassengers();
+		updateLoads();
 		drawControls.addInfrequentDrawListener(this);
 	}
 
@@ -120,31 +124,67 @@ public class ShipsSelectionFragment extends SelectionFragment implements DrawLis
 
 	@Override
 	public void draw() {
-		passengersLayout.post(this::updatePassengers);
+		passengersLayout.post(this::updateLoads);
 	}
 
-	private void updatePassengers() {
+	private void updateLoads() {
 		List<List<EMovableType>> passengers = new ArrayList<>();
+		List<List<CargoStack>> cargo = new ArrayList<>();
 		for (ISelectable selectable : getSelection()) {
 			if (selectable instanceof IGraphicsFerry) {
 				passengers.add(getPassengerTypes((IGraphicsFerry) selectable));
+			} else if (selectable instanceof IGraphicsCargoShip) {
+				cargo.add(getCargoStacks((IGraphicsCargoShip) selectable));
 			}
 		}
 
-		if (passengers.equals(shownPassengers)) {
+		if (passengers.equals(shownPassengers) && cargo.equals(shownCargo)) {
 			return;
 		}
 		shownPassengers = passengers;
+		shownCargo = cargo;
 
 		passengersLayout.removeAllViews();
-		if (passengers.isEmpty()) {
-			return; // only cargo ships are selected, or the selected ships are gone
+		if (!passengers.isEmpty()) { // otherwise there might be no selected ship left to ask for the civilisation
+			ECivilisation civilisation = getSelection().get(0).getPlayer().getCivilisation();
+			for (List<EMovableType> shipPassengers : passengers) {
+				passengersLayout.addView(createShipRow(civilisation, shipPassengers));
+			}
+		}
+		for (List<CargoStack> shipCargo : cargo) {
+			passengersLayout.addView(createCargoRow(shipCargo));
+		}
+	}
+
+	private static List<CargoStack> getCargoStacks(IGraphicsCargoShip ship) {
+		List<CargoStack> stacks = new ArrayList<>();
+		for (int stack = 0; stack < ship.getNumberOfCargoStacks(); stack++) {
+			int count = ship.getCargoCount(stack);
+			stacks.add(new CargoStack(count > 0 ? ship.getCargoType(stack) : null, count)); // an unloaded stack keeps its old type
+		}
+		return stacks;
+	}
+
+	private View createCargoRow(List<CargoStack> stacks) {
+		int height = getResources().getDimensionPixelSize(R.dimen.menu_tile_occupied_height);
+		int freeHeight = getResources().getDimensionPixelSize(R.dimen.menu_tile_waiting_height);
+
+		LinearLayout row = new LinearLayout(getActivity());
+		row.setGravity(Gravity.CENTER_VERTICAL);
+
+		for (CargoStack stack : stacks) {
+			boolean loaded = stack.material != null;
+
+			ImageView imageView = new ImageView(getActivity());
+			OriginalImageProvider.get(loaded ? stack.material.getIcon() : FREE_SLOT).setAsImage(imageView);
+			row.addView(imageView, new LinearLayout.LayoutParams(0, loaded ? height : freeHeight, 1));
+
+			TextView countTextView = new TextView(getActivity());
+			countTextView.setText(stack.count + "/" + Constants.STACK_SIZE);
+			row.addView(countTextView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 		}
 
-		ECivilisation civilisation = getSelection().get(0).getPlayer().getCivilisation();
-		for (List<EMovableType> shipPassengers : passengers) {
-			passengersLayout.addView(createShipRow(civilisation, shipPassengers));
-		}
+		return row;
 	}
 
 	private static List<EMovableType> getPassengerTypes(IGraphicsFerry ferry) {
@@ -180,6 +220,26 @@ public class ShipsSelectionFragment extends SelectionFragment implements DrawLis
 		row.addView(countTextView);
 
 		return row;
+	}
+
+	private static final class CargoStack {
+		private final EMaterialType material;
+		private final int count;
+
+		private CargoStack(EMaterialType material, int count) {
+			this.material = material;
+			this.count = count;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof CargoStack && ((CargoStack) obj).material == material && ((CargoStack) obj).count == count;
+		}
+
+		@Override
+		public int hashCode() {
+			return 31 * count + (material == null ? 0 : material.ordinal());
+		}
 	}
 
 	@Click(R.id.button_unload)

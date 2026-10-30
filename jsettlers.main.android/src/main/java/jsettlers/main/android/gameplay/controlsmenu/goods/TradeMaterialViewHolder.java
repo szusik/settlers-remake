@@ -52,7 +52,7 @@ public class TradeMaterialViewHolder extends RecyclerView.ViewHolder {
 	}
 
 	private String formatCount(int count) {
-		if (count == 32767) {// Integer.MAX_VALUE) {
+		if (count >= Short.MAX_VALUE) { // the building stores "infinite" as Short.MAX_VALUE and reports it as Integer.MAX_VALUE
 			return "\u221E";
 		} else {
 			return count + "";
