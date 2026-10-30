@@ -37,6 +37,7 @@ import jsettlers.common.player.ECivilisation;
 import jsettlers.common.utils.collections.ChangingList;
 import jsettlers.logic.map.loading.MapLoader;
 import jsettlers.logic.map.loading.list.MapList;
+import jsettlers.logic.map.loading.newmap.MapFileHeader;
 import jsettlers.logic.map.loading.savegame.SavegameLoader;
 import jsettlers.logic.player.InitialGameState;
 import jsettlers.logic.player.PlayerSetting;
@@ -70,7 +71,9 @@ public class MultiplayerGame {
 	private IMultiplayerListener multiplayerListener;
 	private IChatMessageListener chatMessageListener;
 	private boolean iAmTheHost = false;
-	private boolean savedSlotsApplied = false;
+	private boolean aborted = false;
+	private boolean ownNationClaimed = false;
+	private boolean savedHumansMarked = false;
 	private int maxPlayers;
 
 	public MultiplayerGame(AsyncNetworkClientConnector networkClientFactory) {
@@ -81,8 +84,9 @@ public class MultiplayerGame {
 		new Thread("joinGameThread") {
 			@Override
 			public void run() {
-				networkClient = networkClientFactory.getNetworkClient();
-				networkClient.joinMatch(matchId, generateMatchStartedListener(), generateMatchInfoUpdatedListener(), generateChatMessageReceiver());
+				if (connectToServer()) {
+					networkClient.joinMatch(matchId, generateMatchStartedListener(), generateMatchInfoUpdatedListener(), generateChatMessageReceiver());
+				}
 			}
 		}.start();
 		return generateJoiningGame();
@@ -93,16 +97,34 @@ public class MultiplayerGame {
 		new Thread("openNewGameThread") {
 			@Override
 			public void run() {
-				networkClient = networkClientFactory.getNetworkClient();
+				if (connectToServer()) {
+					IMapDefinition mapDefintion = gameInfo.getMapDefinition();
+					MapInfoPacket mapInfo = new MapInfoPacket(mapDefintion.getMapId(), mapDefintion.getMapName(), "", "", mapDefintion.getMaxPlayers());
 
-				IMapDefinition mapDefintion = gameInfo.getMapDefinition();
-				MapInfoPacket mapInfo = new MapInfoPacket(mapDefintion.getMapId(), mapDefintion.getMapName(), "", "", mapDefintion.getMaxPlayers());
-
-				networkClient.openNewMatch(gameInfo.getMatchName(), gameInfo.getMaxPlayers(), mapInfo, 4711L, generateMatchStartedListener(),
-						generateMatchInfoUpdatedListener(), generateChatMessageReceiver());
+					networkClient.openNewMatch(gameInfo.getMatchName(), gameInfo.getMaxPlayers(), mapInfo, 4711L, generateMatchStartedListener(),
+							generateMatchInfoUpdatedListener(), generateChatMessageReceiver());
+				}
 			}
 		}.start();
 		return generateJoiningGame();
+	}
+
+	/**
+	 * Blocks until the connection attempt is finished.
+	 *
+	 * @return True if the client is connected and the user didn't abort in the meantime.
+	 */
+	private boolean connectToServer() {
+		INetworkClient client = networkClientFactory.getNetworkClient();
+		if (client == null) {
+			System.out.println("Can't reach the multiplayer server.");
+			return false;
+		}
+
+		synchronized (this) {
+			networkClient = client;
+			return !aborted;
+		}
 	}
 
 	private IJoiningGame generateJoiningGame() {
@@ -117,7 +139,12 @@ public class MultiplayerGame {
 
 			@Override
 			public void abort() {
-				networkClient.leaveMatch();
+				synchronized (MultiplayerGame.this) {
+					aborted = true; // the user can leave while the client is still connecting
+					if (networkClient != null) {
+						networkClient.leaveMatch();
+					}
+				}
 			}
 		};
 	}
@@ -148,30 +175,82 @@ public class MultiplayerGame {
 	}
 
 	/**
-	 * @return The settings of the players in the saved game or null if this match doesn't continue a saved game.
+	 * @return The header of the saved game or null if this match doesn't continue a saved game.
 	 */
-	private PlayerSetting[] getSavedPlayerSettings() {
+	private MapFileHeader getSavedGameHeader() {
 		MapLoader map = MapList.getDefaultList().getMapById(networkClient.getMatchInfo().getMapInfo().getId());
-		return map instanceof SavegameLoader ? map.getFileHeader().getPlayerSettings() : null;
+		return map instanceof SavegameLoader ? map.getFileHeader() : null;
+	}
+
+	private PlayerSetting[] getSavedPlayerSettings() {
+		MapFileHeader header = getSavedGameHeader();
+		return header != null ? header.getPlayerSettings() : null;
 	}
 
 	/**
-	 * Shows the nations of the saved game in the slots and makes the match wait for the humans that played the game.
+	 * Lets every player take the nation of the saved game again. The host also keeps the slots in line with the saved game and makes the match wait for its other humans.
 	 */
-	private void applySavedSlotsIfNeeded() {
-		PlayerSetting[] savedSettings = iAmTheHost && !savedSlotsApplied ? getSavedPlayerSettings() : null;
-		savedSlotsApplied = true;
-		if (savedSettings == null) {
+	private void syncSlotsWithSavedGame() {
+		MapFileHeader header = getSavedGameHeader();
+		if (header == null) {
 			return;
 		}
 
-		for (byte slot = 0; slot < savedSettings.length; slot++) {
-			PlayerSetting savedSetting = savedSettings[slot];
-			if (savedSetting.isAvailable()) {
-				networkClient.setCivilisation(slot, (byte) savedSetting.getCivilisation().ordinal);
-				networkClient.setTeam(slot, savedSetting.getTeamId());
-				if (savedSetting.getPlayerType() == EPlayerType.HUMAN) {
-					networkClient.setType(slot, (byte) EPlayerType.HUMAN.ordinal());
+		if (!ownNationClaimed) {
+			ownNationClaimed = true;
+			if (claimOwnNation(header)) {
+				return; // the slots get updated again as soon as the server applied the change
+			}
+		}
+
+		if (iAmTheHost) {
+			updateSlotsFromSavedSettings(header.getPlayerSettings());
+		}
+	}
+
+	private boolean claimOwnNation(MapFileHeader header) {
+		Byte savedPlayerId = header.getPlayerId();
+		if (savedPlayerId == null || !header.getPlayerSettings()[savedPlayerId].isAvailable()) {
+			return false;
+		}
+
+		String ownId = networkClient.getPlayerInfo().getId();
+		List<IMultiplayerSlot> slots = slotList.getItems();
+		for (byte slotIndex = 0; slotIndex < slots.size(); slotIndex++) {
+			IMultiplayerSlot slot = slots.get(slotIndex);
+			if (slot.getPlayer() != null && slot.getPlayer().getId().equals(ownId) && slot.getPosition() != savedPlayerId) {
+				networkClient.setPosition(slotIndex, savedPlayerId);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void updateSlotsFromSavedSettings(PlayerSetting[] savedSettings) {
+		boolean markSavedHumans = !savedHumansMarked;
+		savedHumansMarked = true;
+
+		List<IMultiplayerSlot> slots = slotList.getItems();
+		for (byte slotIndex = 0; slotIndex < slots.size(); slotIndex++) {
+			IMultiplayerSlot slot = slots.get(slotIndex);
+			PlayerSetting savedSetting = savedSettings[slot.getPosition()];
+			if (!savedSetting.isAvailable()) {
+				continue;
+			}
+
+			if (slot.getCivilisation() != savedSetting.getCivilisation()) {
+				networkClient.setCivilisation(slotIndex, (byte) savedSetting.getCivilisation().ordinal);
+			}
+			if (slot.getTeam() != savedSetting.getTeamId()) {
+				networkClient.setTeam(slotIndex, savedSetting.getTeamId());
+			}
+
+			if (slot.getPlayer() == null) {
+				boolean savedHuman = savedSetting.getPlayerType() == EPlayerType.HUMAN;
+				if (markSavedHumans && savedHuman && slot.getType() != EPlayerType.HUMAN) {
+					networkClient.setType(slotIndex, (byte) EPlayerType.HUMAN.ordinal());
+				} else if (!savedHuman && slot.getType() == EPlayerType.HUMAN) { // a slot moved here when a player took his nation
+					networkClient.setType(slotIndex, (byte) savedSetting.getPlayerType().ordinal());
 				}
 			}
 		}
@@ -183,10 +262,19 @@ public class MultiplayerGame {
 			return true;
 		}
 
-		return slotList.getItems().stream().allMatch(slot -> {
-			boolean available = savedSettings[slot.getPosition()].isAvailable();
-			return slot.getPlayer() != null ? available : !available || slot.getType() != EPlayerType.HUMAN;
-		});
+		for (IMultiplayerSlot slot : slotList.getItems()) {
+			PlayerSetting savedSetting = savedSettings[slot.getPosition()];
+			if (slot.getPlayer() != null) {
+				if (!savedSetting.isAvailable()) {
+					System.out.println("Can't start: " + slot.getPlayer().getName() + " is on position " + slot.getPosition() + ", which doesn't exist in the saved game.");
+					return false;
+				}
+			} else if (savedSetting.isAvailable() && savedSetting.getPlayerType() == EPlayerType.HUMAN && slot.getType() == EPlayerType.HUMAN) {
+				System.out.println("Can't start: waiting for the human player on position " + slot.getPosition() + ". The host can change this player to a computer.");
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private PlayerSetting[] determinePlayerSettings() {
@@ -229,7 +317,7 @@ public class MultiplayerGame {
 			}
 
 			updateLists(packet.getMatchInfo());
-			applySavedSlotsIfNeeded();
+			syncSlotsWithSavedGame();
 			if(packet.getUpdatedPlayer() != null) {
 				receiveSystemMessage(new MultiplayerPlayer(packet.getUpdatedPlayer()), getNetworkMessageById(packet.getUpdateReason()));
 			}
@@ -372,7 +460,11 @@ public class MultiplayerGame {
 			}
 
 			private boolean areAllPlayersReady() {
-				return playersList.getItems().stream().allMatch(IMultiplayerPlayer::isReady);
+				boolean allReady = playersList.getItems().stream().allMatch(IMultiplayerPlayer::isReady);
+				if (!allReady) {
+					System.out.println("Can't start: not all players are ready.");
+				}
+				return allReady;
 			}
 		};
 	}

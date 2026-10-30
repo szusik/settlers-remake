@@ -147,20 +147,20 @@ public class NetworkStatusTest {
 		assertTrue("the server must not run away from the clients", client1.getLockstepLeadInMs() < 2000);
 	}
 
+	@Test
+	public void testPlayerMayOnlyMoveTheirOwnSlot() throws InterruptedException {
+		joinMatch(3);
+
+		client2.setPosition((byte) 0, (byte) 2);
+		Thread.sleep(150);
+		assertEquals(0, client1.getMatchInfo().getSlots()[0].getPosition());
+
+		client2.setPosition((byte) 1, (byte) 2);
+		waitFor(() -> client1.getMatchInfo().getSlots()[1].getPosition() == 2);
+	}
+
 	private void startMatch() throws InterruptedException {
-		client1.logIn("id1", "first", packet -> {
-		});
-		client2.logIn("id2", "second", packet -> {
-		});
-		waitFor(() -> client1.getState() == EPlayerState.LOGGED_IN && client2.getState() == EPlayerState.LOGGED_IN);
-
-		client1.openNewMatch("match", 2, new MapInfoPacket("map", "map", "", "", 2), 1L, null, packet -> {
-		}, null);
-		waitFor(() -> client1.getState() == EPlayerState.IN_MATCH);
-
-		client2.joinMatch(db.getJoinableMatches().get(0).getId(), null, packet -> {
-		}, null);
-		waitFor(() -> client2.getState() == EPlayerState.IN_MATCH && client1.getMatchInfo().getPlayers().length == 2);
+		joinMatch(2);
 
 		client1.setReadyState(true);
 		client2.setReadyState(true);
@@ -170,6 +170,22 @@ public class NetworkStatusTest {
 		waitFor(() -> client1.isConnected() && client2.isConnected());
 		timer1.startExecution();
 		timer2.startExecution();
+	}
+
+	private void joinMatch(int maxPlayers) throws InterruptedException {
+		client1.logIn("id1", "first", packet -> {
+		});
+		client2.logIn("id2", "second", packet -> {
+		});
+		waitFor(() -> client1.getState() == EPlayerState.LOGGED_IN && client2.getState() == EPlayerState.LOGGED_IN);
+
+		client1.openNewMatch("match", maxPlayers, new MapInfoPacket("map", "map", "", "", maxPlayers), 1L, null, packet -> {
+		}, null);
+		waitFor(() -> client1.getState() == EPlayerState.IN_MATCH);
+
+		client2.joinMatch(db.getJoinableMatches().get(0).getId(), null, packet -> {
+		}, null);
+		waitFor(() -> client2.getState() == EPlayerState.IN_MATCH && client1.getMatchInfo().getPlayers().length == 2);
 	}
 
 	private static void waitFor(BooleanSupplier condition) throws InterruptedException {

@@ -151,6 +151,12 @@ public class Match {
 		}
 	}
 
+	public boolean isSlotOfPlayer(byte slotId, Player player) {
+		synchronized (players) {
+			return players.indexOf(player) == slotId;
+		}
+	}
+
 	public Player getPlayer(String playerId) {
 		synchronized (players) {
 			for (Player curr : players) {

@@ -53,7 +53,9 @@ public abstract class MultiPlayerSetupViewModel extends MapSetupViewModel implem
 
 	@Override
 	public void startGame() {
-		connector.startGame();
+		if (!connector.startGame()) {
+			startRefusedEvent.call();
+		}
 	}
 
 	/**

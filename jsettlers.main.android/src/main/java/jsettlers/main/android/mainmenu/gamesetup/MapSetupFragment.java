@@ -35,6 +35,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 import android.widget.TextView;
 
 import jsettlers.main.android.R;
@@ -139,6 +140,7 @@ public abstract class MapSetupFragment extends Fragment {
 			adapter.setItems(playerSlotPresenters);
 		});
 
+		viewModel.getStartRefusedEvent().observe(this, z -> Toast.makeText(getContext(), R.string.multiplayer_not_all_players_ready, Toast.LENGTH_LONG).show());
 		viewModel.getShowMapEvent().observe(this, z -> {
 			MainMenuNavigator mainMenuNavigator = (MainMenuNavigator) getActivity();
 			mainMenuNavigator.showGame();
@@ -148,9 +150,6 @@ public abstract class MapSetupFragment extends Fragment {
 	@Click(R.id.button_start_game)
 	protected void onStartGameClicked() {
 		viewModel.startGame();
-		// if (!presenter.startGame()) {
-		// Toast.makeText(this.getContext(), R.string.multiplayer_not_all_players_ready, Toast.LENGTH_LONG).show();
-		// }
 	}
 
 	@ItemSelect(R.id.spinner_number_of_players)
@@ -228,6 +227,34 @@ public abstract class MapSetupFragment extends Fragment {
 		private ArrayAdapter<StartPosition> startPositionsAdapter;
 		private ArrayAdapter<Team> teamsAdapter;
 
+		private final SpinnerListener civilisationListener = new SpinnerListener() {
+			@Override
+			void onUserSelected(int position) {
+				presenter.civilisationSelected(civilisationsAdapter.getItem(position));
+			}
+		};
+
+		private final SpinnerListener playerTypeListener = new SpinnerListener() {
+			@Override
+			void onUserSelected(int position) {
+				presenter.playerTypeSelected(playerTypesAdapter.getItem(position));
+			}
+		};
+
+		private final SpinnerListener startPositionListener = new SpinnerListener() {
+			@Override
+			void onUserSelected(int position) {
+				presenter.startPositionSelected(startPositionsAdapter.getItem(position));
+			}
+		};
+
+		private final SpinnerListener teamListener = new SpinnerListener() {
+			@Override
+			void onUserSelected(int position) {
+				presenter.teamSelected(teamsAdapter.getItem(position));
+			}
+		};
+
 		PlayerHolder(View itemView) {
 			super(itemView);
 			this.playerNameTextView = itemView.findViewById(R.id.text_view_player_name);
@@ -241,37 +268,13 @@ public abstract class MapSetupFragment extends Fragment {
 				presenter.readyChanged(checked);
 			});
 
-			civilisationSpinner.setOnItemSelectedListener(new SpinnerListener() {
-				@Override
-				public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-					Civilisation civilisation = civilisationsAdapter.getItem(position);
-					presenter.civilisationSelected(civilisation);
-				}
-			});
+			civilisationSpinner.setOnItemSelectedListener(civilisationListener);
 
-			playerTypeSpinner.setOnItemSelectedListener(new SpinnerListener() {
-				@Override
-				public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-					PlayerType playerType = playerTypesAdapter.getItem(position);
-					presenter.playerTypeSelected(playerType);
-				}
-			});
+			playerTypeSpinner.setOnItemSelectedListener(playerTypeListener);
 
-			startPositionSpinner.setOnItemSelectedListener(new SpinnerListener() {
-				@Override
-				public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-					StartPosition slot = startPositionsAdapter.getItem(position);
-					presenter.startPositionSelected(slot);
-				}
-			});
+			startPositionSpinner.setOnItemSelectedListener(startPositionListener);
 
-			teamSpinner.setOnItemSelectedListener(new SpinnerListener() {
-				@Override
-				public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-					Team team = teamsAdapter.getItem(position);
-					presenter.teamSelected(team);
-				}
-			});
+			teamSpinner.setOnItemSelectedListener(teamListener);
 		}
 
 		@Override
@@ -292,7 +295,7 @@ public abstract class MapSetupFragment extends Fragment {
 
 		@Override
 		public void setCivilisation(Civilisation civilisation) {
-			civilisationSpinner.setSelection(civilisationsAdapter.getPosition(civilisation));
+			civilisationListener.showSelection(civilisationSpinner, civilisationsAdapter.getPosition(civilisation));
 		}
 
 		@Override
@@ -303,8 +306,7 @@ public abstract class MapSetupFragment extends Fragment {
 
 		@Override
 		public void setPlayerType(PlayerType playerType) {
-			playerTypeSpinner.setSelection(playerTypesAdapter.getPosition(playerType));
-
+			playerTypeListener.showSelection(playerTypeSpinner, playerTypesAdapter.getPosition(playerType));
 		}
 
 		@Override
@@ -315,7 +317,7 @@ public abstract class MapSetupFragment extends Fragment {
 
 		@Override
 		public void setStartPosition(StartPosition slot) {
-			startPositionSpinner.setSelection(startPositionsAdapter.getPosition(slot));
+			startPositionListener.showSelection(startPositionSpinner, startPositionsAdapter.getPosition(slot));
 		}
 
 		@Override
@@ -326,7 +328,7 @@ public abstract class MapSetupFragment extends Fragment {
 
 		@Override
 		public void setTeam(Team team) {
-			teamSpinner.setSelection(teamsAdapter.getPosition(team));
+			teamListener.showSelection(teamSpinner, teamsAdapter.getPosition(team));
 		}
 
 		@Override
@@ -373,7 +375,28 @@ public abstract class MapSetupFragment extends Fragment {
 		}
 	}
 
+	/**
+	 * A spinner also reports selections made by the code, delayed and possibly after the presenter got newer values. These must not be sent to the other players, so only real user selections are
+	 * forwarded.
+	 */
 	private abstract class SpinnerListener implements AdapterView.OnItemSelectedListener {
+		private int shownPosition = -1;
+
+		void showSelection(Spinner spinner, int position) {
+			shownPosition = position;
+			spinner.setSelection(position);
+		}
+
+		abstract void onUserSelected(int position);
+
+		@Override
+		public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+			if (position != shownPosition) {
+				shownPosition = position;
+				onUserSelected(position);
+			}
+		}
+
 		@Override
 		public void onNothingSelected(AdapterView<?> adapterView) {
 			// No op

@@ -44,6 +44,7 @@ public abstract class MapSetupViewModel extends ViewModel implements PositionCha
 	private final MutableLiveData<short[]> image = new MutableLiveData<>();
 	private final MutableLiveData<String> title = new MutableLiveData<>();
 	protected final SingleLiveEvent<Void> showMapEvent = new SingleLiveEvent<>();
+	protected final SingleLiveEvent<Void> startRefusedEvent = new SingleLiveEvent<>();
 	protected final MediatorLiveData<PlayerSlotPresenter[]> playerSlots = new MediatorLiveData<>();
 
 	public MapSetupViewModel(GameStarter gameStarter, MapLoader mapLoader) {
@@ -106,6 +107,10 @@ public abstract class MapSetupViewModel extends ViewModel implements PositionCha
 
 	public LiveData<PlayerSlotPresenter[]> getPlayerSlots() {
 		return playerSlots;
+	}
+
+	public LiveData<Void> getStartRefusedEvent() {
+		return startRefusedEvent;
 	}
 
 	public LiveData<Void> getShowMapEvent() {

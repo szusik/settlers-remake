@@ -231,7 +231,11 @@ public class ServerManager implements IServerManager {
 	@Override
 	public void setPositionForSlot(Player player, byte slot, byte position) {
 		try {
-			Match match = verifyAndGetMatch(player);
+			EPlayerState.assertState(player.getState(), EPlayerState.IN_MATCH);
+			Match match = player.getMatch();
+			if (match.getHost() != player && !match.isSlotOfPlayer(slot, player)) { // players take their nation back when a saved game gets loaded
+				throw new IllegalStateException("Player " + player + " may not move slot " + slot + " of " + match + "!");
+			}
 
 			match.setSlotPosition(slot, position);
 		} catch (IllegalStateException e) {
