@@ -53,9 +53,6 @@ public class GoodsMenuFragment extends Fragment {
 		BottomSheetUtils.setupViewPager(viewPager);
 		viewPager.setAdapter(new GoodsPagerAdapter(getChildFragmentManager()));
 		circleIndicator.setViewPager(viewPager);
-
-		// temporary fix to show the global stock menu first as the others havent been implemented yet
-		viewPager.setCurrentItem(4);
 	}
 
 	private class GoodsPagerAdapter extends FragmentPagerAdapter {
@@ -65,7 +62,7 @@ public class GoodsMenuFragment extends Fragment {
 
 		@Override
 		public int getCount() {
-			return 5;
+			return 4;
 		}
 
 		@Override
@@ -78,8 +75,6 @@ public class GoodsMenuFragment extends Fragment {
 			case 2:
 				return GoodsDistributionFragment.newInstance(playerCivilisation);
 			case 3:
-				return GoodsPrioritiesFragment.newInstance();
-			case 4:
 				return GoodsStockFragment_.builder().build();
 			default:
 				throw new RuntimeException("PagerAdapter count doesn't match available number of Goods menu fragments");
